@@ -258,6 +258,18 @@ constraintid VeriPbProofLogger::get_best_solution_constraint()
     return best_solution_constraint;
 }
 
+constraintid VeriPbProofLogger::get_rewritten_best_solution_constraint(){
+    return rewritten_best_solution_constraint;
+}
+void VeriPbProofLogger::set_rewritten_best_solution_constraint(constraintid cxn){
+    rewritten_best_solution_constraint = cxn;
+}
+void VeriPbProofLogger::delete_rewritten_best_solution_constraint(){
+    delete_constraint<int>(rewritten_best_solution_constraint);
+
+    rewritten_best_solution_constraint = 0;
+}
+
 // ------------- Unchecked Assumptions -------------
 template <class TLit>
 constraintid VeriPbProofLogger::unchecked_assumption(const std::vector<TLit> &lits, const int RHS)
@@ -580,6 +592,13 @@ void VeriPbProofLogger::write_clause(Glucose30::Clause &clause)
 }
 // template void VeriPbProofLogger::write_clause<Glucose30::Clause>(Glucose30::Clause &clause);
 
+void VeriPbProofLogger::write_clause(Minisat::Clause &clause)
+{
+    for (int i = 0; i < clause.size(); i++)
+        write_weighted_literal(clause[i]);
+    proof << " >= 1";
+}
+
 template <template <class T> class TVec, class TLit>
 void VeriPbProofLogger::write_clause(TVec<TLit> &clause)
 {
@@ -609,6 +628,7 @@ constraintid VeriPbProofLogger::log_solution(TVec<TLBool> &model)
     return constraint_counter;
 }
 template constraintid VeriPbProofLogger::log_solution<Glucose30::vec, Glucose30::lbool>(Glucose30::vec<Glucose30::lbool> &model);
+template constraintid VeriPbProofLogger::log_solution<Minisat::vec, Minisat::lbool>(Minisat::vec<Minisat::lbool> &model);
 
 template <template <class T> class TVec, class TLit>
 constraintid VeriPbProofLogger::rup(TVec<TLit> &clause)
@@ -627,6 +647,7 @@ void VeriPbProofLogger::overwrite_constraint(TVec<TLit> &orig, TVec<TLit> &claus
     delete_constraint(orig);
 }
 template void VeriPbProofLogger::overwrite_constraint<Glucose30::vec, Glucose30::Lit>(Glucose30::vec<Glucose30::Lit> &orig, Glucose30::vec<Glucose30::Lit> &clause);
+template void VeriPbProofLogger::overwrite_constraint<Minisat::vec, Minisat::Lit>(Minisat::vec<Minisat::Lit> &orig, Minisat::vec<Minisat::Lit> &clause);
 
 // template <class TClause>
 void VeriPbProofLogger::delete_constraint(Glucose30::Clause &clause)
@@ -636,6 +657,13 @@ void VeriPbProofLogger::delete_constraint(Glucose30::Clause &clause)
     proof << ";\n";
 }
 // template void VeriPbProofLogger::delete_constraint<Glucose30::Clause>(Glucose30::Clause &clause);
+
+void VeriPbProofLogger::delete_constraint(Minisat::Clause &clause)
+{
+    proof << "del find ";
+    write_clause(clause);
+    proof << ";\n";
+}
 
 template <template <class T> class TVec, class TLit>
 void VeriPbProofLogger::delete_constraint(TVec<TLit> &clause)

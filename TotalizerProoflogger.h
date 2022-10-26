@@ -39,7 +39,7 @@ public:
     template <class TVar, class TLit> void prove_ternary_implCls(const TVar &var, const TVar &varchild1, const TVar &varchild2, const std::vector<TLit>& clause_to_derive);
     template <class TVar, class TLit> void prove_binary_invImplCls(const TVar &var, const TVar &varchild, const std::vector<TLit> &leafs_other_child, const std::vector<TLit>& clause_to_derive);
     template <class TVar, class TLit> void prove_ternary_invImplCls(const TVar &var, const TVar &varchild1, const TVar &varchild2, const std::vector<TLit>& clause_to_derive);
-    template <class TLit> void prove_unitclause_constraining_totalizer(const TLit& clause, const int n, const int bestval);
+    template <class TLit> void prove_unitclause_constraining_totalizer(const TLit& clause, const int n, const int bestval, const constraintid best_solution_constraint);
 
     // Structure Sharing
     template <class TVar> void add_parent_using_pb_def(const TVar& var, std::map<VeriPB::Var, constraintid>& pb_def_store, std::map<VeriPB::Var, constraintid>& pb_def_parents);

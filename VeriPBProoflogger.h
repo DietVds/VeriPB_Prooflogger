@@ -37,6 +37,8 @@ class VeriPbProofLogger
     std::vector<int> objective_weights;
     int best_objective_value = INT_MAX;
     constraintid best_solution_constraint; // Last model improvement constraint
+    constraintid rewritten_best_solution_constraint = 0; // last rewritten model improvement constraint. 0 means that it hasn't been rewritten. 
+
 
     // Constraint counter
     //
@@ -47,12 +49,6 @@ class VeriPbProofLogger
     std::stringstream pol_string;
 
 public:
-    // Tree derivation
-    //
-    int variable_counter = 0;
-
-    
-
     // Meaningful variable names
     std::map<VeriPB::Var, std::string> meaningful_names_store;
 
@@ -117,6 +113,9 @@ public:
     template <class TLit>
     constraintid log_solution_with_check(const std::vector<TLit> &model);
     constraintid get_best_solution_constraint();
+    constraintid get_rewritten_best_solution_constraint();
+    void set_rewritten_best_solution_constraint(constraintid cxn);
+    void delete_rewritten_best_solution_constraint();
 
     // ------------- Unchecked Assumptions -------------
     template <class TLit>
@@ -195,6 +194,7 @@ public:
      ****************************************/
 
     void write_clause(Glucose30::Clause &clause);
+    void write_clause(Minisat::Clause &clause);
     template <template <class T> class TVec, class TLit>
     void write_clause(TVec<TLit> &clause);
     template <class TLBool>
@@ -206,6 +206,7 @@ public:
     template <template <class T> class TVec, class TLit>
     void overwrite_constraint(TVec<TLit> &orig, TVec<TLit> &clause);
     void delete_constraint(Glucose30::Clause &clause);
+    void delete_constraint(Minisat::Clause &clause);
     template <template <class T> class TVec, class TLit>
     void delete_constraint(TVec<TLit> &clause);
 };

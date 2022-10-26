@@ -19,6 +19,30 @@ void MaxSATProoflogger::add_blocking_literal_for_var(TVar var, constraintid cxn_
 }
 template void MaxSATProoflogger::add_blocking_literal_for_var<int>(int var, constraintid cxn_id, bool negated_blocking_literal);
 
+template <class TVar, class TLit>
+void MaxSATProoflogger::add_unit_clause_blocking_literal_for_var(TVar var, constraintid cxn_id, TLit unitclause, bool negated_blocking_literal){
+    add_blocking_literal_for_var(var, cxn_id, negated_blocking_literal);
+
+    std::vector<VeriPB::Lit> cls;
+    cls.push_back(toVeriPbLit(unitclause));
+    cls.push_back(toVeriPbLit(var));
+
+    constraintid c_id = PL->redundanceBasedStrengthening(cls, 1, toVeriPbLit(var));
+
+    extended_unitclauses.push_back(c_id);
+}
+template void MaxSATProoflogger::add_unit_clause_blocking_literal_for_var<int, int>(int var, constraintid cxn_id, int unitclause, bool negated_blocking_literal);
+template void MaxSATProoflogger::add_unit_clause_blocking_literal_for_var<int, Minisat::Lit>(int var, constraintid cxn_id, Minisat::Lit unitclause, bool negated_blocking_literal);
+
+constraintid MaxSATProoflogger::rewrite_model_improvement_constraint_with_extended_unitclauses(){
+    PL->start_CP_derivation(PL->get_best_solution_constraint());
+
+    for(int i = 0; i < extended_unitclauses.size(); i++)
+        PL->CP_add_constraint(extended_unitclauses[i]);
+
+    return PL->end_CP_derivation();
+}
+
 //=================================================================================================
 // Objective reformulation
 
@@ -88,6 +112,7 @@ constraintid MaxSATProoflogger::base_reform_unit_core(constraintid base_reform_i
     PL->delete_constraint<int>(base_reform_id);
     return new_base_reform_id;
 }
+
 
 //=================================================================================================
 // At-most-one constraints

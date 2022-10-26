@@ -30,12 +30,13 @@ template <class TVar, class TLit>
 void TotalizerProoflogger::store_meaningful_name_counting_var(const TVar& var, const int n, const std::vector<TLit>& leafs){
     if(meaningful_names_counting_vars){
         std::string mn = PL->var_name(var) + "_v" ;
-        for(int i = 0; i < leafs.size(); i++) 
+        for(int i = 0; i < leafs.size(); i++)
             mn += "-x" + PL->to_string(leafs[i]);
         PL->store_meaningful_name(var, mn);
     }
 }
 template void TotalizerProoflogger::store_meaningful_name_counting_var<int, int>(const int& var, const int n, const std::vector<int>& leafs);
+
 
 // ------------- Totalizer functions: PB definitions -------------
 template <class TVar, class TLit>
@@ -168,13 +169,13 @@ template void TotalizerProoflogger::prove_ternary_invImplCls<int, int>(const int
 
 
 template <class TLit>
-void TotalizerProoflogger::prove_unitclause_constraining_totalizer(const TLit& c, const int n, const int bestval)
+void TotalizerProoflogger::prove_unitclause_constraining_totalizer(const TLit& c, const int n, const int bestval, const int best_solution_constraint)
 {
     if (PB_invImpl_cxn_store.find(variable(c)) != PB_invImpl_cxn_store.end()){ 
         constraintid pbdef_var = PB_invImpl_cxn_store[variable(c)];
         
         PL->start_CP_derivation(pbdef_var);
-        PL->CP_add_constraint(PL->get_best_solution_constraint());
+        PL->CP_add_constraint(best_solution_constraint);
         PL->CP_divide(n-bestval+1);
         PL->CP_saturate();
         PL->end_CP_derivation();
@@ -183,11 +184,13 @@ void TotalizerProoflogger::prove_unitclause_constraining_totalizer(const TLit& c
         PL->delete_constraint<int>(pbdef_var);
         PB_invImpl_cxn_store.erase(pbdef_var);
 
-        std::vector<TLit> cls; cls.push_back(c);
+        std::vector<VeriPB::Lit> cls; cls.push_back(toVeriPbLit(c));
         PL->check_last_constraint(cls);  
     }
 }
-template void TotalizerProoflogger::prove_unitclause_constraining_totalizer<int>(const int& c, const int n, const int bestval);
+template void TotalizerProoflogger::prove_unitclause_constraining_totalizer<int>(const int& c, const int n, const int bestval, const constraintid best_solution_constraint);
+template void TotalizerProoflogger::prove_unitclause_constraining_totalizer<Minisat::Lit>(const Minisat::Lit& c, const int n, const int bestval, const constraintid best_solution_constraint);
+
 
 // ------------- Structure Sharing -------------
 template <class TVar> 
