@@ -34,11 +34,10 @@ public:
     template <class TVar, class TLit>   void write_PBdef_invImpl(const TVar& var, const std::vector<TLit> &leafs, const int j);
 
     // Totalizer functions: CP derivations of totalizer clauses
-    // TODO: add the constraints that should be derived as a extra argumentT
-    template <class TVar, class TLit> void prove_binary_implCls(const TVar &var, const TVar &varchild, const std::vector<TLit> &leafs_other_child, const std::vector<TLit>& clause_to_derive);
-    template <class TVar, class TLit> void prove_ternary_implCls(const TVar &var, const TVar &varchild1, const TVar &varchild2, const std::vector<TLit>& clause_to_derive);
-    template <class TVar, class TLit> void prove_binary_invImplCls(const TVar &var, const TVar &varchild, const std::vector<TLit> &leafs_other_child, const std::vector<TLit>& clause_to_derive);
-    template <class TVar, class TLit> void prove_ternary_invImplCls(const TVar &var, const TVar &varchild1, const TVar &varchild2, const std::vector<TLit>& clause_to_derive);
+    template <class TVar, class TLit> void prove_binary_implCls(const TVar &var, const TVar &varchild, const std::vector<TLit> &leafs_varchild, const std::vector<TLit> &leafs_other_child, const std::vector<TLit>& clause_to_derive);
+    template <class TVar, class TLit> void prove_ternary_implCls(const TVar &var, const TVar &varchild1, const TVar &varchild2, const std::vector<TLit> &leafs1, const std::vector<TLit> &leafs2, const std::vector<TLit>& clause_to_derive);
+    template <class TVar, class TLit> void prove_binary_invImplCls(const TVar &var, const TVar &varchild, const std::vector<TLit> &leafs_varchild, const std::vector<TLit> &leafs_other_child, const std::vector<TLit>& clause_to_derive);
+    template <class TVar, class TLit> void prove_ternary_invImplCls(const TVar &var, const TVar &varchild1, const TVar &varchild2, const std::vector<TLit> &leafs1, const std::vector<TLit> &leafs2, const std::vector<TLit>& clause_to_derive);
     template <class TLit> void prove_unitclause_constraining_totalizer(const TLit& clause, const int n, const int bestval, const constraintid best_solution_constraint);
 
     // Structure Sharing

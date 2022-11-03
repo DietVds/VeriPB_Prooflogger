@@ -6,13 +6,33 @@
 
 void VeriPbProofLogger::start_proof(const std::string filename, int nbclause, int nbvars)
 {
-    proof_file = filename;
-    proof.open(filename);
-    write_proof_header(nbclause);
-    constraint_counter = (constraintid)nbclause;
-    n_variables = nbvars;
+    init_proof_file(filename);
+    write_proof_header(nbclause, nbvars);
 }
 
+// TODO: check usage of this method
+void VeriPbProofLogger::start_proof(const std::string filename, int nbvars)
+{
+    init_proof_file(filename);
+    write_proof_header(nbvars);
+}
+
+void VeriPbProofLogger::init_proof_file(const std::string filename)
+{
+    proof_file = filename;
+    proof.open(filename);
+}
+
+void VeriPbProofLogger::write_proof_header(int nbclause, int nbvars)
+{
+    constraint_counter = (constraintid)nbclause;
+    n_variables = nbvars;
+
+    proof << "pseudo-Boolean proof version 1.0\n";
+    proof << "f " << nbclause << "\n";
+}
+
+// TODO: check where this one is used, since another one is used in the prooflogger in certified-cgss
 void VeriPbProofLogger::write_proof_header(int nbclause)
 {
     proof << "pseudo-Boolean proof version 1.0\n";
@@ -455,7 +475,7 @@ void VeriPbProofLogger::CP_multiply(const int v)
 template <class TVar>
 void VeriPbProofLogger::CP_weakening(const TVar &var)
 {
-    pol_string << " " << var_name(var) << " w";
+    pol_string << " " << var_name(variable(var)) << " w";
 }
 template void VeriPbProofLogger::CP_weakening<int>(const int &var);
 

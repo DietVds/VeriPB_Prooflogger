@@ -70,9 +70,9 @@ constraintid MaxSATProoflogger::update_core_lower_bound(const TVar &old_lazy_var
 
     // Update lower bound
     PL->start_CP_derivation(core_lower_bounds[core_idx]);
-    PL->CP_multiply(bound - 1);
+    PL->CP_multiply(bound);
     PL->CP_add_constraint(pb_definition_id);
-    PL->CP_divide(bound);
+    PL->CP_divide(bound+1);
     constraintid new_lower_bound_id = PL->end_CP_derivation();
     PL->delete_constraint<int>(core_lower_bounds[core_idx]);
     core_lower_bounds[core_idx] = new_lower_bound_id;
@@ -133,7 +133,8 @@ constraintid MaxSATProoflogger::derive_at_most_one_constraint(const std::vector<
             constraintid binary_clause_id = PL->rup(std::vector<TLit>{am1_lits[new_lit_idx], am1_lits[lit_idx]});
             binary_clauses.push_back(binary_clause_id);
 
-            if (new_lit_idx == 1) // the first binary constraint to start the derivation
+            // the first binary constraint to start the derivation
+            if (new_lit_idx == 1)
             {
                 PL->start_CP_derivation(binary_clause_id);
             }
@@ -156,15 +157,15 @@ template <class TLit>
 constraintid MaxSATProoflogger::introduce_at_most_one_selector(const std::vector<TLit> &am1_lits, const TLit &select_all_lit)
 {
     std::vector<TLit> constraint_lits = am1_lits;
-    constraint_lits.push_back(neg(select_all_lit));
+    constraint_lits.push_back(select_all_lit);
 
-    constraintid reified_am1_constraint_id = PL->redundanceBasedStrengthening(constraint_lits, am1_lits.size(), neg(select_all_lit));
+    constraintid reified_am1_constraint_id = PL->redundanceBasedStrengthening(constraint_lits, am1_lits.size(), select_all_lit);
 
     for (int i = 0; i < constraint_lits.size(); i++)
     {
         constraint_lits[i] = neg(constraint_lits[i]);
     }
-    PL->redundanceBasedStrengthening(constraint_lits, 1, select_all_lit);
+    PL->redundanceBasedStrengthening(constraint_lits, 1, neg(select_all_lit));
 
     return reified_am1_constraint_id;
 }

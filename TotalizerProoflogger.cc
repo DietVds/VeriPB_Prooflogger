@@ -29,14 +29,13 @@ template constraintid TotalizerProoflogger::get_PbDef_invImpl_CxnId<int>(int& va
 template <class TVar, class TLit>
 void TotalizerProoflogger::store_meaningful_name_counting_var(const TVar& var, const int n, const std::vector<TLit>& leafs){
     if(meaningful_names_counting_vars){
-        std::string mn = PL->var_name(var) + "_v" ;
-        for(int i = 0; i < leafs.size(); i++)
+        std::string mn = PL->var_name(var) + "_v" + std::to_string(n) ;
+        for(int i = 0; i < leafs.size(); i++) 
             mn += "-x" + PL->to_string(leafs[i]);
         PL->store_meaningful_name(var, mn);
     }
 }
 template void TotalizerProoflogger::store_meaningful_name_counting_var<int, int>(const int& var, const int n, const std::vector<int>& leafs);
-
 
 // ------------- Totalizer functions: PB definitions -------------
 template <class TVar, class TLit>
@@ -50,6 +49,10 @@ template void TotalizerProoflogger::write_PBdefs<int, int>(const int& var, const
 template <class TVar, class TLit>
 void TotalizerProoflogger::write_PBdef_impl(const TVar& var, const std::vector<TLit> &leafs, const int j)
 {
+    std::string l;
+    for(int i = 0; i < leafs.size(); i++) l += " " + PL->to_string(leafs[i]);
+    PL->write_comment("P->" + std::to_string(j) + " for var " + PL->to_string(var) + " with leafs: " + l);
+
     std::vector<TLit> lits; lits.resize(leafs.size() + 1);
     std::vector<int> weights; weights.resize(leafs.size() + 1);
 
@@ -71,6 +74,10 @@ template void TotalizerProoflogger::write_PBdef_impl<int, int>(const int& var, c
 template <class TVar, class TLit>
 void TotalizerProoflogger::write_PBdef_invImpl(const TVar& var, const std::vector<TLit> &leafs, const int j)
 {
+    std::string l;
+    for(int i = 0; i < leafs.size(); i++) l += " " + PL->to_string(leafs[i]);
+    PL->write_comment("P<-" + std::to_string(j) + " for var " + PL->to_string(var) + " with leafs: " + l);
+
     std::vector<TLit> lits; lits.resize(leafs.size() + 1);
     std::vector<int> weights; weights.resize(leafs.size() + 1);
 
@@ -90,12 +97,12 @@ template void TotalizerProoflogger::write_PBdef_invImpl<int, int>(const int& var
 
 // ------------- Totalizer functions: CP derivations of totalizer clauses -------------
 template <class TVar, class TLit>
-void TotalizerProoflogger::prove_binary_implCls(const TVar &var, const TVar &varchild, const std::vector<TLit> &leafs_other_child, const std::vector<TLit>& clause_to_derive)
+void TotalizerProoflogger::prove_binary_implCls(const TVar &var, const TVar &varchild, const std::vector<TLit> &leafs_varchild, const std::vector<TLit> &leafs_other_child, const std::vector<TLit>& clause_to_derive)
 {
-    PL->write_comment("prove_binary_implCls");
+    PL->write_comment("prove_binary_implCls - var = " + PL->to_string(var) + " varchild = " + PL->to_string(varchild));
     PL->start_CP_derivation(PB_impl_cxn_store[var]);
 
-    if (PB_invImpl_cxn_store.find(varchild) != PB_invImpl_cxn_store.end())
+    if (leafs_varchild.size() > 1 && PB_invImpl_cxn_store.find(varchild) != PB_invImpl_cxn_store.end())
         PL->CP_add_constraint(PB_invImpl_cxn_store[varchild]);
 
     for (int i = 0; i < leafs_other_child.size(); i++)
@@ -106,19 +113,19 @@ void TotalizerProoflogger::prove_binary_implCls(const TVar &var, const TVar &var
 
     PL->check_last_constraint(clause_to_derive);   
 }
-template void TotalizerProoflogger::prove_binary_implCls<int, int>(const int &var, const int &varchild, const std::vector<int> &leafs_other_child, const std::vector<int>& clause_to_derive);
+template void TotalizerProoflogger::prove_binary_implCls<int, int>(const int &var, const int &varchild, const std::vector<int> &leafs_varchild, const std::vector<int> &leafs_other_child, const std::vector<int>& clause_to_derive);
 
 
 template <class TVar, class TLit>
-void TotalizerProoflogger::prove_ternary_implCls(const TVar &var, const TVar &varchild1, const TVar &varchild2, const std::vector<TLit>& clause_to_derive)
+void TotalizerProoflogger::prove_ternary_implCls(const TVar &var, const TVar &varchild1, const TVar &varchild2, const std::vector<TLit> &leafs1, const std::vector<TLit> &leafs2, const std::vector<TLit>& clause_to_derive)
 {
     PL->write_comment("prove_ternary_implCls");
     PL->start_CP_derivation(PB_impl_cxn_store[var]);
 
-    if (PB_invImpl_cxn_store.find(varchild1) != PB_invImpl_cxn_store.end()) // Don't write the P1/P2 definitions for alpha=1, since the counting variable is then equal to the variable itself.
+    if (leafs1.size() > 1 && PB_invImpl_cxn_store.find(varchild1) != PB_invImpl_cxn_store.end()) // Don't write the P1/P2 definitions for alpha=1, since the counting variable is then equal to the variable itself.
         PL->CP_add_constraint(PB_invImpl_cxn_store[varchild1]);
     
-    if (PB_invImpl_cxn_store.find(varchild2) != PB_invImpl_cxn_store.end()) // Don't write the P1/P2 definitions for beta=1, since the counting variable is then equal to the variable itself.
+    if (leafs2.size() > 1 && PB_invImpl_cxn_store.find(varchild2) != PB_invImpl_cxn_store.end()) // Don't write the P1/P2 definitions for beta=1, since the counting variable is then equal to the variable itself.
         PL->CP_add_constraint(PB_invImpl_cxn_store[varchild2]);
 
     PL->CP_saturate();
@@ -126,15 +133,15 @@ void TotalizerProoflogger::prove_ternary_implCls(const TVar &var, const TVar &va
 
     PL->check_last_constraint(clause_to_derive);
 }
-template void TotalizerProoflogger::prove_ternary_implCls<int, int>(const int &var, const int &varchild1, const int &varchild2, const std::vector<int>& clause_to_derive);
+template void TotalizerProoflogger::prove_ternary_implCls<int, int>(const int &var, const int &varchild1, const int &varchild2, const std::vector<int> &leafs1, const std::vector<int> &leafs2, const std::vector<int>& clause_to_derive);
 
 template <class TVar, class TLit>
-void TotalizerProoflogger::prove_binary_invImplCls(const TVar &var, const TVar &varchild, const std::vector<TLit> &leafs_other_child, const std::vector<TLit>& clause_to_derive)
+void TotalizerProoflogger::prove_binary_invImplCls(const TVar &var, const TVar &varchild, const std::vector<TLit> &leafs_varchild, const std::vector<TLit> &leafs_other_child, const std::vector<TLit>& clause_to_derive)
 {
     PL->write_comment("prove_binary_invImplCls");
     PL->start_CP_derivation(PB_invImpl_cxn_store[var]);
 
-    if (PB_impl_cxn_store.find(varchild) != PB_impl_cxn_store.end())
+    if (leafs_varchild.size() > 1 && PB_impl_cxn_store.find(varchild) != PB_impl_cxn_store.end())
         PL->CP_add_constraint(PB_impl_cxn_store[varchild]);
 
     for (int i = 0; i < leafs_other_child.size(); i++) // Weaken the leafs of the other child
@@ -145,19 +152,19 @@ void TotalizerProoflogger::prove_binary_invImplCls(const TVar &var, const TVar &
 
     PL->check_last_constraint(clause_to_derive);
 }
-template void TotalizerProoflogger::prove_binary_invImplCls<int, int>(const int &var, const int &varchild, const std::vector<int> &leafs_other_child, const std::vector<int>& clause_to_derive);
+template void TotalizerProoflogger::prove_binary_invImplCls<int, int>(const int &var, const int &varchild, const std::vector<int> &leafs_varchild, const std::vector<int> &leafs_other_child, const std::vector<int>& clause_to_derive);
 
 
 template <class TVar, class TLit>
-void TotalizerProoflogger::prove_ternary_invImplCls(const TVar &var, const TVar &varchild1, const TVar &varchild2, const std::vector<TLit>& clause_to_derive)
+void TotalizerProoflogger::prove_ternary_invImplCls(const TVar &var, const TVar &varchild1, const TVar &varchild2, const std::vector<TLit> &leafs1, const std::vector<TLit> &leafs2, const std::vector<TLit>& clause_to_derive)
 {
     PL->write_comment("prove_ternary_invImplCls");
     PL->start_CP_derivation(PB_invImpl_cxn_store[var]);
 
-    if (PB_impl_cxn_store.find(varchild1) != PB_impl_cxn_store.end()) // Don't write the P1/P2 definitions for alpha=1, since the counting variable is then equal to the variable itself.
+    if (leafs1.size() > 1 && PB_impl_cxn_store.find(varchild1) != PB_impl_cxn_store.end()) // Don't write the P1/P2 definitions for alpha=1, since the counting variable is then equal to the variable itself.
         PL->CP_add_constraint(PB_impl_cxn_store[varchild1]);
     
-    if (PB_impl_cxn_store.find(varchild2) != PB_impl_cxn_store.end()) // Don't write the P1/P2 definitions for beta=1, since the counting variable is then equal to the variable itself.
+    if (leafs2.size() > 1 &&  PB_impl_cxn_store.find(varchild2) != PB_impl_cxn_store.end()) // Don't write the P1/P2 definitions for beta=1, since the counting variable is then equal to the variable itself.
         PL->CP_add_constraint(PB_impl_cxn_store[varchild2]);
     
     PL->CP_saturate();
@@ -165,7 +172,7 @@ void TotalizerProoflogger::prove_ternary_invImplCls(const TVar &var, const TVar 
 
     PL->check_last_constraint(clause_to_derive);
 }
-template void TotalizerProoflogger::prove_ternary_invImplCls<int, int>(const int &var, const int &varchild1, const int &varchild2, const std::vector<int>& clause_to_derive);
+template void TotalizerProoflogger::prove_ternary_invImplCls<int, int>(const int &var, const int &varchild1, const int &varchild2, const std::vector<int> &leafs1, const std::vector<int> &leafs2, const std::vector<int>& clause_to_derive);
 
 
 template <class TLit>

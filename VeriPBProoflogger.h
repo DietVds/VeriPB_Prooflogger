@@ -16,6 +16,7 @@
  * Rewrite redundance based for a map from variables to union of literals or boolean value.
  * -> Can use the std::variant (C++ 17).
  * Dominance rule
+ * Check where the rewritten best solution is needed! Probably for using with QMaxSAT! Add this to MaxSATProoflogger.
  */
 
 //=================================================================================================
@@ -62,7 +63,10 @@ public:
     std::ofstream proof;
     std::string proof_file = "maxsat_proof.pbp";
     void start_proof(const std::string name, int nbclause, int nbvars);
+    void start_proof(const std::string name, int nbvars);
+    void init_proof_file(const std::string name);
     void end_proof();
+    void write_proof_header(int nbclause, int nbvars);
     void write_proof_header(int nbclause);
     void set_objective(const std::vector<int> &lits, const std::vector<int> &weights);
 
