@@ -26,6 +26,7 @@ typedef int constraintid;
 
 class VeriPbProofLogger
 {
+private:
     // Formula information
     // Only used for the variable naming scheme.
     // Variables in the input starts with x,
@@ -34,12 +35,17 @@ class VeriPbProofLogger
 
     // Objective function
     //
-    std::vector<int> objective_lits;
+    std::vector<VeriPB::Lit> objective_lits;
     std::vector<int> objective_weights;
     int best_objective_value = INT_MAX;
     constraintid best_solution_constraint; // Last model improvement constraint
     constraintid rewritten_best_solution_constraint = 0; // last rewritten model improvement constraint. 0 means that it hasn't been rewritten. 
 
+    // Meaningful variable names
+    std::map<VeriPB::Var, std::string> meaningful_names_store;
+
+    // Variables to be rewritten by literals.
+    std::map<VeriPB::Var,VeriPB::Lit> map_rewrite_var_by_literal;
 
     // Constraint counter
     //
@@ -50,14 +56,7 @@ class VeriPbProofLogger
     std::stringstream pol_string;
 
 public:
-    // Meaningful variable names
-    std::map<VeriPB::Var, std::string> meaningful_names_store;
 
-    // Variables_to_syntactically negate in the proof file (used for translation of MaxSAT instances to VeriPB proofs).
-    //std::set<VarID> variables_to_negate_in_proof;
-
-    // TODO: This will be combined into one map from VeriPB::Var to VeriPB::Lit
-    std::map<VeriPB::Var,VeriPB::Lit> rewrite_var_by_literal;
 
     // Proof file
     std::ofstream proof;
@@ -68,7 +67,9 @@ public:
     void end_proof();
     void write_proof_header(int nbclause, int nbvars);
     void write_proof_header(int nbclause);
-    void set_objective(const std::vector<int> &lits, const std::vector<int> &weights);
+
+    template<class TLit>
+    void set_objective(const std::vector<TLit> &lits, const std::vector<int> &weights);
 
     // ------------- Helping functions -------------
     void write_comment(const char *comment);
@@ -96,6 +97,10 @@ public:
     void store_meaningful_name(const TVar &var, const std::string &name);
     template <class TVar>
     void delete_meaningful_name(const TVar &var);
+
+    // ------------- Rewrite variables by literals -------------
+    template <class TVar, class TLit>
+    void rewrite_variable_by_literal(const TVar& var, const TLit& lit);
 
     // ------------- Rules for checking constraints -------------
     template <class TLit>

@@ -17,16 +17,37 @@ public:
     /// @param PL The main VeriPB prooflogger.
     MaxSATProoflogger(VeriPbProofLogger *PL);
 
-    // Functions for translating MaxSAT to PBO
+    // 
+
+    /************************************************
+     * Functions for translating MaxSAT to PBO
+     ************************************************/ 
+
+    /// @brief Given a relaxed soft clause C v l, translate literal l over var to ~_b<constraint_id> as it is expected by the VeriPB proof format.
+    /// @tparam TVar 
+    /// @param var The variable that is used in the blocking literal.
+    /// @param cxn_id The constraint id of the constraint that is relaxed by the relaxation variable.
+    /// @param negated_blocking_literal Boolean whether the blocking literal is a negation. 
     template <class TVar>
     void add_blocking_literal_for_var(TVar var, constraintid cxn_id, bool negated_blocking_literal = true);
 
+    /// @brief Function to support solvers that also extend unit clauses with a blocking literal. This will add a clause of the form u v ~l, with u the unit soft clause and l the blocking literal. 
+    /// @tparam TVar 
+    /// @tparam TLit 
+    /// @param var The variable that is used in the blocking literal.
+    /// @param cxn_id The constraint id of the constraint that is relaxed by the relaxation variable.
+    /// @param unitclause The unit clause that is extended by a blocking literal.
+    /// @param negated_blocking_literal Boolean whether the blocking literal is a negation. 
     template <class TVar, class TLit>
     void add_unit_clause_blocking_literal_for_var(TVar var, constraintid cxn_id, TLit unitclause, bool negated_blocking_literal = true);
 
+    /// @brief Rewriting the model improvement constraint in terms of the blocking literals for the unit clauses that are extended by a blocking literal.
+    /// @return The constraint id of the rewritten model improvement constraint.
     constraintid rewrite_model_improvement_constraint_with_extended_unitclauses();
 
-    // Functions to help with objective reformulation
+    /************************************************
+     * Functions to help with OLL's objective reformulation
+     ************************************************/ 
 
     /// @brief Add the lower bound on the input variables of a core to the database. This functions is intended to add the lower bound up to counter variable with index 2.
     /// @tparam TVar
@@ -65,7 +86,10 @@ public:
     /// @return Constraint ID of the updated base objective reformulation constraint.
     constraintid base_reform_unit_core(constraintid base_reform_id, constraintid core_id, int weight);
 
-    // Functions for proof logging at-most-one constraints
+
+    /************************************************
+     * Functions for proof logging at-most-one constraints
+     ************************************************/ 
 
     /// @brief Derive the at-most-one constraint as a pseudo-Boolean constraint, which is the sum of the literals is at least the number of literals - 1.
     /// @tparam TLit

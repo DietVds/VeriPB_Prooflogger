@@ -15,7 +15,7 @@ void MaxSATProoflogger::add_blocking_literal_for_var(TVar var, constraintid cxn_
     // VeriPB expects the blocking literal added to the clauses to be a negated blocking variable. 
     // If the solver adds a non-negated blocking literal to clauses, all literals over this variable have to be negated throughout the proof.
     if(!negated_blocking_literal)
-        PL->rewrite_var_by_literal[var] = neg(var);
+        PL->rewrite_variable_by_literal(var, neg(var));
 }
 template void MaxSATProoflogger::add_blocking_literal_for_var<int>(int var, constraintid cxn_id, bool negated_blocking_literal);
 
