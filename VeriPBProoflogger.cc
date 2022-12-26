@@ -2,6 +2,9 @@
 
 //=================================================================================================
 
+//prooflogging Library
+
+
 // ------------- Proof file -------------
 
 void VeriPbProofLogger::start_proof(const std::string filename, int nbclause, int nbvars)
@@ -10,7 +13,6 @@ void VeriPbProofLogger::start_proof(const std::string filename, int nbclause, in
     write_proof_header(nbclause, nbvars);
 }
 
-// TODO: check usage of this method
 void VeriPbProofLogger::start_proof(const std::string filename, int nbvars)
 {
     init_proof_file(filename);
@@ -32,12 +34,12 @@ void VeriPbProofLogger::write_proof_header(int nbclause, int nbvars)
     proof << "f " << nbclause << "\n";
 }
 
-void VeriPbProofLogger::write_proof_header(int nbclause)
+void VeriPbProofLogger::write_proof_header(int nbvars)
 {
-    constraint_counter = (constraintid)nbclause;
+    n_variables = nbvars;
 
     proof << "pseudo-Boolean proof version 1.0\n";
-    proof << "f " << nbclause << "\n";
+    proof << "f\n";
 }
 
 void VeriPbProofLogger::end_proof()
@@ -46,7 +48,7 @@ void VeriPbProofLogger::end_proof()
 }
 
 template<class TLit>
-void VeriPbProofLogger::set_objective(const std::vector<TLit> &lits, const std::vector<int> &weights)
+void VeriPbProofLogger::set_objective(const std::vector<TLit> &lits, const std::vector<int> &weights, int constant_cost)
 {
     objective_lits.reserve(lits.size());
 
@@ -55,8 +57,17 @@ void VeriPbProofLogger::set_objective(const std::vector<TLit> &lits, const std::
     }
 
     objective_weights = weights;
+    objective_constant_cost = constant_cost;
 }
 
+void VeriPbProofLogger::write_comment_objective_function()
+{
+    proof << "* f = ";
+    for (int i = 0; i < objective_lits.size(); i++)
+        write_weighted_literal(objective_lits[i], objective_weights[i]);
+    proof << " + " << std::to_string(objective_constant_cost);
+    proof << "\n";
+}
 
 // ------------- Helping functions -------------
 
@@ -247,7 +258,7 @@ template void VeriPbProofLogger::check_last_constraint<Minisat::Lit>(const std::
 template <class TLit>
 int VeriPbProofLogger::calculate_objective_value(const std::vector<TLit> &model)
 {
-    int objective_value = 0;
+    int objective_value = objective_constant_cost;
     int model_start_idx = 0;
     for (int objective_idx = 0; objective_idx < objective_lits.size(); objective_idx++)
     {
@@ -300,6 +311,7 @@ constraintid VeriPbProofLogger::log_solution_with_check(const std::vector<TLit> 
     int current_objective_value = calculate_objective_value(model);
     if (current_objective_value < best_objective_value)
     {
+        write_comment("Objective update from " + std::to_string(best_objective_value) + " to " + std::to_string(current_objective_value));
         best_solution_constraint = log_solution(model);
         best_objective_value = current_objective_value;
     }

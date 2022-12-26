@@ -6,6 +6,9 @@
 //=================================================================================================
 // Prooflogger
 
+//prooflogging Library
+
+
 class TotalizerProoflogger
 {
 public:
@@ -43,6 +46,7 @@ public:
     // Structure Sharing
     template <class TVar> void add_parent_using_pb_def(const TVar& var, std::map<VeriPB::Var, constraintid>& pb_def_store, std::map<VeriPB::Var, constraintid>& pb_def_parents);
     template <class TVar> void ss_set_nr_parents_using_pb_def(const TVar& var, int n);
+    template <class TVar> int ss_get_nr_parents_using_pb_def(const TVar& var);
     template <class TVar> void ss_add_parent_using_pb_def(const TVar& var);
 
     // Deletes (Totalizer)
@@ -50,7 +54,7 @@ public:
     template <class TVar> void delete_PB_Impl_def(const TVar &var);
     template <class TVar> void delete_PB_invImpl_def(const TVar &var);
     template <class TVar> void delete_P_definition(const TVar& var, std::map<TVar, constraintid>& pb_cxn_store, std::map<TVar, int>& pb_nrUsed_store);
-    template <class TVar> void delete_unnecessary_PBdefs(const std::vector<TVar> &av, const std::vector<TVar> &bv, const std::vector<TVar> &ov, const bool iterative_encoded = true);
+    template <class TVar> void delete_unnecessary_PBdefs_childnodes(const std::vector<TVar> &av, const std::vector<TVar> &bv, const int parent_nr_lits_previous, const int parent_nr_lits_current,  const bool iterative_encoded = true);
 private: 
     VeriPbProofLogger* PL;
 };
