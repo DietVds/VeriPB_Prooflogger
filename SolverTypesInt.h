@@ -13,6 +13,7 @@
 //          - ~ operator
 //          
 //===================================================
+//prooflogging Library
 
 #ifndef SolverTypes_Int_h
 #define SolverTypes_Int_h

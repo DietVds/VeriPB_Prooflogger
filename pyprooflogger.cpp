@@ -8,6 +8,8 @@ namespace py = pybind11;
 #include "TotalizerProoflogger.h"
 #include "MaxSATProoflogger.h"
 
+//prooflogging Library
+
 template <typename... Args>
 using overload_cast_ = pybind11::detail::overload_cast_impl<Args...>;
 

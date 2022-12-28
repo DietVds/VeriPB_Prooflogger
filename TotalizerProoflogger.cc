@@ -4,6 +4,9 @@
 //=================================================================================================
 // Constructor
 
+//prooflogging Library
+
+
 TotalizerProoflogger::TotalizerProoflogger(VeriPbProofLogger *PL) : PL(PL){}
 
 // ------------- Constraint Stores -------------
@@ -231,6 +234,12 @@ void TotalizerProoflogger::ss_set_nr_parents_using_pb_def(const TVar& var, int n
 }
 template void TotalizerProoflogger::ss_set_nr_parents_using_pb_def<int>(const int& var, int n);
 
+template <class TVar> 
+int TotalizerProoflogger::ss_get_nr_parents_using_pb_def(const TVar& var){
+    assert(PB_impl_cxn_store.find(var) != PB_impl_cxn_store.end());
+
+    return PB_impl_nrUsed_store[var];
+}
 // ------------- Deletes (Totalizer) -------------
 template <class TVar> 
 void TotalizerProoflogger::delete_PB_definitions(const TVar& var){
@@ -270,7 +279,7 @@ void TotalizerProoflogger::delete_P_definition(const TVar& var, std::map<TVar, c
 template void TotalizerProoflogger::delete_P_definition<int>(const int& var, std::map<int, constraintid>& pb_cxn_store, std::map<int, int>& pb_nrUsed_store);
 
 template <class TVar> 
-void TotalizerProoflogger::delete_unnecessary_PBdefs(const std::vector<TVar>& av, const std::vector<TVar>& bv, const std::vector<TVar>& ov, const bool iterative_encoding_needed){
+void TotalizerProoflogger::delete_unnecessary_PBdefs_childnodes(const std::vector<TVar>& av, const std::vector<TVar>& bv, const int parent_nr_lits_previous, const int parent_nr_lits_current, const bool iterative_encoding_needed){
     // Deleting unnecessary PB variable definitions
 	PL->write_comment("Deleting unnecessary PB variable definitions");
 
@@ -294,21 +303,19 @@ void TotalizerProoflogger::delete_unnecessary_PBdefs(const std::vector<TVar>& av
 		// then the definitions of the variable representing at least a true input variables 
 		// is not needed anymore. It will not be used to define any value greater than ov.size, 
 		// which is the current largest value already.
-		int max_delete_a = ov.size() - bv.size(); 
-		int max_delete_b = ov.size() - av.size();
-
-        PL->write_comment("Del PB-defs for a: " + std::to_string(max_delete_a) + " b: " + std::to_string(max_delete_b) );
+		int max_delete_a = parent_nr_lits_current - bv.size(); 
+		int max_delete_b = parent_nr_lits_current - av.size();
+        int min_deletes_a = parent_nr_lits_previous - bv.size(); // TODO: Check this!!!
+        int min_deletes_b = parent_nr_lits_previous - av.size();
         
-        for (int i = 0; i < max_delete_a; i++) {
-            PL->write_comment("Del PB-defs for " + PL->var_name(av[i]));
+        for (int i = std::max(0, min_deletes_a); i < max_delete_a; i++) {
             delete_PB_definitions(av[i]);
         }
 			
-		for (int i = 0; i < max_delete_b; i++){
-            PL->write_comment("Del PB-defs for " + PL->var_name(bv[i]));
+		for (int i = std::max(0, min_deletes_b); i < max_delete_b; i++){
 			delete_PB_definitions(bv[i]);
         }
 	}
 }
-template void TotalizerProoflogger::delete_unnecessary_PBdefs<int>(const std::vector<int>& av, const std::vector<int>& bv, const std::vector<int>& ov, const bool iterative_encoding_needed);
+template void TotalizerProoflogger::delete_unnecessary_PBdefs_childnodes<int>(const std::vector<int>& av, const std::vector<int>& bv, const int parent_nr_lits_current, const int parent_nr_lits_previous, const bool iterative_encoding_needed);
 // -------------------------------------------------------

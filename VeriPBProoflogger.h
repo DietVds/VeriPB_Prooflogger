@@ -11,12 +11,13 @@
 // NOTE! Should include definition for types Var, Lit and Clause
 #include "SolverTypesInt.h"
 
+//prooflogging Library
+
 /**
  * TODOs
  * Rewrite redundance based for a map from variables to union of literals or boolean value.
  * -> Can use the std::variant (C++ 17).
  * Dominance rule
- * Check where the rewritten best solution is needed! Probably for using with QMaxSAT! Add this to MaxSATProoflogger.
  */
 
 //=================================================================================================
@@ -26,6 +27,7 @@ typedef int constraintid;
 
 class VeriPbProofLogger
 {
+private:
     // Formula information
     // Only used for the variable naming scheme.
     // Variables in the input starts with x,
@@ -34,13 +36,22 @@ class VeriPbProofLogger
 
     // Objective function
     //
-    std::vector<int> objective_lits;
+    std::vector<VeriPB::Lit> objective_lits;
     std::vector<int> objective_weights;
+<<<<<<< HEAD
     int objective_constant_cost = 0;
+=======
+    int objective_constant_cost;
+>>>>>>> b14db82aba21d003058ebd49f76f876f50ad8978
     int best_objective_value = INT_MAX;
     constraintid best_solution_constraint; // Last model improvement constraint
     constraintid rewritten_best_solution_constraint = 0; // last rewritten model improvement constraint. 0 means that it hasn't been rewritten. 
 
+    // Meaningful variable names
+    std::map<VeriPB::Var, std::string> meaningful_names_store;
+
+    // Variables to be rewritten by literals.
+    std::map<VeriPB::Var,VeriPB::Lit> map_rewrite_var_by_literal;
 
     // Constraint counter
     //
@@ -51,14 +62,7 @@ class VeriPbProofLogger
     std::stringstream pol_string;
 
 public:
-    // Meaningful variable names
-    std::map<VeriPB::Var, std::string> meaningful_names_store;
 
-    // Variables_to_syntactically negate in the proof file (used for translation of MaxSAT instances to VeriPB proofs).
-    //std::set<VarID> variables_to_negate_in_proof;
-
-    // TODO: This will be combined into one map from VeriPB::Var to VeriPB::Lit
-    std::map<VeriPB::Var,VeriPB::Lit> rewrite_var_by_literal;
 
 
     // Proof file
@@ -69,6 +73,7 @@ public:
     void init_proof_file(const std::string name);
     void end_proof();
     void write_proof_header(int nbclause, int nbvars);
+<<<<<<< HEAD
     void write_proof_header(int nbclause);
     void increase_n_variables();
 
@@ -76,6 +81,13 @@ public:
     void set_objective(const std::vector<int> &lits, const std::vector<int> &weights);
     template <class TLit> 
     void add_objective_literal(TLit lit, int weight);
+=======
+    void write_proof_header(int nbvars);
+
+    template<class TLit>
+    void set_objective(const std::vector<TLit> &lits, const std::vector<int> &weights, int constant_cost = 0);
+
+>>>>>>> b14db82aba21d003058ebd49f76f876f50ad8978
     void write_comment_objective_function();
 
     // ------------- Helping functions -------------
@@ -104,6 +116,10 @@ public:
     void store_meaningful_name(const TVar &var, const std::string &name);
     template <class TVar>
     void delete_meaningful_name(const TVar &var);
+
+    // ------------- Rewrite variables by literals -------------
+    template <class TVar, class TLit>
+    void rewrite_variable_by_literal(const TVar& var, const TLit& lit);
 
     // ------------- Rules for checking constraints -------------
     template <class TLit>
