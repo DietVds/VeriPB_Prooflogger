@@ -38,11 +38,7 @@ private:
     //
     std::vector<VeriPB::Lit> objective_lits;
     std::vector<int> objective_weights;
-<<<<<<< HEAD
     int objective_constant_cost = 0;
-=======
-    int objective_constant_cost;
->>>>>>> b14db82aba21d003058ebd49f76f876f50ad8978
     int best_objective_value = INT_MAX;
     constraintid best_solution_constraint; // Last model improvement constraint
     constraintid rewritten_best_solution_constraint = 0; // last rewritten model improvement constraint. 0 means that it hasn't been rewritten. 
@@ -73,21 +69,14 @@ public:
     void init_proof_file(const std::string name);
     void end_proof();
     void write_proof_header(int nbclause, int nbvars);
-<<<<<<< HEAD
     void write_proof_header(int nbclause);
     void increase_n_variables();
 
     // Objective Function 
-    void set_objective(const std::vector<int> &lits, const std::vector<int> &weights);
+    void set_objective(const std::vector<int> &lits, const std::vector<int> &weights, int constant = 0);
     template <class TLit> 
     void add_objective_literal(TLit lit, int weight);
-=======
-    void write_proof_header(int nbvars);
-
-    template<class TLit>
-    void set_objective(const std::vector<TLit> &lits, const std::vector<int> &weights, int constant_cost = 0);
-
->>>>>>> b14db82aba21d003058ebd49f76f876f50ad8978
+    void add_objective_constant(int weight);
     void write_comment_objective_function();
 
     // ------------- Helping functions -------------

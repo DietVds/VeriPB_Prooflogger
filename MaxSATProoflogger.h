@@ -12,11 +12,8 @@ class MaxSATProoflogger
     std::vector<int> core_weights;
     std::map<VeriPB::Var, int> counting_var_to_core_idx;
 
-<<<<<<< HEAD
     std::vector<constraintid> extended_unitclauses; 
 
-=======
->>>>>>> b14db82aba21d003058ebd49f76f876f50ad8978
 public:
     /// @brief Constructor of the MaxSAT prooflogger object.
     /// @param PL The main VeriPB prooflogger.
@@ -24,7 +21,6 @@ public:
 
     //=============================================================================================
     // Functions for translating MaxSAT to PBO
-<<<<<<< HEAD
     template <class TLit>
     void add_blocking_literal(TLit lit, constraintid cxn_id);
 
@@ -33,21 +29,6 @@ public:
 
     constraintid rewrite_model_improvement_constraint_with_extended_unitclauses();
 
-=======
-
-    /// @brief Relates a blocking literal with the corresponding variable.
-    ///
-    /// This function adds the name of the corresponding blocking literal to the database of known meaningful names for the the given (internal) variable such that the naming is equal to the naming in VeriPB.
-    ///
-    /// @tparam TVar Type of the boolean variables.
-    /// @param var Variable of the blocking literal known to the solver.
-    /// @param cxn_id Constraint ID of the soft clause this variable originates from. This is equivalent to the parsing in VeriPB.
-    /// @param negated_blocking_literal If true, the blocking literal is added to the clause in negated form (RC2 style). If false, the literal is added in non-negated form to the clause (QMaxSAT style). This parameter handles interpretation of the blocking variables, i.e. when do they incur cost.
-    template <class TVar>
-    void add_blocking_literal_for_var(TVar var, constraintid cxn_id, bool negated_blocking_literal = true);
-
-    //=============================================================================================
->>>>>>> b14db82aba21d003058ebd49f76f876f50ad8978
     // Functions to help with objective reformulation
 
     /// @brief Add the lower bound on the input variables of a core to the database of lower bounds for the collected cores. This functions is intended to add the lower bound up to the counter variable with index 2.
