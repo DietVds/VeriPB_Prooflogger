@@ -196,7 +196,7 @@ void TotalizerProoflogger::prove_unitclause_constraining_totalizer(const TLit& c
     }
 }
 template void TotalizerProoflogger::prove_unitclause_constraining_totalizer<int>(const int& c, const int n, const int bestval, const constraintid best_solution_constraint);
-template void TotalizerProoflogger::prove_unitclause_constraining_totalizer<Minisat::Lit>(const Minisat::Lit& c, const int n, const int bestval, const constraintid best_solution_constraint);
+template void TotalizerProoflogger::prove_unitclause_constraining_totalizer<Glucose::Lit>(const Glucose::Lit& c, const int n, const int bestval, const constraintid best_solution_constraint);
 
 
 // ------------- Structure Sharing -------------

@@ -50,6 +50,26 @@ void VeriPbProofLogger::set_objective(const std::vector<int> &lits, const std::v
     objective_weights = weights;
 }
 
+template <class TLit> 
+void VeriPbProofLogger::add_objective_literal(TLit lit, int weight){
+    objective_lits.push_back(toVeriPbLit(lit));
+    objective_weights.push_back(weight);
+}
+template void VeriPbProofLogger::add_objective_literal<Glucose::Lit>(Glucose::Lit lit, int weight);
+
+void VeriPbProofLogger::write_comment_objective_function()
+{
+    proof << "* f = ";
+    for (int i = 0; i < objective_lits.size(); i++)
+        write_weighted_literal(objective_lits[i], objective_weights[i]);
+    if(objective_constant_cost != 0)
+        proof << " + " << std::to_string(objective_constant_cost);
+    proof << "\n";
+}
+
+void VeriPbProofLogger::increase_n_variables(){
+    n_variables++;
+}
 // ------------- Helping functions -------------
 
 void VeriPbProofLogger::write_comment(const char *comment)
@@ -99,7 +119,7 @@ void VeriPbProofLogger::write_weighted_literal(const TLit &literal, int weight)
     write_literal<TLit>(literal);
 }
 template void VeriPbProofLogger::write_weighted_literal<int>(const int &literal, int weight);
-template void VeriPbProofLogger::write_weighted_literal<Glucose30::Lit>(const Glucose30::Lit &literal, int weight);
+template void VeriPbProofLogger::write_weighted_literal<Glucose::Lit>(const Glucose::Lit &literal, int weight);
 
 template <class TLit>
 std::string VeriPbProofLogger::to_string(const TLit &lit)
@@ -123,7 +143,7 @@ void VeriPbProofLogger::write_literal(const TLit &lit)
     }
 }
 template void VeriPbProofLogger::write_literal<int>(const int &lit);
-template void VeriPbProofLogger::write_literal<Glucose30::Lit>(const Glucose30::Lit &lit);
+template void VeriPbProofLogger::write_literal<Glucose::Lit>(const Glucose::Lit &lit);
 
 template <class TLit>
 void VeriPbProofLogger::write_cardinality_constraint(const std::vector<TLit> &lits, const int RHS)
@@ -133,7 +153,7 @@ void VeriPbProofLogger::write_cardinality_constraint(const std::vector<TLit> &li
     proof << ">= " << RHS;
 }
 template void VeriPbProofLogger::write_cardinality_constraint<int>(const std::vector<int> &lits, const int RHS);
-template void VeriPbProofLogger::write_cardinality_constraint<Glucose30::Lit>(const std::vector<Glucose30::Lit> &lits, const int RHS);
+template void VeriPbProofLogger::write_cardinality_constraint<Glucose::Lit>(const std::vector<Glucose::Lit> &lits, const int RHS);
 
 template <class TLit>
 void VeriPbProofLogger::write_clause(const std::vector<TLit> &clause)
@@ -141,7 +161,7 @@ void VeriPbProofLogger::write_clause(const std::vector<TLit> &clause)
     write_cardinality_constraint(clause, 1);
 }
 template void VeriPbProofLogger::write_clause<int>(const std::vector<int> &clause);
-template void VeriPbProofLogger::write_clause<Glucose30::Lit>(const std::vector<Glucose30::Lit> &clause);
+template void VeriPbProofLogger::write_clause<Glucose::Lit>(const std::vector<Glucose::Lit> &clause);
 
 template <class TLit>
 void VeriPbProofLogger::write_PB_constraint(const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS)
@@ -151,7 +171,7 @@ void VeriPbProofLogger::write_PB_constraint(const std::vector<TLit> &lits, const
     proof << ">= " << RHS;
 }
 template void VeriPbProofLogger::write_PB_constraint<int>(const std::vector<int> &lits, const std::vector<int> &weights, const int RHS);
-template void VeriPbProofLogger::write_PB_constraint<Glucose30::Lit>(const std::vector<Glucose30::Lit> &lits, const std::vector<int> &weights, const int RHS);
+template void VeriPbProofLogger::write_PB_constraint<Glucose::Lit>(const std::vector<Glucose::Lit> &lits, const std::vector<int> &weights, const int RHS);
 
 // ------------- Meaningful names -------------
 
@@ -179,7 +199,7 @@ void VeriPbProofLogger::equals_rule(const constraintid constraint_id, const std:
     proof << ";\n";
 }
 template void VeriPbProofLogger::equals_rule<int>(const constraintid constraint_id, const std::vector<int> &lits, const int RHS);
-template void VeriPbProofLogger::equals_rule<Glucose30::Lit>(const constraintid constraint_id, const std::vector<Glucose30::Lit> &lits, const int RHS);
+template void VeriPbProofLogger::equals_rule<Glucose::Lit>(const constraintid constraint_id, const std::vector<Glucose::Lit> &lits, const int RHS);
 
 template <class TLit>
 void VeriPbProofLogger::equals_rule(const constraintid constraint_id, const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS)
@@ -189,7 +209,7 @@ void VeriPbProofLogger::equals_rule(const constraintid constraint_id, const std:
     proof << ";\n";
 }
 template void VeriPbProofLogger::equals_rule<int>(const constraintid constraint_id, const std::vector<int> &lits, const std::vector<int> &weights, const int RHS);
-template void VeriPbProofLogger::equals_rule<Glucose30::Lit>(const constraintid constraint_id, const std::vector<Glucose30::Lit> &lits, const std::vector<int> &weights, const int RHS);
+template void VeriPbProofLogger::equals_rule<Glucose::Lit>(const constraintid constraint_id, const std::vector<Glucose::Lit> &lits, const std::vector<int> &weights, const int RHS);
 
 template <class TLit>
 void VeriPbProofLogger::check_last_constraint(const std::vector<TLit> &lits, const int RHS)
@@ -197,7 +217,7 @@ void VeriPbProofLogger::check_last_constraint(const std::vector<TLit> &lits, con
     equals_rule(constraint_counter, lits, RHS);
 }
 template void VeriPbProofLogger::check_last_constraint<int>(const std::vector<int> &lits, const int RHS);
-template void VeriPbProofLogger::check_last_constraint<Glucose30::Lit>(const std::vector<Glucose30::Lit> &lits, const int RHS);
+template void VeriPbProofLogger::check_last_constraint<Glucose::Lit>(const std::vector<Glucose::Lit> &lits, const int RHS);
 
 template <class TLit>
 void VeriPbProofLogger::check_last_constraint(const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS)
@@ -205,7 +225,7 @@ void VeriPbProofLogger::check_last_constraint(const std::vector<TLit> &lits, con
     equals_rule(constraint_counter, lits, weights, RHS);
 }
 template void VeriPbProofLogger::check_last_constraint<int>(const std::vector<int> &lits, const std::vector<int> &weights, const int RHS);
-template void VeriPbProofLogger::check_last_constraint<Glucose30::Lit>(const std::vector<Glucose30::Lit> &lits, const std::vector<int> &weights, const int RHS);
+template void VeriPbProofLogger::check_last_constraint<Glucose::Lit>(const std::vector<Glucose::Lit> &lits, const std::vector<int> &weights, const int RHS);
 
 // ------------- Rules for optimisation -------------
 
@@ -257,7 +277,7 @@ constraintid VeriPbProofLogger::log_solution(const std::vector<TLit> &model)
     return constraint_counter;
 }
 template constraintid VeriPbProofLogger::log_solution<int>(const std::vector<int> &model);
-template constraintid VeriPbProofLogger::log_solution<Glucose30::Lit>(const std::vector<Glucose30::Lit> &model);
+template constraintid VeriPbProofLogger::log_solution<Glucose::Lit>(const std::vector<Glucose::Lit> &model);
 
 template <class TLit>
 constraintid VeriPbProofLogger::log_solution_with_check(const std::vector<TLit> &model)
@@ -300,7 +320,7 @@ constraintid VeriPbProofLogger::unchecked_assumption(const std::vector<TLit> &li
     return ++constraint_counter;
 }
 template constraintid VeriPbProofLogger::unchecked_assumption<int>(const std::vector<int> &lits, const int RHS);
-template constraintid VeriPbProofLogger::unchecked_assumption<Glucose30::Lit>(const std::vector<Glucose30::Lit> &lits, const int RHS);
+template constraintid VeriPbProofLogger::unchecked_assumption<Glucose::Lit>(const std::vector<Glucose::Lit> &lits, const int RHS);
 
 template <class TLit>
 constraintid VeriPbProofLogger::unchecked_assumption(const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS)
@@ -311,7 +331,7 @@ constraintid VeriPbProofLogger::unchecked_assumption(const std::vector<TLit> &li
     return ++constraint_counter;
 }
 template constraintid VeriPbProofLogger::unchecked_assumption<int>(const std::vector<int> &lits, const std::vector<int> &weights, const int RHS);
-template constraintid VeriPbProofLogger::unchecked_assumption<Glucose30::Lit>(const std::vector<Glucose30::Lit> &lits, const std::vector<int> &weights, const int RHS);
+template constraintid VeriPbProofLogger::unchecked_assumption<Glucose::Lit>(const std::vector<Glucose::Lit> &lits, const std::vector<int> &weights, const int RHS);
 
 // ------------- Reverse Unit Propagation -------------
 template <class TLit>
@@ -323,7 +343,7 @@ constraintid VeriPbProofLogger::rup(const std::vector<TLit> &lits, const int RHS
     return ++constraint_counter;
 }
 template constraintid VeriPbProofLogger::rup<int>(const std::vector<int> &lits, const int RHS);
-template constraintid VeriPbProofLogger::rup<Glucose30::Lit>(const std::vector<Glucose30::Lit> &lits, const int RHS);
+template constraintid VeriPbProofLogger::rup<Glucose::Lit>(const std::vector<Glucose::Lit> &lits, const int RHS);
 
 template <class TLit>
 constraintid VeriPbProofLogger::rup(const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS)
@@ -334,7 +354,7 @@ constraintid VeriPbProofLogger::rup(const std::vector<TLit> &lits, const std::ve
     return ++constraint_counter;
 }
 template constraintid VeriPbProofLogger::rup<int>(const std::vector<int> &lits, const std::vector<int> &weights, const int RHS);
-template constraintid VeriPbProofLogger::rup<Glucose30::Lit>(const std::vector<Glucose30::Lit> &lits, const std::vector<int> &weights, const int RHS);
+template constraintid VeriPbProofLogger::rup<Glucose::Lit>(const std::vector<Glucose::Lit> &lits, const std::vector<int> &weights, const int RHS);
 
 //  ------------- Dominance Rule -------------
 
@@ -362,7 +382,7 @@ void VeriPbProofLogger::write_witness(const TLit &literal)
     
 }
 template void VeriPbProofLogger::write_witness<int>(const int &literal);
-template void VeriPbProofLogger::write_witness<Glucose30::Lit>(const Glucose30::Lit &literal);
+template void VeriPbProofLogger::write_witness<Glucose::Lit>(const Glucose::Lit &literal);
 
 template <class TLit>
 void VeriPbProofLogger::write_witness(const std::vector<TLit> &witness)
@@ -373,7 +393,7 @@ void VeriPbProofLogger::write_witness(const std::vector<TLit> &witness)
     }
 }
 template void VeriPbProofLogger::write_witness<int>(const std::vector<int> &witness);
-template void VeriPbProofLogger::write_witness<Glucose30::Lit>(const std::vector<Glucose30::Lit> &witness);
+template void VeriPbProofLogger::write_witness<Glucose::Lit>(const std::vector<Glucose::Lit> &witness);
 
 template <class TLit>
 constraintid VeriPbProofLogger::redundanceBasedStrengthening(const std::vector<TLit> &lits, const int RHS, const TLit &witness)
@@ -386,7 +406,7 @@ constraintid VeriPbProofLogger::redundanceBasedStrengthening(const std::vector<T
     return ++constraint_counter;
 }
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<int>(const std::vector<int> &lits, const int RHS, const int &witness);
-template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Glucose30::Lit>(const std::vector<Glucose30::Lit> &lits, const int RHS, const Glucose30::Lit &witness);
+template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Glucose::Lit>(const std::vector<Glucose::Lit> &lits, const int RHS, const Glucose::Lit &witness);
 
 template <class TLit>
 constraintid VeriPbProofLogger::redundanceBasedStrengthening(const std::vector<TLit> &lits, const int RHS, const std::vector<TLit> &witness)
@@ -399,7 +419,7 @@ constraintid VeriPbProofLogger::redundanceBasedStrengthening(const std::vector<T
     return ++constraint_counter;
 }
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<int>(const std::vector<int> &lits, const int RHS, const std::vector<int> &witness);
-template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Glucose30::Lit>(const std::vector<Glucose30::Lit> &lits, const int RHS, const std::vector<Glucose30::Lit> &witness);
+template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Glucose::Lit>(const std::vector<Glucose::Lit> &lits, const int RHS, const std::vector<Glucose::Lit> &witness);
 
 template <class TLit>
 constraintid VeriPbProofLogger::redundanceBasedStrengthening(const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS, const TLit &witness)
@@ -412,7 +432,7 @@ constraintid VeriPbProofLogger::redundanceBasedStrengthening(const std::vector<T
     return ++constraint_counter;
 }
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<int>(const std::vector<int> &lits, const std::vector<int> &weights, const int RHS, const int &witness);
-template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Glucose30::Lit>(const std::vector<Glucose30::Lit> &lits, const std::vector<int> &weights, const int RHS, const Glucose30::Lit &witness);
+template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Glucose::Lit>(const std::vector<Glucose::Lit> &lits, const std::vector<int> &weights, const int RHS, const Glucose::Lit &witness);
 
 template <class TLit>
 constraintid VeriPbProofLogger::redundanceBasedStrengthening(const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS, const std::vector<TLit> &witness)
@@ -425,7 +445,7 @@ constraintid VeriPbProofLogger::redundanceBasedStrengthening(const std::vector<T
     return ++constraint_counter;
 }
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<int>(const std::vector<int> &lits, const std::vector<int> &weights, const int RHS, const std::vector<int> &witness);
-template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Glucose30::Lit>(const std::vector<Glucose30::Lit> &lits, const std::vector<int> &weights, const int RHS, const std::vector<Glucose30::Lit> &witness);
+template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Glucose::Lit>(const std::vector<Glucose::Lit> &lits, const std::vector<int> &weights, const int RHS, const std::vector<Glucose::Lit> &witness);
 
 // ------------- Cutting Planes derivations -------------
 
@@ -442,7 +462,7 @@ void VeriPbProofLogger::start_CP_derivation_with_lit_axiom(const TLit &lit)
     pol_string << to_string(lit);
 }
 template void VeriPbProofLogger::start_CP_derivation_with_lit_axiom<int>(const int &lit);
-template void VeriPbProofLogger::start_CP_derivation_with_lit_axiom<Glucose30::Lit>(const Glucose30::Lit &lit);
+template void VeriPbProofLogger::start_CP_derivation_with_lit_axiom<Glucose::Lit>(const Glucose::Lit &lit);
 
 void VeriPbProofLogger::CP_load_constraint(const constraintid constraint_id)
 {
@@ -485,7 +505,7 @@ void VeriPbProofLogger::CP_literal_axiom(const TLit &lit)
     pol_string << " " << to_string(lit);
 }
 template void VeriPbProofLogger::CP_literal_axiom<int>(const int &lit);
-template void VeriPbProofLogger::CP_literal_axiom<Glucose30::Lit>(const Glucose30::Lit &lit);
+template void VeriPbProofLogger::CP_literal_axiom<Glucose::Lit>(const Glucose::Lit &lit);
 
 constraintid VeriPbProofLogger::end_CP_derivation()
 {
@@ -501,7 +521,7 @@ void VeriPbProofLogger::delete_constraint(const constraintid constraint_id)
     proof << "del id " << constraint_id << "\n";
 }
 template void VeriPbProofLogger::delete_constraint<int>(const constraintid constraint_id);
-template void VeriPbProofLogger::delete_constraint<Glucose30::Lit>(const constraintid constraint_id);
+template void VeriPbProofLogger::delete_constraint<Glucose::Lit>(const constraintid constraint_id);
 
 template <class TLit>
 void VeriPbProofLogger::delete_constraint(const std::vector<constraintid> &constraint_ids)
@@ -514,7 +534,7 @@ void VeriPbProofLogger::delete_constraint(const std::vector<constraintid> &const
     proof << "\n";
 }
 template void VeriPbProofLogger::delete_constraint<int>(const std::vector<constraintid> &constraint_ids);
-template void VeriPbProofLogger::delete_constraint<Glucose30::Lit>(const std::vector<constraintid> &constraint_ids);
+template void VeriPbProofLogger::delete_constraint<Glucose::Lit>(const std::vector<constraintid> &constraint_ids);
 
 template <class TLit>
 void VeriPbProofLogger::delete_constraint(const std::vector<TLit> &lits, const int RHS)
@@ -524,7 +544,7 @@ void VeriPbProofLogger::delete_constraint(const std::vector<TLit> &lits, const i
     proof << ";\n";
 }
 template void VeriPbProofLogger::delete_constraint<int>(const std::vector<int> &lits, const int RHS);
-template void VeriPbProofLogger::delete_constraint<Glucose30::Lit>(const std::vector<Glucose30::Lit> &lits, const int RHS);
+template void VeriPbProofLogger::delete_constraint<Glucose::Lit>(const std::vector<Glucose::Lit> &lits, const int RHS);
 
 template <class TLit>
 void VeriPbProofLogger::delete_constraint(const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS)
@@ -534,7 +554,7 @@ void VeriPbProofLogger::delete_constraint(const std::vector<TLit> &lits, const s
     proof << ";\n";
 }
 template void VeriPbProofLogger::delete_constraint<int>(const std::vector<int> &lits, const std::vector<int> &weights, const int RHS);
-template void VeriPbProofLogger::delete_constraint<Glucose30::Lit>(const std::vector<Glucose30::Lit> &lits, const std::vector<int> &weights, const int RHS);
+template void VeriPbProofLogger::delete_constraint<Glucose::Lit>(const std::vector<Glucose::Lit> &lits, const std::vector<int> &weights, const int RHS);
 
 template <class TLit>
 constraintid VeriPbProofLogger::overwrite_constraint(const constraintid constraint_id, const std::vector<TLit> &lits, const int RHS)
@@ -544,7 +564,7 @@ constraintid VeriPbProofLogger::overwrite_constraint(const constraintid constrai
     return newconstraint;
 }
 template constraintid VeriPbProofLogger::overwrite_constraint<int>(const constraintid constraint_id, const std::vector<int> &lits, const int RHS);
-template constraintid VeriPbProofLogger::overwrite_constraint<Glucose30::Lit>(const constraintid constraint_id, const std::vector<Glucose30::Lit> &lits, const int RHS);
+template constraintid VeriPbProofLogger::overwrite_constraint<Glucose::Lit>(const constraintid constraint_id, const std::vector<Glucose::Lit> &lits, const int RHS);
 
 template <class TLit>
 constraintid VeriPbProofLogger::overwrite_constraint(const std::vector<TLit> &lits_orig, const int RHS_orig, const std::vector<TLit> &lits, const int RHS)
@@ -554,7 +574,7 @@ constraintid VeriPbProofLogger::overwrite_constraint(const std::vector<TLit> &li
     return newconstraint;
 }
 template constraintid VeriPbProofLogger::overwrite_constraint<int>(const std::vector<int> &lits_orig, const int RHS_orig, const std::vector<int> &lits, const int RHS);
-template constraintid VeriPbProofLogger::overwrite_constraint<Glucose30::Lit>(const std::vector<Glucose30::Lit> &lits_orig, const int RHS_orig, const std::vector<Glucose30::Lit> &lits, const int RHS);
+template constraintid VeriPbProofLogger::overwrite_constraint<Glucose::Lit>(const std::vector<Glucose::Lit> &lits_orig, const int RHS_orig, const std::vector<Glucose::Lit> &lits, const int RHS);
 
 template <class TLit>
 constraintid VeriPbProofLogger::overwrite_constraint(const constraintid constraint_id, const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS)
@@ -564,7 +584,7 @@ constraintid VeriPbProofLogger::overwrite_constraint(const constraintid constrai
     return newconstraint;
 }
 template constraintid VeriPbProofLogger::overwrite_constraint<int>(const constraintid constraint_id, const std::vector<int> &lits, const std::vector<int> &weights, const int RHS);
-template constraintid VeriPbProofLogger::overwrite_constraint<Glucose30::Lit>(const constraintid constraint_id, const std::vector<Glucose30::Lit> &lits, const std::vector<int> &weights, const int RHS);
+template constraintid VeriPbProofLogger::overwrite_constraint<Glucose::Lit>(const constraintid constraint_id, const std::vector<Glucose::Lit> &lits, const std::vector<int> &weights, const int RHS);
 
 template <class TLit>
 constraintid VeriPbProofLogger::overwrite_constraint(const std::vector<TLit> &lits_orig, const std::vector<int> &weights_orig, const int RHS_orig, const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS)
@@ -574,7 +594,7 @@ constraintid VeriPbProofLogger::overwrite_constraint(const std::vector<TLit> &li
     return newconstraint;
 }
 template constraintid VeriPbProofLogger::overwrite_constraint<int>(const std::vector<int> &lits_orig, const std::vector<int> &weights_orig, const int RHS_orig, const std::vector<int> &lits, const std::vector<int> &weights, const int RHS);
-template constraintid VeriPbProofLogger::overwrite_constraint<Glucose30::Lit>(const std::vector<Glucose30::Lit> &lits_orig, const std::vector<int> &weights_orig, const int RHS_orig, const std::vector<Glucose30::Lit> &lits, const std::vector<int> &weights, const int RHS);
+template constraintid VeriPbProofLogger::overwrite_constraint<Glucose::Lit>(const std::vector<Glucose::Lit> &lits_orig, const std::vector<int> &weights_orig, const int RHS_orig, const std::vector<Glucose::Lit> &lits, const std::vector<int> &weights, const int RHS);
 
 template <class TLit>
 constraintid VeriPbProofLogger::overwrite_constraint(const std::vector<TLit> &lits_orig, const std::vector<TLit> &lits)
@@ -584,7 +604,7 @@ constraintid VeriPbProofLogger::overwrite_constraint(const std::vector<TLit> &li
     return newconstraint;
 }
 template constraintid VeriPbProofLogger::overwrite_constraint<int>(const std::vector<int> &lits_orig, const std::vector<int> &lits);
-template constraintid VeriPbProofLogger::overwrite_constraint<Glucose30::Lit>(const std::vector<Glucose30::Lit> &lits_orig, const std::vector<Glucose30::Lit> &lits);
+template constraintid VeriPbProofLogger::overwrite_constraint<Glucose::Lit>(const std::vector<Glucose::Lit> &lits_orig, const std::vector<Glucose::Lit> &lits);
 
 // ------------- Handling contradiction -------------
 
@@ -604,20 +624,13 @@ void VeriPbProofLogger::rup_empty_clause()
  ****************************************/
 
 // template <class TClause>
-void VeriPbProofLogger::write_clause(Glucose30::Clause &clause)
+void VeriPbProofLogger::write_clause(Glucose::Clause &clause)
 {
     for (int i = 0; i < clause.size(); i++)
         write_weighted_literal(clause[i]);
     proof << " >= 1";
 }
-// template void VeriPbProofLogger::write_clause<Glucose30::Clause>(Glucose30::Clause &clause);
-
-void VeriPbProofLogger::write_clause(Minisat::Clause &clause)
-{
-    for (int i = 0; i < clause.size(); i++)
-        write_weighted_literal(clause[i]);
-    proof << " >= 1";
-}
+// template void VeriPbProofLogger::write_clause<Glucose::Clause>(Glucose::Clause &clause);
 
 template <template <class T> class TVec, class TLit>
 void VeriPbProofLogger::write_clause(TVec<TLit> &clause)
@@ -626,14 +639,14 @@ void VeriPbProofLogger::write_clause(TVec<TLit> &clause)
         write_weighted_literal(clause[i]);
     proof << " >= 1";
 }
-template void VeriPbProofLogger::write_clause<Glucose30::vec, Glucose30::Lit>(Glucose30::vec<Glucose30::Lit> &clause);
+template void VeriPbProofLogger::write_clause<Glucose::vec, Glucose::Lit>(Glucose::vec<Glucose::Lit> &clause);
 
 template <class TLBool>
 void VeriPbProofLogger::write_literal_assignment(TLBool assignment, int var)
 {
     proof << (toInt(assignment) == 0 ? "" : "~") << var_name(var) << " "; // l_true and g3l_true is defined as 0.
 }
-template void VeriPbProofLogger::write_literal_assignment<Glucose30::lbool>(Glucose30::lbool assignment, int var);
+template void VeriPbProofLogger::write_literal_assignment<Glucose::lbool>(Glucose::lbool assignment, int var);
 
 template <template <class T> class TVec, class TLBool>
 constraintid VeriPbProofLogger::log_solution(TVec<TLBool> &model)
@@ -647,8 +660,8 @@ constraintid VeriPbProofLogger::log_solution(TVec<TLBool> &model)
     best_solution_constraint = ++constraint_counter;
     return constraint_counter;
 }
-template constraintid VeriPbProofLogger::log_solution<Glucose30::vec, Glucose30::lbool>(Glucose30::vec<Glucose30::lbool> &model);
-template constraintid VeriPbProofLogger::log_solution<Minisat::vec, Minisat::lbool>(Minisat::vec<Minisat::lbool> &model);
+template constraintid VeriPbProofLogger::log_solution<Glucose::vec, Glucose::lbool>(Glucose::vec<Glucose::lbool> &model);
+
 
 template <template <class T> class TVec, class TLit>
 constraintid VeriPbProofLogger::rup(TVec<TLit> &clause)
@@ -658,7 +671,7 @@ constraintid VeriPbProofLogger::rup(TVec<TLit> &clause)
     proof << ";\n";
     return ++constraint_counter;
 }
-template constraintid VeriPbProofLogger::rup<Glucose30::vec, Glucose30::Lit>(Glucose30::vec<Glucose30::Lit> &clause);
+template constraintid VeriPbProofLogger::rup<Glucose::vec, Glucose::Lit>(Glucose::vec<Glucose::Lit> &clause);
 
 template <template <class T> class TVec, class TLit>
 void VeriPbProofLogger::overwrite_constraint(TVec<TLit> &orig, TVec<TLit> &clause)
@@ -666,24 +679,16 @@ void VeriPbProofLogger::overwrite_constraint(TVec<TLit> &orig, TVec<TLit> &claus
     rup(clause);
     delete_constraint(orig);
 }
-template void VeriPbProofLogger::overwrite_constraint<Glucose30::vec, Glucose30::Lit>(Glucose30::vec<Glucose30::Lit> &orig, Glucose30::vec<Glucose30::Lit> &clause);
-template void VeriPbProofLogger::overwrite_constraint<Minisat::vec, Minisat::Lit>(Minisat::vec<Minisat::Lit> &orig, Minisat::vec<Minisat::Lit> &clause);
+template void VeriPbProofLogger::overwrite_constraint<Glucose::vec, Glucose::Lit>(Glucose::vec<Glucose::Lit> &orig, Glucose::vec<Glucose::Lit> &clause);
 
 // template <class TClause>
-void VeriPbProofLogger::delete_constraint(Glucose30::Clause &clause)
+void VeriPbProofLogger::delete_constraint(Glucose::Clause &clause)
 {
     proof << "del find ";
     write_clause(clause);
     proof << ";\n";
 }
-// template void VeriPbProofLogger::delete_constraint<Glucose30::Clause>(Glucose30::Clause &clause);
-
-void VeriPbProofLogger::delete_constraint(Minisat::Clause &clause)
-{
-    proof << "del find ";
-    write_clause(clause);
-    proof << ";\n";
-}
+// template void VeriPbProofLogger::delete_constraint<Glucose::Clause>(Glucose::Clause &clause);
 
 template <template <class T> class TVec, class TLit>
 void VeriPbProofLogger::delete_constraint(TVec<TLit> &clause)
@@ -692,6 +697,6 @@ void VeriPbProofLogger::delete_constraint(TVec<TLit> &clause)
     write_clause(clause);
     proof << ";\n";
 }
-template void VeriPbProofLogger::delete_constraint<Glucose30::vec, Glucose30::Lit>(Glucose30::vec<Glucose30::Lit> &clause);
+template void VeriPbProofLogger::delete_constraint<Glucose::vec, Glucose::Lit>(Glucose::vec<Glucose::Lit> &clause);
 
 //=================================================================================================

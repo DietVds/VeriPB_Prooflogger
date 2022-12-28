@@ -10,7 +10,7 @@ class MaxSATProoflogger
     std::vector<int> core_weights;
     std::map<VeriPB::Var, int> counting_var_to_core_idx;
 
-    std::vector<constraintid> extended_unitclauses;
+    std::vector<constraintid> extended_unitclauses; 
 
 public:
     /// @brief Constructor.
@@ -18,11 +18,11 @@ public:
     MaxSATProoflogger(VeriPbProofLogger *PL);
 
     // Functions for translating MaxSAT to PBO
-    template <class TVar>
-    void add_blocking_literal_for_var(TVar var, constraintid cxn_id, bool negated_blocking_literal = true);
+    template <class TLit>
+    void add_blocking_literal(TLit lit, constraintid cxn_id);
 
-    template <class TVar, class TLit>
-    void add_unit_clause_blocking_literal_for_var(TVar var, constraintid cxn_id, TLit unitclause, bool negated_blocking_literal = true);
+    template <class TLit>
+    void add_unit_clause_blocking_literal(TLit var, constraintid cxn_id, TLit unitclause);
 
     constraintid rewrite_model_improvement_constraint_with_extended_unitclauses();
 

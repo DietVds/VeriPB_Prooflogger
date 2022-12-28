@@ -36,6 +36,7 @@ class VeriPbProofLogger
     //
     std::vector<int> objective_lits;
     std::vector<int> objective_weights;
+    int objective_constant_cost = 0;
     int best_objective_value = INT_MAX;
     constraintid best_solution_constraint; // Last model improvement constraint
     constraintid rewritten_best_solution_constraint = 0; // last rewritten model improvement constraint. 0 means that it hasn't been rewritten. 
@@ -59,6 +60,7 @@ public:
     // TODO: This will be combined into one map from VeriPB::Var to VeriPB::Lit
     std::map<VeriPB::Var,VeriPB::Lit> rewrite_var_by_literal;
 
+
     // Proof file
     std::ofstream proof;
     std::string proof_file = "maxsat_proof.pbp";
@@ -68,7 +70,13 @@ public:
     void end_proof();
     void write_proof_header(int nbclause, int nbvars);
     void write_proof_header(int nbclause);
+    void increase_n_variables();
+
+    // Objective Function 
     void set_objective(const std::vector<int> &lits, const std::vector<int> &weights);
+    template <class TLit> 
+    void add_objective_literal(TLit lit, int weight);
+    void write_comment_objective_function();
 
     // ------------- Helping functions -------------
     void write_comment(const char *comment);
@@ -197,8 +205,8 @@ public:
      * For MINISAT compatibility
      ****************************************/
 
-    void write_clause(Glucose30::Clause &clause);
-    void write_clause(Minisat::Clause &clause);
+    void write_clause(Glucose::Clause &clause);
+    //void write_clause(Minisat::Clause &clause);
     template <template <class T> class TVec, class TLit>
     void write_clause(TVec<TLit> &clause);
     template <class TLBool>
@@ -209,10 +217,11 @@ public:
     constraintid rup(TVec<TLit> &clause);
     template <template <class T> class TVec, class TLit>
     void overwrite_constraint(TVec<TLit> &orig, TVec<TLit> &clause);
-    void delete_constraint(Glucose30::Clause &clause);
-    void delete_constraint(Minisat::Clause &clause);
+    void delete_constraint(Glucose::Clause &clause);
+    //void delete_constraint(Minisat::Clause &clause);
     template <template <class T> class TVec, class TLit>
     void delete_constraint(TVec<TLit> &clause);
+
 };
 
 //=================================================================================================
