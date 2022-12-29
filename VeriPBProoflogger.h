@@ -44,10 +44,10 @@ private:
     constraintid rewritten_best_solution_constraint = 0; // last rewritten model improvement constraint. 0 means that it hasn't been rewritten. 
 
     // Meaningful variable names
-    std::map<VeriPB::Var, std::string> meaningful_names_store;
+    std::map<VeriPB::VarIdx, std::string> meaningful_names_store;
 
     // Variables to be rewritten by literals.
-    std::map<VeriPB::Var,VeriPB::Lit> map_rewrite_var_by_literal;
+    std::map<VeriPB::VarIdx, VeriPB::Lit> map_rewrite_var_by_literal;
 
     // Constraint counter
     //
@@ -73,7 +73,8 @@ public:
     void increase_n_variables();
 
     // Objective Function 
-    void set_objective(const std::vector<int> &lits, const std::vector<int> &weights, int constant = 0);
+    template<class TLit>
+    void set_objective(const std::vector<TLit> &lits, const std::vector<int> &weights, int constant_cost);
     template <class TLit> 
     void add_objective_literal(TLit lit, int weight);
     void add_objective_constant(int weight);
@@ -182,12 +183,12 @@ public:
     constraintid end_CP_derivation();
 
     // ------------- Deleting & Overwriting Constraints -------------
-    template <class TLit>
+    //template <class TLit>
     void delete_constraint(const constraintid constraint_id);
-    template <class TLit>
+    //template <class TLit>
     void delete_constraint(const std::vector<constraintid> &constraint_ids);
     template <class TLit>
-    void delete_constraint(const std::vector<TLit> &lits, const int RHS = 1);
+    void delete_constraint(const std::vector<TLit> &lits, const int RHS);
     template <class TLit>
     void delete_constraint(const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS);
 
@@ -214,6 +215,7 @@ public:
     //void write_clause(Minisat::Clause &clause);
     template <template <class T> class TVec, class TLit>
     void write_clause(TVec<TLit> &clause);
+    constraintid unchecked_assumption(const Glucose::vec<Glucose::Lit> &lits, const int RHS=1);
     template <class TLBool>
     void write_literal_assignment(TLBool assignment, int var);
     template <template <class T> class TVec, class TLBool>

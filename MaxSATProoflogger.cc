@@ -12,14 +12,14 @@ MaxSATProoflogger::MaxSATProoflogger(VeriPbProofLogger *PL) : PL(PL) {}
 
 template <class TLit>
 void MaxSATProoflogger::add_blocking_literal(TLit lit, constraintid cxn_id){
-    PL->store_meaningful_name(toVeriPbVar(variable(lit)), "_b" + std::to_string(cxn_id));
+    PL->store_meaningful_name(variable(lit), "_b" + std::to_string(cxn_id));
 
     // VeriPB expects the blocking literal added to the clauses to be a negated blocking variable. 
     // If the solver adds a non-negated blocking literal to clauses, all literals over this variable have to be negated throughout the proof.
     if(!is_negated(lit))
-        PL->rewrite_variable_by_literal(toVeriPbVar(variable(lit)), toVeriPbLit(neg(lit)));
+        PL->rewrite_variable_by_literal(variable(lit), neg(lit));
 }
-template void MaxSATProoflogger::add_blocking_literal<int>(int lit, constraintid cxn_id);
+template void MaxSATProoflogger::add_blocking_literal<VeriPB::Lit>(VeriPB::Lit lit, constraintid cxn_id);
 template void MaxSATProoflogger::add_blocking_literal<Glucose::Lit>(Glucose::Lit lit, constraintid cxn_id);
 
 template <class TLit>
@@ -34,7 +34,7 @@ void MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, cons
 
     extended_unitclauses.push_back(c_id);
 }
-template void MaxSATProoflogger::add_unit_clause_blocking_literal<int>(int blocking_lit, constraintid cxn_id, int unitclause);
+template void MaxSATProoflogger::add_unit_clause_blocking_literal<VeriPB::Lit>(VeriPB::Lit blocking_lit, constraintid cxn_id, VeriPB::Lit unitclause);
 template void MaxSATProoflogger::add_unit_clause_blocking_literal<Glucose::Lit>(Glucose::Lit blocking_lit, constraintid cxn_id, Glucose::Lit unitclause);
 
 constraintid MaxSATProoflogger::rewrite_model_improvement_constraint_with_extended_unitclauses(){
@@ -58,20 +58,21 @@ constraintid MaxSATProoflogger::add_core_lower_bound(
     PL->CP_add_constraint(pb_definition_id);
     PL->CP_divide(2);
     constraintid lower_bound_id = PL->end_CP_derivation();
-    counting_var_to_core_idx[lazy_var] = core_lower_bounds.size();
+    counting_var_to_core_idx[varidx(toVeriPbVar(lazy_var))] = core_lower_bounds.size();
     core_lower_bounds.push_back(lower_bound_id);
     core_weights.push_back(weight);
     return lower_bound_id;
 }
-template constraintid MaxSATProoflogger::add_core_lower_bound<int>(const int &lazy_var, constraintid core_id, constraintid pb_definition_id, int weight);
+template constraintid MaxSATProoflogger::add_core_lower_bound<VeriPB::Var>(const VeriPB::Var &lazy_var, constraintid core_id, constraintid pb_definition_id, int weight);
+template constraintid MaxSATProoflogger::add_core_lower_bound<Glucose::Var>(const Glucose::Var &lazy_var, constraintid core_id, constraintid pb_definition_id, int weight);
 
 template <class TVar>
 constraintid MaxSATProoflogger::update_core_lower_bound(const TVar &old_lazy_var, const TVar &new_lazy_var, constraintid pb_definition_id, int bound)
 {
-    int core_idx = counting_var_to_core_idx[old_lazy_var];
+    int core_idx = counting_var_to_core_idx[varidx(toVeriPbVar(old_lazy_var))];
 
     // Update map
-    counting_var_to_core_idx[new_lazy_var] = core_idx;
+    counting_var_to_core_idx[varidx(toVeriPbVar(new_lazy_var))] = core_idx;
 
     // Update lower bound
     PL->start_CP_derivation(core_lower_bounds[core_idx]);
@@ -79,11 +80,12 @@ constraintid MaxSATProoflogger::update_core_lower_bound(const TVar &old_lazy_var
     PL->CP_add_constraint(pb_definition_id);
     PL->CP_divide(bound + 1);
     constraintid new_lower_bound_id = PL->end_CP_derivation();
-    PL->delete_constraint<int>(core_lower_bounds[core_idx]);
+    PL->delete_constraint(core_lower_bounds[core_idx]);
     core_lower_bounds[core_idx] = new_lower_bound_id;
     return new_lower_bound_id;
 }
-template constraintid MaxSATProoflogger::update_core_lower_bound<int>(const int &old_lazy_var, const int &new_lazy_var, constraintid pb_definition_id, int bound);
+template constraintid MaxSATProoflogger::update_core_lower_bound<VeriPB::Var>(const VeriPB::Var &old_lazy_var, const VeriPB::Var &new_lazy_var, constraintid pb_definition_id, int bound);
+template constraintid MaxSATProoflogger::update_core_lower_bound<Glucose::Var>(const Glucose::Var &old_lazy_var, const Glucose::Var &new_lazy_var, constraintid pb_definition_id, int bound);
 
 constraintid MaxSATProoflogger::derive_objective_reformulation_constraint(constraintid base_reform_id)
 {
@@ -106,7 +108,7 @@ constraintid MaxSATProoflogger::proof_log_objective_reformulation(constraintid b
     PL->start_CP_derivation(model_improve_id);
     PL->CP_add_constraint(objective_reform_id);
     constraintid lower_bound_reformulated_objective = PL->end_CP_derivation();
-    PL->delete_constraint<int>(objective_reform_id);
+    PL->delete_constraint(objective_reform_id);
     return lower_bound_reformulated_objective;
 }
 
@@ -116,7 +118,7 @@ constraintid MaxSATProoflogger::base_reform_unit_core(constraintid base_reform_i
     PL->CP_multiply(weight);
     PL->CP_add_constraint(base_reform_id);
     constraintid new_base_reform_id = PL->end_CP_derivation();
-    PL->delete_constraint<int>(base_reform_id);
+    PL->delete_constraint(base_reform_id);
     return new_base_reform_id;
 }
 
@@ -132,7 +134,7 @@ constraintid MaxSATProoflogger::reformulate_with_unprocessed_cores(constraintid 
     }
 
     constraintid reform_constraint_with_unprocessed_cores_id = PL->end_CP_derivation();
-    PL->delete_constraint<int>(base_reform_id);
+    PL->delete_constraint(base_reform_id);
     return reform_constraint_with_unprocessed_cores_id;
 }
 
@@ -169,10 +171,10 @@ constraintid MaxSATProoflogger::derive_at_most_one_constraint(const std::vector<
     }
 
     constraintid am1_constraint_id = PL->end_CP_derivation();
-    PL->delete_constraint<int>(binary_clauses);
+    PL->delete_constraint(binary_clauses);
     return am1_constraint_id;
 }
-template constraintid MaxSATProoflogger::derive_at_most_one_constraint<int>(const std::vector<int> &am1_lits);
+template constraintid MaxSATProoflogger::derive_at_most_one_constraint<VeriPB::Lit>(const std::vector<VeriPB::Lit> &am1_lits);
 template constraintid MaxSATProoflogger::derive_at_most_one_constraint<Glucose::Lit>(const std::vector<Glucose::Lit> &am1_lits);
 
 template <class TLit>
@@ -191,7 +193,7 @@ constraintid MaxSATProoflogger::introduce_at_most_one_selector(const std::vector
 
     return reified_am1_constraint_id;
 }
-template constraintid MaxSATProoflogger::introduce_at_most_one_selector<int>(const std::vector<int> &am1_lits, const int &select_all_lit);
+template constraintid MaxSATProoflogger::introduce_at_most_one_selector<VeriPB::Lit>(const std::vector<VeriPB::Lit> &am1_lits, const VeriPB::Lit &select_all_lit);
 template constraintid MaxSATProoflogger::introduce_at_most_one_selector<Glucose::Lit>(const std::vector<Glucose::Lit> &am1_lits, const Glucose::Lit &select_all_lit);
 
 template <class TLit>
@@ -199,15 +201,15 @@ constraintid MaxSATProoflogger::proof_log_at_most_one(constraintid base_reform_i
 {
     constraintid am1_constraint = derive_at_most_one_constraint(am1_lits);
     constraintid am1_lower_bound = introduce_at_most_one_selector(am1_lits, selector_all_lit);
-    PL->delete_constraint<int>(am1_constraint);
+    PL->delete_constraint(am1_constraint);
 
     PL->start_CP_derivation(am1_lower_bound);
     PL->CP_multiply(weight);
     PL->CP_add_constraint(base_reform_id);
     constraintid new_base_reform_id = PL->end_CP_derivation();
-    PL->delete_constraint<int>(base_reform_id);
-    PL->delete_constraint<int>(am1_lower_bound);
+    PL->delete_constraint(base_reform_id);
+    PL->delete_constraint(am1_lower_bound);
     return new_base_reform_id;
 }
-template constraintid MaxSATProoflogger::proof_log_at_most_one<int>(constraintid base_reform_id, const std::vector<int> &am1_lits, const int &select_all_lit, int weight);
+template constraintid MaxSATProoflogger::proof_log_at_most_one<VeriPB::Lit>(constraintid base_reform_id, const std::vector<VeriPB::Lit> &am1_lits, const VeriPB::Lit &select_all_lit, int weight);
 template constraintid MaxSATProoflogger::proof_log_at_most_one<Glucose::Lit>(constraintid base_reform_id, const std::vector<Glucose::Lit> &am1_lits, const Glucose::Lit &select_all_lit, int weight);

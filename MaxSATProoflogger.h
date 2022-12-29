@@ -10,7 +10,7 @@ class MaxSATProoflogger
     VeriPbProofLogger *PL;
     std::vector<constraintid> core_lower_bounds;
     std::vector<int> core_weights;
-    std::map<VeriPB::Var, int> counting_var_to_core_idx;
+    std::map<VeriPB::VarIdx, int> counting_var_to_core_idx;
 
     std::vector<constraintid> extended_unitclauses; 
 
