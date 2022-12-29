@@ -11,6 +11,18 @@
 // NOTE! Should include definition for types Var, Lit and Clause
 #include "SolverTypesInt.h"
 
+/******************
+ * Posssible template classes:
+ * TLit = Type representing a literal
+ * TVar = Type representing a variable
+ * TSeqLit = A Sequence Container containing literals. 
+ *        This means that if lits is of the type TSeqLit, it is possible to retrieve the i'th lit by lits[i].
+ *        Examples are std::vector<VeriPB::Lit>, Glucose::vec<Glucose::Lit>, Glucose::Clause, ...
+ *        Also necessary: size() function.
+ * TSeqInt = A Sequence Container containing Integers. 
+ * TSeqLBool = A sequence container containing Minisat's (and Glucose's) lbool's.
+ *******************/
+
 //prooflogging Library
 
 /**
@@ -59,8 +71,6 @@ private:
 
 public:
 
-
-
     // Proof file
     std::ofstream proof;
     std::string proof_file = "maxsat_proof.pbp";
@@ -73,8 +83,8 @@ public:
     void increase_n_variables();
 
     // Objective Function 
-    template<class TLit>
-    void set_objective(const std::vector<TLit> &lits, const std::vector<int> &weights, int constant_cost);
+    template<class TSeqLit, class TSeqInt>
+    void set_objective(const TSeqLit &lits, const TSeqInt &weights, int constant_cost);
     template <class TLit> 
     void add_objective_literal(TLit lit, int weight);
     void add_objective_constant(int weight);
@@ -94,12 +104,13 @@ public:
     std::string to_string(const TLit &lit);
     template <class TLit>
     void write_literal(const TLit &lit);
-    template <class TLit>
-    void write_PB_constraint(const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS);
-    template <class TLit>
-    void write_cardinality_constraint(const std::vector<TLit> &lits, const int RHS);
-    template <class TLit>
-    void write_clause(const std::vector<TLit> &clause);
+    template <class TSeqLit, class TSeqInt>
+    void write_PB_constraint(const TSeqLit &lits, const TSeqInt &weights, const int RHS);
+    template <class TSeqLit>
+    void write_cardinality_constraint(const TSeqLit &lits, const int RHS);
+    template <class TSeqLit>
+    void write_clause(const TSeqLit& clause);
+
 
     // ------------- Meaningful names -------------
     template <class TVar>
@@ -112,56 +123,62 @@ public:
     void rewrite_variable_by_literal(const TVar& var, const TLit& lit);
 
     // ------------- Rules for checking constraints -------------
-    template <class TLit>
-    void equals_rule(const constraintid constraint_id, const std::vector<TLit> &lits, const int RHS = 1);
-    template <class TLit>
-    void equals_rule(const constraintid constraint_id, const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS);
+    template <class TSeqLit>
+    void equals_rule(const constraintid constraint_id, const TSeqLit &lits, const int RHS = 1);
+    template <class TSeqLit, class TSeqInt>
+    void equals_rule(const constraintid constraint_id, const TSeqLit &lits, const TSeqInt &weights, const int RHS);
 
-    template <class TLit>
-    void check_last_constraint(const std::vector<TLit> &lits, const int RHS = 1);
-    template <class TLit>
-    void check_last_constraint(const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS);
+    template <class TSeqLit>
+    void check_last_constraint(const TSeqLit &lits, const int RHS = 1);
+    template <class TSeqLit, class TSeqInt>
+    void check_last_constraint(const TSeqLit &lits, const TSeqInt &weights, const int RHS);
 
     // ------------- Rules for optimisation -------------
 
-    template <class TLit>
-    int calculate_objective_value(const std::vector<TLit> &model);
-    template <class TLit>
-    constraintid log_solution(const std::vector<TLit> &model);
-    template <class TLit>
-    constraintid log_solution_with_check(const std::vector<TLit> &model);
+    template <class TSeqLit>
+    int calculate_objective_value(const TSeqLit &model);
+    template <class TSeqLit>
+    constraintid log_solution(const TSeqLit &model);
+    template <class TSeqLit>
+    constraintid log_solution_with_check(const TSeqLit &model);
     constraintid get_best_solution_constraint();
     constraintid get_rewritten_best_solution_constraint();
     void set_rewritten_best_solution_constraint(constraintid cxn);
     void delete_rewritten_best_solution_constraint();
 
-    // ------------- Unchecked Assumptions -------------
-    template <class TLit>
-    constraintid unchecked_assumption(const std::vector<TLit> &lits, const int RHS = 1);
-    template <class TLit>
-    constraintid unchecked_assumption(const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS);
+    template <class TSeqLBool>
+    constraintid log_solution(TSeqLBool &model);
 
+    // TODO: write calculate_objective_value and log_solution_with_check for TSeqLBool 
+
+    // ------------- Unchecked Assumptions -------------
+    template <class TSeqLit>
+    constraintid unchecked_assumption(const TSeqLit &lits, const int RHS = 1);
+    template <class TSeqLit, class TSeqInt>
+    constraintid unchecked_assumption(const TSeqLit &lits, const TSeqInt &weights, const int RHS);
+
+    
     // ------------- Reverse Unit Propagation -------------
 
-    template <class TLit>
-    constraintid rup(const std::vector<TLit> &lits, const int RHS = 1);
-    template <class TLit>
-    constraintid rup(const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS);
+    template <class TSeqLit>
+    constraintid rup(const TSeqLit &lits, const int RHS = 1);
+    template <class TSeqLit, class TSeqInt>
+    constraintid rup(const TSeqLit &lits, const TSeqInt &weights, const int RHS);
 
     // ------------- Redundance Based Strenghtening -------------
     template <class TLit>
     void write_witness(const TLit &literal);
-    template <class TLit>
-    void write_witness(const std::vector<TLit> &witness);
+    template <class TSeqLit>
+    void write_witness(const TSeqLit &witness);
 
-    template <class TLit>
-    constraintid redundanceBasedStrengthening(const std::vector<TLit> &lits, const int RHS, const TLit &witness);
-    template <class TLit>
-    constraintid redundanceBasedStrengthening(const std::vector<TLit> &lits, const int RHS, const std::vector<TLit> &witness);
-    template <class TLit>
-    constraintid redundanceBasedStrengthening(const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS, const TLit &witness);
-    template <class TLit>
-    constraintid redundanceBasedStrengthening(const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS, const std::vector<TLit> &witness);
+    template <class TSeqLit, class TLit>
+    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const int RHS, const TLit &witness);
+    template <class TSeqLit>
+    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const int RHS, const TSeqLit &witness);
+    template <class TSeqLit, class TSeqInt, class TLit>
+    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqInt &weights, const int RHS, const TLit &witness);
+    template <class TSeqLit, class TSeqInt>
+    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqInt &weights, const int RHS, const TSeqLit &witness);
 
     // constraintid redundanceBasedStrengthening(const std::vector<Lit>& lits, const int RHS, const std::map<Lit, std::variant<Lit, bool>>& witness);
     // constraintid redundanceBasedStrengthening(const std::vector<Lit>& lits, const std::vector<int>& weights, const int RHS, const std::vector<Lit>& witness);
@@ -192,6 +209,11 @@ public:
     template <class TLit>
     void delete_constraint(const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS);
 
+    //Minisat:
+    void delete_constraint(Glucose::Clause &clause);
+    template <template <class T> class TVec, class TLit>
+    void delete_constraint(TVec<TLit> &clause);
+
     template <class TLit>
     constraintid overwrite_constraint(const constraintid constraint_id, const std::vector<TLit> &lits, const int RHS = 1);
     template <class TLit>
@@ -203,6 +225,11 @@ public:
     template <class TLit>
     constraintid overwrite_constraint(const std::vector<TLit> &lits_orig, const std::vector<TLit> &lits);
 
+
+    // Minisat:
+    template <template <class T> class TVec, class TLit>
+    void overwrite_constraint(TVec<TLit> &orig, TVec<TLit> &clause);
+
     // ------------- Handling contradiction -------------
     void write_previous_constraint_contradiction();
     void rup_empty_clause();
@@ -211,23 +238,14 @@ public:
      * For MINISAT compatibility
      ****************************************/
 
-    void write_clause(Glucose::Clause &clause);
-    //void write_clause(Minisat::Clause &clause);
-    template <template <class T> class TVec, class TLit>
-    void write_clause(TVec<TLit> &clause);
-    constraintid unchecked_assumption(const Glucose::vec<Glucose::Lit> &lits, const int RHS=1);
-    template <class TLBool>
-    void write_literal_assignment(TLBool assignment, int var);
-    template <template <class T> class TVec, class TLBool>
-    constraintid log_solution(TVec<TLBool> &model);
-    template <template <class T> class TVec, class TLit>
-    constraintid rup(TVec<TLit> &clause);
-    template <template <class T> class TVec, class TLit>
-    void overwrite_constraint(TVec<TLit> &orig, TVec<TLit> &clause);
-    void delete_constraint(Glucose::Clause &clause);
-    //void delete_constraint(Minisat::Clause &clause);
-    template <template <class T> class TVec, class TLit>
-    void delete_constraint(TVec<TLit> &clause);
+    // void write_clause(Glucose::Clause &clause);
+    // //void write_clause(Minisat::Clause &clause);
+    // template <template <class T> class TVec, class TLit>
+    // void write_clause(TVec<TLit> &clause);
+    
+    
+    
+    
 
 };
 

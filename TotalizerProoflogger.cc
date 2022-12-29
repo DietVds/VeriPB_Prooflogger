@@ -17,7 +17,7 @@ constraintid TotalizerProoflogger::get_PbDef_Impl_CxnId(TVar& var){
     return PB_impl_cxn_store[varidx(toVeriPbVar(var))];
 }
 template constraintid TotalizerProoflogger::get_PbDef_Impl_CxnId<VeriPB::Var>(VeriPB::Var& var);
-template constraintid TotalizerProoflogger::get_PbDef_Impl_CxnId<Glucose::Var>(Glucose::Var& var);
+//template constraintid TotalizerProoflogger::get_PbDef_Impl_CxnId<Glucose::Var>(Glucose::Var& var);
 
 
 template <class TVar> 
@@ -27,7 +27,7 @@ constraintid TotalizerProoflogger::get_PbDef_invImpl_CxnId(TVar& var){
     return PB_invImpl_cxn_store[varidx(toVeriPbVar(var))];
 }
 template constraintid TotalizerProoflogger::get_PbDef_invImpl_CxnId<VeriPB::Var>(VeriPB::Var& var);
-template constraintid TotalizerProoflogger::get_PbDef_invImpl_CxnId<Glucose::Var>(Glucose::Var& var);
+//template constraintid TotalizerProoflogger::get_PbDef_invImpl_CxnId<Glucose::Var>(Glucose::Var& var);
 
 // ------------- Meaningful names -------------
 template <class TVar, class TLit>
@@ -39,7 +39,7 @@ void TotalizerProoflogger::store_meaningful_name_counting_var(const TVar& var, c
         PL->store_meaningful_name(var, mn);
     }
 }
-template void TotalizerProoflogger::store_meaningful_name_counting_var<Glucose::Var, Glucose::Lit>(const Glucose::Var& var, const int n, const std::vector<Glucose::Lit>& leafs);
+//template void TotalizerProoflogger::store_meaningful_name_counting_var<Glucose::Var, Glucose::Lit>(const Glucose::Var& var, const int n, const std::vector<Glucose::Lit>& leafs);
 template void TotalizerProoflogger::store_meaningful_name_counting_var<VeriPB::Var, VeriPB::Lit>(const VeriPB::Var& var, const int n, const std::vector<VeriPB::Lit>& leafs);
 
 // ------------- Totalizer functions: PB definitions -------------
@@ -50,7 +50,7 @@ void TotalizerProoflogger::write_PBdefs(const TVar& var, const std::vector<TLit>
     write_PBdef_invImpl(var, leafs, j);// Only necessary with int because totalizers are made using the pysat datastructures.
 }
 template void TotalizerProoflogger::write_PBdefs<VeriPB::Var, VeriPB::Lit>(const VeriPB::Var& var, const std::vector<VeriPB::Lit> &leafs, const int j);
-template void TotalizerProoflogger::write_PBdefs<Glucose::Var, Glucose::Lit>(const Glucose::Var& var, const std::vector<Glucose::Lit> &leafs, const int j);
+//template void TotalizerProoflogger::write_PBdefs<Glucose::Var, Glucose::Lit>(const Glucose::Var& var, const std::vector<Glucose::Lit> &leafs, const int j);
 
 template <class TVar, class TLit>
 void TotalizerProoflogger::write_PBdef_impl(const TVar& var, const std::vector<TLit> &leafs, const int j)
@@ -77,7 +77,7 @@ void TotalizerProoflogger::write_PBdef_impl(const TVar& var, const std::vector<T
 
     PB_impl_cxn_store[varidx(toVeriPbVar(var))] = cxn;
 }
-template void TotalizerProoflogger::write_PBdef_impl<Glucose::Var, Glucose::Lit>(const Glucose::Var& var, const std::vector<Glucose::Lit> &leafs, const int j);
+//template void TotalizerProoflogger::write_PBdef_impl<Glucose::Var, Glucose::Lit>(const Glucose::Var& var, const std::vector<Glucose::Lit> &leafs, const int j);
 template void TotalizerProoflogger::write_PBdef_impl<VeriPB::Var, VeriPB::Lit>(const VeriPB::Var& var, const std::vector<VeriPB::Lit> &leafs, const int j);
 
 template <class TVar, class TLit>
@@ -104,7 +104,7 @@ void TotalizerProoflogger::write_PBdef_invImpl(const TVar& var, const std::vecto
 
     PB_invImpl_cxn_store[varidx(toVeriPbVar(var))] = cxn;
 }
-template void TotalizerProoflogger::write_PBdef_invImpl<Glucose::Var, Glucose::Lit>(const Glucose::Var& var, const std::vector<Glucose::Lit> &leafs, const int j);
+//template void TotalizerProoflogger::write_PBdef_invImpl<Glucose::Var, Glucose::Lit>(const Glucose::Var& var, const std::vector<Glucose::Lit> &leafs, const int j);
 template void TotalizerProoflogger::write_PBdef_invImpl<VeriPB::Var, VeriPB::Lit>(const VeriPB::Var& var, const std::vector<VeriPB::Lit> &leafs, const int j);
 
 // ------------- Totalizer functions: CP derivations of totalizer clauses -------------
@@ -125,7 +125,7 @@ void TotalizerProoflogger::prove_binary_implCls(const TVar &var, const TVar &var
 
     PL->check_last_constraint(clause_to_derive);   
 }
-template void TotalizerProoflogger::prove_binary_implCls<Glucose::Var, Glucose::Lit>(const Glucose::Var &var, const Glucose::Var &varchild, const std::vector<Glucose::Lit> &leafs_varchild, const std::vector<Glucose::Lit> &leafs_other_child, const std::vector<Glucose::Lit>& clause_to_derive);
+//template void TotalizerProoflogger::prove_binary_implCls<Glucose::Var, Glucose::Lit>(const Glucose::Var &var, const Glucose::Var &varchild, const std::vector<Glucose::Lit> &leafs_varchild, const std::vector<Glucose::Lit> &leafs_other_child, const std::vector<Glucose::Lit>& clause_to_derive);
 template void TotalizerProoflogger::prove_binary_implCls<VeriPB::Var, VeriPB::Lit>(const VeriPB::Var &var, const VeriPB::Var &varchild, const std::vector<VeriPB::Lit> &leafs_varchild, const std::vector<VeriPB::Lit> &leafs_other_child, const std::vector<VeriPB::Lit>& clause_to_derive);
 
 
@@ -146,7 +146,7 @@ void TotalizerProoflogger::prove_ternary_implCls(const TVar &var, const TVar &va
 
     PL->check_last_constraint(clause_to_derive);
 }
-template void TotalizerProoflogger::prove_ternary_implCls<Glucose::Var, Glucose::Lit>(const Glucose::Var &var, const Glucose::Var &varchild1, const Glucose::Var &varchild2, const std::vector<Glucose::Lit> &leafs1, const std::vector<Glucose::Lit> &leafs2, const std::vector<Glucose::Lit>& clause_to_derive);
+//template void TotalizerProoflogger::prove_ternary_implCls<Glucose::Var, Glucose::Lit>(const Glucose::Var &var, const Glucose::Var &varchild1, const Glucose::Var &varchild2, const std::vector<Glucose::Lit> &leafs1, const std::vector<Glucose::Lit> &leafs2, const std::vector<Glucose::Lit>& clause_to_derive);
 template void TotalizerProoflogger::prove_ternary_implCls<VeriPB::Var, VeriPB::Lit>(const VeriPB::Var &var, const VeriPB::Var &varchild1, const VeriPB::Var &varchild2, const std::vector<VeriPB::Lit> &leafs1, const std::vector<VeriPB::Lit> &leafs2, const std::vector<VeriPB::Lit>& clause_to_derive);
 
 template <class TVar, class TLit>
@@ -166,7 +166,7 @@ void TotalizerProoflogger::prove_binary_invImplCls(const TVar &var, const TVar &
 
     PL->check_last_constraint(clause_to_derive);
 }
-template void TotalizerProoflogger::prove_binary_invImplCls<Glucose::Var, Glucose::Lit>(const Glucose::Var &var, const Glucose::Var &varchild, const std::vector<Glucose::Lit> &leafs_varchild, const std::vector<Glucose::Lit> &leafs_other_child, const std::vector<Glucose::Lit>& clause_to_derive);
+//template void TotalizerProoflogger::prove_binary_invImplCls<Glucose::Var, Glucose::Lit>(const Glucose::Var &var, const Glucose::Var &varchild, const std::vector<Glucose::Lit> &leafs_varchild, const std::vector<Glucose::Lit> &leafs_other_child, const std::vector<Glucose::Lit>& clause_to_derive);
 template void TotalizerProoflogger::prove_binary_invImplCls<VeriPB::Var, VeriPB::Lit>(const VeriPB::Var &var, const VeriPB::Var &varchild, const std::vector<VeriPB::Lit> &leafs_varchild, const std::vector<VeriPB::Lit> &leafs_other_child, const std::vector<VeriPB::Lit>& clause_to_derive);
 
 template <class TVar, class TLit>
@@ -187,7 +187,7 @@ void TotalizerProoflogger::prove_ternary_invImplCls(const TVar &var, const TVar 
     PL->check_last_constraint(clause_to_derive);
 }
 template void TotalizerProoflogger::prove_ternary_invImplCls<VeriPB::Var, VeriPB::Lit>(const VeriPB::Var &var, const VeriPB::Var &varchild1, const VeriPB::Var &varchild2, const std::vector<VeriPB::Lit> &leafs1, const std::vector<VeriPB::Lit> &leafs2, const std::vector<VeriPB::Lit>& clause_to_derive);
-template void TotalizerProoflogger::prove_ternary_invImplCls<Glucose::Var, Glucose::Lit>(const Glucose::Var &var, const Glucose::Var &varchild1, const Glucose::Var &varchild2, const std::vector<Glucose::Lit> &leafs1, const std::vector<Glucose::Lit> &leafs2, const std::vector<Glucose::Lit>& clause_to_derive);
+//template void TotalizerProoflogger::prove_ternary_invImplCls<Glucose::Var, Glucose::Lit>(const Glucose::Var &var, const Glucose::Var &varchild1, const Glucose::Var &varchild2, const std::vector<Glucose::Lit> &leafs1, const std::vector<Glucose::Lit> &leafs2, const std::vector<Glucose::Lit>& clause_to_derive);
 
 template <class TLit>
 void TotalizerProoflogger::prove_unitclause_constraining_totalizer(const TLit& c, const int n, const int bestval, const int best_solution_constraint)
@@ -210,7 +210,7 @@ void TotalizerProoflogger::prove_unitclause_constraining_totalizer(const TLit& c
     }
 }
 template void TotalizerProoflogger::prove_unitclause_constraining_totalizer<VeriPB::Lit>(const VeriPB::Lit& c, const int n, const int bestval, const constraintid best_solution_constraint);
-template void TotalizerProoflogger::prove_unitclause_constraining_totalizer<Glucose::Lit>(const Glucose::Lit& c, const int n, const int bestval, const constraintid best_solution_constraint);
+//template void TotalizerProoflogger::prove_unitclause_constraining_totalizer<Glucose::Lit>(const Glucose::Lit& c, const int n, const int bestval, const constraintid best_solution_constraint);
 
 
 // ------------- Structure Sharing -------------
@@ -222,7 +222,7 @@ void TotalizerProoflogger::ss_add_parent_using_pb_def(const TVar& var){
     add_parent_using_pb_def(var, PB_impl_cxn_store, PB_impl_nrUsed_store);
     add_parent_using_pb_def(var, PB_invImpl_cxn_store, PB_invImpl_nrUsed_store);
 }
-template void TotalizerProoflogger::ss_add_parent_using_pb_def<Glucose::Var>(const Glucose::Var& var);
+//template void TotalizerProoflogger::ss_add_parent_using_pb_def<Glucose::Var>(const Glucose::Var& var);
 template void TotalizerProoflogger::ss_add_parent_using_pb_def<VeriPB::Var>(const VeriPB::Var& var);
 
 template <class TVar>
@@ -234,7 +234,7 @@ void TotalizerProoflogger::add_parent_using_pb_def(const TVar& var, std::map<Ver
             pb_def_parents_store[varidx(toVeriPbVar(var))]++;
     }
 }
-template void TotalizerProoflogger::add_parent_using_pb_def<Glucose::Var>(const Glucose::Var& var, std::map<VeriPB::VarIdx, constraintid>& pb_def_store, std::map<VeriPB::VarIdx, constraintid>& pb_def_parents_store);
+//template void TotalizerProoflogger::add_parent_using_pb_def<Glucose::Var>(const Glucose::Var& var, std::map<VeriPB::VarIdx, constraintid>& pb_def_store, std::map<VeriPB::VarIdx, constraintid>& pb_def_parents_store);
 template void TotalizerProoflogger::add_parent_using_pb_def<VeriPB::Var>(const VeriPB::Var& var, std::map<VeriPB::VarIdx, constraintid>& pb_def_store, std::map<VeriPB::VarIdx, constraintid>& pb_def_parents_store);
 
 
@@ -247,7 +247,7 @@ void TotalizerProoflogger::ss_set_nr_parents_using_pb_def(const TVar& var, int n
     PB_invImpl_nrUsed_store[varidx(toVeriPbVar(var))] = n;
 }
 template void TotalizerProoflogger::ss_set_nr_parents_using_pb_def<VeriPB::Var>(const VeriPB::Var& var, int n);
-template void TotalizerProoflogger::ss_set_nr_parents_using_pb_def<Glucose::Var>(const Glucose::Var& var, int n);
+//template void TotalizerProoflogger::ss_set_nr_parents_using_pb_def<Glucose::Var>(const Glucose::Var& var, int n);
 
 template <class TVar> 
 int TotalizerProoflogger::ss_get_nr_parents_using_pb_def(const TVar& var){
@@ -256,7 +256,7 @@ int TotalizerProoflogger::ss_get_nr_parents_using_pb_def(const TVar& var){
     return PB_impl_nrUsed_store[varidx(toVeriPbVar(var))];
 }
 template int TotalizerProoflogger::ss_get_nr_parents_using_pb_def<VeriPB::Var>(const VeriPB::Var& var);
-template int TotalizerProoflogger::ss_get_nr_parents_using_pb_def<Glucose::Var>(const Glucose::Var& var);
+//template int TotalizerProoflogger::ss_get_nr_parents_using_pb_def<Glucose::Var>(const Glucose::Var& var);
 
 // ------------- Deletes (Totalizer) -------------
 template <class TVar> 
@@ -265,13 +265,13 @@ void TotalizerProoflogger::delete_PB_definitions(const TVar& var){
     delete_PB_invImpl_def(var);
 }
 template void TotalizerProoflogger::delete_PB_definitions<VeriPB::Var>(const VeriPB::Var& var);
-template void TotalizerProoflogger::delete_PB_definitions<Glucose::Var>(const Glucose::Var& var);
+//template void TotalizerProoflogger::delete_PB_definitions<Glucose::Var>(const Glucose::Var& var);
 
 template <class TVar> 
 void TotalizerProoflogger::delete_PB_Impl_def(const TVar &var){
     delete_P_definition(var, PB_impl_cxn_store, PB_impl_nrUsed_store);
 }
-template void TotalizerProoflogger::delete_PB_Impl_def<Glucose::Var>(const Glucose::Var &var);
+//template void TotalizerProoflogger::delete_PB_Impl_def<Glucose::Var>(const Glucose::Var &var);
 template void TotalizerProoflogger::delete_PB_Impl_def<VeriPB::Var>(const VeriPB::Var &var);
 
 
@@ -279,7 +279,7 @@ template <class TVar>
 void TotalizerProoflogger::delete_PB_invImpl_def(const TVar &var){
     delete_P_definition(var, PB_invImpl_cxn_store, PB_invImpl_nrUsed_store);
 }
-template void TotalizerProoflogger::delete_PB_invImpl_def<Glucose::Var>(const Glucose::Var &var);
+//template void TotalizerProoflogger::delete_PB_invImpl_def<Glucose::Var>(const Glucose::Var &var);
 template void TotalizerProoflogger::delete_PB_invImpl_def<VeriPB::Var>(const VeriPB::Var &var);
 
 template <class TVar> 
@@ -297,7 +297,7 @@ void TotalizerProoflogger::delete_P_definition(const TVar& var, std::map<VeriPB:
         }   
     }    
 }
-template void TotalizerProoflogger::delete_P_definition<Glucose::Var>(const Glucose::Var& var, std::map<VeriPB::VarIdx, constraintid>& pb_cxn_store, std::map<VeriPB::VarIdx, int>& pb_nrUsed_store);
+//template void TotalizerProoflogger::delete_P_definition<Glucose::Var>(const Glucose::Var& var, std::map<VeriPB::VarIdx, constraintid>& pb_cxn_store, std::map<VeriPB::VarIdx, int>& pb_nrUsed_store);
 template void TotalizerProoflogger::delete_P_definition<VeriPB::Var>(const VeriPB::Var& var, std::map<VeriPB::VarIdx, constraintid>& pb_cxn_store, std::map<VeriPB::VarIdx, int>& pb_nrUsed_store);
 
 template <class TVar> 
@@ -339,6 +339,6 @@ void TotalizerProoflogger::delete_unnecessary_PBdefs_childnodes(const std::vecto
         }
 	}
 }
-template void TotalizerProoflogger::delete_unnecessary_PBdefs_childnodes<Glucose::Var>(const std::vector<Glucose::Var>& av, const std::vector<Glucose::Var>& bv, const int parent_nr_lits_current, const int parent_nr_lits_previous, const bool iterative_encoding_needed);
+//template void TotalizerProoflogger::delete_unnecessary_PBdefs_childnodes<Glucose::Var>(const std::vector<Glucose::Var>& av, const std::vector<Glucose::Var>& bv, const int parent_nr_lits_current, const int parent_nr_lits_previous, const bool iterative_encoding_needed);
 template void TotalizerProoflogger::delete_unnecessary_PBdefs_childnodes<VeriPB::Var>(const std::vector<VeriPB::Var>& av, const std::vector<VeriPB::Var>& bv, const int parent_nr_lits_current, const int parent_nr_lits_previous, const bool iterative_encoding_needed);
 // -------------------------------------------------------
