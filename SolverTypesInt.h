@@ -22,6 +22,9 @@
 #include "VeriPbSolverTypes.h"
 #include "core/SolverTypes.h"
 
+// the type that is presenting weights in the solver. This should be defined by the solver developer.
+typedef long long int weighttype; 
+
 inline Glucose::Var variable(Glucose::Lit l){return (Glucose::var(l));}
 inline bool is_negated(Glucose::Lit l){return sign(l);}
 inline Glucose::Lit neg(Glucose::Lit l){return ~l;};
@@ -31,6 +34,9 @@ inline Glucose::Lit create_literal(Glucose::Var var, bool negated){return Glucos
 // Problem: if we would use them both, then it would be a problem. However, pysat already solves this by not using the 0 variable in the solvers.
 inline VeriPB::Var toVeriPbVar(Glucose::Var v){VeriPB::Var pbv; pbv.v= v+1; return pbv;}
 inline VeriPB::Lit toVeriPbLit(Glucose::Lit l){VeriPB::Lit pbl; pbl.negated = is_negated(l); pbl.v = toVeriPbVar(variable(l)); return pbl;}
+
+// Glucose uses the LBool datatype. This should be able to be converted to boolean.
+inline bool toBool(Glucose::lbool v){return (Glucose::toInt(v) == 0);}
 
 /*******************
  * Functions for the VeriPB types. 

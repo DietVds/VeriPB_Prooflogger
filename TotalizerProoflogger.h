@@ -8,7 +8,6 @@
 
 //prooflogging Library
 
-
 class TotalizerProoflogger
 {
 private: 
@@ -30,32 +29,50 @@ public:
 
     // Meaningful names
     bool meaningful_names_counting_vars = true;
-    template <class TVar, class TLit> void store_meaningful_name_counting_var(const TVar& var, const int n, const std::vector<TLit>& leafs);
+    template <class TVar, class TSeqLit> 
+    void store_meaningful_name_counting_var(const TVar& var, const int n, const TSeqLit& leafs);
     
     // Totalizer functions: PB definitions
-    template <class TVar, class TLit>   void write_PBdefs(const TVar& var, const std::vector<TLit> &leafs, const int j);
-    template <class TVar, class TLit>   void write_PBdef_impl(const TVar& var, const std::vector<TLit> &leafs, const int j);
-    template <class TVar, class TLit>   void write_PBdef_invImpl(const TVar& var, const std::vector<TLit> &leafs, const int j);
+    template <class TVar, class TSeqLit>
+    void write_PBdefs(const TVar& var, const TSeqLit &leafs, const int j);
+    template <class TVar, class TSeqLit>
+    void write_PBdef_impl(const TVar& var, const TSeqLit &leafs, const int j);
+    template <class TVar, class TSeqLit>
+    void write_PBdef_invImpl(const TVar& var, const TSeqLit &leafs, const int j);
 
     // Totalizer functions: CP derivations of totalizer clauses
-    template <class TVar, class TLit> void prove_binary_implCls(const TVar &var, const TVar &varchild, const std::vector<TLit> &leafs_varchild, const std::vector<TLit> &leafs_other_child, const std::vector<TLit>& clause_to_derive);
-    template <class TVar, class TLit> void prove_ternary_implCls(const TVar &var, const TVar &varchild1, const TVar &varchild2, const std::vector<TLit> &leafs1, const std::vector<TLit> &leafs2, const std::vector<TLit>& clause_to_derive);
-    template <class TVar, class TLit> void prove_binary_invImplCls(const TVar &var, const TVar &varchild, const std::vector<TLit> &leafs_varchild, const std::vector<TLit> &leafs_other_child, const std::vector<TLit>& clause_to_derive);
-    template <class TVar, class TLit> void prove_ternary_invImplCls(const TVar &var, const TVar &varchild1, const TVar &varchild2, const std::vector<TLit> &leafs1, const std::vector<TLit> &leafs2, const std::vector<TLit>& clause_to_derive);
-    template <class TLit> void prove_unitclause_constraining_totalizer(const TLit& clause, const int n, const int bestval, const constraintid best_solution_constraint);
+    template <class TVar, class TSeqLit>
+    void prove_binary_implCls(const TVar &var, const TVar &varchild, const TSeqLit &leafs_varchild, const TSeqLit &leafs_other_child, const TSeqLit& clause_to_derive);
+    template <class TVar, class TSeqLit>
+    void prove_ternary_implCls(const TVar &var, const TVar &varchild1, const TVar &varchild2, const TSeqLit &leafs1, const TSeqLit &leafs2, const TSeqLit& clause_to_derive);
+    template <class TVar, class TSeqLit>
+    void prove_binary_invImplCls(const TVar &var, const TVar &varchild, const TSeqLit &leafs_varchild, const TSeqLit &leafs_other_child, const TSeqLit& clause_to_derive);
+    template <class TVar, class TSeqLit>
+    void prove_ternary_invImplCls(const TVar &var, const TVar &varchild1, const TVar &varchild2, const TSeqLit &leafs1, const TSeqLit &leafs2, const TSeqLit& clause_to_derive);
+    template <class TLit>
+    void prove_unitclause_constraining_totalizer(const TLit& clause, const int n, const int bestval, const constraintid best_solution_constraint);
 
     // Structure Sharing
-    template <class TVar> void add_parent_using_pb_def(const TVar& var, std::map<VeriPB::VarIdx, constraintid>& pb_def_store, std::map<VeriPB::VarIdx, constraintid>& pb_def_parents);
-    template <class TVar> void ss_set_nr_parents_using_pb_def(const TVar& var, int n);
-    template <class TVar> int ss_get_nr_parents_using_pb_def(const TVar& var);
-    template <class TVar> void ss_add_parent_using_pb_def(const TVar& var);
+    template <class TVar> 
+    void add_parent_using_pb_def(const TVar& var, std::map<VeriPB::VarIdx, constraintid>& pb_def_store, std::map<VeriPB::VarIdx, constraintid>& pb_def_parents);
+    template <class TVar>
+    void ss_set_nr_parents_using_pb_def(const TVar& var, int n);
+    template <class TVar>
+    int ss_get_nr_parents_using_pb_def(const TVar& var);
+    template <class TVar>
+    void ss_add_parent_using_pb_def(const TVar& var);
 
     // Deletes (Totalizer)
-    template <class TVar> void delete_PB_definitions(const TVar &var);
-    template <class TVar> void delete_PB_Impl_def(const TVar &var);
-    template <class TVar> void delete_PB_invImpl_def(const TVar &var);
-    template <class TVar> void delete_P_definition(const TVar& var, std::map<VeriPB::VarIdx, constraintid>& pb_cxn_store, std::map<VeriPB::VarIdx, int>& pb_nrUsed_store);
-    template <class TVar> void delete_unnecessary_PBdefs_childnodes(const std::vector<TVar> &av, const std::vector<TVar> &bv, const int parent_nr_lits_previous, const int parent_nr_lits_current,  const bool iterative_encoded = true);
+    template <class TVar>
+    void delete_PB_definitions(const TVar &var);
+    template <class TVar>
+    void delete_PB_Impl_def(const TVar &var);
+    template <class TVar>
+    void delete_PB_invImpl_def(const TVar &var);
+    template <class TVar>
+    void delete_P_definition(const TVar& var, std::map<VeriPB::VarIdx, constraintid>& pb_cxn_store, std::map<VeriPB::VarIdx, int>& pb_nrUsed_store);
+    template <class TVar>
+    void delete_unnecessary_PBdefs_childnodes(const std::vector<TVar> &av, const std::vector<TVar> &bv, const int parent_nr_lits_previous, const int parent_nr_lits_current,  const bool iterative_encoded = true);
 private: 
     VeriPbProofLogger* PL;
 };

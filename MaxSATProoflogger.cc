@@ -26,11 +26,17 @@ template <class TLit>
 void MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, constraintid cxn_id, TLit unitclause){
     add_blocking_literal(blocking_lit, cxn_id);
 
-    std::vector<VeriPB::Lit> cls;
-    cls.push_back(toVeriPbLit(unitclause));
-    cls.push_back(toVeriPbLit(blocking_lit));
+    VeriPB::Lit _blocking_lit = toVeriPbLit(blocking_lit);
+    VeriPB::Lit _unitclause = toVeriPbLit(unitclause);
 
-    constraintid c_id = PL->redundanceBasedStrengthening(cls, 1, toVeriPbLit(blocking_lit));
+    std::vector<VeriPB::Lit> cls;
+    cls.push_back(_blocking_lit);
+    cls.push_back(_unitclause);
+
+    substitution<VeriPB::Var> witness;
+    witness.push_back({variable(_blocking_lit), !is_negated(_blocking_lit)});
+
+    constraintid c_id = PL->redundanceBasedStrengthening(cls, 1, witness);
 
     extended_unitclauses.push_back(c_id);
 }
@@ -141,8 +147,8 @@ constraintid MaxSATProoflogger::reformulate_with_unprocessed_cores(constraintid 
 //=================================================================================================
 // At-most-one constraints
 
-template <class TLit>
-constraintid MaxSATProoflogger::derive_at_most_one_constraint(const std::vector<TLit> &am1_lits)
+template <class TSeqLit>
+constraintid MaxSATProoflogger::derive_at_most_one_constraint(const TSeqLit &am1_lits)
 {
     std::vector<constraintid> binary_clauses;
 
@@ -154,7 +160,7 @@ constraintid MaxSATProoflogger::derive_at_most_one_constraint(const std::vector<
         }
         for (int lit_idx = 0; lit_idx < new_lit_idx; lit_idx++)
         {
-            constraintid binary_clause_id = PL->rup(std::vector<TLit>{am1_lits[new_lit_idx], am1_lits[lit_idx]});
+            constraintid binary_clause_id = PL->rup(std::vector<VeriPB::Lit>{toVeriPbLit(am1_lits[new_lit_idx]), toVeriPbLit(am1_lits[lit_idx])});
             binary_clauses.push_back(binary_clause_id);
 
             // the first binary constraint to start the derivation
@@ -174,30 +180,41 @@ constraintid MaxSATProoflogger::derive_at_most_one_constraint(const std::vector<
     PL->delete_constraint(binary_clauses);
     return am1_constraint_id;
 }
-template constraintid MaxSATProoflogger::derive_at_most_one_constraint<VeriPB::Lit>(const std::vector<VeriPB::Lit> &am1_lits);
-template constraintid MaxSATProoflogger::derive_at_most_one_constraint<Glucose::Lit>(const std::vector<Glucose::Lit> &am1_lits);
+template constraintid MaxSATProoflogger::derive_at_most_one_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &am1_lits);
+template constraintid MaxSATProoflogger::derive_at_most_one_constraint<Glucose::vec<Glucose::Lit>>(const Glucose::vec<Glucose::Lit> &am1_lits);
 
-template <class TLit>
-constraintid MaxSATProoflogger::introduce_at_most_one_selector(const std::vector<TLit> &am1_lits, const TLit &selector_all_lit)
+template <class TSeqLit, class TLit>
+constraintid MaxSATProoflogger::introduce_at_most_one_selector(const TSeqLit &am1_lits, const TLit &selector_all_lit)
 {
-    std::vector<TLit> constraint_lits = am1_lits;
-    constraint_lits.push_back(selector_all_lit);
+    std::vector<VeriPB::Lit> constraint_lits;
+    for(int i = 0; i < am1_lits.size(); i++)
+        constraint_lits[i] = toVeriPbLit(am1_lits[i]);
+    
+    VeriPB::Lit sel = toVeriPbLit(selector_all_lit);
 
-    constraintid reified_am1_constraint_id = PL->redundanceBasedStrengthening(constraint_lits, am1_lits.size(), selector_all_lit);
+    constraint_lits.push_back(sel);
+
+    substitution<VeriPB::Var> witness;
+    witness.push_back({variable(sel), !is_negated(sel)});
+
+    constraintid reified_am1_constraint_id = PL->redundanceBasedStrengthening(constraint_lits, am1_lits.size(), witness);
 
     for (int i = 0; i < constraint_lits.size(); i++)
     {
         constraint_lits[i] = neg(constraint_lits[i]);
     }
-    PL->redundanceBasedStrengthening(constraint_lits, 1, neg(selector_all_lit));
+
+    witness.clear();
+    witness.push_back({variable(sel), is_negated(sel)});
+    PL->redundanceBasedStrengthening(constraint_lits, 1, witness);
 
     return reified_am1_constraint_id;
 }
-template constraintid MaxSATProoflogger::introduce_at_most_one_selector<VeriPB::Lit>(const std::vector<VeriPB::Lit> &am1_lits, const VeriPB::Lit &select_all_lit);
-template constraintid MaxSATProoflogger::introduce_at_most_one_selector<Glucose::Lit>(const std::vector<Glucose::Lit> &am1_lits, const Glucose::Lit &select_all_lit);
+template constraintid MaxSATProoflogger::introduce_at_most_one_selector<std::vector<VeriPB::Lit>,VeriPB::Lit>(const std::vector<VeriPB::Lit> &am1_lits, const VeriPB::Lit &select_all_lit);
+template constraintid MaxSATProoflogger::introduce_at_most_one_selector<Glucose::vec<Glucose::Lit>, Glucose::Lit>(const Glucose::vec<Glucose::Lit> &am1_lits, const Glucose::Lit &select_all_lit);
 
-template <class TLit>
-constraintid MaxSATProoflogger::proof_log_at_most_one(constraintid base_reform_id, const std::vector<TLit> &am1_lits, const TLit &selector_all_lit, int weight)
+template <class TSeqLit, class TLit>
+constraintid MaxSATProoflogger::proof_log_at_most_one(constraintid base_reform_id, const TSeqLit &am1_lits, const TLit &selector_all_lit, int weight)
 {
     constraintid am1_constraint = derive_at_most_one_constraint(am1_lits);
     constraintid am1_lower_bound = introduce_at_most_one_selector(am1_lits, selector_all_lit);
@@ -211,5 +228,5 @@ constraintid MaxSATProoflogger::proof_log_at_most_one(constraintid base_reform_i
     PL->delete_constraint(am1_lower_bound);
     return new_base_reform_id;
 }
-template constraintid MaxSATProoflogger::proof_log_at_most_one<VeriPB::Lit>(constraintid base_reform_id, const std::vector<VeriPB::Lit> &am1_lits, const VeriPB::Lit &select_all_lit, int weight);
-template constraintid MaxSATProoflogger::proof_log_at_most_one<Glucose::Lit>(constraintid base_reform_id, const std::vector<Glucose::Lit> &am1_lits, const Glucose::Lit &select_all_lit, int weight);
+template constraintid MaxSATProoflogger::proof_log_at_most_one<std::vector<VeriPB::Lit>, VeriPB::Lit>(constraintid base_reform_id, const class std::vector<VeriPB::Lit> &am1_lits, const VeriPB::Lit &selector_all_lit, int weight);
+template constraintid MaxSATProoflogger::proof_log_at_most_one<Glucose::vec<Glucose::Lit>, Glucose::Lit>(constraintid base_reform_id, const Glucose::vec<Glucose::Lit> &am1_lits, const Glucose::Lit &select_all_lit, int weight);

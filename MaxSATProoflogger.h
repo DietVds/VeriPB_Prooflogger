@@ -92,16 +92,15 @@ public:
     /// @tparam TLit Type of the boolean literal.
     /// @param am1_lits Literals of the at-most-one constraint.
     /// @return Constraint ID of the at-most-one constraint.
-    template <class TLit>
-    constraintid derive_at_most_one_constraint(const std::vector<TLit> &am1_lits);
-
+    template <class TSeqLit>
+    constraintid derive_at_most_one_constraint(const TSeqLit &am1_lits);
     /// @brief Introduce a new variable that represents all variables in the at-most-one constraint being true.
     /// @tparam TLit Type of the boolean literal.
     /// @param am1_lits Literals of the at-most-one constraint.
     /// @param selector_all_lit Selector literal for the at-most-one constraint. This literal will be true if and only if all the literals in `am1_lits` are true.
     /// @return Constraint ID of the constraint required for objective reformulation, which is a lower bound on the literals in the at-most-one constraint.
-    template <class TLit>
-    constraintid introduce_at_most_one_selector(const std::vector<TLit> &am1_lits, const TLit &selector_all_lit);
+    template <class TSeqLit, class TLit>
+    constraintid introduce_at_most_one_selector(const TSeqLit &am1_lits, const TLit &selector_all_lit);
 
     /// @brief Proof log the objective reformulation with intrinsic at-most-one constraints. This function requires that the at-most-one constraint was detected by propagation. This function deletes the old base objective reformulation constraint and returns the new base objective reformulation constraint.
     /// @tparam TLit Type of the boolean literal.
@@ -110,8 +109,8 @@ public:
     /// @param selector_all_lit Selector literal for the at-most-one constraint. This literal will be true if and only if all the literals in `am1_lits` are true.
     /// @param weight Weight of the at most one constraint.
     /// @return Constraint ID of the updated base objective reformulation constraint. This is the constraint that says that the original objective is lower bounded by the reformulated objective after reformulating with the fixed lower bounds like at-most-one constraints and unit cores.
-    template <class TLit>
-    constraintid proof_log_at_most_one(constraintid base_reform_id, const std::vector<TLit> &am1_lits, const TLit &selector_all_lit, int weight);
+    template <class TSeqLit, class TLit>
+    constraintid proof_log_at_most_one(constraintid base_reform_id, const TSeqLit &am1_lits, const TLit &selector_all_lit, int weight);
 };
 
 #endif

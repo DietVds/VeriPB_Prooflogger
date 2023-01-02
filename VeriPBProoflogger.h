@@ -37,6 +37,9 @@
 
 typedef int constraintid;
 
+template<class TVar>
+using substitution = std::vector<std::pair<TVar, bool>>;
+
 class VeriPbProofLogger
 {
 private:
@@ -166,22 +169,26 @@ public:
     constraintid rup(const TSeqLit &lits, const TSeqInt &weights, const int RHS);
 
     // ------------- Redundance Based Strenghtening -------------
-    template <class TLit>
-    void write_witness(const TLit &literal);
-    template <class TSeqLit>
-    void write_witness(const TSeqLit &witness);
+    template <class TVar>
+    void write_witness(const substitution<TVar> &witness);
 
-    template <class TSeqLit, class TLit>
-    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const int RHS, const TLit &witness);
-    template <class TSeqLit>
-    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const int RHS, const TSeqLit &witness);
+    template <class TSeqLit, class TVar>
+    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const int RHS, const substitution<TVar> &witness);
+    template <class TSeqLit, class TSeqInt, class TVar>
+    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqInt &weights, const int RHS, const substitution<TVar> &witness);
+
+    // ------------- Reification Variables -------------
+    // Proves the constraints encoding the reification constraint l <-> C, with l a literal and C a boolean constraint.
+    // The right implication is the encoding of l -> C, whereas the left implication means l <- C.
     template <class TSeqLit, class TSeqInt, class TLit>
-    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqInt &weights, const int RHS, const TLit &witness);
-    template <class TSeqLit, class TSeqInt>
-    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqInt &weights, const int RHS, const TSeqLit &witness);
+    constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const TSeqInt &weights, const int RHS);
+    template <class TSeqLit, class TLit>
+    constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const int RHS);
 
-    // constraintid redundanceBasedStrengthening(const std::vector<Lit>& lits, const int RHS, const std::map<Lit, std::variant<Lit, bool>>& witness);
-    // constraintid redundanceBasedStrengthening(const std::vector<Lit>& lits, const std::vector<int>& weights, const int RHS, const std::vector<Lit>& witness);
+    template <class TSeqLit, class TSeqInt, class TLit>
+    constraintid reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const TSeqInt &weights, const int RHS);
+    template <class TSeqLit, class TLit>
+    constraintid reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const int RHS);
 
     // ------------- Cutting Planes derivations -------------
     void start_CP_derivation(const constraintid constraint_id);
@@ -200,51 +207,32 @@ public:
     constraintid end_CP_derivation();
 
     // ------------- Deleting & Overwriting Constraints -------------
-    //template <class TLit>
     void delete_constraint(const constraintid constraint_id);
-    //template <class TLit>
     void delete_constraint(const std::vector<constraintid> &constraint_ids);
-    template <class TLit>
-    void delete_constraint(const std::vector<TLit> &lits, const int RHS);
-    template <class TLit>
-    void delete_constraint(const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS);
+    template <class TSeqLit>
+    void delete_constraint(const TSeqLit &lits, const int RHS);
+    template <class TSeqLit, class TSeqInt>
+    void delete_constraint(const TSeqLit &lits, const TSeqInt &weights, const int RHS);
 
     //Minisat:
     void delete_constraint(Glucose::Clause &clause);
     template <template <class T> class TVec, class TLit>
     void delete_constraint(TVec<TLit> &clause);
 
-    template <class TLit>
-    constraintid overwrite_constraint(const constraintid constraint_id, const std::vector<TLit> &lits, const int RHS = 1);
-    template <class TLit>
-    constraintid overwrite_constraint(const std::vector<TLit> &lits_orig, const int RHS_orig, const std::vector<TLit> &lits, const int RHS);
-    template <class TLit>
-    constraintid overwrite_constraint(const constraintid constraint_id, const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS);
-    template <class TLit>
-    constraintid overwrite_constraint(const std::vector<TLit> &lits_orig, const std::vector<int> &weights_orig, const int RHS_orig, const std::vector<TLit> &lits, const std::vector<int> &weights, const int RHS);
-    template <class TLit>
-    constraintid overwrite_constraint(const std::vector<TLit> &lits_orig, const std::vector<TLit> &lits);
-
-
-    // Minisat:
-    template <template <class T> class TVec, class TLit>
-    void overwrite_constraint(TVec<TLit> &orig, TVec<TLit> &clause);
+    template <class TSeqLit>
+    constraintid overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const int RHS = 1);
+    template <class TSeqLit>
+    constraintid overwrite_constraint(const TSeqLit &lits_orig, const int RHS_orig, const TSeqLit &lits, const int RHS);
+    template <class TSeqLit, class TSeqInt>
+    constraintid overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const TSeqInt &weights, const int RHS);
+    template <class TSeqLit, class TSeqInt>
+    constraintid overwrite_constraint(const TSeqLit &lits_orig, const TSeqInt &weights_orig, const int RHS_orig, const TSeqLit &lits, const TSeqInt &weights, const int RHS);
+    template <class TSeqLit>
+    constraintid overwrite_constraint(const TSeqLit &lits_orig, const TSeqLit &lits);
 
     // ------------- Handling contradiction -------------
     void write_previous_constraint_contradiction();
-    void rup_empty_clause();
-
-    /****************************************
-     * For MINISAT compatibility
-     ****************************************/
-
-    // void write_clause(Glucose::Clause &clause);
-    // //void write_clause(Minisat::Clause &clause);
-    // template <template <class T> class TVec, class TLit>
-    // void write_clause(TVec<TLit> &clause);
-    
-    
-    
+    void rup_empty_clause();  
     
 
 };
