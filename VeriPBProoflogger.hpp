@@ -419,19 +419,26 @@ constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits
 // The right implication is the encoding of l -> C, whereas the left implication means l <- C.
 template <class TSeqLit, class TSeqInt, class TLit>
 constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, const TSeqLit &lits, const TSeqInt &weights, const int RHS){
+    int i;
+
+    std::string comment = to_string(lit) + " -> " ;
+    for(i = 0; i < lits.size(); i++)
+        comment += std::to_string(weights[i]) + " " + to_string(lits[i]) + " ";
+    comment += ">= " + std::to_string(RHS);
+    write_comment(comment);
+    
     std::vector<VeriPB::Lit> _lits; _lits.resize(lits.size()+1);
     std::vector<int> _weights;  _weights.resize(weights.size()+1);
 
     VeriPB::Lit neglit = toVeriPbLit(neg(lit));
 
-    for(int i = 0; i < lits.size(); i++)
-        _lits[i] = toVeriPbLit(lits[i]);
-    
-    for(int i = 0; i < weights.size(); i++)
+    for(i = 0; i < lits.size(); i++){
         _weights[i] = weights[i];
+        _lits[i] = toVeriPbLit(lits[i]);
+    }    
 
-    _lits.push_back(neglit);
-    _weights.push_back(RHS);
+    _lits[i] = neglit;
+    _weights[i] = RHS;
 
     substitution<VeriPB::Var> witness;
     witness.push_back({variable(neglit), !is_negated(neglit)});
@@ -441,19 +448,26 @@ constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, con
 
 template <class TSeqLit, class TLit>
 constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, const TSeqLit &lits, const int RHS){
+    int i;
+
+    std::string comment = to_string(lit) + " -> " ;
+    for(i = 0; i < lits.size(); i++)
+        comment +=  "1 " + to_string(lits[i]) + " ";
+    comment += ">= " + std::to_string(RHS);
+    write_comment(comment);
+    
     std::vector<VeriPB::Lit> _lits; _lits.resize(lits.size()+1);
     std::vector<int> _weights;  _weights.resize(lits.size()+1);
 
     VeriPB::Lit _neglit = toVeriPbLit(neg(lit));
 
-    for(int i = 0; i < lits.size(); i++)
-        _lits[i] = toVeriPbLit(lits[i]);
-
-    for(int i = 0; i < lits.size(); i++)
+    for(i = 0; i < lits.size(); i++){
         _weights[i] = 1;
-
-    _lits.push_back(_neglit);
-    _weights.push_back(RHS);
+        _lits[i] = toVeriPbLit(lits[i]);
+    }
+    
+    _lits[i] = _neglit;
+    _weights[i] = RHS;
 
     substitution<VeriPB::Var> witness;
     witness.push_back({variable(_neglit), !is_negated(_neglit)});
@@ -464,25 +478,33 @@ constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, con
 
 template <class TSeqLit, class TSeqInt, class TLit>
 constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &lits, const TSeqInt &weights, const int RHS){
+    int i;
+
+    std::string comment = to_string(lit) + " <- " ;
+    for(i = 0; i < lits.size(); i++)
+        comment += std::to_string(weights[i]) + " " + to_string(lits[i]) + " ";
+    comment += ">= " + std::to_string(RHS);
+    write_comment(comment);
+
     std::vector<VeriPB::Lit> _lits; _lits.resize(lits.size()+1);
     std::vector<int> _weights;  _weights.resize(weights.size()+1);
 
     VeriPB::Lit _lit = toVeriPbLit(lit);
 
-    for(int i = 0; i < lits.size(); i++)
-        _lits[i] = toVeriPbLit(neg(lits[i]));
-
     int sum_of_weights = 0;
 
-    for(int i = 0; i < weights.size(); i++){
+    for(i = 0; i < lits.size(); i++){
         sum_of_weights += weights[i];
+
         _weights[i] = weights[i];
+        _lits[i] = toVeriPbLit(neg(lits[i]));
     }
+    
 
     int j = sum_of_weights - RHS + 1 ;
 
-    _lits.push_back(_lit);
-    _weights.push_back(j);
+    _lits[i] = _lit;
+    _weights[i] = j;
 
     substitution<VeriPB::Var> witness;
     witness.push_back({variable(_lit), !is_negated(_lit)});
@@ -493,22 +515,28 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, cons
 
 template <class TSeqLit, class TLit>
 constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &lits, const int RHS){
+    int i;
+    
+    std::string comment = to_string(lit) + " <- " ;
+    for(i = 0; i < lits.size(); i++)
+        comment += "1 " + to_string(lits[i]) + " ";
+    comment += ">= " + std::to_string(RHS);
+    write_comment(comment);
+    
     std::vector<VeriPB::Lit> _lits; _lits.resize(lits.size()+1);
     std::vector<int> _weights;  _weights.resize(lits.size()+1);
 
     VeriPB::Lit _lit = toVeriPbLit(lit);
 
-    for(int i = 0; i < lits.size(); i++)
-        _lits[i] = toVeriPbLit(neg(lits[i]));
-
-    for(int i = 0; i < lits.size(); i++){
+    for(i = 0; i < lits.size(); i++){
         _weights[i] = 1;
+        _lits[i] = toVeriPbLit(neg(lits[i]));
     }
-
+    
     int j = lits.size() - RHS + 1 ;
 
-    _lits.push_back(_lit);
-    _weights.push_back(j);
+    _lits[i] = _lit;
+    _weights[i] = j;
 
     substitution<VeriPB::Var> witness;
     witness.push_back({variable(_lit), !is_negated(_lit)});
