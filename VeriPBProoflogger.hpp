@@ -314,9 +314,16 @@ void VeriPbProofLogger::delete_rewritten_best_solution_constraint(){
 template <class TSeqLBool>
 constraintid VeriPbProofLogger::log_solution(TSeqLBool &model)
 {
+    VeriPB::Var var;
+    VeriPB::Lit lit;
+
     proof << "o ";
-    for (int i = 0; i < model.size(); i++)
-        proof << (toBool(model[i]) ? "" : "~") << i << " "; 
+    for (int i = 0; i < model.size(); i++){
+        var = toVeriPbVar(i);
+        lit = create_literal(var, !toBool(model[i]));
+
+        write_literal(lit);
+    }
     proof << "\n";
 
     // Veripb automatically adds an improvement constraint so counter needs to be incremented
