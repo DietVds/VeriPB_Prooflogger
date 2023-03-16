@@ -12,6 +12,7 @@ class TotalizerProoflogger
 {
 private: 
     // Constraint stores of the PB definitions of counting variables
+    // TODO: use VeriPBProoflogger's reification constraint store for this.
     std::map<VeriPB::VarIdx, constraintid> PB_impl_cxn_store;
     std::map<VeriPB::VarIdx, constraintid> PB_invImpl_cxn_store;
 
