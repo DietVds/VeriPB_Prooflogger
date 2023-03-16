@@ -180,8 +180,8 @@ public:
     // ------------- Reification Variables -------------
     // Proves the constraints encoding the reification constraint l <-> C, with l a literal and C a boolean constraint.
     // The right implication is the encoding of l -> C, whereas the left implication means l <- C.
-    std::map<VeriPB::Var, constraintid> reifiedConstraintLeftImpl;
-    std::map<VeriPB::Var, constraintid> reifiedConstraintRightImpl;
+    std::map<VeriPB::VarIdx, constraintid> reifiedConstraintLeftImpl;
+    std::map<VeriPB::VarIdx, constraintid> reifiedConstraintRightImpl;
 
     template <class TSeqLit, class TSeqInt, class TLit>
     constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const TSeqInt &weights, const int RHS, bool store_reified_constraint=false);

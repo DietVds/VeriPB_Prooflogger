@@ -453,7 +453,7 @@ constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, con
     constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, RHS, witness);
 
     if(store_reified_constraint)
-        reifiedConstraintRightImpl[toVeriPbVar(variable(lit))] = cxnid;
+        reifiedConstraintRightImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
 
     return cxnid;
 }
@@ -484,10 +484,10 @@ constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, con
     substitution<VeriPB::Var> witness;
     witness.push_back({variable(_neglit), !is_negated(_neglit)});
 
-    cxnid = redundanceBasedStrengthening(_lits, _weights, RHS, witness);
+    constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, RHS, witness);
 
     if(store_reified_constraint)
-        reifiedConstraintRightImpl[toVeriPbVar(variable(lit))] = cxnid;
+        reifiedConstraintRightImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
 
     return cxnid;
 }
@@ -526,10 +526,10 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, cons
     substitution<VeriPB::Var> witness;
     witness.push_back({variable(_lit), !is_negated(_lit)});
 
-    cxnid = redundanceBasedStrengthening(_lits, _weights, j, witness);
+    constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, j, witness);
 
     if(store_reified_constraint)
-        reifiedConstraintLeftImpl[toVeriPbVar(variable(lit))] = cxnid;
+        reifiedConstraintLeftImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
 
     return cxnid;
 }
@@ -563,14 +563,31 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, cons
     substitution<VeriPB::Var> witness;
     witness.push_back({variable(_lit), !is_negated(_lit)});
 
-    cxnid = redundanceBasedStrengthening(_lits, _weights, j, witness);
+    constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, j, witness);
 
     if(store_reified_constraint)
-        reifiedConstraintLeftImpl[toVeriPbVar(variable(lit))] = cxnid;
+        reifiedConstraintLeftImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
 
     return cxnid;
 }
 
+template <class TVar>
+constraintid VeriPbProofLogger::getReifiedConstraintLeftImpl(const TVar& var){
+    VeriPB::VarIdx id = varidx(toVeriPbVar(var));
+
+    assert(reifiedConstraintLeftImpl.find(id) != reifiedConstraintLeftImpl.end());
+
+    return reifiedConstraintLeftImpl[id];
+}
+
+template <class TVar>
+constraintid VeriPbProofLogger::getReifiedConstraintRightImpl(const TVar& var){
+    VeriPB::VarIdx id = varidx(toVeriPbVar(var));
+
+    assert(reifiedConstraintRightImpl.find(id) != reifiedConstraintRightImpl.end());
+
+    return reifiedConstraintRightImpl[id];
+}
 
 // ------------- Cutting Planes derivations -------------
 
