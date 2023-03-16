@@ -180,15 +180,23 @@ public:
     // ------------- Reification Variables -------------
     // Proves the constraints encoding the reification constraint l <-> C, with l a literal and C a boolean constraint.
     // The right implication is the encoding of l -> C, whereas the left implication means l <- C.
-    template <class TSeqLit, class TSeqInt, class TLit>
-    constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const TSeqInt &weights, const int RHS);
-    template <class TSeqLit, class TLit>
-    constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const int RHS);
+    std::map<VeriPB::Var, constraintid> reifiedConstraintLeftImpl;
+    std::map<VeriPB::Var, constraintid> reifiedConstraintRightImpl;
 
     template <class TSeqLit, class TSeqInt, class TLit>
-    constraintid reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const TSeqInt &weights, const int RHS);
+    constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const TSeqInt &weights, const int RHS, bool store_reified_constraint=false);
     template <class TSeqLit, class TLit>
-    constraintid reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const int RHS);
+    constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const int RHS, bool store_reified_constraint=false);
+
+    template <class TSeqLit, class TSeqInt, class TLit>
+    constraintid reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const TSeqInt &weights, const int RHS, bool store_reified_constraint=false);
+    template <class TSeqLit, class TLit>
+    constraintid reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const int RHS, bool store_reified_constraint=false);
+
+    template <class TVar>
+    constraintid getReifiedConstraintLeftImpl(const TVar& var);
+    template <class TVar>
+    constraintid getReifiedConstraintRightImpl(const TVar& var);
 
     // ------------- Cutting Planes derivations -------------
     void start_CP_derivation(const constraintid constraint_id);

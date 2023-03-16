@@ -425,7 +425,7 @@ constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits
 // Proves the constraints encoding the reification constraint l <-> C, with l a literal and C a boolean constraint.
 // The right implication is the encoding of l -> C, whereas the left implication means l <- C.
 template <class TSeqLit, class TSeqInt, class TLit>
-constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, const TSeqLit &lits, const TSeqInt &weights, const int RHS){
+constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, const TSeqLit &lits, const TSeqInt &weights, const int RHS, bool store_reified_constraint){
     int i;
 
     std::string comment = to_string(lit) + " -> " ;
@@ -450,11 +450,16 @@ constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, con
     substitution<VeriPB::Var> witness;
     witness.push_back({variable(neglit), !is_negated(neglit)});
 
-    return redundanceBasedStrengthening(_lits, _weights, RHS, witness);
+    constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, RHS, witness);
+
+    if(store_reified_constraint)
+        reifiedConstraintRightImpl[toVeriPbVar(variable(lit))] = cxnid;
+
+    return cxnid;
 }
 
 template <class TSeqLit, class TLit>
-constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, const TSeqLit &lits, const int RHS){
+constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, const TSeqLit &lits, const int RHS, bool store_reified_constraint){
     int i;
 
     std::string comment = to_string(lit) + " -> " ;
@@ -479,12 +484,17 @@ constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, con
     substitution<VeriPB::Var> witness;
     witness.push_back({variable(_neglit), !is_negated(_neglit)});
 
-    return redundanceBasedStrengthening(_lits, _weights, RHS, witness);
+    cxnid = redundanceBasedStrengthening(_lits, _weights, RHS, witness);
+
+    if(store_reified_constraint)
+        reifiedConstraintRightImpl[toVeriPbVar(variable(lit))] = cxnid;
+
+    return cxnid;
 }
 
 
 template <class TSeqLit, class TSeqInt, class TLit>
-constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &lits, const TSeqInt &weights, const int RHS){
+constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &lits, const TSeqInt &weights, const int RHS, bool store_reified_constraint){
     int i;
 
     std::string comment = to_string(lit) + " <- " ;
@@ -516,12 +526,17 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, cons
     substitution<VeriPB::Var> witness;
     witness.push_back({variable(_lit), !is_negated(_lit)});
 
-    return redundanceBasedStrengthening(_lits, _weights, j, witness);
+    cxnid = redundanceBasedStrengthening(_lits, _weights, j, witness);
+
+    if(store_reified_constraint)
+        reifiedConstraintLeftImpl[toVeriPbVar(variable(lit))] = cxnid;
+
+    return cxnid;
 }
 
 
 template <class TSeqLit, class TLit>
-constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &lits, const int RHS){
+constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &lits, const int RHS, bool store_reified_constraint){
     int i;
     
     std::string comment = to_string(lit) + " <- " ;
@@ -548,7 +563,12 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, cons
     substitution<VeriPB::Var> witness;
     witness.push_back({variable(_lit), !is_negated(_lit)});
 
-    return redundanceBasedStrengthening(_lits, _weights, j, witness);
+    cxnid = redundanceBasedStrengthening(_lits, _weights, j, witness);
+
+    if(store_reified_constraint)
+        reifiedConstraintLeftImpl[toVeriPbVar(variable(lit))] = cxnid;
+
+    return cxnid;
 }
 
 
