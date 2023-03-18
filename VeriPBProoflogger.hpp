@@ -619,6 +619,11 @@ void VeriPbProofLogger::CP_add_constraint(const constraintid constraint_id)
     pol_string << " " << constraint_id << " +";
 }
 
+template <class TLit>
+void VeriPbProofLogger::CP_add_literal_axiom(const TLit &lit){
+    pol_string << " " << to_string(lit) << " +";
+}
+
 void VeriPbProofLogger::CP_divide(const int v)
 {
     pol_string << " " << v << " d";

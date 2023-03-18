@@ -82,7 +82,7 @@ template void VeriPbProofLogger::write_witness<VeriPB::Var>(const substitution<V
 template void VeriPbProofLogger::write_witness<Glucose::Var>(const substitution<Glucose::Var> &witness);
 
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<VeriPB::Lit>, VeriPB::Var>(const std::vector<VeriPB::Lit> &lits, const int RHS, const substitution<VeriPB::Var> &witness);
-template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Glucose::vec<VeriPB::Lit>, Glucose::Var>(const Glucose::vec<VeriPB::Lit> &lits, const int RHS, const substitution<Glucose::Var> &witness);
+template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Glucose::vec<Glucose::Lit>, Glucose::Var>(const Glucose::vec<Glucose::Lit> &lits, const int RHS, const substitution<Glucose::Var> &witness);
 
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<VeriPB::Lit>, std::vector<int>, VeriPB::Var>(const std::vector<VeriPB::Lit> &lits, const std::vector<int> &weights, const int RHS, const substitution<VeriPB::Var> &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Glucose::vec<Glucose::Lit>, Glucose::vec<int>, Glucose::Var>(const Glucose::vec<Glucose::Lit> &lits, const Glucose::vec<int> &weights, const int RHS, const substitution<Glucose::Var> &witness);
@@ -104,6 +104,9 @@ template void VeriPbProofLogger::start_CP_derivation_with_lit_axiom<Glucose::Lit
 
 template void VeriPbProofLogger::CP_weakening<Glucose::Var>(const Glucose::Var &var);
 template void VeriPbProofLogger::CP_weakening<VeriPB::Var>(const VeriPB::Var &var);
+
+template void VeriPbProofLogger::CP_add_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
+template void VeriPbProofLogger::CP_add_literal_axiom<Glucose::Lit>(const Glucose::Lit &lit);
 
 template void VeriPbProofLogger::CP_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
 template void VeriPbProofLogger::CP_literal_axiom<Glucose::Lit>(const Glucose::Lit &lit);

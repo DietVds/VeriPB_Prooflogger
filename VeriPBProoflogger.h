@@ -205,6 +205,8 @@ public:
     void CP_load_constraint(const constraintid constraint_id);
     void CP_add();
     void CP_add_constraint(const constraintid constraint_id);
+    template <class TLit>
+    void CP_add_literal_axiom(const TLit &lit);
     void CP_divide(const int v);
     void CP_saturate();
     void CP_multiply(const int v);
