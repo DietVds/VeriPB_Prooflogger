@@ -64,7 +64,7 @@ template constraintid VeriPbProofLogger::log_solution<Glucose::vec<Glucose::Lit>
 
 template constraintid VeriPbProofLogger::log_solution_with_check<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &model);
 
-template constraintid VeriPbProofLogger::log_solution<Glucose::vec<Glucose::lbool>>(Glucose::vec<Glucose::lbool> &model);
+template constraintid VeriPbProofLogger::log_solution_lbools<Glucose::vec<Glucose::lbool>>(Glucose::vec<Glucose::lbool> &model);
 
 template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const int RHS);
 template constraintid VeriPbProofLogger::unchecked_assumption<Glucose::vec<Glucose::Lit>>(const Glucose::vec<Glucose::Lit> &lits, const int RHS);

@@ -150,7 +150,7 @@ public:
     void delete_rewritten_best_solution_constraint();
 
     template <class TSeqLBool>
-    constraintid log_solution(TSeqLBool &model);
+    constraintid log_solution_lbools(TSeqLBool &model);
 
     // TODO: write calculate_objective_value and log_solution_with_check for TSeqLBool 
 

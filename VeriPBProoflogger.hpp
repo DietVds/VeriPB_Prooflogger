@@ -312,7 +312,7 @@ void VeriPbProofLogger::delete_rewritten_best_solution_constraint(){
 }
 
 template <class TSeqLBool>
-constraintid VeriPbProofLogger::log_solution(TSeqLBool &model)
+constraintid VeriPbProofLogger::log_solution_lbools(TSeqLBool &model)
 {
     VeriPB::Var var;
     VeriPB::Lit lit;
