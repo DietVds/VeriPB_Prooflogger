@@ -3,21 +3,74 @@
 
 #include "VeriPBProoflogger.h"
 
+typedef struct {
+    constraintid sortedness = 0;
+    constraintid input_geq_output = 0; 
+    constraintid input_leq_output = 0;
+
+    constraintid reif_left_output1 = 0;
+    constraintid reif_right_output1 = 0;
+    constraintid reif_left_output2 = 0;
+    constraintid reif_right_output2 = 0;
+} ConstraintStoreComparator;
+
+typedef struct {
+    std::vector<constraintid> sortedness_inputA;
+    std::vector<constraintid> sortedness_inputB;
+    constraintid cxnUBinputs = 0;
+    int UB; 
+
+    std::vector<constraintid> sortedness_output;
+    constraintid input_geq_output = 0;
+    constraintid input_leq_output = 0;
+
+    constraintid inputA_evens_leq_odds = 0;
+    constraintid inputB_evens_leq_odds = 0;
+    constraintid inputA_odds_leq_evens_plus1 = 0;
+    constraintid inputB_odds_leq_evens_plus1 = 0;
+
+    constraintid inputs_evens_leq_odds = 0;
+    constraintid inputs_odds_leq_evens_plus2 = 0;
+
+    constraintid outputs_recursivenetworks_evens_leq_odds = 0;
+    constraintid outputs_recursivenetworks_odds_leq_evens_plus2 = 0;
+
+    std::vector<ConstraintStoreComparator> comparatormodules;
+
+    constraintid outputs_cxnUB = 0;
+    std::vector<constraintid> constraints_removed_wires;
+} ConstraintStoreMerge;
+
+typedef struct {
+    std::vector<constraintid> sortedness_output;
+    constraintid input_geq_output = 0;
+    constraintid input_leq_output = 0;
+
+    int UB;
+    constraintid cxnUBinputs = 0;
+} ConstraintStoreSort;
+
+// PROOF LOGGING FUNCTIONS: 
+
 class SortingNetworkProoflogger
 {
-    
-
 public:
     // Constructor
     //SortingNetworkProoflogger(VeriPbProofLogger *PL);
     template <class TLit>
-    SortingNetworkProoflogger(VeriPbProofLogger *PL, TLit zero) : PL(PL), zerolit(toVeriPbLit(zero)) {}
+    SortingNetworkProoflogger(VeriPbProofLogger *PL, TLit zero, constraintid def_one) : PL(PL), zerolit(toVeriPbLit(zero)), def_one(def_one) {}
+
+    constraintid def_one;
 
     std::vector<VeriPB::Lit> lits_for_check;
 
     // Recursive sorting networks 
     template <class TSeqLit>
     constraintid derive_UB_constraint_recursive_sortingnetwork(constraintid& cxnUB, TSeqLit& blockings_recursive_network, TSeqLit& blockings_other_network, int UBproof );
+
+    template <class TSeqLit>
+    void derive_UB_for_recursive_sortingnetwork(ConstraintStoreSort& plcxn, ConstraintStoreSort& plcxn_recursive,  TSeqLit& input_recursive_network, TSeqLit& input_other_network);
+
 
     template <class TSeqLit>
     constraintid derive_UB_constraint_on_mergenetwork_input(constraintid cxnUB, TSeqLit& left_recursive_sort_output, constraintid input_geq_output_left, TSeqLit& right_recursive_sort_output, constraintid input_geq_output_right, int UBproof );
@@ -56,5 +109,7 @@ private:
     VeriPbProofLogger *PL;
     VeriPB::Lit zerolit;
 };
+
+
 
 #endif

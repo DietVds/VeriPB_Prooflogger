@@ -22,10 +22,29 @@ constraintid SortingNetworkProoflogger::derive_UB_constraint_recursive_sortingne
 }    
 
 template <class TSeqLit>
+void SortingNetworkProoflogger::derive_UB_for_recursive_sortingnetwork(ConstraintStoreSort& plcxn, ConstraintStoreSort& plcxn_recursive,  TSeqLit& input_recursive_network, TSeqLit& input_other_network){
+    plcxn_recursive.UB = plcxn.UB;
+    
+    PL->start_CP_derivation(plcxn.cxnUBinputs);
+    for(int i = 0; i < input_other_network.size(); i++)
+      PL->CP_weakening(variable(input_other_network[i]));
+    plcxn_recursive.cxnUBinputs = PL->end_CP_derivation();
+
+    lits_for_check.clear(); 
+    for(int i = 0; i < input_recursive_network.size(); i++){
+        lits_for_check.push_back( toVeriPbLit(neg(input_recursive_network[i])));
+    }
+    PL->check_last_constraint(lits_for_check, input_recursive_network.size() - plcxn_recursive.UB);
+}
+
+
+template <class TSeqLit>
 constraintid SortingNetworkProoflogger::derive_UB_constraint_on_mergenetwork_input(constraintid cxnUB, TSeqLit& left_recursive_sort_output, constraintid input_geq_output_left, TSeqLit& right_recursive_sort_output, constraintid input_geq_output_right, int UBproof ){
     PL->start_CP_derivation(cxnUB);
-    PL->CP_add_constraint(input_geq_output_left);
-    PL->CP_add_constraint(input_geq_output_right);
+    if(left_recursive_sort_output.size() > 1)
+        PL->CP_add_constraint(input_geq_output_left);
+    if(right_recursive_sort_output.size() > 1)
+        PL->CP_add_constraint(input_geq_output_right);
     constraintid cxn = PL->end_CP_derivation();
 
     lits_for_check.clear();
@@ -130,6 +149,14 @@ constraintid SortingNetworkProoflogger::derive_evens_leq_odds_merge_input(constr
     PL->start_CP_derivation(left_evens_leq_odd);
     PL->CP_add_constraint(right_evens_leq_odd);
     constraintid cxn = PL->end_CP_derivation();
+
+    std::string comment = "leftlits = ";
+    for(int i = 0; i < leftlits.size(); i++)
+        comment += PL->to_string(leftlits[i]) + " ";
+    comment += "; rightlits = ";
+    for(int i = 0; i < rightlits.size(); i++)
+        comment += PL->to_string(rightlits[i]) + " ";
+    PL->write_comment(comment);
 
     lits_for_check.clear(); int RHS=0; // TODO: RHS should be of type weight, which should be declared in the SolverTypesInt file.
 
