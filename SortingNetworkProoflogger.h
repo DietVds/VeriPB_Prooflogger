@@ -66,23 +66,32 @@ public:
 
     // Recursive sorting networks 
     template <class TSeqLit>
-    constraintid derive_UB_constraint_recursive_sortingnetwork(constraintid& cxnUB, TSeqLit& blockings_recursive_network, TSeqLit& blockings_other_network, int UBproof );
+    void derive_UB_for_recursive_sortingnetwork(ConstraintStoreSort& plcxns, ConstraintStoreSort& plcxns_recursive,  TSeqLit& input_recursive_network, TSeqLit& input_other_network);
 
     template <class TSeqLit>
-    void derive_UB_for_recursive_sortingnetwork(ConstraintStoreSort& plcxn, ConstraintStoreSort& plcxn_recursive,  TSeqLit& input_recursive_network, TSeqLit& input_other_network);
-
-
-    template <class TSeqLit>
-    constraintid derive_UB_constraint_on_mergenetwork_input(constraintid cxnUB, TSeqLit& left_recursive_sort_output, constraintid input_geq_output_left, TSeqLit& right_recursive_sort_output, constraintid input_geq_output_right, int UBproof );
+    void derive_UB_for_mergenetwork(ConstraintStoreMerge& plcxns_merge, ConstraintStoreSort& plcxns, ConstraintStoreSort& plcxns_left_sort, ConstraintStoreSort& plcxns_right_sort, TSeqLit& left_output, TSeqLit& right_output );
 
     template <class TSeqLit>
-    constraintid derive_input_geq_output_sortingnetwork(constraintid merge_input_geq_output, constraintid input_geq_output_left_recursive_sort, constraintid input_geq_output_right_recursive_sort, TSeqLit& inputliterals, TSeqLit& outputliterals);
-
-    template <class TSeqLit>
-    constraintid derive_input_leq_output_sortingnetwork(constraintid merge_input_leq_output, constraintid input_leq_output_left_recursive_sort, constraintid input_leq_output_right_recursive_sort, TSeqLit& inputliterals, TSeqLit& outputliterals);
+    void derive_input_equals_output_sortingnetwork(ConstraintStoreSort& plcxns, ConstraintStoreSort& plcxns_left, ConstraintStoreSort& plcxns_right, ConstraintStoreMerge& plcxns_merge, TSeqLit& inputs, TSeqLit& outputs);
 
 
     // Merge network 
+    template <class TSeqLit>
+    void derive_sortedness_odds(TSeqLit& literals, std::vector<constraintid>& sortedness_literals, std::vector<constraintid>& sortedness_odds);
+    template <class TSeqLit>
+    void derive_sortedness_evens(TSeqLit& literals, std::vector<constraintid>& sortedness_literals, std::vector<constraintid>& sortedness_evens);
+
+
+    template <class TSeqLit>
+    void derive_sortedness_recursive_mergenetworks(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& inputA, TSeqLit& inputB);
+
+    template <class TSeqLit> 
+    void derive_UB_for_recursive_mergenetworks(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& inputA, TSeqLit& inputB);
+
+    template <class TSeqLit>
+    void derive_input_equals_output_mergenetwork(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& inputA, TSeqLit& inputB, TSeqLit& outputs);
+
+
     template <class TSeqLit, class TSeqCxnId>
     constraintid derive_evens_leq_odds(TSeqLit& lits, TSeqCxnId& sortedness_lits);
 
@@ -105,9 +114,13 @@ public:
     template <class TLit>
     constraintid derive_sortedness_by_rup(TLit& smaller_lit, TLit& greater_lit);
 
+    template<class TSeqLit>
+    std::string sequence_to_string(TSeqLit& lits);  
+
 private:
     VeriPbProofLogger *PL;
     VeriPB::Lit zerolit;
+   
 };
 
 
