@@ -28,6 +28,9 @@ template void SortingNetworkProoflogger::derive_sortedness_output_mergenetwork<G
 
 template void SortingNetworkProoflogger::derive_UB_mergenetwork_output<Glucose::vec<Glucose::Lit>>(ConstraintStoreMerge& plcxns, Glucose::vec<Glucose::Lit>& outputs);
 
+template void SortingNetworkProoflogger::remove_wire_mergenetwork_output<Glucose::Lit>(ConstraintStoreMerge& plcxns, Glucose::Lit& removed_wire);
+template void SortingNetworkProoflogger::update_input_equals_output_mergenetwork_after_removing_wires<Glucose::vec<Glucose::Lit>>(ConstraintStoreMerge& plcxns, Glucose::vec<Glucose::Lit>& inputA, Glucose::vec<Glucose::Lit>& inputB, Glucose::vec<Glucose::Lit>& output);
+
 
 template constraintid SortingNetworkProoflogger::derive_evens_leq_odds<Glucose::vec<Glucose::Lit>, std::vector<constraintid>>(Glucose::vec<Glucose::Lit>& lits, std::vector<constraintid>& sortedness_lits);
 template constraintid SortingNetworkProoflogger::derive_odds_leq_evens_plus_1<Glucose::vec<Glucose::Lit>, std::vector<constraintid>>(Glucose::vec<Glucose::Lit>& lits, std::vector<constraintid>& sortedness_lits);

@@ -38,6 +38,7 @@ typedef struct {
     std::vector<ConstraintStoreComparator> comparatormodules;
 
     constraintid outputs_cxnUB = 0;
+    std::vector<VeriPB::Lit> removed_wires;
     std::vector<constraintid> constraints_removed_wires;
 } ConstraintStoreMerge;
 
@@ -103,6 +104,13 @@ public:
 
     template<class TSeqLit>
     void derive_UB_mergenetwork_output(ConstraintStoreMerge& plcxns, TSeqLit& outputs);
+
+    template<class TLit>
+    void remove_wire_mergenetwork_output(ConstraintStoreMerge& plcxns, TLit& lit);
+    template <class TSeqLit>
+    void update_input_equals_output_mergenetwork_after_removing_wires(ConstraintStoreMerge& plcxns, TSeqLit& inputA, TSeqLit& inputB, TSeqLit& output);
+    void remove_sortedness_constraints_mergenetwork_after_removing_wires(ConstraintStoreMerge& plcxns);
+    
 
     template <class TSeqLit, class TSeqCxnId>
     constraintid derive_evens_leq_odds(TSeqLit& lits, TSeqCxnId& sortedness_lits);

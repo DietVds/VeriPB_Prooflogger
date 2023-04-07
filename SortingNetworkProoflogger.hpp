@@ -374,6 +374,77 @@ void SortingNetworkProoflogger::derive_UB_mergenetwork_output(ConstraintStoreMer
     }
 }
 
+template<class TLit>
+void SortingNetworkProoflogger::remove_wire_mergenetwork_output(ConstraintStoreMerge& plcxns, TLit& removed_wire){
+    // Output-wires that can be deleted due to the extra created input-wires are RUP with respect to the reified constraints defining the output-wire.
+    // Output-wires that can be deleted because of the UB are RUP with respect to the sortedness of the output-wires and the UB constraint on the output-wires.
+    // Only need to derive the removal of non-zero wires.
+    if(toVeriPbLit(removed_wire) != zerolit){
+        plcxns.removed_wires.push_back(toVeriPbLit(removed_wire));
+
+        lits_for_check.clear();
+        lits_for_check.push_back(toVeriPbLit(neg(removed_wire)));
+        plcxns.constraints_removed_wires.push_back(PL->rup(lits_for_check));
+    }
+}
+
+template <class TSeqLit>
+void SortingNetworkProoflogger::update_input_equals_output_mergenetwork_after_removing_wires(ConstraintStoreMerge& plcxns, TSeqLit& inputA, TSeqLit& inputB, TSeqLit& output){
+    if(plcxns.constraints_removed_wires.size() > 0){
+        PL->write_comment("Update the input >= output constraint");
+        std::cout << "Update the input >= output constraint" << std::endl;
+        constraintid old_input_geq_output = plcxns.input_geq_output;
+        PL->start_CP_derivation(old_input_geq_output);
+        for(int i = 0; i < plcxns.removed_wires.size(); i++) //weakening because linkingVar[j] is false and at the right hand side of >= (occurs negatively in normalized constraint)
+            PL->CP_weakening(variable(plcxns.removed_wires[i]));
+        plcxns.input_geq_output = PL->end_CP_derivation();
+
+        lits_for_check.clear(); int RHS=0;
+        for(int i = 0; i < inputA.size() && toVeriPbLit(inputA[i]) != zerolit; i++ ){
+            lits_for_check.push_back(toVeriPbLit( inputA[i]));
+        }
+        for(int i = 0; i < inputB.size() && toVeriPbLit(inputB[i]) != zerolit; i++ ){
+            lits_for_check.push_back(toVeriPbLit(inputB[i]));
+        }
+        for(int i = 0; i < output.size() && toVeriPbLit(output[i]) != zerolit; i++ ){
+            lits_for_check.push_back(toVeriPbLit(neg(output[i])));
+            RHS++;
+        }
+        PL->check_last_constraint(lits_for_check, RHS);
+
+        PL->delete_constraint(old_input_geq_output);
+
+        PL->write_comment("Update the input =< output constraint");
+        std::cout << "Update the input =< output constraint" << std::endl;
+        constraintid old_input_leq_output = plcxns.input_leq_output;
+        PL->start_CP_derivation(old_input_leq_output);
+        for(int j = 0; j <  plcxns.constraints_removed_wires.size(); j++)
+            PL->CP_add_constraint(plcxns.constraints_removed_wires[j]);
+        plcxns.input_leq_output = PL->end_CP_derivation();
+
+        lits_for_check.clear(); RHS=0;
+        for(int i = 0; i < inputA.size() && toVeriPbLit(inputA[i]) != zerolit; i++ ){
+            lits_for_check.push_back(toVeriPbLit(neg(inputA[i])));
+            RHS++;
+        }
+        for(int i = 0; i < inputB.size() && toVeriPbLit(inputB[i]) != zerolit; i++ ){
+            lits_for_check.push_back(toVeriPbLit(neg(inputB[i])));
+            RHS++;
+        }
+        for(int i = 0; i < output.size() && toVeriPbLit(output[i]) != zerolit; i++ ){
+            lits_for_check.push_back(toVeriPbLit(output[i]));
+        }
+        PL->check_last_constraint(lits_for_check, RHS);
+
+        PL->delete_constraint(old_input_leq_output);        
+    }
+}
+
+void SortingNetworkProoflogger::remove_sortedness_constraints_mergenetwork_after_removing_wires(ConstraintStoreMerge& plcxns){
+    for(int i = plcxns.sortedness_output.size() - plcxns.removed_wires.size(); i < plcxns.sortedness_output.size(); i++ )
+        PL->delete_constraint(plcxns.sortedness_output[i]);
+    plcxns.sortedness_output.resize(plcxns.sortedness_output.size()-plcxns.removed_wires.size());
+}
 
 template <class TSeqLit, class TSeqCxnId>
 constraintid SortingNetworkProoflogger::derive_evens_leq_odds(TSeqLit& seq, TSeqCxnId& sortedness_seq){
