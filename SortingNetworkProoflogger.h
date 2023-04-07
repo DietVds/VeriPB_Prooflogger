@@ -83,7 +83,7 @@ public:
 
 
     template <class TSeqLit>
-    void derive_sortedness_recursive_mergenetworks(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& inputA, TSeqLit& inputB);
+    void derive_sortedness_inputs_recursivemergenetworks(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& inputA, TSeqLit& inputB);
 
     template <class TSeqLit> 
     void derive_UB_for_recursive_mergenetworks(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& inputA, TSeqLit& inputB);
@@ -91,6 +91,18 @@ public:
     template <class TSeqLit>
     void derive_input_equals_output_mergenetwork(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& inputA, TSeqLit& inputB, TSeqLit& outputs);
 
+
+    template<class TSeqLit>
+    void derive_outputs_recursivemergenetworks_evens_leq_odds(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& outputs_recursivemerge_evens, TSeqLit& outputs_recursivemerge_odds, TSeqLit& outputs);
+    template<class TSeqLit>
+    void derive_outputs_recursivemergenetworks_odds_leq_evens_plus2(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& outputs_recursivemerge_evens, TSeqLit& outputs_recursivemerge_odds, TSeqLit& outputs);
+
+
+    template <class TSeqLit>
+    void derive_sortedness_output_mergenetwork(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& outputs_recursivemerge_evens, TSeqLit& outputs_recursivemerge_odds, TSeqLit& outputs);
+
+    template<class TSeqLit>
+    void derive_UB_mergenetwork_output(ConstraintStoreMerge& plcxns, TSeqLit& outputs);
 
     template <class TSeqLit, class TSeqCxnId>
     constraintid derive_evens_leq_odds(TSeqLit& lits, TSeqCxnId& sortedness_lits);

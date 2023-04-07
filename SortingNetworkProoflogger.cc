@@ -14,11 +14,19 @@ template void SortingNetworkProoflogger::derive_input_equals_output_sortingnetwo
 template void SortingNetworkProoflogger::derive_sortedness_odds<Glucose::vec<Glucose::Lit>>(Glucose::vec<Glucose::Lit>& literals, std::vector<constraintid>& sortedness_literals, std::vector<constraintid>& sortedness_odds);
 template void SortingNetworkProoflogger::derive_sortedness_evens<Glucose::vec<Glucose::Lit>>(Glucose::vec<Glucose::Lit>& literals, std::vector<constraintid>& sortedness_literals, std::vector<constraintid>& sortedness_evens);
 
-template void SortingNetworkProoflogger::derive_sortedness_recursive_mergenetworks<Glucose::vec<Glucose::Lit>>(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, Glucose::vec<Glucose::Lit>& inputA, Glucose::vec<Glucose::Lit>& inputB);
+template void SortingNetworkProoflogger::derive_sortedness_inputs_recursivemergenetworks<Glucose::vec<Glucose::Lit>>(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, Glucose::vec<Glucose::Lit>& inputA, Glucose::vec<Glucose::Lit>& inputB);
 
 template void SortingNetworkProoflogger::derive_UB_for_recursive_mergenetworks<Glucose::vec<Glucose::Lit>>(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, Glucose::vec<Glucose::Lit>& inputA, Glucose::vec<Glucose::Lit>& inputB);
 
 template void SortingNetworkProoflogger::derive_input_equals_output_mergenetwork<Glucose::vec<Glucose::Lit>>(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, Glucose::vec<Glucose::Lit>& inputA, Glucose::vec<Glucose::Lit>& inputB, Glucose::vec<Glucose::Lit>& outputs);
+
+template void SortingNetworkProoflogger::derive_outputs_recursivemergenetworks_evens_leq_odds<Glucose::vec<Glucose::Lit>>(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, Glucose::vec<Glucose::Lit>& outputs_recursivemerge_evens, Glucose::vec<Glucose::Lit>& outputs_recursivemerge_odds, Glucose::vec<Glucose::Lit>& outputs);
+template void SortingNetworkProoflogger::derive_outputs_recursivemergenetworks_odds_leq_evens_plus2<Glucose::vec<Glucose::Lit>>(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, Glucose::vec<Glucose::Lit>& outputs_recursivemerge_evens, Glucose::vec<Glucose::Lit>& outputs_recursivemerge_odds, Glucose::vec<Glucose::Lit>& outputs);
+
+
+template void SortingNetworkProoflogger::derive_sortedness_output_mergenetwork<Glucose::vec<Glucose::Lit>>(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, Glucose::vec<Glucose::Lit>& outputs_recursivemerge_evens, Glucose::vec<Glucose::Lit>& outputs_recursivemerge_odds, Glucose::vec<Glucose::Lit>& outputs);
+
+template void SortingNetworkProoflogger::derive_UB_mergenetwork_output<Glucose::vec<Glucose::Lit>>(ConstraintStoreMerge& plcxns, Glucose::vec<Glucose::Lit>& outputs);
 
 
 template constraintid SortingNetworkProoflogger::derive_evens_leq_odds<Glucose::vec<Glucose::Lit>, std::vector<constraintid>>(Glucose::vec<Glucose::Lit>& lits, std::vector<constraintid>& sortedness_lits);

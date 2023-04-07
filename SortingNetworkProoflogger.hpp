@@ -103,7 +103,7 @@ void SortingNetworkProoflogger::derive_sortedness_evens(TSeqLit& literals, std::
 
 
 template <class TSeqLit>
-void SortingNetworkProoflogger::derive_sortedness_recursive_mergenetworks(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& inputA, TSeqLit& inputB){
+void SortingNetworkProoflogger::derive_sortedness_inputs_recursivemergenetworks(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& inputA, TSeqLit& inputB){
     derive_sortedness_odds(inputA, plcxns.sortedness_inputA, plcxns_odds.sortedness_inputA);
     derive_sortedness_evens(inputA, plcxns.sortedness_inputA, plcxns_evens.sortedness_inputA);
     derive_sortedness_odds(inputB, plcxns.sortedness_inputB, plcxns_odds.sortedness_inputB);
@@ -115,7 +115,7 @@ template <class TSeqLit>
 void SortingNetworkProoflogger::derive_UB_for_recursive_mergenetworks(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& inputA, TSeqLit& inputB){
     //PROOF: Derive evens(inputA/inputB) =< odds(inputA/inputB)
     //constraintid inputA_evens_leq_odds = 0;
-    PL->write_comment("Deriving UB for recursive merge networks for inputA = " + sequence_to_string(inputA) + " and inputB = " + sequence_to_string(inputB));
+    PL->write_comment("Deriving UB = " + std::to_string(plcxns.UB) +  " for recursive merge networks for inputA = " + sequence_to_string(inputA) + " and inputB = " + sequence_to_string(inputB));
 
 
     if(plcxns.inputA_evens_leq_odds == 0){
@@ -247,6 +247,131 @@ void SortingNetworkProoflogger::derive_input_equals_output_mergenetwork(Constrai
         lits_for_check.push_back(toVeriPbLit(outputs[i])); 
     }
     PL->check_last_constraint(lits_for_check, RHS);
+}
+
+template<class TSeqLit>
+void SortingNetworkProoflogger::derive_outputs_recursivemergenetworks_evens_leq_odds(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& e, TSeqLit& o, TSeqLit& outputs){
+    //PROOF: Derive sum of e =< sum of o 
+    PL->write_comment("Derive sum of e =< sum of d");
+    std::cout << "Derive sum of e =< sum of d" << std::endl;
+    //constraintid e_leq_d = 0;
+    // TODO: Here the necessary constraints should be derived whenever they are not derived before while deriving the UB!!
+    PL->start_CP_derivation(plcxns.inputs_evens_leq_odds);
+    PL->CP_add_constraint(plcxns_evens.input_geq_output);
+    PL->CP_add_constraint(plcxns_odds.input_leq_output);
+    plcxns.outputs_recursivenetworks_evens_leq_odds = PL->end_CP_derivation();
+    
+    lits_for_check.clear();
+    int RHS = 0;
+    for(int j = 0; j < e.size() && toVeriPbLit(e[j]) != zerolit; j++){
+      // When d.size() > e.size(), e ends with zero literals
+      lits_for_check.push_back(toVeriPbLit(neg(e[j])));
+      RHS++;
+    }
+    for(int j = 0; j < o.size() && toVeriPbLit(o[j]) != zerolit ; j++)
+      lits_for_check.push_back(toVeriPbLit(o[j]));
+    PL->check_last_constraint(lits_for_check, RHS);
+}
+
+// TODO: Change name of lits_for_check and add weights and RHS.
+template<class TSeqLit>
+void SortingNetworkProoflogger::derive_outputs_recursivemergenetworks_odds_leq_evens_plus2(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& e, TSeqLit& o, TSeqLit& outputs){
+    //PROOF: Derive sum of d =< sum of e + 2
+    PL->write_comment("Derive sum of d =< sum of e + 2");
+    std::cout << "Derive sum of d =< sum of e + 2" << std::endl;
+    // TODO: Here the necessary constraints should be derived whenever they are not derived before while deriving the UB!!
+    PL->start_CP_derivation(plcxns.inputs_odds_leq_evens_plus2);
+    PL->CP_add_constraint(plcxns_evens.input_leq_output);
+    PL->CP_add_constraint(plcxns_odds.input_geq_output);
+    plcxns.outputs_recursivenetworks_odds_leq_evens_plus2 = PL->end_CP_derivation();
+
+    lits_for_check.clear(); int RHS=0;
+    for(int j = 0; j < e.size() && toVeriPbLit(e[j]) != zerolit; j++)
+      lits_for_check.push_back(toVeriPbLit(e[j]));
+    for(int j = 0; j < o.size() && toVeriPbLit(o[j]) != zerolit; j++){
+      lits_for_check.push_back(toVeriPbLit(neg(o[j])));
+      RHS++;
+    }
+    PL->check_last_constraint(lits_for_check, RHS-2);
+}
+
+
+template <class TSeqLit>
+void SortingNetworkProoflogger::derive_sortedness_output_mergenetwork(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& e, TSeqLit& o, TSeqLit& outputs){
+    derive_outputs_recursivemergenetworks_evens_leq_odds(plcxns, plcxns_evens, plcxns_odds, e, o, outputs);
+    derive_outputs_recursivemergenetworks_odds_leq_evens_plus2(plcxns, plcxns_evens, plcxns_odds, e, o, outputs);
+  
+    //PROOF: Derive o_i >= e_i 
+    PL->write_comment("o_i >= e_i");
+    std::cout << "Derive sum of d =< sum of e + 2" << std::endl;
+    for(int j = 0; j < std::min(e.size(), o.size()); j++){
+      lits_for_check.clear();
+      lits_for_check.push_back(toVeriPbLit(o[j])); lits_for_check.push_back(toVeriPbLit(neg(e[j]))); 
+      PL->rup(lits_for_check); // TODO: Do we need to keep these somewhere to be able to remove them?
+    }
+
+    
+    PL->write_comment("e_i >= o_{i + 2}");
+    std::cout << "e_i >= o_{i + 2}" << std::endl;
+    for(int j = 0; j < std::min(e.size()-2, o.size()); j++){
+      lits_for_check.clear(); lits_for_check.push_back(toVeriPbLit(e[j])); lits_for_check.push_back(toVeriPbLit(neg(o[j+2])));
+      PL->rup(lits_for_check);
+    } 
+    
+    //PROOF: Derive sortedness of outputs
+    PL->write_comment("derive sortedness of left-over outputs");
+    std::cout << "derive sortedness of left-over outputs" << std::endl;
+    for(int j = 0; j < outputs.size()-1 && toVeriPbLit(outputs[j+1]) != zerolit; j++){
+      if(j % 2 == 1){ // sortedness of outputs[j] and outputs[j+1] was already derived by the comparator module.
+        plcxns.sortedness_output.push_back(plcxns.comparatormodules[j/2].sortedness);
+      }
+      else{
+        constraintid cxn_temp = 0;
+
+        // The extra constraint is not necessary to be derived for the first and last sortedness constraint.
+        bool firstone = j == 0;
+        bool lastone = j+2 > outputs.size() || toVeriPbLit(outputs[j+2]) == zerolit;
+
+        if(!firstone && !lastone){
+          lits_for_check.clear(); 
+          lits_for_check.push_back(toVeriPbLit(outputs[j])); 
+          lits_for_check.push_back(toVeriPbLit(neg(outputs[j+1]))); 
+          lits_for_check.push_back(toVeriPbLit(neg(e[j/2])));
+          cxn_temp = PL->rup(lits_for_check);
+        }
+
+        lits_for_check.clear(); 
+        lits_for_check.push_back(toVeriPbLit(outputs[j])); 
+        lits_for_check.push_back(toVeriPbLit(neg(outputs[j+1])));
+        plcxns.sortedness_output.push_back(PL->rup(lits_for_check));
+
+        if(cxn_temp != 0)
+          PL->delete_constraint(cxn_temp);
+
+      }
+    }
+}
+
+template<class TSeqLit>
+void SortingNetworkProoflogger::derive_UB_mergenetwork_output(ConstraintStoreMerge& plcxns, TSeqLit& outputs){
+    // We assume here that if the number of inputs is larger than the UB on the inputs, 
+    // and thus the constraint UB is needed to delete wires, the UB constraint on the inputs was derived before by 
+    // calling the function  derive_UB_for_recursive_mergenetworks. 
+    // Note that for example a merge network with three real input-wires, the fourth wire is deleted. 
+    // Proving the deletion of this wire is done by RUP with respect to the reified constraint of the fourth wire.
+    if(plcxns.cxnUBinputs != 0){ 
+        PL->write_comment("Derive UB = " + std::to_string(plcxns.UB) + " on output variables.");
+        PL->start_CP_derivation(plcxns.cxnUBinputs);
+        PL->CP_add_constraint(plcxns.input_geq_output);
+        PL->end_CP_derivation();
+
+        lits_for_check.clear(); int RHS=0;
+        for(int i = 0; i < outputs.size() && toVeriPbLit(outputs[i]) != zerolit; i++){
+            lits_for_check.push_back(toVeriPbLit(neg(outputs[i])));
+            RHS++;
+        }
+        PL->check_last_constraint(lits_for_check, RHS-plcxns.UB);
+    }
 }
 
 
