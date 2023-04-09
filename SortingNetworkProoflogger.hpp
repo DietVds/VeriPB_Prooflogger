@@ -320,6 +320,7 @@ void SortingNetworkProoflogger::derive_sortedness_output_mergenetwork(Constraint
     
     //PROOF: Derive sortedness of outputs
     PL->write_comment("derive sortedness of left-over outputs");
+    PL->write_comment("outputs = " + sequence_to_string( outputs));
     std::cout << "derive sortedness of left-over outputs" << std::endl;
     for(int j = 0; j < outputs.size()-1 && toVeriPbLit(outputs[j+1]) != zerolit; j++){
       if(j % 2 == 1){ // sortedness of outputs[j] and outputs[j+1] was already derived by the comparator module.
@@ -330,7 +331,7 @@ void SortingNetworkProoflogger::derive_sortedness_output_mergenetwork(Constraint
 
         // The extra constraint is not necessary to be derived for the first and last sortedness constraint.
         bool firstone = j == 0;
-        bool lastone = j+2 > outputs.size() || toVeriPbLit(outputs[j+2]) == zerolit;
+        bool lastone = j+2 >= outputs.size() || toVeriPbLit(outputs[j+2]) == zerolit;
 
         if(!firstone && !lastone){
           lits_for_check.clear(); 
