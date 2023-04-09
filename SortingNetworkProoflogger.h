@@ -63,7 +63,7 @@ public:
 
     constraintid def_one;
 
-    std::vector<VeriPB::Lit> lits_for_check;
+    //std::vector<VeriPB::Lit> lits_for_check;
 
     // Recursive sorting networks 
     template <class TSeqLit>
@@ -94,13 +94,13 @@ public:
 
 
     template<class TSeqLit>
-    void derive_outputs_recursivemergenetworks_evens_leq_odds(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& outputs_recursivemerge_evens, TSeqLit& outputs_recursivemerge_odds, TSeqLit& outputs);
+    void derive_outputs_recursivemergenetworks_evens_leq_odds(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& outputs_recursivemerge_evens, TSeqLit& outputs_recursivemerge_odds, TSeqLit& outputs, TSeqLit& inputA, TSeqLit& inputB);
     template<class TSeqLit>
-    void derive_outputs_recursivemergenetworks_odds_leq_evens_plus2(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& outputs_recursivemerge_evens, TSeqLit& outputs_recursivemerge_odds, TSeqLit& outputs);
+    void derive_outputs_recursivemergenetworks_odds_leq_evens_plus2(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& outputs_recursivemerge_evens, TSeqLit& outputs_recursivemerge_odds, TSeqLit& outputs, TSeqLit& inputA, TSeqLit& inputB);
 
 
     template <class TSeqLit>
-    void derive_sortedness_output_mergenetwork(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& outputs_recursivemerge_evens, TSeqLit& outputs_recursivemerge_odds, TSeqLit& outputs);
+    void derive_sortedness_output_mergenetwork(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& outputs_recursivemerge_evens, TSeqLit& outputs_recursivemerge_odds, TSeqLit& outputs, TSeqLit& inputsA, TSeqLit& inputsB);
 
     template<class TSeqLit>
     void derive_UB_mergenetwork_output(ConstraintStoreMerge& plcxns, TSeqLit& outputs);

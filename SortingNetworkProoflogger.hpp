@@ -6,6 +6,8 @@
 
 template <class TSeqLit>
 void SortingNetworkProoflogger::derive_UB_for_recursive_sortingnetwork(ConstraintStoreSort& plcxns, ConstraintStoreSort& plcxns_recursive,  TSeqLit& input_recursive_network, TSeqLit& input_other_network){
+    assert(plcxns.cxnUBinputs != 0 );
+    
     plcxns_recursive.UB = plcxns.UB;
     
     PL->start_CP_derivation(plcxns.cxnUBinputs);
@@ -13,7 +15,7 @@ void SortingNetworkProoflogger::derive_UB_for_recursive_sortingnetwork(Constrain
       PL->CP_weakening(variable(input_other_network[i]));
     plcxns_recursive.cxnUBinputs = PL->end_CP_derivation();
 
-    lits_for_check.clear(); 
+    std::vector<VeriPB::Lit> lits_for_check;
     for(int i = 0; i < input_recursive_network.size(); i++){
         lits_for_check.push_back( toVeriPbLit(neg(input_recursive_network[i])));
     }
@@ -22,8 +24,15 @@ void SortingNetworkProoflogger::derive_UB_for_recursive_sortingnetwork(Constrain
 
 template <class TSeqLit>
 void SortingNetworkProoflogger::derive_UB_for_mergenetwork(ConstraintStoreMerge& plcxns_merge, ConstraintStoreSort& plcxns, ConstraintStoreSort& plcxns_left, ConstraintStoreSort& plcxns_right, TSeqLit& left_output, TSeqLit& right_output ){
+    assert(plcxns.cxnUBinputs != 0);
+    if(left_output.size() > 1)
+        assert(plcxns_left.input_geq_output != 0);
+    if(right_output.size() > 1)
+        assert(plcxns_right.input_geq_output != 0);
+    
     plcxns_merge.UB = plcxns.UB;
     
+    PL->write_comment("Derive UB for mergenetwork inputs");
     PL->start_CP_derivation(plcxns.cxnUBinputs);
     if(left_output.size() > 1)
         PL->CP_add_constraint(plcxns_left.input_geq_output);
@@ -31,7 +40,7 @@ void SortingNetworkProoflogger::derive_UB_for_mergenetwork(ConstraintStoreMerge&
         PL->CP_add_constraint(plcxns_right.input_geq_output);
     plcxns_merge.cxnUBinputs = PL->end_CP_derivation();
 
-    lits_for_check.clear();
+    std::vector<VeriPB::Lit> lits_for_check;
     for(int i = 0; i < left_output.size(); i++)
         lits_for_check.push_back(toVeriPbLit(neg(left_output[i])));
     for(int i = 0; i < right_output.size(); i++)
@@ -41,13 +50,19 @@ void SortingNetworkProoflogger::derive_UB_for_mergenetwork(ConstraintStoreMerge&
 
 template <class TSeqLit>
 void SortingNetworkProoflogger::derive_input_equals_output_sortingnetwork(ConstraintStoreSort& plcxns, ConstraintStoreSort& plcxns_left, ConstraintStoreSort& plcxns_right, ConstraintStoreMerge& plcxns_merge, TSeqLit& inputliterals, TSeqLit& outputliterals){
+    assert(plcxns_merge.input_geq_output != 0);
+    assert(plcxns_merge.input_leq_output != 0);
+    
+
     // Deriving input geq output
     PL->start_CP_derivation(plcxns_merge.input_geq_output);
-    PL->CP_add_constraint(plcxns_left.input_geq_output);
-    PL->CP_add_constraint(plcxns_right.input_geq_output);
+    if(plcxns_left.input_geq_output != 0) // Can be zero in case the number of elements in the left sorting network is one
+        PL->CP_add_constraint(plcxns_left.input_geq_output);
+    if(plcxns_right.input_geq_output != 0) // Can be zero in case the number of elements in the left sorting network is one
+        PL->CP_add_constraint(plcxns_right.input_geq_output);
     plcxns.input_geq_output = PL->end_CP_derivation();
 
-    lits_for_check.clear();
+    std::vector<VeriPB::Lit> lits_for_check;
     for(int j = 0; j < inputliterals.size(); j++)
       lits_for_check.push_back(toVeriPbLit(inputliterals[j]));
     for(int j = 0; j < outputliterals.size(); j++)
@@ -56,8 +71,10 @@ void SortingNetworkProoflogger::derive_input_equals_output_sortingnetwork(Constr
 
     // Deriving input leq output
     PL->start_CP_derivation(plcxns_merge.input_leq_output);
-    PL->CP_add_constraint(plcxns_left.input_leq_output);
-    PL->CP_add_constraint(plcxns_right.input_leq_output);
+    if(plcxns_left.input_leq_output != 0)
+        PL->CP_add_constraint(plcxns_left.input_leq_output);
+    if(plcxns_right.input_leq_output != 0)
+        PL->CP_add_constraint(plcxns_right.input_leq_output);
     plcxns.input_leq_output = PL->end_CP_derivation();
 
     lits_for_check.clear();
@@ -80,7 +97,7 @@ void SortingNetworkProoflogger::derive_sortedness_odds(TSeqLit& literals, std::v
         PL->CP_add_constraint(sortedness_literals[i+1]);
         sortedness_odds.push_back(PL->end_CP_derivation());
 
-        lits_for_check.clear();
+        std::vector<VeriPB::Lit> lits_for_check;
         lits_for_check.push_back(toVeriPbLit(literals[i])); lits_for_check.push_back(neg(toVeriPbLit(literals[i+2]))); 
         PL->check_last_constraint(lits_for_check);
     }
@@ -95,7 +112,7 @@ void SortingNetworkProoflogger::derive_sortedness_evens(TSeqLit& literals, std::
         PL->CP_add_constraint(sortedness_literals[i+1]);
         sortedness_evens.push_back(PL->end_CP_derivation());
 
-        lits_for_check.clear();
+        std::vector<VeriPB::Lit> lits_for_check;
         lits_for_check.push_back(toVeriPbLit(literals[i])); lits_for_check.push_back(neg(toVeriPbLit(literals[i+2]))); 
         PL->check_last_constraint(lits_for_check);
     }
@@ -113,51 +130,14 @@ void SortingNetworkProoflogger::derive_sortedness_inputs_recursivemergenetworks(
 
 template <class TSeqLit> 
 void SortingNetworkProoflogger::derive_UB_for_recursive_mergenetworks(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& inputA, TSeqLit& inputB){
+    
+    
     //PROOF: Derive evens(inputA/inputB) =< odds(inputA/inputB)
-    //constraintid inputA_evens_leq_odds = 0;
-    PL->write_comment("Deriving UB = " + std::to_string(plcxns.UB) +  " for recursive merge networks for inputA = " + sequence_to_string(inputA) + " and inputB = " + sequence_to_string(inputB));
-
-
-    if(plcxns.inputA_evens_leq_odds == 0){
-        PL->write_comment("Derive evens(inputA) =< odds(inputA)");
-        plcxns.inputA_evens_leq_odds = derive_evens_leq_odds(inputA, plcxns.sortedness_inputA);
-    }
-  //constraintid inputB_evens_leq_odds = 0;
-    if(plcxns.inputB_evens_leq_odds == 0){
-        PL->write_comment("Derive evens(inputB) =< odds(inputB)");
-        plcxns.inputB_evens_leq_odds = derive_evens_leq_odds(inputB, plcxns.sortedness_inputB);
-    }
-
-    //PROOF: Derive odds(inputA/inputB) =< evens(inputA/inputB) + 1 
-    //constraintid inputA_odds_leq_evens_plus1 = 0;
-    if(plcxns.inputA_odds_leq_evens_plus1 == 0){
-        PL->write_comment("Derive odds(inputA) =< evens(inputA) + 1");
-        plcxns.inputA_odds_leq_evens_plus1 = derive_odds_leq_evens_plus_1(inputA, plcxns.sortedness_inputA);
-    }
-
-    //constraintid inputB_odds_leq_evens_plus1 = 0;
-    if(plcxns.inputB_odds_leq_evens_plus1 == 0){
-        PL->write_comment("Derive odds(inputB) =< evens(inputB) + 1");
-        plcxns.inputB_odds_leq_evens_plus1 = derive_odds_leq_evens_plus_1(inputB, plcxns.sortedness_inputB);
-    }
-
-    //PROOF: Derive evens(inputA) + evens(inputB) =< odds(inputA) + odds(inputB)
-    if(plcxns.inputs_evens_leq_odds == 0){
-        PL->write_comment("evens(inputA) + evens(inputB) =< odds(inputA) + odds(inputB)");
-        plcxns.inputs_evens_leq_odds = derive_evens_leq_odds_merge_input(plcxns.inputA_evens_leq_odds, plcxns.inputB_evens_leq_odds, inputA, inputB);
-    }
-
-    //PROOF: Derive odds(inputA) + odds(inputB) =< evens(inputA) + evens(inputB) + 2
-    if(plcxns.inputs_odds_leq_evens_plus2 == 0){
-        PL->write_comment("Derive odds(inputA) + odds(inputB) =< evens(inputA) + evens(inputB) + 2");
-        plcxns.inputs_odds_leq_evens_plus2 = derive_odds_leq_evens_plus_2_merge_input(plcxns.inputA_odds_leq_evens_plus1, plcxns.inputB_odds_leq_evens_plus1, inputA, inputB);
-    }
-
-    //constraintid cxnEvensUB = 0, cxnOddsUB = 0;
-    plcxns_evens.UB = plcxns.UB/2, plcxns_odds.UB = plcxns.UB/2+1;
+    plcxns_evens.UB = plcxns.UB/2;
+    plcxns_odds.UB = plcxns.UB/2+1;
 
     //PROOF: the UB constraint for the recursive network for the evens
-    lits_for_check.clear(); int RHS=0;
+    std::vector<VeriPB::Lit> lits_for_check; int RHS=0;
     for(int j = 1; j < inputA.size() && toVeriPbLit(inputA[j]) != zerolit; j+=2){
       lits_for_check.push_back(toVeriPbLit(neg(inputA[j])));
       RHS++;
@@ -166,7 +146,23 @@ void SortingNetworkProoflogger::derive_UB_for_recursive_mergenetworks(Constraint
       lits_for_check.push_back(toVeriPbLit(neg(inputB[j])));
       RHS++;
     }
-    if(plcxns_evens.UB < RHS){ // If the UBproofEvens is smaller than the number of elements in evens, derive the UB
+
+    if(plcxns_evens.UB < RHS){  // If the UBproofEvens is smaller than the number of elements in evens, derive the UB
+      assert(plcxns.cxnUBinputs != 0);
+
+      if(plcxns.inputA_evens_leq_odds == 0){
+          PL->write_comment("Derive evens(inputA) =< odds(inputA)");
+          plcxns.inputA_evens_leq_odds = derive_evens_leq_odds(inputA, plcxns.sortedness_inputA);
+      }
+      if(plcxns.inputB_evens_leq_odds == 0){
+          PL->write_comment("Derive evens(inputB) =< odds(inputB)");
+          plcxns.inputB_evens_leq_odds = derive_evens_leq_odds(inputB, plcxns.sortedness_inputB);
+      }
+      if(plcxns.inputs_evens_leq_odds == 0){
+          PL->write_comment("evens(inputA) + evens(inputB) =< odds(inputA) + odds(inputB)");
+          plcxns.inputs_evens_leq_odds = derive_evens_leq_odds_merge_input(plcxns.inputA_evens_leq_odds, plcxns.inputB_evens_leq_odds, inputA, inputB);
+      }
+
       PL->write_comment("Derive UB for evens");
       std::cout << "Derive UB for evens" << std::endl;
 
@@ -174,7 +170,6 @@ void SortingNetworkProoflogger::derive_UB_for_recursive_mergenetworks(Constraint
       PL->CP_add_constraint(plcxns.inputs_evens_leq_odds);
       PL->CP_divide(2);
       plcxns_evens.cxnUBinputs = PL->end_CP_derivation();
-
       PL->check_last_constraint(lits_for_check, RHS - plcxns_evens.UB);
     }
 
@@ -189,6 +184,23 @@ void SortingNetworkProoflogger::derive_UB_for_recursive_mergenetworks(Constraint
       RHS++;
     }
     if(plcxns_odds.UB < RHS){
+
+        assert(plcxns.cxnUBinputs != 0);
+
+        if(plcxns.inputA_odds_leq_evens_plus1 == 0){
+            PL->write_comment("Derive odds(inputA) =< evens(inputA) + 1");
+            plcxns.inputA_odds_leq_evens_plus1 = derive_odds_leq_evens_plus_1(inputA, plcxns.sortedness_inputA);
+        }
+        if(plcxns.inputB_odds_leq_evens_plus1 == 0){
+            PL->write_comment("Derive odds(inputB) =< evens(inputB) + 1");
+            plcxns.inputB_odds_leq_evens_plus1 = derive_odds_leq_evens_plus_1(inputB, plcxns.sortedness_inputB);
+        }
+        //PROOF: Derive odds(inputA) + odds(inputB) =< evens(inputA) + evens(inputB) + 2
+        if(plcxns.inputs_odds_leq_evens_plus2 == 0){
+            PL->write_comment("Derive odds(inputA) + odds(inputB) =< evens(inputA) + evens(inputB) + 2");
+            plcxns.inputs_odds_leq_evens_plus2 = derive_odds_leq_evens_plus_2_merge_input(plcxns.inputA_odds_leq_evens_plus1, plcxns.inputB_odds_leq_evens_plus1, inputA, inputB);
+        }
+
       PL->write_comment("Derive UB for odds");
       std::cout << "Derive UB for odds" << std::endl;
 
@@ -205,16 +217,16 @@ void SortingNetworkProoflogger::derive_UB_for_recursive_mergenetworks(Constraint
 
 template <class TSeqLit>
 void SortingNetworkProoflogger::derive_input_equals_output_mergenetwork(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& inputA, TSeqLit& inputB, TSeqLit& outputs){
+    assert(plcxns_evens.input_geq_output != 0); assert(plcxns_odds.input_geq_output != 0);
     //PROOF: Deriving the input >= output constraint
     PL->write_comment("Deriving the input >= output constraint");
-    // std::cout << "Deriving the input >= output constraint" << std::endl;
     PL->start_CP_derivation(plcxns_evens.input_geq_output);
     PL->CP_add_constraint(plcxns_odds.input_geq_output);
     for(int j = 0; j < plcxns.comparatormodules.size(); j++)
       PL->CP_add_constraint(plcxns.comparatormodules[j].input_geq_output);
     plcxns.input_geq_output = PL->end_CP_derivation();
 
-    lits_for_check.clear(); int RHS = 0;
+    std::vector<VeriPB::Lit> lits_for_check; int RHS = 0;
     for(int i = 0; i < inputA.size() && toVeriPbLit(inputA[i]) != zerolit; i++)
         lits_for_check.push_back(toVeriPbLit(inputA[i]));
     for(int i = 0; i < inputB.size() && toVeriPbLit(inputB[i])!= zerolit; i++)
@@ -250,18 +262,36 @@ void SortingNetworkProoflogger::derive_input_equals_output_mergenetwork(Constrai
 }
 
 template<class TSeqLit>
-void SortingNetworkProoflogger::derive_outputs_recursivemergenetworks_evens_leq_odds(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& e, TSeqLit& o, TSeqLit& outputs){
+void SortingNetworkProoflogger::derive_outputs_recursivemergenetworks_evens_leq_odds(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& e, TSeqLit& o, TSeqLit& outputs, TSeqLit& inputA, TSeqLit& inputB){
+    assert(plcxns_evens.input_geq_output != 0);
+    assert(plcxns_odds.input_leq_output != 0);
+    
+    // PROOF: If not derived, derive the needed constraints.
+    if(plcxns.inputA_evens_leq_odds == 0){
+        PL->write_comment("Derive evens(inputA) =< odds(inputA)");
+        plcxns.inputA_evens_leq_odds = derive_evens_leq_odds(inputA, plcxns.sortedness_inputA);
+    }
+
+    if(plcxns.inputB_evens_leq_odds == 0){
+        PL->write_comment("Derive evens(inputB) =< odds(inputB)");
+        plcxns.inputB_evens_leq_odds = derive_evens_leq_odds(inputB, plcxns.sortedness_inputB);
+    }
+
+    if(plcxns.inputs_evens_leq_odds == 0){
+        PL->write_comment("evens(inputA) + evens(inputB) =< odds(inputA) + odds(inputB)");
+	    plcxns.inputs_evens_leq_odds = derive_evens_leq_odds_merge_input(plcxns.inputA_evens_leq_odds, plcxns.inputB_evens_leq_odds, inputA, inputB);
+    }
+    
     //PROOF: Derive sum of e =< sum of o 
     PL->write_comment("Derive sum of e =< sum of d");
     std::cout << "Derive sum of e =< sum of d" << std::endl;
-    //constraintid e_leq_d = 0;
-    // TODO: Here the necessary constraints should be derived whenever they are not derived before while deriving the UB!!
+
     PL->start_CP_derivation(plcxns.inputs_evens_leq_odds);
     PL->CP_add_constraint(plcxns_evens.input_geq_output);
     PL->CP_add_constraint(plcxns_odds.input_leq_output);
     plcxns.outputs_recursivenetworks_evens_leq_odds = PL->end_CP_derivation();
     
-    lits_for_check.clear();
+    std::vector<VeriPB::Lit> lits_for_check;
     int RHS = 0;
     for(int j = 0; j < e.size() && toVeriPbLit(e[j]) != zerolit; j++){
       // When d.size() > e.size(), e ends with zero literals
@@ -275,17 +305,36 @@ void SortingNetworkProoflogger::derive_outputs_recursivemergenetworks_evens_leq_
 
 // TODO: Change name of lits_for_check and add weights and RHS.
 template<class TSeqLit>
-void SortingNetworkProoflogger::derive_outputs_recursivemergenetworks_odds_leq_evens_plus2(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& e, TSeqLit& o, TSeqLit& outputs){
+void SortingNetworkProoflogger::derive_outputs_recursivemergenetworks_odds_leq_evens_plus2(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& e, TSeqLit& o, TSeqLit& outputs, TSeqLit& inputA, TSeqLit& inputB){
+    assert(plcxns_evens.input_leq_output != 0);
+    assert(plcxns_odds.input_geq_output != 0);
+
+    //PROOF: Derive odds(inputA/inputB) =< evens(inputA/inputB) + 1
+    if(plcxns.inputB_odds_leq_evens_plus1 == 0){
+        PL->write_comment("Derive odds(inputB) =< evens(inputB) + 1");
+        plcxns.inputB_odds_leq_evens_plus1 = derive_odds_leq_evens_plus_1(inputB, plcxns.sortedness_inputB);
+    }
+ 
+    if(plcxns.inputA_odds_leq_evens_plus1 == 0){
+        PL->write_comment("Derive odds(inputA) =< evens(inputA) + 1");
+        plcxns.inputA_odds_leq_evens_plus1 = derive_odds_leq_evens_plus_1(inputA, plcxns.sortedness_inputA);
+    }
+
+    //PROOF: Derive odds(inputA) + odds(inputB) =< evens(inputA) + evens(inputB) + 2
+    if(plcxns.inputs_odds_leq_evens_plus2 == 0){
+        PL->write_comment("Derive odds(inputA) + odds(inputB) =< evens(inputA) + evens(inputB) + 2");
+        plcxns.inputs_odds_leq_evens_plus2 = derive_odds_leq_evens_plus_2_merge_input(plcxns.inputA_odds_leq_evens_plus1, plcxns.inputB_odds_leq_evens_plus1, inputA, inputB);
+    }
+    
     //PROOF: Derive sum of d =< sum of e + 2
     PL->write_comment("Derive sum of d =< sum of e + 2");
     std::cout << "Derive sum of d =< sum of e + 2" << std::endl;
-    // TODO: Here the necessary constraints should be derived whenever they are not derived before while deriving the UB!!
     PL->start_CP_derivation(plcxns.inputs_odds_leq_evens_plus2);
     PL->CP_add_constraint(plcxns_evens.input_leq_output);
     PL->CP_add_constraint(plcxns_odds.input_geq_output);
     plcxns.outputs_recursivenetworks_odds_leq_evens_plus2 = PL->end_CP_derivation();
 
-    lits_for_check.clear(); int RHS=0;
+    std::vector<VeriPB::Lit> lits_for_check; int RHS=0;
     for(int j = 0; j < e.size() && toVeriPbLit(e[j]) != zerolit; j++)
       lits_for_check.push_back(toVeriPbLit(e[j]));
     for(int j = 0; j < o.size() && toVeriPbLit(o[j]) != zerolit; j++){
@@ -297,10 +346,12 @@ void SortingNetworkProoflogger::derive_outputs_recursivemergenetworks_odds_leq_e
 
 
 template <class TSeqLit>
-void SortingNetworkProoflogger::derive_sortedness_output_mergenetwork(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& e, TSeqLit& o, TSeqLit& outputs){
-    derive_outputs_recursivemergenetworks_evens_leq_odds(plcxns, plcxns_evens, plcxns_odds, e, o, outputs);
-    derive_outputs_recursivemergenetworks_odds_leq_evens_plus2(plcxns, plcxns_evens, plcxns_odds, e, o, outputs);
+void SortingNetworkProoflogger::derive_sortedness_output_mergenetwork(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& e, TSeqLit& o, TSeqLit& outputs, TSeqLit& inputsA, TSeqLit& inputsB){
+    derive_outputs_recursivemergenetworks_evens_leq_odds(plcxns, plcxns_evens, plcxns_odds, e, o, outputs, inputsA, inputsB);
+    derive_outputs_recursivemergenetworks_odds_leq_evens_plus2(plcxns, plcxns_evens, plcxns_odds, e, o, outputs, inputsA, inputsB);
   
+    std::vector<VeriPB::Lit> lits_for_check;
+
     //PROOF: Derive o_i >= e_i 
     PL->write_comment("o_i >= e_i");
     std::cout << "Derive sum of d =< sum of e + 2" << std::endl;
@@ -366,7 +417,7 @@ void SortingNetworkProoflogger::derive_UB_mergenetwork_output(ConstraintStoreMer
         PL->CP_add_constraint(plcxns.input_geq_output);
         PL->end_CP_derivation();
 
-        lits_for_check.clear(); int RHS=0;
+        std::vector<VeriPB::Lit> lits_for_check; int RHS=0;
         for(int i = 0; i < outputs.size() && toVeriPbLit(outputs[i]) != zerolit; i++){
             lits_for_check.push_back(toVeriPbLit(neg(outputs[i])));
             RHS++;
@@ -383,7 +434,7 @@ void SortingNetworkProoflogger::remove_wire_mergenetwork_output(ConstraintStoreM
     if(toVeriPbLit(removed_wire) != zerolit){
         plcxns.removed_wires.push_back(toVeriPbLit(removed_wire));
 
-        lits_for_check.clear();
+        std::vector<VeriPB::Lit> lits_for_check;
         lits_for_check.push_back(toVeriPbLit(neg(removed_wire)));
         plcxns.constraints_removed_wires.push_back(PL->rup(lits_for_check));
     }
@@ -392,6 +443,8 @@ void SortingNetworkProoflogger::remove_wire_mergenetwork_output(ConstraintStoreM
 template <class TSeqLit>
 void SortingNetworkProoflogger::update_input_equals_output_mergenetwork_after_removing_wires(ConstraintStoreMerge& plcxns, TSeqLit& inputA, TSeqLit& inputB, TSeqLit& output){
     if(plcxns.constraints_removed_wires.size() > 0){
+        assert(plcxns.input_geq_output != 0);
+        
         PL->write_comment("Update the input >= output constraint");
         std::cout << "Update the input >= output constraint" << std::endl;
         constraintid old_input_geq_output = plcxns.input_geq_output;
@@ -400,7 +453,7 @@ void SortingNetworkProoflogger::update_input_equals_output_mergenetwork_after_re
             PL->CP_weakening(variable(plcxns.removed_wires[i]));
         plcxns.input_geq_output = PL->end_CP_derivation();
 
-        lits_for_check.clear(); int RHS=0;
+        std::vector<VeriPB::Lit> lits_for_check; int RHS=0;
         for(int i = 0; i < inputA.size() && toVeriPbLit(inputA[i]) != zerolit; i++ ){
             lits_for_check.push_back(toVeriPbLit( inputA[i]));
         }
@@ -518,7 +571,7 @@ constraintid SortingNetworkProoflogger::derive_evens_leq_odds_merge_input(constr
         comment += PL->to_string(rightlits[i]) + " ";
     PL->write_comment(comment);
 
-    lits_for_check.clear(); int RHS=0; // TODO: RHS should be of type weight, which should be declared in the SolverTypesInt file.
+    std::vector<VeriPB::Lit> lits_for_check; int RHS=0; // TODO: RHS should be of type weight, which should be declared in the SolverTypesInt file.
 
     for(int j = 0; j < leftlits.size() && toVeriPbLit(leftlits[j]) != zerolit; j++){
       lits_for_check.push_back(j % 2 == 0 ? toVeriPbLit(leftlits[j]) : toVeriPbLit(neg(leftlits[j])));
@@ -539,7 +592,7 @@ constraintid SortingNetworkProoflogger::derive_odds_leq_evens_plus_2_merge_input
     PL->CP_add_constraint(right_odds_leq_evens_plus1);
     constraintid cxn = PL->end_CP_derivation();
 
-    lits_for_check.clear(); int RHS=0;
+    std::vector<VeriPB::Lit> lits_for_check; int RHS=0;
     for(int j = 0; j < leftlits.size() && toVeriPbLit(leftlits[j]) != zerolit; j++){
       lits_for_check.push_back(j % 2 == 0 ? toVeriPbLit(neg(leftlits[j])) : toVeriPbLit(leftlits[j]));
       if(j % 2 == 0) RHS++;
