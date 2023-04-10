@@ -589,6 +589,36 @@ constraintid VeriPbProofLogger::getReifiedConstraintRightImpl(const TVar& var){
     return reifiedConstraintRightImpl[id];
 }
 
+template <class TVar>
+void VeriPbProofLogger::setReifiedConstraintLeftImpl(const TVar& var, constraintid cxnId){
+    VeriPB::VarIdx id = varidx(toVeriPbVar(var));
+    reifiedConstraintLeftImpl[id] = cxnId;
+}
+
+template <class TVar>
+void VeriPbProofLogger::setReifiedConstraintRightImpl(const TVar& var, constraintid cxnId){
+    VeriPB::VarIdx id = varidx(toVeriPbVar(var));
+    reifiedConstraintRightImpl[id] = cxnId;
+}
+
+template <class TVar>
+void VeriPbProofLogger::deleteReifiedConstraintLeftImpl(const TVar& var){
+    VeriPB::VarIdx id = varidx(toVeriPbVar(var));
+    if(reifiedConstraintLeftImpl.find(id) != reifiedConstraintLeftImpl.end()){
+        delete_constraint(reifiedConstraintLeftImpl[id]);
+        reifiedConstraintLeftImpl.erase(id);
+    }
+}
+
+template <class TVar>
+void VeriPbProofLogger::deleteReifiedConstraintRightImpl(const TVar& var){
+    VeriPB::VarIdx id = varidx(toVeriPbVar(var));
+    if(reifiedConstraintRightImpl.find(id) != reifiedConstraintRightImpl.end()){
+        delete_constraint(reifiedConstraintRightImpl[id]);
+        reifiedConstraintRightImpl.erase(id);
+    }
+}
+
 // ------------- Cutting Planes derivations -------------
 
 void VeriPbProofLogger::start_CP_derivation(const constraintid constraint_id)

@@ -99,6 +99,20 @@ template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<Glucose::vec
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<std::vector<VeriPB::Lit>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &lits, const int RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<Glucose::vec<Glucose::Lit>, Glucose::Lit>(const Glucose::Lit& lit, const Glucose::vec<Glucose::Lit> &lits, const int RHS, bool store_reified_constraint);
 
+template constraintid VeriPbProofLogger::getReifiedConstraintLeftImpl<Glucose::Var>(const Glucose::Var& var);
+template constraintid VeriPbProofLogger::getReifiedConstraintLeftImpl<VeriPB::Var>(const VeriPB::Var& var);
+template constraintid VeriPbProofLogger::getReifiedConstraintRightImpl<Glucose::Var>(const Glucose::Var& var);
+template constraintid VeriPbProofLogger::getReifiedConstraintRightImpl<VeriPB::Var>(const VeriPB::Var& var);
+    
+template void VeriPbProofLogger::setReifiedConstraintLeftImpl<VeriPB::Var>(const VeriPB::Var& var, constraintid cxnId);
+template void VeriPbProofLogger::setReifiedConstraintLeftImpl<Glucose::Var>(const Glucose::Var& var, constraintid cxnId);
+template void VeriPbProofLogger::setReifiedConstraintRightImpl<VeriPB::Var>(const VeriPB::Var& var, constraintid cxnId);
+template void VeriPbProofLogger::setReifiedConstraintRightImpl<Glucose::Var>(const Glucose::Var& var, constraintid cxnId);
+template void VeriPbProofLogger::deleteReifiedConstraintLeftImpl<VeriPB::Var>(const VeriPB::Var& var);
+template void VeriPbProofLogger::deleteReifiedConstraintLeftImpl<Glucose::Var>(const Glucose::Var& var);
+template void VeriPbProofLogger::deleteReifiedConstraintRightImpl<VeriPB::Var>(const VeriPB::Var& var);
+template void VeriPbProofLogger::deleteReifiedConstraintRightImpl<Glucose::Var>(const Glucose::Var& var);
+
 template void VeriPbProofLogger::start_CP_derivation_with_lit_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
 template void VeriPbProofLogger::start_CP_derivation_with_lit_axiom<Glucose::Lit>(const Glucose::Lit &lit);
 

@@ -180,9 +180,10 @@ public:
     // ------------- Reification Variables -------------
     // Proves the constraints encoding the reification constraint l <-> C, with l a literal and C a boolean constraint.
     // The right implication is the encoding of l -> C, whereas the left implication means l <- C.
+private:
     std::map<VeriPB::VarIdx, constraintid> reifiedConstraintLeftImpl;
     std::map<VeriPB::VarIdx, constraintid> reifiedConstraintRightImpl;
-
+public:
     template <class TSeqLit, class TSeqInt, class TLit>
     constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const TSeqInt &weights, const int RHS, bool store_reified_constraint=false);
     template <class TSeqLit, class TLit>
@@ -197,6 +198,14 @@ public:
     constraintid getReifiedConstraintLeftImpl(const TVar& var);
     template <class TVar>
     constraintid getReifiedConstraintRightImpl(const TVar& var);
+    template <class TVar>
+    void setReifiedConstraintLeftImpl(const TVar& var, constraintid cxnId);
+    template <class TVar>
+    void setReifiedConstraintRightImpl(const TVar& var, constraintid cxnId);
+    template <class TVar>
+    void deleteReifiedConstraintLeftImpl(const TVar& var);
+    template <class TVar>
+    void deleteReifiedConstraintRightImpl(const TVar& var);
 
     // ------------- Cutting Planes derivations -------------
     void start_CP_derivation(const constraintid constraint_id);
