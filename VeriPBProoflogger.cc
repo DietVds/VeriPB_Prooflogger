@@ -113,17 +113,24 @@ template void VeriPbProofLogger::deleteReifiedConstraintLeftImpl<Glucose::Var>(c
 template void VeriPbProofLogger::deleteReifiedConstraintRightImpl<VeriPB::Var>(const VeriPB::Var& var);
 template void VeriPbProofLogger::deleteReifiedConstraintRightImpl<Glucose::Var>(const Glucose::Var& var);
 
+template cuttingplanes_derivation VeriPbProofLogger::CP_literal_axiom<VeriPB::Lit>(const VeriPB::Lit& lit); 
+template cuttingplanes_derivation VeriPbProofLogger::CP_literal_axiom<Glucose::Lit>(const Glucose::Lit& lit); 
+template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<VeriPB::Var>(const cuttingplanes_derivation& cp, const VeriPB::Var& var);
+template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<Glucose::Var>(const cuttingplanes_derivation& cp, const Glucose::Var& var);
+template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<VeriPB::Var>(const VeriPB::Var& var);
+template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<Glucose::Var>(const Glucose::Var& var);
+
 template void VeriPbProofLogger::start_CP_derivation_with_lit_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
 template void VeriPbProofLogger::start_CP_derivation_with_lit_axiom<Glucose::Lit>(const Glucose::Lit &lit);
 
-template void VeriPbProofLogger::CP_weakening<Glucose::Var>(const Glucose::Var &var);
-template void VeriPbProofLogger::CP_weakening<VeriPB::Var>(const VeriPB::Var &var);
+template void VeriPbProofLogger::CP_weaken<Glucose::Var>(const Glucose::Var &var);
+template void VeriPbProofLogger::CP_weaken<VeriPB::Var>(const VeriPB::Var &var);
 
 template void VeriPbProofLogger::CP_add_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
 template void VeriPbProofLogger::CP_add_literal_axiom<Glucose::Lit>(const Glucose::Lit &lit);
 
-template void VeriPbProofLogger::CP_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
-template void VeriPbProofLogger::CP_literal_axiom<Glucose::Lit>(const Glucose::Lit &lit);
+template void VeriPbProofLogger::CP_write_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
+template void VeriPbProofLogger::CP_write_literal_axiom<Glucose::Lit>(const Glucose::Lit &lit);
 
 template void VeriPbProofLogger::delete_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const int RHS);
 template void VeriPbProofLogger::delete_constraint<Glucose::vec<Glucose::Lit>>(const Glucose::vec<Glucose::Lit> &lits, const int RHS);

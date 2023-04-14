@@ -621,6 +621,53 @@ void VeriPbProofLogger::deleteReifiedConstraintRightImpl(const TVar& var){
 
 // ------------- Cutting Planes derivations -------------
 
+cuttingplanes_derivation VeriPbProofLogger::CP_constraintid(const constraintid& constraint_id){
+    return std::to_string(constraint_id);
+}
+template <class TLit>
+cuttingplanes_derivation VeriPbProofLogger::CP_literal_axiom(const TLit& lit){
+    return to_string(lit);
+}
+cuttingplanes_derivation VeriPbProofLogger::CP_addition(const cuttingplanes_derivation& left, const cuttingplanes_derivation& right){
+    return left + " " + right + " +";
+}
+cuttingplanes_derivation VeriPbProofLogger::CP_addition(const cuttingplanes_derivation& cp){
+    return cp + " +";
+}
+cuttingplanes_derivation VeriPbProofLogger::CP_division(const cuttingplanes_derivation& cp, const int& n){
+    return cp + " " + std::to_string(n) + " d";
+}
+cuttingplanes_derivation VeriPbProofLogger::CP_division(const int& n){
+    return " " + std::to_string(n) + " d";
+}
+cuttingplanes_derivation VeriPbProofLogger::CP_saturation(const cuttingplanes_derivation& cp){
+    return cp + " s";
+}
+cuttingplanes_derivation VeriPbProofLogger::CP_saturation(){
+    return " s";
+}
+cuttingplanes_derivation VeriPbProofLogger::CP_multiplication(const cuttingplanes_derivation& cp, const int& n){
+    return cp + " " + std::to_string(n) + " *";
+}
+cuttingplanes_derivation VeriPbProofLogger::CP_multiplication(const int& n){
+    return " " + std::to_string(n) + " *";
+}
+template <class TVar>
+cuttingplanes_derivation VeriPbProofLogger::CP_weakening(const cuttingplanes_derivation& cp, const TVar& var){
+    return cp + " " + var_name(var) + " w";
+}
+template <class TVar>
+cuttingplanes_derivation VeriPbProofLogger::CP_weakening(const TVar& var){
+    return " " + var_name(var) + " w";
+}
+cuttingplanes_derivation VeriPbProofLogger::CP_apply(const cuttingplanes_derivation& cp_start, const cuttingplanes_derivation& cp_to_be_applied){
+    return cp_start + " " + cp_to_be_applied;
+}
+constraintid VeriPbProofLogger::write_CP_derivation(const cuttingplanes_derivation& cp){
+    proof << "p " << cp << "\n";
+    return ++constraint_counter;
+}
+
 void VeriPbProofLogger::start_CP_derivation(const constraintid constraint_id)
 {
     pol_string.clear();
@@ -668,13 +715,13 @@ void VeriPbProofLogger::CP_multiply(const int v)
 }
 
 template <class TVar>
-void VeriPbProofLogger::CP_weakening(const TVar &var)
+void VeriPbProofLogger::CP_weaken(const TVar &var)
 {
     pol_string << " " << var_name(var) << " w";
 }
 
 template <class TLit>
-void VeriPbProofLogger::CP_literal_axiom(const TLit &lit)
+void VeriPbProofLogger::CP_write_literal_axiom(const TLit &lit)
 {
     pol_string << " " << to_string(lit);
 }

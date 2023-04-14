@@ -12,7 +12,7 @@ void SortingNetworkProoflogger::derive_UB_for_recursive_sortingnetwork(Constrain
     
     PL->start_CP_derivation(plcxns.cxnUBinputs);
     for(int i = 0; i < input_other_network.size(); i++)
-      PL->CP_weakening(variable(input_other_network[i]));
+      PL->CP_weaken(variable(input_other_network[i]));
     plcxns_recursive.cxnUBinputs = PL->end_CP_derivation();
 
     std::vector<VeriPB::Lit> lits_for_check;
@@ -450,7 +450,7 @@ void SortingNetworkProoflogger::update_input_equals_output_mergenetwork_after_re
         constraintid old_input_geq_output = plcxns.input_geq_output;
         PL->start_CP_derivation(old_input_geq_output);
         for(int i = 0; i < plcxns.removed_wires.size(); i++) //weakening because linkingVar[j] is false and at the right hand side of >= (occurs negatively in normalized constraint)
-            PL->CP_weakening(variable(plcxns.removed_wires[i]));
+            PL->CP_weaken(variable(plcxns.removed_wires[i]));
         plcxns.input_geq_output = PL->end_CP_derivation();
 
         std::vector<VeriPB::Lit> lits_for_check; int RHS=0;
@@ -624,7 +624,7 @@ constraintid SortingNetworkProoflogger::derive_counting_definition_of_outputvars
     }
 
     for(int i = j; i < outputlits.size(); i++)
-        PL->CP_weakening(variable(outputlits[i]));
+        PL->CP_weaken(variable(outputlits[i]));
     
     constraintid cxn = PL->end_CP_derivation();
 
@@ -654,7 +654,7 @@ constraintid SortingNetworkProoflogger::derive_counting_definition_of_outputvars
     PL->start_CP_derivation(output_geq_input);
 
     for(int i = 0; i < j-1; i++) 
-        PL->CP_weakening(variable(outputlits[i])); 
+        PL->CP_weaken(variable(outputlits[i])); 
 
     for(int i = 1; i <= outputlits.size()-j; i++){
         PL->CP_load_constraint(sortedness_outputlits[sortedness_outputlits.size()-i]);
@@ -663,7 +663,7 @@ constraintid SortingNetworkProoflogger::derive_counting_definition_of_outputvars
     }
 
     if(inputlits.size() > outputlits.size()){
-        PL->CP_literal_axiom(outputlits[j-1]);
+        PL->CP_write_literal_axiom(outputlits[j-1]);
         PL->CP_multiply(inputlits.size()-outputlits.size());
         PL->CP_add();
     }

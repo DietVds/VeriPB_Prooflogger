@@ -115,7 +115,7 @@ void TotalizerProoflogger::prove_binary_implCls(const TVar &var, const TVar &var
         PL->CP_add_constraint(PB_invImpl_cxn_store[varidx(toVeriPbVar(varchild))]);
 
     for (int i = 0; i < leafs_other_child.size(); i++)
-        PL->CP_weakening(variable(leafs_other_child[i]));
+        PL->CP_weaken(variable(leafs_other_child[i]));
 
     PL->CP_saturate();
     PL->end_CP_derivation(); 
@@ -152,7 +152,7 @@ void TotalizerProoflogger::prove_binary_invImplCls(const TVar &var, const TVar &
         PL->CP_add_constraint(PB_impl_cxn_store[varidx(toVeriPbVar(varchild))]);
 
     for (int i = 0; i < leafs_other_child.size(); i++) // Weaken the leafs of the other child
-        PL->CP_weakening(variable(leafs_other_child[i]));
+        PL->CP_weaken(variable(leafs_other_child[i]));
     
     PL->CP_saturate();
     PL->end_CP_derivation();

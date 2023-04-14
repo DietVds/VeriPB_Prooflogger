@@ -40,6 +40,8 @@ typedef int constraintid;
 template<class TVar>
 using substitution = std::vector<std::pair<TVar, bool>>;
 
+typedef std::string cuttingplanes_derivation;
+
 class VeriPbProofLogger
 {
 private:
@@ -208,6 +210,26 @@ public:
     void deleteReifiedConstraintRightImpl(const TVar& var);
 
     // ------------- Cutting Planes derivations -------------
+
+    cuttingplanes_derivation CP_constraintid(const constraintid& constraint_id);
+    template <class TLit>
+    cuttingplanes_derivation CP_literal_axiom(const TLit& lit);
+    cuttingplanes_derivation CP_addition(const cuttingplanes_derivation& left, const cuttingplanes_derivation& right);
+    cuttingplanes_derivation CP_addition(const cuttingplanes_derivation& cp);
+    cuttingplanes_derivation CP_division(const cuttingplanes_derivation& cp, const int& n);
+    cuttingplanes_derivation CP_division(const int& n);
+    cuttingplanes_derivation CP_saturation(const cuttingplanes_derivation& cp);
+    cuttingplanes_derivation CP_saturation();
+    cuttingplanes_derivation CP_multiplication(const cuttingplanes_derivation& cp, const int& n);
+    cuttingplanes_derivation CP_multiplication(const int& n);
+    template <class TVar>
+    cuttingplanes_derivation CP_weakening(const cuttingplanes_derivation& cp, const TVar& var);
+    template <class TVar>
+    cuttingplanes_derivation CP_weakening(const TVar& var);
+    cuttingplanes_derivation CP_apply(const cuttingplanes_derivation& cp_start, const cuttingplanes_derivation& cp_to_be_applied);
+    constraintid write_CP_derivation(const cuttingplanes_derivation& cp);
+    
+
     void start_CP_derivation(const constraintid constraint_id);
     template <class TLit>
     void start_CP_derivation_with_lit_axiom(const TLit &lit);
@@ -220,9 +242,9 @@ public:
     void CP_saturate();
     void CP_multiply(const int v);
     template <class TVar>
-    void CP_weakening(const TVar &var);
+    void CP_weaken(const TVar &var);
     template <class TLit>
-    void CP_literal_axiom(const TLit &lit);
+    void CP_write_literal_axiom(const TLit &lit);
     constraintid end_CP_derivation();
 
     // ------------- Deleting & Overwriting Constraints -------------

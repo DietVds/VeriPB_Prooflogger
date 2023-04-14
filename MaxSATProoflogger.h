@@ -12,8 +12,6 @@ class MaxSATProoflogger
     std::vector<int> core_weights;
     std::map<VeriPB::VarIdx, int> counting_var_to_core_idx;
 
-    std::vector<constraintid> extended_unitclauses; 
-
 public:
     /// @brief Constructor of the MaxSAT prooflogger object.
     /// @param PL The main VeriPB prooflogger.
@@ -27,7 +25,10 @@ public:
     template <class TLit>
     void add_unit_clause_blocking_literal(TLit var, constraintid cxn_id, TLit unitclause);
 
-    constraintid rewrite_model_improvement_constraint_with_extended_unitclauses();
+    constraintid rewrite_model_improvement_constraint();
+
+    // The model improving constraint needs to be rewritten in many applications (e.g., addition of blocking variables to unit clauses, hardening in QMaxSAT 14.07, )
+    cuttingplanes_derivation CP_modelimprovingconstraint_rewrite = "";
 
     // Functions to help with objective reformulation
 
