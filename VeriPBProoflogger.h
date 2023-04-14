@@ -148,7 +148,7 @@ public:
     constraintid log_solution(const TSeqLit &model);
     template <class TSeqLit>
     constraintid log_solution_with_check(const TSeqLit &model);
-    constraintid get_best_solution_constraint();
+    constraintid get_model_improving_constraint();
 
     cuttingplanes_derivation CP_modelimprovingconstraint_rewrite = "";    
     constraintid get_rewritten_best_solution_constraint();
@@ -276,6 +276,7 @@ public:
 
     // ------------- Handling contradiction -------------
     void write_previous_constraint_contradiction();
+    void write_contradiction(constraintid cxnid);
     void rup_empty_clause();  
     
 

@@ -297,7 +297,7 @@ constraintid VeriPbProofLogger::log_solution_with_check(const TSeqLit &model)
     return best_solution_constraint;
 }
 
-constraintid VeriPbProofLogger::get_best_solution_constraint()
+constraintid VeriPbProofLogger::get_model_improving_constraint()
 {
     return best_solution_constraint;
 }
@@ -308,7 +308,7 @@ constraintid VeriPbProofLogger::get_rewritten_best_solution_constraint(){
 void VeriPbProofLogger::rewrite_model_improvement_constraint(){
     rewritten_best_solution_constraint = write_CP_derivation(
                 CP_apply(
-                    CP_constraintid(get_best_solution_constraint()), 
+                    CP_constraintid(get_model_improving_constraint()), 
                     CP_modelimprovingconstraint_rewrite));
 }
 
@@ -813,6 +813,9 @@ constraintid VeriPbProofLogger::overwrite_constraint(const TSeqLit&lits_orig, co
 }
 
 // ------------- Handling contradiction -------------
+void VeriPbProofLogger::write_contradiction(constraintid cxnid){
+    proof << "c " << cxnid << "\n";
+}
 
 void VeriPbProofLogger::write_previous_constraint_contradiction()
 {
