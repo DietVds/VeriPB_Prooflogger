@@ -24,11 +24,7 @@ public:
 
     template <class TLit>
     void add_unit_clause_blocking_literal(TLit var, constraintid cxn_id, TLit unitclause);
-
-    constraintid rewrite_model_improvement_constraint();
-
-    // The model improving constraint needs to be rewritten in many applications (e.g., addition of blocking variables to unit clauses, hardening in QMaxSAT 14.07, )
-    cuttingplanes_derivation CP_modelimprovingconstraint_rewrite = "";
+    
 
     // Functions to help with objective reformulation
 

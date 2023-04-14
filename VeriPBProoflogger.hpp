@@ -276,6 +276,10 @@ constraintid VeriPbProofLogger::log_solution(const TSeqLit &model)
     proof << "\n";
     // Veripb automatically adds an improvement constraint so counter needs to be incremented
     best_solution_constraint = ++constraint_counter;
+    // Invalidate previously rewritten model improving constraint
+    delete_constraint(rewritten_best_solution_constraint);
+    rewritten_best_solution_constraint = 0; 
+
     return constraint_counter;
 }
 
@@ -286,7 +290,7 @@ constraintid VeriPbProofLogger::log_solution_with_check(const TSeqLit &model)
     if (current_objective_value < best_objective_value)
     {
         write_comment("Objective update from " + std::to_string(best_objective_value) + " to " + std::to_string(current_objective_value));
-        best_solution_constraint = log_solution(model);
+        log_solution(model);
         best_objective_value = current_objective_value;
     }
 
@@ -301,15 +305,13 @@ constraintid VeriPbProofLogger::get_best_solution_constraint()
 constraintid VeriPbProofLogger::get_rewritten_best_solution_constraint(){
     return rewritten_best_solution_constraint;
 }
-void VeriPbProofLogger::set_rewritten_best_solution_constraint(constraintid cxn){
-    rewritten_best_solution_constraint = cxn;
+void VeriPbProofLogger::rewrite_model_improvement_constraint(){
+    rewritten_best_solution_constraint = write_CP_derivation(
+                CP_apply(
+                    CP_constraintid(get_best_solution_constraint()), 
+                    CP_modelimprovingconstraint_rewrite));
 }
-void VeriPbProofLogger::delete_rewritten_best_solution_constraint(){
-    //delete_constraint<int>(rewritten_best_solution_constraint);
-    delete_constraint(rewritten_best_solution_constraint);
 
-    rewritten_best_solution_constraint = 0;
-}
 
 template <class TSeqLBool>
 constraintid VeriPbProofLogger::log_solution_lbools(TSeqLBool &model)
@@ -328,7 +330,11 @@ constraintid VeriPbProofLogger::log_solution_lbools(TSeqLBool &model)
 
     // Veripb automatically adds an improvement constraint so counter needs to be incremented
     best_solution_constraint = ++constraint_counter;
-    return constraint_counter;
+    // Invalidate previously rewritten model improving constraint
+    delete_constraint(rewritten_best_solution_constraint);
+    rewritten_best_solution_constraint = 0; 
+
+    return best_solution_constraint;
 }
 
 

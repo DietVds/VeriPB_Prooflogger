@@ -58,6 +58,7 @@ private:
     int objective_constant_cost = 0;
     int best_objective_value = INT_MAX;
     constraintid best_solution_constraint; // Last model improvement constraint
+    // The model improving constraint needs to be rewritten in many applications (e.g., for MaxSAT prooflogging: addition of blocking variables to unit clauses, hardening in QMaxSAT 14.07 )
     constraintid rewritten_best_solution_constraint = 0; // last rewritten model improvement constraint. 0 means that it hasn't been rewritten. 
 
     // Meaningful variable names
@@ -74,6 +75,7 @@ private:
     //
     std::stringstream pol_string;
 
+    
 public:
 
     // Proof file
@@ -147,9 +149,10 @@ public:
     template <class TSeqLit>
     constraintid log_solution_with_check(const TSeqLit &model);
     constraintid get_best_solution_constraint();
+
+    cuttingplanes_derivation CP_modelimprovingconstraint_rewrite = "";    
     constraintid get_rewritten_best_solution_constraint();
-    void set_rewritten_best_solution_constraint(constraintid cxn);
-    void delete_rewritten_best_solution_constraint();
+    void rewrite_model_improvement_constraint();
 
     template <class TSeqLBool>
     constraintid log_solution_lbools(TSeqLBool &model);
