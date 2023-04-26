@@ -134,28 +134,40 @@ void VeriPbProofLogger::write_weighted_literal(const TLit &literal, int weight)
     write_literal<TLit>(literal);
 }
 
+// 
+std::string VeriPbProofLogger::to_string_rewrite_var_by_literal(VeriPB::Var& var, VeriPB::Lit& lit){
+    VeriPB::Var litvar = variable(lit);
+
+    if(map_rewrite_var_by_literal.find(varidx(litvar)) == map_rewrite_var_by_literal.end()){
+        return (is_negated(lit) ? "~" : "") + var_name(litvar);
+    }
+    else{
+        VeriPB::Lit lit_to_rewrite_to = map_rewrite_var_by_literal[varidx(litvar)];
+
+        if(is_negated(lit))
+            lit_to_rewrite_to = neg(lit_to_rewrite_to);
+
+        if(variable(lit_to_rewrite_to) == var)
+            return (is_negated(lit_to_rewrite_to) ? "~" : "") + var_name(variable(lit_to_rewrite_to));
+        else
+            return to_string_rewrite_var_by_literal(var, lit_to_rewrite_to);
+    }
+}
+
 template <class TLit>
 std::string VeriPbProofLogger::to_string(const TLit &lit)
 {
-    return (is_negated(lit) ? "~" : "") + var_name(variable(lit));
+    VeriPB::Lit l = toVeriPbLit(lit);
+    VeriPB::Var varl = variable(l);
+
+    return to_string_rewrite_var_by_literal(varl, l);
 }
 
 
 template <class TLit>
 void VeriPbProofLogger::write_literal(const TLit &lit)
 {
-    VeriPB::Lit l = toVeriPbLit(lit);
-    VeriPB::Var litvar = variable(l);
-
-    if(map_rewrite_var_by_literal.find(varidx(litvar)) != map_rewrite_var_by_literal.end()){ // the variable needs to be rewritten
-        if(is_negated(l))
-            proof << to_string(neg(map_rewrite_var_by_literal[varidx(litvar)])) << " ";
-        else 
-            proof << to_string(map_rewrite_var_by_literal[varidx(litvar)]) << " ";
-    }
-    else{
-        proof << to_string(l) << " ";
-    }
+    proof << to_string(lit) << " ";
 }
 
 template <class TSeqLit>
@@ -272,7 +284,8 @@ constraintid VeriPbProofLogger::log_solution(const TSeqLit &model)
 {
     proof << "o ";
     for (int i = 0; i < model.size(); i++)
-        write_literal(model[i]);
+        if(!is_aux_var(variable(model[i]))) 
+            write_literal(model[i]);
     proof << "\n";
     // Veripb automatically adds an improvement constraint so counter needs to be incremented
     best_solution_constraint = ++constraint_counter;
@@ -324,7 +337,8 @@ constraintid VeriPbProofLogger::log_solution_lbools(TSeqLBool &model)
         var = toVeriPbVar(i);
         lit = create_literal(var, !toBool(model[i]));
 
-        write_literal(lit);
+        if(!is_aux_var(var))
+            write_literal(lit);
     }
     proof << "\n";
 

@@ -8,6 +8,8 @@
 #include <sstream>
 #include <set>
 
+#include<iostream>
+
 // NOTE! Should include definition for types Var, Lit and Clause
 #include "SolverTypesInt.h"
 
@@ -66,6 +68,8 @@ private:
 
     // Variables to be rewritten by literals.
     std::map<VeriPB::VarIdx, VeriPB::Lit> map_rewrite_var_by_literal;
+
+    std::string to_string_rewrite_var_by_literal(VeriPB::Var& variable, VeriPB::Lit& literal);
 
     // Constraint counter
     //
