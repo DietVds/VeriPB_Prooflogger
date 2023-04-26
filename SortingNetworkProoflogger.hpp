@@ -164,7 +164,6 @@ void SortingNetworkProoflogger::derive_UB_for_recursive_mergenetworks(Constraint
       }
 
       PL->write_comment("Derive UB for evens");
-      std::cout << "Derive UB for evens" << std::endl;
 
       PL->start_CP_derivation(plcxns.cxnUBinputs);
       PL->CP_add_constraint(plcxns.inputs_evens_leq_odds);
@@ -202,7 +201,6 @@ void SortingNetworkProoflogger::derive_UB_for_recursive_mergenetworks(Constraint
         }
 
       PL->write_comment("Derive UB for odds");
-      std::cout << "Derive UB for odds" << std::endl;
 
       PL->start_CP_derivation(plcxns.cxnUBinputs);
       PL->CP_add_constraint(plcxns.inputs_odds_leq_evens_plus2);
@@ -239,7 +237,7 @@ void SortingNetworkProoflogger::derive_input_equals_output_mergenetwork(Constrai
 
     //PROOF: Deriving the input =< output constraint
     PL->write_comment("Deriving the input =< output constraint");
-    // std::cout << "Deriving the input =< output constraint" << std::endl;
+    
     PL->start_CP_derivation(plcxns_evens.input_leq_output);
     PL->CP_add_constraint(plcxns_odds.input_leq_output);
     for(int j = 0; j < plcxns.comparatormodules.size(); j++)
@@ -284,7 +282,6 @@ void SortingNetworkProoflogger::derive_outputs_recursivemergenetworks_evens_leq_
     
     //PROOF: Derive sum of e =< sum of o 
     PL->write_comment("Derive sum of e =< sum of d");
-    std::cout << "Derive sum of e =< sum of d" << std::endl;
 
     PL->start_CP_derivation(plcxns.inputs_evens_leq_odds);
     PL->CP_add_constraint(plcxns_evens.input_geq_output);
@@ -328,7 +325,6 @@ void SortingNetworkProoflogger::derive_outputs_recursivemergenetworks_odds_leq_e
     
     //PROOF: Derive sum of d =< sum of e + 2
     PL->write_comment("Derive sum of d =< sum of e + 2");
-    std::cout << "Derive sum of d =< sum of e + 2" << std::endl;
     PL->start_CP_derivation(plcxns.inputs_odds_leq_evens_plus2);
     PL->CP_add_constraint(plcxns_evens.input_leq_output);
     PL->CP_add_constraint(plcxns_odds.input_geq_output);
@@ -354,7 +350,7 @@ void SortingNetworkProoflogger::derive_sortedness_output_mergenetwork(Constraint
 
     //PROOF: Derive o_i >= e_i 
     PL->write_comment("o_i >= e_i");
-    std::cout << "Derive sum of d =< sum of e + 2" << std::endl;
+
     for(int j = 0; j < std::min(e.size(), o.size()); j++){
       lits_for_check.clear();
       lits_for_check.push_back(toVeriPbLit(o[j])); lits_for_check.push_back(toVeriPbLit(neg(e[j]))); 
@@ -363,7 +359,7 @@ void SortingNetworkProoflogger::derive_sortedness_output_mergenetwork(Constraint
 
     
     PL->write_comment("e_i >= o_{i + 2}");
-    std::cout << "e_i >= o_{i + 2}" << std::endl;
+
     for(int j = 0; j < std::min(e.size()-2, o.size()); j++){
       lits_for_check.clear(); lits_for_check.push_back(toVeriPbLit(e[j])); lits_for_check.push_back(toVeriPbLit(neg(o[j+2])));
       PL->rup(lits_for_check);
@@ -372,7 +368,7 @@ void SortingNetworkProoflogger::derive_sortedness_output_mergenetwork(Constraint
     //PROOF: Derive sortedness of outputs
     PL->write_comment("derive sortedness of left-over outputs");
     PL->write_comment("outputs = " + sequence_to_string( outputs));
-    std::cout << "derive sortedness of left-over outputs" << std::endl;
+
     for(int j = 0; j < outputs.size()-1 && toVeriPbLit(outputs[j+1]) != zerolit; j++){
       if(j % 2 == 1){ // sortedness of outputs[j] and outputs[j+1] was already derived by the comparator module.
         plcxns.sortedness_output.push_back(plcxns.comparatormodules[j/2].sortedness);
@@ -446,7 +442,7 @@ void SortingNetworkProoflogger::update_input_equals_output_mergenetwork_after_re
         assert(plcxns.input_geq_output != 0);
         
         PL->write_comment("Update the input >= output constraint");
-        std::cout << "Update the input >= output constraint" << std::endl;
+        
         constraintid old_input_geq_output = plcxns.input_geq_output;
         PL->start_CP_derivation(old_input_geq_output);
         for(int i = 0; i < plcxns.removed_wires.size(); i++) //weakening because linkingVar[j] is false and at the right hand side of >= (occurs negatively in normalized constraint)
@@ -469,7 +465,7 @@ void SortingNetworkProoflogger::update_input_equals_output_mergenetwork_after_re
         PL->delete_constraint(old_input_geq_output);
 
         PL->write_comment("Update the input =< output constraint");
-        std::cout << "Update the input =< output constraint" << std::endl;
+        
         constraintid old_input_leq_output = plcxns.input_leq_output;
         PL->start_CP_derivation(old_input_leq_output);
         for(int j = 0; j <  plcxns.constraints_removed_wires.size(); j++)
