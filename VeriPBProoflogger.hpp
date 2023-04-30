@@ -213,13 +213,13 @@ void VeriPbProofLogger::equals_rule(const constraintid constraint_id, const TSeq
 template <class TSeqLit>
 void VeriPbProofLogger::check_last_constraint(const TSeqLit &lits, const int RHS)
 {
-    equals_rule(constraint_counter, lits, RHS);
+    equals_rule(-1, lits, RHS);
 }
 
 template <class TSeqLit, class TSeqInt>
 void VeriPbProofLogger::check_last_constraint(const TSeqLit &lits, const TSeqInt &weights, const int RHS)
 {
-    equals_rule(constraint_counter, lits, weights, RHS);
+    equals_rule(-1, lits, weights, RHS);
 }
 
 // ------------- Rules for optimisation -------------
@@ -816,7 +816,7 @@ void VeriPbProofLogger::write_contradiction(constraintid cxnid){
 
 void VeriPbProofLogger::write_previous_constraint_contradiction()
 {
-    *proof << "c " << constraint_counter << "\n";
+    *proof << "c -1 \n";
 }
 
 void VeriPbProofLogger::rup_empty_clause()
