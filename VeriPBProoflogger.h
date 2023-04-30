@@ -83,15 +83,12 @@ private:
 public:
 
     // Proof file
-    std::ofstream proof;
-    std::string proof_file = "maxsat_proof.pbp";
-    void start_proof(const std::string name, int nbclause, int nbvars);
-    void start_proof(const std::string name, int nbvars);
-    void init_proof_file(const std::string name);
-    void end_proof();
+    std::ostream* proof;
+    void set_proof_stream(std::ostream* proof);
     void write_proof_header(int nbclause, int nbvars);
     void write_proof_header(int nbclause);
     void increase_n_variables();
+    void increase_constraint_counter();
 
     // Objective Function 
     template<class TSeqLit, class TSeqInt>
@@ -157,6 +154,7 @@ public:
     cuttingplanes_derivation CP_modelimprovingconstraint_rewrite = "";    
     constraintid get_rewritten_best_solution_constraint();
     void rewrite_model_improvement_constraint();
+    void reset_rewritten_best_solution_constraint();
 
     template <class TSeqLBool>
     constraintid log_solution_lbools(TSeqLBool &model);

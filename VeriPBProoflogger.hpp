@@ -7,44 +7,20 @@
 
 // ------------- Proof file -------------
 
-void VeriPbProofLogger::start_proof(const std::string filename, int nbclause, int nbvars)
-{
-    init_proof_file(filename);
-    write_proof_header(nbclause, nbvars);
-}
-
-void VeriPbProofLogger::start_proof(const std::string filename, int nbvars)
-{
-    init_proof_file(filename);
-    write_proof_header(nbvars);
-}
-
-void VeriPbProofLogger::init_proof_file(const std::string filename)
-{
-    proof_file = filename;
-    proof.open(filename);
+void VeriPbProofLogger::set_proof_stream(std::ostream* proof){
+    this->proof = proof;
 }
 
 void VeriPbProofLogger::write_proof_header(int nbclause, int nbvars)
 {
-    constraint_counter = (constraintid)nbclause;
-    n_variables = nbvars;
-
-    proof << "pseudo-Boolean proof version 1.0\n";
-    proof << "f " << nbclause << "\n";
+    *proof << "pseudo-Boolean proof version 1.0\n";
+    *proof << "f " << nbclause << "\n";
 }
 
 void VeriPbProofLogger::write_proof_header(int nbvars)
 {
-    n_variables = nbvars;
-
-    proof << "pseudo-Boolean proof version 1.0\n";
-    proof << "f\n";
-}
-
-void VeriPbProofLogger::end_proof()
-{
-    proof.close();
+    *proof << "pseudo-Boolean proof version 1.0\n";
+    *proof << "f\n";
 }
 
 template<class TSeqLit, class TSeqInt>
@@ -76,27 +52,31 @@ void VeriPbProofLogger::add_objective_constant(int weight){
 
 void VeriPbProofLogger::write_comment_objective_function()
 {
-    proof << "* f = ";
+    *proof << "* f = ";
     for (int i = 0; i < objective_lits.size(); i++)
         write_weighted_literal(objective_lits[i], objective_weights[i]);
     if(objective_constant_cost != 0)
-        proof << " + " << std::to_string(objective_constant_cost);
-    proof << "\n";
+        *proof << " + " << std::to_string(objective_constant_cost);
+    *proof << "\n";
 }
 
 void VeriPbProofLogger::increase_n_variables(){
     n_variables++;
 }
+
+void VeriPbProofLogger::increase_constraint_counter(){
+    constraint_counter++;
+}
 // ------------- Helping functions -------------
 
 void VeriPbProofLogger::write_comment(const char *comment)
 {
-    proof << "* " << comment << "\n";
+    *proof << "* " << comment << "\n";
 }
 
 void VeriPbProofLogger::write_comment(const std::string &comment)
 {
-    proof << "* " << comment << "\n";
+    *proof << "* " << comment << "\n";
 }
 
 template <class TVar>
@@ -130,7 +110,7 @@ std::string VeriPbProofLogger::var_name(const TVar &var)
 template <class TLit>
 void VeriPbProofLogger::write_weighted_literal(const TLit &literal, int weight)
 {
-    proof << std::to_string(weight) + " ";
+    *proof << std::to_string(weight) + " ";
     write_literal<TLit>(literal);
 }
 
@@ -167,7 +147,7 @@ std::string VeriPbProofLogger::to_string(const TLit &lit)
 template <class TLit>
 void VeriPbProofLogger::write_literal(const TLit &lit)
 {
-    proof << to_string(lit) << " ";
+    *proof << to_string(lit) << " ";
 }
 
 template <class TSeqLit>
@@ -175,7 +155,7 @@ void VeriPbProofLogger::write_cardinality_constraint(const TSeqLit &lits, const 
 {
     for (int i = 0; i < lits.size(); i++)
         write_weighted_literal(lits[i]);
-    proof << ">= " << RHS;
+    *proof << ">= " << RHS;
 }
 
 template <class TSeqLit>
@@ -188,7 +168,7 @@ void VeriPbProofLogger::write_PB_constraint(const TSeqLit &lits, const TSeqInt &
 {
     for (int i = 0; i < lits.size(); i++)
         write_weighted_literal(lits[i], weights[i]);
-    proof << ">= " << RHS;
+    *proof << ">= " << RHS;
 }
 
 // ------------- Rewrite variables by literals -------------
@@ -217,17 +197,17 @@ void VeriPbProofLogger::delete_meaningful_name(const TVar &var)
 template <class TSeqLit>
 void VeriPbProofLogger::equals_rule(const constraintid constraint_id, const TSeqLit &lits, const int RHS)
 {
-    proof << "e " << constraint_id << " ";
+    *proof << "e " << constraint_id << " ";
     write_cardinality_constraint(lits, RHS);
-    proof << ";\n";
+    *proof << ";\n";
 }
 
 template <class TSeqLit, class TSeqInt>
 void VeriPbProofLogger::equals_rule(const constraintid constraint_id, const TSeqLit &lits, const TSeqInt &weights, const int RHS)
 {
-    proof << "e " << constraint_id << " ";
+    *proof << "e " << constraint_id << " ";
     write_PB_constraint(lits, weights, RHS);
-    proof << ";\n";
+    *proof << ";\n";
 }
 
 template <class TSeqLit>
@@ -282,11 +262,11 @@ int VeriPbProofLogger::calculate_objective_value(const TSeqLit &model)
 template <class TSeqLit>
 constraintid VeriPbProofLogger::log_solution(const TSeqLit &model)
 {
-    proof << "o ";
+    *proof << "o ";
     for (int i = 0; i < model.size(); i++)
         if(!is_aux_var(variable(model[i]))) 
             write_literal(model[i]);
-    proof << "\n";
+    *proof << "\n";
     // Veripb automatically adds an improvement constraint so counter needs to be incremented
     best_solution_constraint = ++constraint_counter;
     // Invalidate previously rewritten model improving constraint
@@ -325,6 +305,9 @@ void VeriPbProofLogger::rewrite_model_improvement_constraint(){
                     CP_modelimprovingconstraint_rewrite));
 }
 
+void VeriPbProofLogger::reset_rewritten_best_solution_constraint(){
+    rewritten_best_solution_constraint = 0;
+}
 
 template <class TSeqLBool>
 constraintid VeriPbProofLogger::log_solution_lbools(TSeqLBool &model)
@@ -332,7 +315,7 @@ constraintid VeriPbProofLogger::log_solution_lbools(TSeqLBool &model)
     VeriPB::Var var;
     VeriPB::Lit lit;
 
-    proof << "o ";
+    *proof << "o ";
     for (int i = 0; i < model.size(); i++){
         var = toVeriPbVar(i);
         lit = create_literal(var, !toBool(model[i]));
@@ -340,7 +323,7 @@ constraintid VeriPbProofLogger::log_solution_lbools(TSeqLBool &model)
         if(!is_aux_var(var))
             write_literal(lit);
     }
-    proof << "\n";
+    *proof << "\n";
 
     // Veripb automatically adds an improvement constraint so counter needs to be incremented
     best_solution_constraint = ++constraint_counter;
@@ -356,18 +339,18 @@ constraintid VeriPbProofLogger::log_solution_lbools(TSeqLBool &model)
 template <class TSeqLit>
 constraintid VeriPbProofLogger::unchecked_assumption(const TSeqLit &lits, const int RHS)
 {
-    proof << "a ";
+    *proof << "a ";
     write_cardinality_constraint(lits, RHS);
-    proof << " ;\n";
+    *proof << " ;\n";
     return ++constraint_counter;
 }
 
 template <class TSeqLit, class TSeqInt>
 constraintid VeriPbProofLogger::unchecked_assumption(const TSeqLit &lits, const TSeqInt &weights, const int RHS)
 {
-    proof << "u ";
+    *proof << "u ";
     write_PB_constraint(lits, weights, RHS);
-    proof << " ;\n";
+    *proof << " ;\n";
     return ++constraint_counter;
 }
 
@@ -375,18 +358,18 @@ constraintid VeriPbProofLogger::unchecked_assumption(const TSeqLit &lits, const 
 template <class TSeqLit>
 constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const int RHS)
 {
-    proof << "u ";
+    *proof << "u ";
     write_cardinality_constraint(lits, RHS);
-    proof << ";\n";
+    *proof << ";\n";
     return ++constraint_counter;
 }
 
 template <class TSeqLit, class TSeqInt>
 constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const TSeqInt &weights, const int RHS)
 {
-    proof << "u ";
+    *proof << "u ";
     write_PB_constraint(lits, weights, RHS);
-    proof << " ;\n";
+    *proof << " ;\n";
     return ++constraint_counter;
 }
 
@@ -414,7 +397,7 @@ void VeriPbProofLogger::write_witness(const substitution<TVar> &witness)
                 to = !to;
         }
 
-        proof << var_name(var) << " -> " << std::to_string(to) ;
+        *proof << var_name(var) << " -> " << std::to_string(to) ;
     }    
 }
 
@@ -422,22 +405,22 @@ void VeriPbProofLogger::write_witness(const substitution<TVar> &witness)
 template <class TSeqLit, class TVar>
 constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits, const int RHS, const substitution<TVar> &witness)
 {
-    proof << "red ";
+    *proof << "red ";
     write_cardinality_constraint(lits, RHS);
-    proof << "; ";
+    *proof << "; ";
     write_witness(witness);
-    proof << "\n";
+    *proof << "\n";
     return ++constraint_counter;
 }
 
 template <class TSeqLit, class TSeqInt, class TVar>
 constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits, const TSeqInt &weights, const int RHS, const substitution<TVar> &witness)
 {
-    proof << "red ";
+    *proof << "red ";
     write_PB_constraint(lits, weights, RHS);
-    proof << "; ";
+    *proof << "; ";
     write_witness(witness);
-    proof << "\n";
+    *proof << "\n";
     return ++constraint_counter;
 }
 
@@ -684,7 +667,7 @@ cuttingplanes_derivation VeriPbProofLogger::CP_apply(const cuttingplanes_derivat
     return cp_start + " " + cp_to_be_applied;
 }
 constraintid VeriPbProofLogger::write_CP_derivation(const cuttingplanes_derivation& cp){
-    proof << "p " << cp << "\n";
+    *proof << "p " << cp << "\n";
     return ++constraint_counter;
 }
 
@@ -748,7 +731,7 @@ void VeriPbProofLogger::CP_write_literal_axiom(const TLit &lit)
 
 constraintid VeriPbProofLogger::end_CP_derivation()
 {
-    proof << pol_string.rdbuf() << "\n";
+    *proof << pol_string.rdbuf() << "\n";
     return ++constraint_counter;
 }
 
@@ -756,34 +739,34 @@ constraintid VeriPbProofLogger::end_CP_derivation()
 
 void VeriPbProofLogger::delete_constraint(const constraintid constraint_id)
 {
-    proof << "del id " << constraint_id << "\n";
+    *proof << "del id " << constraint_id << "\n";
 }
 
 void VeriPbProofLogger::delete_constraint(const std::vector<constraintid> &constraint_ids)
 {
-    proof << "del id";
+    *proof << "del id";
     for (int i = 0; i < constraint_ids.size(); i++)
     {
-        proof << " " << constraint_ids[i];
+        *proof << " " << constraint_ids[i];
     }
-    proof << "\n";
+    *proof << "\n";
 }
 
 template <class TSeqLit>
 void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const int RHS)
 {
-    proof << "del find ";
+    *proof << "del find ";
     write_cardinality_constraint(lits, RHS);
-    proof << ";\n";
+    *proof << ";\n";
 }
 
 
 template <class TSeqLit, class TSeqInt>
 void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqInt &weights, const int RHS)
 {
-    proof << "del find ";
+    *proof << "del find ";
     write_PB_constraint(lits, weights, RHS);
-    proof << ";\n";
+    *proof << ";\n";
 }
 
 template <class TSeqLit>
@@ -828,17 +811,17 @@ constraintid VeriPbProofLogger::overwrite_constraint(const TSeqLit&lits_orig, co
 
 // ------------- Handling contradiction -------------
 void VeriPbProofLogger::write_contradiction(constraintid cxnid){
-    proof << "c " << cxnid << "\n";
+    *proof << "c " << cxnid << "\n";
 }
 
 void VeriPbProofLogger::write_previous_constraint_contradiction()
 {
-    proof << "c " << constraint_counter << "\n";
+    *proof << "c " << constraint_counter << "\n";
 }
 
 void VeriPbProofLogger::rup_empty_clause()
 {
-    proof << "u >= 1;\n";
+    *proof << "u >= 1;\n";
     constraint_counter++;
 }
 //=================================================================================================
