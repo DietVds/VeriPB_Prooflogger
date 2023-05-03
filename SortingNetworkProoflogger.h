@@ -124,19 +124,22 @@ public:
     template <class TSeqLit>
     constraintid derive_odds_leq_evens_plus_2_merge_input(constraintid left_odds_leq_evens_plus1, constraintid right_odds_leq_evens_plus1, TSeqLit& leftlits, TSeqLit& rightlits );
 
-
-    template <class TSeqLit, class TSeqCxnId>
-    constraintid derive_counting_definition_of_outputvars_right(TSeqLit& inputlits, TSeqLit& outputlits, int j, constraintid input_geq_output, TSeqCxnId& sortedness_outputlits);
-
-    template <class TSeqLit, class TSeqCxnId>
-    constraintid derive_counting_definition_of_outputvars_left(TSeqLit& inputlits, TSeqLit& outputlits, int j, constraintid output_geq_input, TSeqCxnId& sortedness_outputlits);
-
     template <class TLit>
     constraintid derive_sortedness_by_rup(TLit& smaller_lit, TLit& greater_lit);
 
     template<class TSeqLit>
     std::string sequence_to_string(TSeqLit& lits);  
 
+    // Derivation of definition of output variables
+     template <class TSeqLit, class TSeqCxnId>
+    constraintid derive_counting_definition_of_outputvars_right(TSeqLit& inputlits, TSeqLit& outputlits, int j, constraintid input_geq_output, TSeqCxnId& sortedness_outputlits);
+
+    template <class TSeqLit, class TSeqCxnId>
+    constraintid derive_counting_definition_of_outputvars_left(TSeqLit& inputlits, TSeqLit& outputlits, int j, constraintid output_geq_input, TSeqCxnId& sortedness_outputlits);
+
+    // Deletions of constraints
+    void delete_temp_constraints(ConstraintStoreMerge& plcxns);
+    void delete_temp_constraints(ConstraintStoreSort& plcxns);
 private:
     VeriPbProofLogger *PL;
     VeriPB::Lit zerolit;

@@ -694,6 +694,89 @@ constraintid SortingNetworkProoflogger::derive_sortedness_by_rup(TLit& smaller_l
     return PL->rup(lits);
 }
 
+// Deletions of constraints
+void SortingNetworkProoflogger::delete_temp_constraints(ConstraintStoreMerge& plcxns){
+
+    // Sortedness of the inputs is deleted when deleting the constraints of the recursive merge networks.
+    plcxns.sortedness_inputA.clear();
+    plcxns.sortedness_inputB.clear();
+    
+    if(plcxns.cxnUBinputs != 0)
+        PL->delete_constraint(plcxns.cxnUBinputs);
+
+    if(plcxns.input_geq_output != 0)
+        PL->delete_constraint(plcxns.input_geq_output);
+    
+    if(plcxns.input_leq_output != 0)
+        PL->delete_constraint(plcxns.input_leq_output);
+    
+    if(plcxns.inputA_evens_leq_odds != 0)
+        PL->delete_constraint(plcxns.inputA_evens_leq_odds);
+
+    if(plcxns.inputB_evens_leq_odds != 0)
+        PL->delete_constraint(plcxns.inputB_evens_leq_odds);
+
+    if(plcxns.inputA_odds_leq_evens_plus1 != 0)
+        PL->delete_constraint(plcxns.inputA_odds_leq_evens_plus1);
+
+    if(plcxns.inputB_odds_leq_evens_plus1 != 0)
+        PL->delete_constraint(plcxns.inputB_odds_leq_evens_plus1);
+
+    if(plcxns.inputs_evens_leq_odds != 0)
+        PL->delete_constraint(plcxns.inputs_evens_leq_odds);
+
+    if(plcxns.inputs_odds_leq_evens_plus2 != 0)
+        PL->delete_constraint(plcxns.inputs_odds_leq_evens_plus2);
+
+    if(plcxns.outputs_recursivenetworks_evens_leq_odds != 0)
+        PL->delete_constraint(plcxns.outputs_recursivenetworks_evens_leq_odds);
+
+    if(plcxns.outputs_recursivenetworks_odds_leq_evens_plus2 != 0)
+        PL->delete_constraint(plcxns.outputs_recursivenetworks_odds_leq_evens_plus2);
+
+    for(int i = 0; i < plcxns.comparatormodules.size(); i++){
+        if(plcxns.comparatormodules[i].input_geq_output  != 0)
+            PL->delete_constraint(plcxns.comparatormodules[i].input_geq_output);
+        if(plcxns.comparatormodules[i].input_leq_output != 0)
+            PL->delete_constraint(plcxns.comparatormodules[i].input_leq_output);
+        if(plcxns.comparatormodules[i].reif_left_output1 != 0)
+            PL->delete_constraint(plcxns.comparatormodules[i].reif_left_output1);
+        if(plcxns.comparatormodules[i].reif_right_output1 != 0)
+            PL->delete_constraint(plcxns.comparatormodules[i].reif_right_output1);
+        if(plcxns.comparatormodules[i].reif_left_output2 != 0)
+            PL->delete_constraint(plcxns.comparatormodules[i].reif_left_output2);
+        if(plcxns.comparatormodules[i].reif_right_output2 != 0)
+            PL->delete_constraint(plcxns.comparatormodules[i].reif_right_output2);
+
+    }
+
+    if(plcxns.outputs_cxnUB != 0)
+        PL->delete_constraint(plcxns.outputs_cxnUB);
+
+    plcxns.removed_wires.clear();
+
+    for(int i = 0; i < plcxns.constraints_removed_wires.size(); i++)
+        PL->delete_constraint(plcxns.constraints_removed_wires[i]);
+    plcxns.constraints_removed_wires.clear();
+
+    // The following constraints will be used as input constraints in the proof later on, but we can clear the vector already.
+    plcxns.sortedness_output.clear();
+}
+
+void SortingNetworkProoflogger::delete_temp_constraints(ConstraintStoreSort& plcxns){
+    for(int i = 0; i < plcxns.sortedness_output.size(); i++)
+        PL->delete_constraint(plcxns.sortedness_output[i]);
+    plcxns.sortedness_output.clear();
+
+    if(plcxns.input_geq_output != 0)
+        PL->delete_constraint(plcxns.input_geq_output);
+
+    if(plcxns.input_leq_output != 0)
+        PL->delete_constraint(plcxns.input_leq_output);
+
+    if(plcxns.cxnUBinputs != 0)
+        PL->delete_constraint(plcxns.cxnUBinputs);
+}
 
 template<class TSeqLit>
 std::string SortingNetworkProoflogger::sequence_to_string(TSeqLit& lits){
@@ -702,3 +785,4 @@ std::string SortingNetworkProoflogger::sequence_to_string(TSeqLit& lits){
         res += ", " + PL->to_string(lits[i]);
     return res + ">"; 
 }
+
