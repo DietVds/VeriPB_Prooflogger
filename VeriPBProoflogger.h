@@ -97,6 +97,7 @@ public:
     void add_objective_literal(TLit lit, int weight);
     void add_objective_constant(int weight);
     void write_comment_objective_function();
+    int get_best_objective_function();
 
     // ------------- Helping functions -------------
     void write_comment(const char *comment);
@@ -146,10 +147,11 @@ public:
     template <class TSeqLit>
     int calculate_objective_value(const TSeqLit &model);
     template <class TSeqLit>
-    constraintid log_solution(const TSeqLit &model);
+    constraintid log_solution(const TSeqLit &model, int objective_value=INT_MAX);
     template <class TSeqLit>
     constraintid log_solution_with_check(const TSeqLit &model);
     constraintid get_model_improving_constraint();
+    int get_best_objective_value();
 
     cuttingplanes_derivation CP_modelimprovingconstraint_rewrite = "";    
     constraintid get_rewritten_best_solution_constraint();
@@ -157,7 +159,7 @@ public:
     void reset_rewritten_best_solution_constraint();
 
     template <class TSeqLBool>
-    constraintid log_solution_lbools(TSeqLBool &model);
+    constraintid log_solution_lbools(TSeqLBool &model, int objective_value=INT_MAX);
 
     // TODO: write calculate_objective_value and log_solution_with_check for TSeqLBool 
 
@@ -234,7 +236,7 @@ public:
     cuttingplanes_derivation CP_apply(const cuttingplanes_derivation& cp_start, const cuttingplanes_derivation& cp_to_be_applied);
     constraintid write_CP_derivation(const cuttingplanes_derivation& cp);
     
-
+    // OLD:
     void start_CP_derivation(const constraintid constraint_id);
     template <class TLit>
     void start_CP_derivation_with_lit_axiom(const TLit &lit);

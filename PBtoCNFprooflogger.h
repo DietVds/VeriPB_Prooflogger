@@ -47,18 +47,16 @@ public:
     template <class TSeqLit, class TSeqInt>
     void derive_UB_on_recursion_inputs(constraintid& UB_left_node, constraintid& UB_right_node,
                                         constraintid& UB_current_node, 
-                                        TSeqLit& leavesLeft, TSeqInt& weightsLeft, TSeqLit& leavesRight, TSeqInt& weightsRight, int& UB);
+                                        TSeqLit& leavesLeft, TSeqInt& weightsLeft, TSeqLit& leavesRight, TSeqInt& weightsRight);
 
     template <class TSeqLit>
     void derive_UB_on_recursion_inputs(constraintid& UB_left_node, constraintid& UB_right_node,
                                         constraintid& UB_current_node, 
-                                        TSeqLit& leavesLeft, TSeqLit& leavesRight, int& UB);
+                                        TSeqLit& leavesLeft, TSeqLit& leavesRight);
 
     // Given a binary tree encoding and an UB on the leaves of the current node, a
     template <class TSeqLit, class TSeqInt>
-    void derive_UB_on_outputliterals(constraintid& UB_recursion_outputs,
-                                        constraintid& UB_leaves, constraintid& leaves_leq_outputs,
-                                        TSeqLit& outputs, TSeqInt& weights, int UB  );
+    constraintid derive_UB_on_outputliterals(constraintid& UB_leaves, constraintid& leaves_geq_outputs, TSeqLit& outputs, TSeqInt& weights );
 
     
 

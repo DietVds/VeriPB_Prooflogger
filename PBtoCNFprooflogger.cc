@@ -5,13 +5,13 @@ template void PBtoCNFprooflogger::define_zerolit<VeriPB::Lit>(VeriPB::Lit& zero)
 
 // Functions to use when the PB-CNF Translation creates a binary tree, derives variables with specific properties for its children and then merges the children into the parent node.
 
-template constraintid PBtoCNFprooflogger::derive_leaves_leq_outputvars_after_binary_recursion<Glucose::vec<Glucose::Lit>, Glucose::vec<long long>>(constraintid& leaves_leq_outputs_leftrecursion, constraintid& leaves_leq_outputs_rightrecursion, 
+template constraintid PBtoCNFprooflogger::derive_leaves_leq_outputvars_after_binary_recursion<Glucose::vec<Glucose::Lit>, Glucose::vec<long long int>>(constraintid& leaves_leq_outputs_leftrecursion, constraintid& leaves_leq_outputs_rightrecursion, 
                                                         constraintid& outputs_recursion_leq_outputs,
-                                                        Glucose::vec<Glucose::Lit>& leaves, Glucose::vec<long long>& weightsleaves, Glucose::vec<Glucose::Lit>& output, Glucose::vec<long long>& weightsOutput);
+                                                        Glucose::vec<Glucose::Lit>& leaves, Glucose::vec<long long int>& weightsleaves, Glucose::vec<Glucose::Lit>& output, Glucose::vec<long long int>& weightsOutput);
 
-template constraintid PBtoCNFprooflogger::derive_leaves_geq_outputvars_after_binary_recursion<Glucose::vec<Glucose::Lit>, Glucose::vec<long long>>(constraintid& leaves_geq_outputs_leftrecursion, constraintid& leaves_geq_outputs_rightrecursion, 
+template constraintid PBtoCNFprooflogger::derive_leaves_geq_outputvars_after_binary_recursion<Glucose::vec<Glucose::Lit>, Glucose::vec<long long int>>(constraintid& leaves_geq_outputs_leftrecursion, constraintid& leaves_geq_outputs_rightrecursion, 
                                                         constraintid& outputs_recursion_geq_outputs,
-                                                        Glucose::vec<Glucose::Lit>& leaves,  Glucose::vec<long long>& weightsleaves, Glucose::vec<Glucose::Lit>& output, Glucose::vec<long long>& weightsOutput);
+                                                        Glucose::vec<Glucose::Lit>& leaves,  Glucose::vec<long long int>& weightsleaves, Glucose::vec<Glucose::Lit>& output, Glucose::vec<long long int>& weightsOutput);
 
 template constraintid PBtoCNFprooflogger::derive_leaves_leq_outputvars_after_binary_recursion<std::vector<VeriPB::Lit>, std::vector<int>>(constraintid& leaves_leq_outputs_leftrecursion, constraintid& leaves_leq_outputs_rightrecursion, 
                                                         constraintid& outputs_recursion_leq_outputs,
@@ -21,23 +21,23 @@ template constraintid PBtoCNFprooflogger::derive_leaves_geq_outputvars_after_bin
                                                         constraintid& outputs_recursion_geq_outputs,
                                                         std::vector<VeriPB::Lit>& leaves,  std::vector<int>& weightsleaves, std::vector<VeriPB::Lit>& output, std::vector<int>& weightsOutput);
 
-template void PBtoCNFprooflogger::derive_UB_on_recursion_inputs<Glucose::vec<Glucose::Lit>, Glucose::vec<int>>(constraintid& UB_left_node, constraintid& UB_right_node,
+template void PBtoCNFprooflogger::derive_UB_on_recursion_inputs<Glucose::vec<Glucose::Lit>, Glucose::vec<long long int>>(constraintid& UB_left_node, constraintid& UB_right_node,
                                     constraintid& UB_current_node, 
-                                     Glucose::vec<Glucose::Lit>& leavesLeft, Glucose::vec<int>& weightsLeft, Glucose::vec<Glucose::Lit>& leavesRight, Glucose::vec<int>& weightsRight, int& UB);
+                                     Glucose::vec<Glucose::Lit>& leavesLeft, Glucose::vec<long long int>& weightsLeft, Glucose::vec<Glucose::Lit>& leavesRight, Glucose::vec<long long int>& weightsRight);
 template void PBtoCNFprooflogger::derive_UB_on_recursion_inputs<std::vector<VeriPB::Lit>, std::vector<int>>(constraintid& UB_left_node, constraintid& UB_right_node,
                                     constraintid& UB_current_node, 
-                                     std::vector<VeriPB::Lit>& leavesLeft, std::vector<int>& weightsLeft, std::vector<VeriPB::Lit>& leavesRight, std::vector<int>& weightsRight, int& UB);
+                                     std::vector<VeriPB::Lit>& leavesLeft, std::vector<int>& weightsLeft, std::vector<VeriPB::Lit>& leavesRight, std::vector<int>& weightsRight);
 
 
 template void PBtoCNFprooflogger::derive_UB_on_recursion_inputs<Glucose::vec<Glucose::Lit>>(constraintid& UB_left_node, constraintid& UB_right_node,
                                     constraintid& UB_current_node, 
-                                    Glucose::vec<Glucose::Lit>& leavesLeft, Glucose::vec<Glucose::Lit>& leavesRight, int& UB);
+                                    Glucose::vec<Glucose::Lit>& leavesLeft, Glucose::vec<Glucose::Lit>& leavesRight);
 template void PBtoCNFprooflogger::derive_UB_on_recursion_inputs<std::vector<VeriPB::Lit>>(constraintid& UB_left_node, constraintid& UB_right_node,
                                     constraintid& UB_current_node, 
-                                    std::vector<VeriPB::Lit>& leavesLeft, std::vector<VeriPB::Lit>& leavesRight, int& UB);
+                                    std::vector<VeriPB::Lit>& leavesLeft, std::vector<VeriPB::Lit>& leavesRight);
 
-template void PBtoCNFprooflogger::derive_UB_on_outputliterals<Glucose::vec<Glucose::Lit>, Glucose::vec<int>>(constraintid& UB_recursion_outputs, constraintid& UB_leaves, constraintid& leaves_leq_outputs, Glucose::vec<Glucose::Lit>& outputs, Glucose::vec<int>& weights, int UB  );
-template void PBtoCNFprooflogger::derive_UB_on_outputliterals<std::vector<VeriPB::Lit>, std::vector<int>>(constraintid& UB_recursion_outputs, constraintid& UB_leaves, constraintid& leaves_leq_outputs, std::vector<VeriPB::Lit>& outputs, std::vector<int>& weights, int UB  );
+template constraintid PBtoCNFprooflogger::derive_UB_on_outputliterals<Glucose::vec<Glucose::Lit>, Glucose::vec<long long int>>(constraintid& UB_leaves, constraintid& leaves_geq_outputs, Glucose::vec<Glucose::Lit>& outputs, Glucose::vec<long long int>& weights );
+template constraintid PBtoCNFprooflogger::derive_UB_on_outputliterals<std::vector<VeriPB::Lit>, std::vector<int>>(constraintid& UB_leaves, constraintid& leaves_geq_outputs, std::vector<VeriPB::Lit>& outputs, std::vector<int>& weights );
 
 // Binary Adders
 

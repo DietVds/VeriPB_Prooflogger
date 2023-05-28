@@ -60,6 +60,10 @@ void VeriPbProofLogger::write_comment_objective_function()
     *proof << "\n";
 }
 
+int VeriPbProofLogger::get_best_objective_function(){
+    return best_objective_value;
+}
+
 void VeriPbProofLogger::increase_n_variables(){
     n_variables++;
 }
@@ -260,7 +264,7 @@ int VeriPbProofLogger::calculate_objective_value(const TSeqLit &model)
 }
 
 template <class TSeqLit>
-constraintid VeriPbProofLogger::log_solution(const TSeqLit &model)
+constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, int objective_value)
 {
     *proof << "o ";
     for (int i = 0; i < model.size(); i++)
@@ -272,6 +276,9 @@ constraintid VeriPbProofLogger::log_solution(const TSeqLit &model)
     // Invalidate previously rewritten model improving constraint
     delete_constraint(rewritten_best_solution_constraint);
     rewritten_best_solution_constraint = 0; 
+
+    if(objective_value < best_objective_value)
+        best_objective_value = objective_value;
 
     return constraint_counter;
 }
@@ -295,6 +302,10 @@ constraintid VeriPbProofLogger::get_model_improving_constraint()
     return best_solution_constraint;
 }
 
+int VeriPbProofLogger::get_best_objective_value(){
+    return best_objective_value;
+}
+
 constraintid VeriPbProofLogger::get_rewritten_best_solution_constraint(){
     return rewritten_best_solution_constraint;
 }
@@ -310,7 +321,7 @@ void VeriPbProofLogger::reset_rewritten_best_solution_constraint(){
 }
 
 template <class TSeqLBool>
-constraintid VeriPbProofLogger::log_solution_lbools(TSeqLBool &model)
+constraintid VeriPbProofLogger::log_solution_lbools(TSeqLBool &model, int objective_value)
 {
     VeriPB::Var var;
     VeriPB::Lit lit;
@@ -330,6 +341,9 @@ constraintid VeriPbProofLogger::log_solution_lbools(TSeqLBool &model)
     // Invalidate previously rewritten model improving constraint
     delete_constraint(rewritten_best_solution_constraint);
     rewritten_best_solution_constraint = 0; 
+
+    if(objective_value < best_objective_value)
+        best_objective_value = objective_value;
 
     return best_solution_constraint;
 }

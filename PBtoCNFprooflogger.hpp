@@ -80,15 +80,15 @@ constraintid PBtoCNFprooflogger::derive_leaves_geq_outputvars_after_binary_recur
 template <class TSeqLit, class TSeqInt>
 void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_node, constraintid& UB_right_node,
                                     constraintid& UB_current_node, 
-                                     TSeqLit& leavesLeft, TSeqInt& weightsLeft, TSeqLit& leavesRight, TSeqInt& weightsRight, int& UB){
+                                     TSeqLit& leavesLeft, TSeqInt& weightsLeft, TSeqLit& leavesRight, TSeqInt& weightsRight){
 
-    PL->write_comment("Derive UB for recursion in PB-CNF translation. ");      
+    PL->write_comment("Derive UB for recursion in PB-CNF translation. UB = " + std::to_string(PL->get_best_objective_value() ));      
     // Left recursion
 
     cuttingplanes_derivation cpder_UBleft = PL->CP_constraintid(UB_current_node);
     for(int i = 0; i < leavesRight.size(); i++)
         cpder_UBleft = PL->CP_weakening(cpder_UBleft, variable(leavesRight[i]));
-    UB_left_node = PL->write_CP_derivation(cpder_UBleft); 
+    
 
     // Check derivation
     std::vector<VeriPB::Lit> lits; std::vector<int> weights; int RHS = 0;
@@ -97,15 +97,20 @@ void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_nod
         weights.push_back(weightsLeft[i]);
         RHS += weightsLeft[i];
     }
-    RHS = RHS - UB;
-    PL->check_last_constraint(lits, weights, RHS);
+    RHS = RHS - PL->get_best_objective_value() + 1;
+
+    //if(RHS > 0){
+        PL->write_comment("Derive UB for leafs of the left recursion in PB-CNF translation: " + sequence_to_string(leavesLeft, weightsLeft)); 
+        UB_left_node = PL->write_CP_derivation(cpder_UBleft); 
+        PL->check_last_constraint(lits, weights, RHS);
+    // }
 
     // Right recursion
 
     cuttingplanes_derivation cpder_UBright = PL->CP_constraintid(UB_current_node);
     for(int i = 0; i < leavesLeft.size(); i++)
         cpder_UBright = PL->CP_weakening(cpder_UBright, variable(leavesLeft[i]));
-    UB_left_node = PL->write_CP_derivation(cpder_UBright); 
+    
 
     // Check derivation
     lits.clear(); weights.clear(); RHS = 0;
@@ -114,18 +119,20 @@ void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_nod
         weights.push_back(weightsRight[i]);
         RHS += weightsRight[i];
     }
-    RHS = RHS - UB;
-    PL->check_last_constraint(lits, weights, RHS);
-    
+    RHS = RHS - PL->get_best_objective_value() + 1;
 
-
+    //if(RHS > 0){
+        PL->write_comment("Derive UB for leafs of the left recursion in PB-CNF translation: " + sequence_to_string(leavesRight, weightsRight)); 
+        UB_right_node = PL->write_CP_derivation(cpder_UBright); 
+        PL->check_last_constraint(lits, weights, RHS);
+    //}
 }
 
 
 template <class TSeqLit>
 void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_node, constraintid& UB_right_node,
                                     constraintid& UB_current_node, 
-                                    TSeqLit& leavesLeft, TSeqLit& leavesRight, int& UB){
+                                    TSeqLit& leavesLeft, TSeqLit& leavesRight){
 
     std::vector<VeriPB::Lit> vleavesLeft; std::vector<int> weightsLeft; 
     std::vector<VeriPB::Lit> vleavesRight; std::vector<int> weightsRight; 
@@ -142,21 +149,28 @@ void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_nod
 
     derive_UB_on_recursion_inputs(UB_left_node, UB_right_node,
                                     UB_current_node, 
-                                    leavesLeft, weightsLeft, leavesRight, weightsRight, UB);
+                                    leavesLeft, weightsLeft, leavesRight, weightsRight);
 
 }
 
 // If we have derived the constraint outputs <= leaves and leaves =< UB, then we can derive outputs =< UB
 template <class TSeqLit, class TSeqInt>
-void PBtoCNFprooflogger::derive_UB_on_outputliterals(constraintid& UB_recursion_outputs,
-                                    constraintid& UB_leaves, constraintid& leaves_geq_outputs,
-                                    TSeqLit& outputs, TSeqInt& weights, int UB ){
+constraintid PBtoCNFprooflogger::derive_UB_on_outputliterals(constraintid& UB_leaves, constraintid& leaves_geq_outputs,
+                                    TSeqLit& outputs, TSeqInt& weights ){
     
-    PL->write_comment("Derive UB for outputlits");
     cuttingplanes_derivation cpder = PL->CP_addition(PL->CP_constraintid(UB_leaves), PL->CP_constraintid(leaves_geq_outputs));
-    UB_recursion_outputs = PL->write_CP_derivation(cpder);
+    constraintid cxn_id = PL->write_CP_derivation(cpder);
 
-    PL->check_last_constraint(outputs, weights, UB);
+    std::vector<VeriPB::Lit> lits; std::vector<int> lit_weights; int RHS=0;
+    for(int i = 0; i < weights.size(); i ++){
+        lits.push_back(neg(toVeriPbLit(outputs[i])));
+        lit_weights.push_back(weights[i]);
+        RHS += weights[i];
+    }
+    RHS = RHS - PL->get_best_objective_function() + 1;
+
+    PL->check_last_constraint(lits, lit_weights, RHS);
+    return cxn_id;
 }
 
 // Binary Adders
