@@ -36,7 +36,9 @@ void MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, cons
 
     constraintid c_id = PL->redundanceBasedStrengthening(cls, 1, witness);
 
-    PL->CP_modelimprovingconstraint_rewrite = PL->CP_addition(PL->CP_modelimprovingconstraint_rewrite, PL->CP_constraintid(c_id));
+    cuttingplanes_derivation cpder_rewrite_mic = PL->get_rewrite_model_improvement_constraint();
+    cpder_rewrite_mic = PL->CP_addition(cpder_rewrite_mic, PL->CP_constraintid(c_id));
+    PL->set_rewrite_model_improvement_constraint(cpder_rewrite_mic);
 }
 //=================================================================================================
 // Objective reformulation

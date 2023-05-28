@@ -75,12 +75,14 @@ void VeriPbProofLogger::increase_constraint_counter(){
 
 void VeriPbProofLogger::write_comment(const char *comment)
 {
-    *proof << "* " << comment << "\n";
+    if(comments)
+        *proof << "* " << comment << "\n";
 }
 
 void VeriPbProofLogger::write_comment(const std::string &comment)
 {
-    *proof << "* " << comment << "\n";
+    if(comments)
+        *proof << "* " << comment << "\n";
 }
 
 template <class TVar>
@@ -118,7 +120,9 @@ void VeriPbProofLogger::write_weighted_literal(const TLit &literal, int weight)
     write_literal<TLit>(literal);
 }
 
-// 
+// The variable is the original variable of which we look to rewrite. In the first call, the literal is over the original variable.
+// Next, it is checked whether the variable over which the literal is, should again be rewritten (i.e., variable x should be rewritten by literal ~y, and variable y should be rewritten to literal z).
+// Once the variable of litvar is finaly not rewritten or the original variable, the correct literal is written.
 std::string VeriPbProofLogger::to_string_rewrite_var_by_literal(VeriPB::Var& var, VeriPB::Lit& lit){
     VeriPB::Var litvar = variable(lit);
 
@@ -272,15 +276,15 @@ constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, int objective
             write_literal(model[i]);
     *proof << "\n";
     // Veripb automatically adds an improvement constraint so counter needs to be incremented
-    best_solution_constraint = ++constraint_counter;
-    // Invalidate previously rewritten model improving constraint
-    delete_constraint(rewritten_best_solution_constraint);
-    rewritten_best_solution_constraint = 0; 
+    model_improvement_constraint = ++constraint_counter;
 
     if(objective_value < best_objective_value)
         best_objective_value = objective_value;
 
-    return constraint_counter;
+    if(CP_modelimprovingconstraint_rewrite != "")
+        rewrite_model_improving_constraint();
+
+    return get_model_improving_constraint(); 
 }
 
 template <class TSeqLit>
@@ -290,35 +294,63 @@ constraintid VeriPbProofLogger::log_solution_with_check(const TSeqLit &model)
     if (current_objective_value < best_objective_value)
     {
         write_comment("Objective update from " + std::to_string(best_objective_value) + " to " + std::to_string(current_objective_value));
-        log_solution(model);
-        best_objective_value = current_objective_value;
+        log_solution(model, current_objective_value);
     }
 
-    return best_solution_constraint;
+    return get_model_improving_constraint();
+}
+
+constraintid VeriPbProofLogger::rewrite_model_improving_constraint(){
+    assert(CP_modelimprovingconstraint_rewrite != "" && rewritten_model_improvement_constraint < model_improvement_constraint );
+
+    write_comment("Rewrite model improving constraint");
+    if(rewritten_model_improvement_constraint > 0) delete_constraint(rewritten_model_improvement_constraint);
+
+    cuttingplanes_derivation cpder = CP_apply(CP_constraintid(model_improvement_constraint), CP_modelimprovingconstraint_rewrite);
+    rewritten_model_improvement_constraint = write_CP_derivation(cpder);
+
+    return rewritten_model_improvement_constraint;
 }
 
 constraintid VeriPbProofLogger::get_model_improving_constraint()
 {
-    return best_solution_constraint;
+    if(CP_modelimprovingconstraint_rewrite == "")
+        return model_improvement_constraint;
+    else if(rewritten_model_improvement_constraint > model_improvement_constraint) // Already rewritten
+        return rewritten_model_improvement_constraint;
+    else{
+        return rewrite_model_improving_constraint();
+    }
+
 }
 
 int VeriPbProofLogger::get_best_objective_value(){
     return best_objective_value;
 }
 
-constraintid VeriPbProofLogger::get_rewritten_best_solution_constraint(){
-    return rewritten_best_solution_constraint;
-}
-void VeriPbProofLogger::rewrite_model_improvement_constraint(){
-    rewritten_best_solution_constraint = write_CP_derivation(
-                CP_apply(
-                    CP_constraintid(get_model_improving_constraint()), 
-                    CP_modelimprovingconstraint_rewrite));
+cuttingplanes_derivation VeriPbProofLogger::get_rewrite_model_improvement_constraint(){
+    return CP_modelimprovingconstraint_rewrite;
 }
 
-void VeriPbProofLogger::reset_rewritten_best_solution_constraint(){
-    rewritten_best_solution_constraint = 0;
+void VeriPbProofLogger::set_rewrite_model_improvement_constraint(cuttingplanes_derivation cpder){
+    CP_modelimprovingconstraint_rewrite = cpder;
+    if(model_improvement_constraint > 0)
+        rewrite_model_improving_constraint();
 }
+
+// constraintid VeriPbProofLogger::get_rewritten_best_solution_constraint(){
+//     return rewritten_best_solution_constraint;
+// }
+// void VeriPbProofLogger::rewrite_model_improving_constraint(){
+//     rewritten_best_solution_constraint = write_CP_derivation(
+//                 CP_apply(
+//                     CP_constraintid(get_model_improving_constraint()), 
+//                     CP_modelimprovingconstraint_rewrite));
+// }
+// 
+// void VeriPbProofLogger::reset_rewritten_best_solution_constraint(){
+//     rewritten_best_solution_constraint = 0;
+// }
 
 template <class TSeqLBool>
 constraintid VeriPbProofLogger::log_solution_lbools(TSeqLBool &model, int objective_value)
@@ -337,15 +369,15 @@ constraintid VeriPbProofLogger::log_solution_lbools(TSeqLBool &model, int object
     *proof << "\n";
 
     // Veripb automatically adds an improvement constraint so counter needs to be incremented
-    best_solution_constraint = ++constraint_counter;
-    // Invalidate previously rewritten model improving constraint
-    delete_constraint(rewritten_best_solution_constraint);
-    rewritten_best_solution_constraint = 0; 
+    model_improvement_constraint = ++constraint_counter;
+    
+    if(CP_modelimprovingconstraint_rewrite != "")
+        rewrite_model_improving_constraint();
 
     if(objective_value < best_objective_value)
         best_objective_value = objective_value;
 
-    return best_solution_constraint;
+    return model_improvement_constraint;
 }
 
 

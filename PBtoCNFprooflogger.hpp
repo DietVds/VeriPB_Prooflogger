@@ -158,6 +158,7 @@ template <class TSeqLit, class TSeqInt>
 constraintid PBtoCNFprooflogger::derive_UB_on_outputliterals(constraintid& UB_leaves, constraintid& leaves_geq_outputs,
                                     TSeqLit& outputs, TSeqInt& weights ){
     
+    PL->write_comment("Derive UB on output-variables of encoding.");
     cuttingplanes_derivation cpder = PL->CP_addition(PL->CP_constraintid(UB_leaves), PL->CP_constraintid(leaves_geq_outputs));
     constraintid cxn_id = PL->write_CP_derivation(cpder);
 

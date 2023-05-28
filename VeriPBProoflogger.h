@@ -59,9 +59,11 @@ private:
     std::vector<int> objective_weights;
     int objective_constant_cost = 0;
     int best_objective_value = INT_MAX;
-    constraintid best_solution_constraint; // Last model improvement constraint
+    constraintid model_improvement_constraint; // Last model improvement constraint
     // The model improving constraint needs to be rewritten in many applications (e.g., for MaxSAT prooflogging: addition of blocking variables to unit clauses, hardening in QMaxSAT 14.07 )
-    constraintid rewritten_best_solution_constraint = 0; // last rewritten model improvement constraint. 0 means that it hasn't been rewritten. 
+    constraintid rewritten_model_improvement_constraint = 0; // last rewritten model improvement constraint. 0 means that it hasn't been rewritten. 
+
+    constraintid rewrite_model_improving_constraint();
 
     // Meaningful variable names
     std::map<VeriPB::VarIdx, std::string> meaningful_names_store;
@@ -71,6 +73,9 @@ private:
 
     std::string to_string_rewrite_var_by_literal(VeriPB::Var& variable, VeriPB::Lit& literal);
 
+    // Rewrite model improvement constraint whenever the model improvement constraint id is asked.
+    cuttingplanes_derivation CP_modelimprovingconstraint_rewrite = "";  
+
     // Constraint counter
     //
     constraintid constraint_counter = 0;
@@ -79,8 +84,10 @@ private:
     //
     std::stringstream pol_string;
 
-    
+       
 public:
+    // Option to write comments. If false, all comments will be discarded
+    bool comments=true; 
 
     // Proof file
     std::ostream* proof;
@@ -153,10 +160,12 @@ public:
     constraintid get_model_improving_constraint();
     int get_best_objective_value();
 
-    cuttingplanes_derivation CP_modelimprovingconstraint_rewrite = "";    
-    constraintid get_rewritten_best_solution_constraint();
-    void rewrite_model_improvement_constraint();
-    void reset_rewritten_best_solution_constraint();
+    // Rewriting of the model improvement constraint. Example of usage: when an objective literal is hardened and we only want to continue reasoning on the non-hardened literals.
+    cuttingplanes_derivation get_rewrite_model_improvement_constraint();
+    void set_rewrite_model_improvement_constraint(cuttingplanes_derivation cpder);
+    // constraintid get_rewritten_best_solution_constraint();
+    // void rewrite_model_improvement_constraint();
+    // void reset_rewritten_best_solution_constraint();
 
     template <class TSeqLBool>
     constraintid log_solution_lbools(TSeqLBool &model, int objective_value=INT_MAX);
