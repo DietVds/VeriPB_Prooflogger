@@ -186,8 +186,8 @@ void PBtoCNFprooflogger::reifyCarryBA(TLit& a, TLit& b, TLit& c, TLit& carry ){
     lits.push_back(toVeriPbLit(b));
     lits.push_back(toVeriPbLit(c));
 
-    PL->reificationLiteralLeftImpl(toVeriPbLit(carry), lits, 2, true);
-    PL->reificationLiteralRightImpl(toVeriPbLit(carry), lits, 2, true);
+    PL->reificationLiteralLeftImpl(toVeriPbLit(carry), lits, (wght)2, true);
+    PL->reificationLiteralRightImpl(toVeriPbLit(carry), lits, (wght)2, true);
 }
 
 template <class TLit>
@@ -200,8 +200,8 @@ void PBtoCNFprooflogger::reifySumBA(TLit& a, TLit& b, TLit& c, TLit& carry, TLit
     lits.push_back(toVeriPbLit(b)); weights.push_back(1);
     lits.push_back(toVeriPbLit(c)); weights.push_back(1);
     lits.push_back(toVeriPbLit(neg(carry))); weights.push_back(2);
-    PL->reificationLiteralLeftImpl(toVeriPbLit(sum), lits, weights, 3, true);
-    PL->reificationLiteralRightImpl(toVeriPbLit(sum), lits, weights, 3, true);
+    PL->reificationLiteralLeftImpl(toVeriPbLit(sum), lits, weights, (wght)3, true);
+    PL->reificationLiteralRightImpl(toVeriPbLit(sum), lits, weights, (wght)3, true);
 }
 
 template <class TLit>
@@ -298,8 +298,11 @@ constraintid PBtoCNFprooflogger::deriveBASeqInputLeqOutput(std::vector<constrain
     cuttingplanes_derivation cpder;
     cpder = PL->CP_constraintid(singleAdders_inputLeqOutput[0]);
 
+    wght p2i = 1;
+
     for(int i = 1; i < singleAdders_inputLeqOutput.size(); i++ ){
-      cpder = PL->CP_addition(cpder, PL->CP_multiplication(PL->CP_constraintid(singleAdders_inputLeqOutput[i]), pow(2, i)));
+      p2i = p2i * 2;
+      cpder = PL->CP_addition(cpder, PL->CP_multiplication(PL->CP_constraintid(singleAdders_inputLeqOutput[i]), p2i));
     }
 
     constraintid cxnid = PL->write_CP_derivation(cpder);
@@ -307,24 +310,27 @@ constraintid PBtoCNFprooflogger::deriveBASeqInputLeqOutput(std::vector<constrain
     std::vector<VeriPB::Lit> lits_cxn; std::vector<wght> weights_cxn; wght RHS = 0;
 
     for(int i = 0; i < litsleft.size(); i++){
+        p2i = (i == 0) ? 1 : p2i * 2;
         if(toVeriPbLit(litsleft[i]) != zerolit ){
             lits_cxn.push_back(neg(toVeriPbLit(litsleft[i])));
-            weights_cxn.push_back(pow(2,i));
-            RHS += pow(2,i);
+            weights_cxn.push_back(p2i);
+            RHS += p2i;
         }
     }
         
     for(int i = 0; i < litsright.size(); i++){
+        p2i = (i == 0) ? 1 : p2i * 2;
         if(toVeriPbLit(litsright[i]) != zerolit ){
             lits_cxn.push_back(neg(toVeriPbLit(litsright[i])));
-            weights_cxn.push_back(pow(2,i));
-            RHS += pow(2,i);
+            weights_cxn.push_back(p2i);
+            RHS += p2i;
         }
     }
     
     for(int i = 0; i < outputs.size(); i++){
+        p2i = (i == 0) ? 1 : p2i * 2;
         lits_cxn.push_back(toVeriPbLit(outputs[i]));
-        weights_cxn.push_back(pow(2,i));
+        weights_cxn.push_back(p2i);
     }
 
     PL->check_last_constraint(lits_cxn, weights_cxn, RHS);
@@ -339,8 +345,11 @@ constraintid PBtoCNFprooflogger::deriveBASeqInputGeqOutput(std::vector<constrain
     cuttingplanes_derivation cpder;
     cpder = PL->CP_constraintid(singleAdders_inputGeqOutput[0]);
 
+    wght p2i = 1;
     for(int i = 1; i < singleAdders_inputGeqOutput.size(); i++ ){
-      cpder = PL->CP_addition(cpder, PL->CP_multiplication(PL->CP_constraintid(singleAdders_inputGeqOutput[i]), pow(2, i)));
+      p2i = p2i*(wght)2;
+      PL->write_comment("i = " + std::to_string(i) + " p2i = " + std::to_string(p2i));
+      cpder = PL->CP_addition(cpder, PL->CP_multiplication(PL->CP_constraintid(singleAdders_inputGeqOutput[i]), p2i));
     }
 
     constraintid cxnid = PL->write_CP_derivation(cpder);
@@ -348,23 +357,26 @@ constraintid PBtoCNFprooflogger::deriveBASeqInputGeqOutput(std::vector<constrain
     std::vector<VeriPB::Lit> lits_cxn; std::vector<wght> weights_cxn; wght RHS = 0;
 
     for(int i = 0; i < litsleft.size(); i++){
+        p2i = (i == 0) ? 1 : p2i * 2;
         if(toVeriPbLit(litsleft[i]) != zerolit ){
             lits_cxn.push_back(toVeriPbLit(litsleft[i]));
-            weights_cxn.push_back(pow(2,i));
+            weights_cxn.push_back(p2i);
         }
     }
         
     for(int i = 0; i < litsright.size(); i++){
+        p2i = (i == 0) ? 1 : p2i * 2;
         if(toVeriPbLit(litsright[i]) != zerolit){
             lits_cxn.push_back(toVeriPbLit(litsright[i]));
-            weights_cxn.push_back(pow(2,i));
+            weights_cxn.push_back(p2i);
         }
     }
     
     for(int i = 0; i < outputs.size(); i++){
+        p2i = (i == 0) ? 1 : p2i * 2;
         lits_cxn.push_back(neg(toVeriPbLit(outputs[i])));
-        weights_cxn.push_back(pow(2,i));
-        RHS += pow(2,i);
+        weights_cxn.push_back(p2i);
+        RHS += p2i;
     }
 
     PL->check_last_constraint(lits_cxn, weights_cxn, RHS);

@@ -27,7 +27,7 @@ constraintid TotalizerProoflogger::get_PbDef_invImpl_CxnId(TVar& var){
 
 // ------------- Meaningful names -------------
 template <class TVar, class TSeqLit>
-void TotalizerProoflogger::store_meaningful_name_counting_var(const TVar& var, const int n, const TSeqLit& leafs){
+void TotalizerProoflogger::store_meaningful_name_counting_var(const TVar& var, const wght n, const TSeqLit& leafs){
     if(meaningful_names_counting_vars){
         std::string mn = PL->var_name(var) + "_v" + std::to_string(n) ;
         for(int i = 0; i < leafs.size(); i++) 
@@ -38,14 +38,14 @@ void TotalizerProoflogger::store_meaningful_name_counting_var(const TVar& var, c
 
 // ------------- Totalizer functions: PB definitions -------------
 template <class TVar, class TSeqLit>
-void TotalizerProoflogger::write_PBdefs(const TVar& var, const TSeqLit &leafs, const int j)
+void TotalizerProoflogger::write_PBdefs(const TVar& var, const TSeqLit &leafs, const wght j)
 {
     write_PBdef_impl(var, leafs, j); // Only necessary with int because totalizers are made using the pysat datastructures.
     write_PBdef_invImpl(var, leafs, j);// Only necessary with int because totalizers are made using the pysat datastructures.
 }
 
 template <class TVar, class TSeqLit>
-void TotalizerProoflogger::write_PBdef_impl(const TVar& var, const TSeqLit &leafs, const int j)
+void TotalizerProoflogger::write_PBdef_impl(const TVar& var, const TSeqLit &leafs, const wght j)
 {
     VeriPB::Var _var = toVeriPbVar(var);
     VeriPB::Lit _litvar = create_literal(_var, false);
@@ -55,28 +55,28 @@ void TotalizerProoflogger::write_PBdef_impl(const TVar& var, const TSeqLit &leaf
     PL->write_comment("P->" + std::to_string(j) + " for var " + PL->to_string(_litvar) + " with leafs: " + strleafs);
 
     std::vector<VeriPB::Lit> lits; lits.resize(leafs.size() + 1);
-    std::vector<int> weights; weights.resize(leafs.size() + 1);
+    std::vector<wght> weights; weights.resize(leafs.size() + 1);
 
     for (int i = 0; i < leafs.size(); i++){
         lits[i] = toVeriPbLit(neg(leafs[i]));
         weights[i] = 1;
     }
 
-    int v = leafs.size() - j + 1;
+    wght v = leafs.size() - j + 1;
     lits[leafs.size()] = _litvar;
     weights[leafs.size()] = v;
 
     substitution<VeriPB::Var> witness;
     witness.push_back({_var, true});
 
-    int cxn = PL->redundanceBasedStrengthening(lits, weights, v, witness);
+    constraintid cxn = PL->redundanceBasedStrengthening(lits, weights, v, witness);
 
     PB_impl_cxn_store[varidx(_var)] = cxn;
 
 }
 
 template <class TVar, class TSeqLit>
-void TotalizerProoflogger::write_PBdef_invImpl(const TVar& var, const TSeqLit &leafs, const int j)
+void TotalizerProoflogger::write_PBdef_invImpl(const TVar& var, const TSeqLit &leafs, const wght j)
 {
     VeriPB::Var _var = toVeriPbVar(var);
     VeriPB::Lit _litvar = create_literal(_var, false);
@@ -86,7 +86,7 @@ void TotalizerProoflogger::write_PBdef_invImpl(const TVar& var, const TSeqLit &l
     PL->write_comment("P<-" + std::to_string(j) + " for var " + PL->to_string(_litvar) + " with leafs: " + strleafs);
 
     std::vector<VeriPB::Lit> lits; lits.resize(leafs.size() + 1);
-    std::vector<int> weights; weights.resize(leafs.size() + 1);
+    std::vector<wght> weights; weights.resize(leafs.size() + 1);
 
     for(int i = 0; i < leafs.size(); i++){
         lits[i] = toVeriPbLit(leafs[i]);
@@ -99,7 +99,7 @@ void TotalizerProoflogger::write_PBdef_invImpl(const TVar& var, const TSeqLit &l
     substitution<VeriPB::Var> witness;
     witness.push_back({_var, false});
 
-    int cxn = PL->redundanceBasedStrengthening(lits, weights, j, witness);
+    constraintid cxn = PL->redundanceBasedStrengthening(lits, weights, j, witness);
 
     PB_invImpl_cxn_store[varidx(_var)] = cxn;
 }
@@ -179,7 +179,7 @@ void TotalizerProoflogger::prove_ternary_invImplCls(const TVar &var, const TVar 
 }
 
 template <class TLit>
-void TotalizerProoflogger::prove_unitclause_constraining_totalizer(const TLit& c, const int n, const int bestval, const int best_solution_constraint)
+void TotalizerProoflogger::prove_unitclause_constraining_totalizer(const TLit& c, const wght n, const wght bestval, const constraintid best_solution_constraint)
 {
     if (PB_invImpl_cxn_store.find(varidx(toVeriPbVar(variable(c)))) != PB_invImpl_cxn_store.end()){ 
         constraintid pbdef_var = PB_invImpl_cxn_store[varidx(toVeriPbVar(variable(c)))];

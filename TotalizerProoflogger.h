@@ -31,15 +31,15 @@ public:
     // Meaningful names
     bool meaningful_names_counting_vars = true;
     template <class TVar, class TSeqLit> 
-    void store_meaningful_name_counting_var(const TVar& var, const int n, const TSeqLit& leafs);
+    void store_meaningful_name_counting_var(const TVar& var, const wght n, const TSeqLit& leafs);
     
     // Totalizer functions: PB definitions
     template <class TVar, class TSeqLit>
-    void write_PBdefs(const TVar& var, const TSeqLit &leafs, const int j);
+    void write_PBdefs(const TVar& var, const TSeqLit &leafs, const wght j);
     template <class TVar, class TSeqLit>
-    void write_PBdef_impl(const TVar& var, const TSeqLit &leafs, const int j);
+    void write_PBdef_impl(const TVar& var, const TSeqLit &leafs, const wght j);
     template <class TVar, class TSeqLit>
-    void write_PBdef_invImpl(const TVar& var, const TSeqLit &leafs, const int j);
+    void write_PBdef_invImpl(const TVar& var, const TSeqLit &leafs, const wght j);
 
     // Totalizer functions: CP derivations of totalizer clauses
     template <class TVar, class TSeqLit>
@@ -51,7 +51,7 @@ public:
     template <class TVar, class TSeqLit>
     void prove_ternary_invImplCls(const TVar &var, const TVar &varchild1, const TVar &varchild2, const TSeqLit &leafs1, const TSeqLit &leafs2, const TSeqLit& clause_to_derive);
     template <class TLit>
-    void prove_unitclause_constraining_totalizer(const TLit& clause, const int n, const int bestval, const constraintid best_solution_constraint);
+    void prove_unitclause_constraining_totalizer(const TLit& clause, const wght n, const wght bestval, const constraintid best_solution_constraint);
 
     // Structure Sharing
     template <class TVar> 

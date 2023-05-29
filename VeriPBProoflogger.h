@@ -232,12 +232,12 @@ public:
     cuttingplanes_derivation CP_literal_axiom(const TLit& lit);
     cuttingplanes_derivation CP_addition(const cuttingplanes_derivation& left, const cuttingplanes_derivation& right);
     cuttingplanes_derivation CP_addition(const cuttingplanes_derivation& cp);
-    cuttingplanes_derivation CP_division(const cuttingplanes_derivation& cp, const int& n);
-    cuttingplanes_derivation CP_division(const int& n);
+    cuttingplanes_derivation CP_division(const cuttingplanes_derivation& cp, const wght& n);
+    cuttingplanes_derivation CP_division(const wght& n);
     cuttingplanes_derivation CP_saturation(const cuttingplanes_derivation& cp);
     cuttingplanes_derivation CP_saturation();
-    cuttingplanes_derivation CP_multiplication(const cuttingplanes_derivation& cp, const int& n);
-    cuttingplanes_derivation CP_multiplication(const int& n);
+    cuttingplanes_derivation CP_multiplication(const cuttingplanes_derivation& cp, const wght& n);
+    cuttingplanes_derivation CP_multiplication(const wght& n);
     template <class TVar>
     cuttingplanes_derivation CP_weakening(const cuttingplanes_derivation& cp, const TVar& var);
     template <class TVar>
@@ -254,9 +254,9 @@ public:
     void CP_add_constraint(const constraintid constraint_id);
     template <class TLit>
     void CP_add_literal_axiom(const TLit &lit);
-    void CP_divide(const int v);
+    void CP_divide(const wght v);
     void CP_saturate();
-    void CP_multiply(const int v);
+    void CP_multiply(const wght v);
     template <class TVar>
     void CP_weaken(const TVar &var);
     template <class TLit>

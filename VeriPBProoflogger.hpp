@@ -683,10 +683,10 @@ cuttingplanes_derivation VeriPbProofLogger::CP_addition(const cuttingplanes_deri
 cuttingplanes_derivation VeriPbProofLogger::CP_addition(const cuttingplanes_derivation& cp){
     return cp + " +";
 }
-cuttingplanes_derivation VeriPbProofLogger::CP_division(const cuttingplanes_derivation& cp, const int& n){
+cuttingplanes_derivation VeriPbProofLogger::CP_division(const cuttingplanes_derivation& cp, const wght& n){
     return cp + " " + std::to_string(n) + " d";
 }
-cuttingplanes_derivation VeriPbProofLogger::CP_division(const int& n){
+cuttingplanes_derivation VeriPbProofLogger::CP_division(const wght& n){
     return " " + std::to_string(n) + " d";
 }
 cuttingplanes_derivation VeriPbProofLogger::CP_saturation(const cuttingplanes_derivation& cp){
@@ -695,10 +695,10 @@ cuttingplanes_derivation VeriPbProofLogger::CP_saturation(const cuttingplanes_de
 cuttingplanes_derivation VeriPbProofLogger::CP_saturation(){
     return " s";
 }
-cuttingplanes_derivation VeriPbProofLogger::CP_multiplication(const cuttingplanes_derivation& cp, const int& n){
+cuttingplanes_derivation VeriPbProofLogger::CP_multiplication(const cuttingplanes_derivation& cp, const wght& n){
     return cp + " " + std::to_string(n) + " *";
 }
-cuttingplanes_derivation VeriPbProofLogger::CP_multiplication(const int& n){
+cuttingplanes_derivation VeriPbProofLogger::CP_multiplication(const wght& n){
     return " " + std::to_string(n) + " *";
 }
 template <class TVar>
@@ -750,7 +750,7 @@ void VeriPbProofLogger::CP_add_literal_axiom(const TLit &lit){
     pol_string << " " << to_string(lit) << " +";
 }
 
-void VeriPbProofLogger::CP_divide(const int v)
+void VeriPbProofLogger::CP_divide(const wght v)
 {
     pol_string << " " << v << " d";
 }
@@ -758,7 +758,7 @@ void VeriPbProofLogger::CP_saturate()
 {
     pol_string << " s";
 }
-void VeriPbProofLogger::CP_multiply(const int v)
+void VeriPbProofLogger::CP_multiply(const wght v)
 {
     pol_string << " " << v << " *";
 }
