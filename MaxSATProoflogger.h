@@ -9,7 +9,7 @@ class MaxSATProoflogger
 {
     VeriPbProofLogger *PL;
     std::vector<constraintid> core_lower_bounds;
-    std::vector<int> core_weights;
+    std::vector<wght> core_weights;
     std::map<VeriPB::VarIdx, int> counting_var_to_core_idx;
 
 public:
@@ -36,7 +36,7 @@ public:
     /// @param weight Weight of the core.
     /// @return Constraint ID of the lower bound.
     template <class TVar>
-    constraintid add_core_lower_bound(const TVar &lazy_var, constraintid core_id, constraintid pb_definition_id, int weight);
+    constraintid add_core_lower_bound(const TVar &lazy_var, constraintid core_id, constraintid pb_definition_id, wght weight);
 
     /// @brief Update the lower bound on the input literals with the definition for the new counting variable for an index `bound`.
     /// @tparam TVar Type of the boolean variables.
@@ -46,7 +46,7 @@ public:
     /// @param bound The index of the new counter variable.
     /// @return Constraint ID of the updated lower bound on the core.
     template <class TVar>
-    constraintid update_core_lower_bound(const TVar &old_lazy_var, const TVar &new_lazy_var, constraintid pb_definition_id, int bound);
+    constraintid update_core_lower_bound(const TVar &old_lazy_var, const TVar &new_lazy_var, constraintid pb_definition_id, wght bound);
 
     /// @brief Derive the objective reformulation constraint. This constraint says that the original objective is lower bounded by the reformulated objective.
     ///
@@ -73,14 +73,14 @@ public:
     /// @param core_id Constraint ID of the core constraint.
     /// @param weight Weight of the core.
     /// @return Constraint ID of the updated base objective reformulation constraint.
-    constraintid base_reform_unit_core(constraintid base_reform_id, constraintid core_id, int weight);
+    constraintid base_reform_unit_core(constraintid base_reform_id, constraintid core_id, wght weight);
 
     /// @brief Add unprocessed cores to the objective reformulation constraint. This deletes the base objective reformulation constraint and returns the new objective reformulation constraint.
     /// @param base_reform_id Constraint ID of the base objective reformulation constraint. This is the constraint that says that the original objective is lower bounded by the reformulated objective after reformulating with the fixed lower bounds like at-most-one constraints and unit cores.
     /// @param core_ids Constraint IDs of the unprocessed cores.
     /// @param core_weights Weights of the unprocessed cores.
     /// @return Constraint ID of the updated base objective reformulation constraint. This is the constraint that says that the original objective is lower bounded by the reformulated objective after reformulating with the fixed lower bounds like at-most-one constraints and unit cores.
-    constraintid reformulate_with_unprocessed_cores(constraintid base_reform_id, std::vector<constraintid> core_ids, std::vector<int> core_weights);
+    constraintid reformulate_with_unprocessed_cores(constraintid base_reform_id, std::vector<constraintid> core_ids, std::vector<wght> core_weights);
 
     //=============================================================================================
     // Functions for proof logging at-most-one constraints
@@ -107,7 +107,7 @@ public:
     /// @param weight Weight of the at most one constraint.
     /// @return Constraint ID of the updated base objective reformulation constraint. This is the constraint that says that the original objective is lower bounded by the reformulated objective after reformulating with the fixed lower bounds like at-most-one constraints and unit cores.
     template <class TSeqLit, class TLit>
-    constraintid proof_log_at_most_one(constraintid base_reform_id, const TSeqLit &am1_lits, const TLit &selector_all_lit, int weight);
+    constraintid proof_log_at_most_one(constraintid base_reform_id, const TSeqLit &am1_lits, const TLit &selector_all_lit, wght weight);
 };
 
 #endif

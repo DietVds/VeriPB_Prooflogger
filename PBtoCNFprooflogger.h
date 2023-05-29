@@ -29,25 +29,25 @@ public:
      * Let X be the leaves of the current node with X = X1 U X2 with X1 and X2 the leaves of a left, respectively right recursive tree to encode a PB translation. 
      * Let O, O1 and O2 be the outputs of respectively the current node, the left node and the right node. If we have derived X1 = O and X2 = O, we can also derive X = O.
      * */
-    template <class TSeqLit, class TSeqInt>
+    template <class TSeqLit, class TSeqWght>
     constraintid derive_leaves_leq_outputvars_after_binary_recursion(constraintid& leaves_leq_outputs_leftrecursion, constraintid& leaves_leq_outputs_rightrecursion, 
                                                             constraintid& outputs_recursion_leq_outputs,
-                                                            TSeqLit& leaves, TSeqInt& weightsleaves, TSeqLit& output, TSeqInt& weightsOutput);
+                                                            TSeqLit& leaves, TSeqWght& weightsleaves, TSeqLit& output, TSeqWght& weightsOutput);
 
-    template <class TSeqLit, class TSeqInt>
+    template <class TSeqLit, class TSeqWght>
     constraintid derive_leaves_geq_outputvars_after_binary_recursion(constraintid& leaves_geq_outputs_leftrecursion, constraintid& leaves_geq_outputs_rightrecursion, 
                                                             constraintid& outputs_recursion_geq_outputs,
-                                                            TSeqLit& leaves, TSeqInt& weightsleaves, TSeqLit& output, TSeqInt& weightsOutput);
+                                                            TSeqLit& leaves, TSeqWght& weightsleaves, TSeqLit& output, TSeqWght& weightsOutput);
 
     /**
      * If there exists a constraint for the current parent of the form leaves =< k, then it is possible to also derive the leaves(left) =< k and leaves(right) =< k.
     */
 
     // Given a binary tree encoding and an UB on the leaves of the current node, the UB on the leaves of both children can be derived. 
-    template <class TSeqLit, class TSeqInt>
+    template <class TSeqLit, class TSeqWght>
     void derive_UB_on_recursion_inputs(constraintid& UB_left_node, constraintid& UB_right_node,
                                         constraintid& UB_current_node, 
-                                        TSeqLit& leavesLeft, TSeqInt& weightsLeft, TSeqLit& leavesRight, TSeqInt& weightsRight);
+                                        TSeqLit& leavesLeft, TSeqWght& weightsLeft, TSeqLit& leavesRight, TSeqWght& weightsRight);
 
     template <class TSeqLit>
     void derive_UB_on_recursion_inputs(constraintid& UB_left_node, constraintid& UB_right_node,
@@ -55,8 +55,8 @@ public:
                                         TSeqLit& leavesLeft, TSeqLit& leavesRight);
 
     // Given a binary tree encoding and an UB on the leaves of the current node, a
-    template <class TSeqLit, class TSeqInt>
-    constraintid derive_UB_on_outputliterals(constraintid& UB_leaves, constraintid& leaves_geq_outputs, TSeqLit& outputs, TSeqInt& weights );
+    template <class TSeqLit, class TSeqWght>
+    constraintid derive_UB_on_outputliterals(constraintid& UB_leaves, constraintid& leaves_geq_outputs, TSeqLit& outputs, TSeqWght& weights );
 
     
 
@@ -91,8 +91,8 @@ public:
     template<class TSeqLit>
     std::string sequence_to_string(TSeqLit& lits); 
 
-    template<class TSeqLit, class TSeqInt>
-    std::string sequence_to_string(TSeqLit& lits, TSeqInt& weights); 
+    template<class TSeqLit, class TSeqWght>
+    std::string sequence_to_string(TSeqLit& lits, TSeqWght& weights); 
 private:
     VeriPbProofLogger *PL;
    

@@ -23,7 +23,10 @@
 #include "core/SolverTypes.h"
 
 // the type that is presenting weights in the solver. This should be defined by the solver developer.
-typedef long long int weighttype; 
+#define wght long long int
+#define wght_max LLONG_MAX
+// typedef long long int wght; 
+
 
 inline Glucose::Var variable(Glucose::Lit l){return (Glucose::var(l));}
 inline bool is_negated(Glucose::Lit l){return sign(l);}

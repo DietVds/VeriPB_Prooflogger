@@ -46,7 +46,7 @@ void MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, cons
 template <class TVar>
 constraintid MaxSATProoflogger::add_core_lower_bound(
     const TVar &lazy_var, constraintid core_id, constraintid pb_definition_id,
-    int weight)
+    wght weight)
 {
     PL->start_CP_derivation(core_id);
     PL->CP_add_constraint(pb_definition_id);
@@ -59,7 +59,7 @@ constraintid MaxSATProoflogger::add_core_lower_bound(
 }
 
 template <class TVar>
-constraintid MaxSATProoflogger::update_core_lower_bound(const TVar &old_lazy_var, const TVar &new_lazy_var, constraintid pb_definition_id, int bound)
+constraintid MaxSATProoflogger::update_core_lower_bound(const TVar &old_lazy_var, const TVar &new_lazy_var, constraintid pb_definition_id, wght bound)
 {
     int core_idx = counting_var_to_core_idx[varidx(toVeriPbVar(old_lazy_var))];
 
@@ -102,7 +102,7 @@ constraintid MaxSATProoflogger::proof_log_objective_reformulation(constraintid b
     return lower_bound_reformulated_objective;
 }
 
-constraintid MaxSATProoflogger::base_reform_unit_core(constraintid base_reform_id, constraintid core_id, int weight)
+constraintid MaxSATProoflogger::base_reform_unit_core(constraintid base_reform_id, constraintid core_id, wght weight)
 {
     PL->start_CP_derivation(core_id);
     PL->CP_multiply(weight);
@@ -112,7 +112,7 @@ constraintid MaxSATProoflogger::base_reform_unit_core(constraintid base_reform_i
     return new_base_reform_id;
 }
 
-constraintid MaxSATProoflogger::reformulate_with_unprocessed_cores(constraintid base_reform_id, std::vector<constraintid> core_ids, std::vector<int> core_weights)
+constraintid MaxSATProoflogger::reformulate_with_unprocessed_cores(constraintid base_reform_id, std::vector<constraintid> core_ids, std::vector<wght> core_weights)
 {
     PL->start_CP_derivation(base_reform_id);
 
@@ -194,7 +194,7 @@ constraintid MaxSATProoflogger::introduce_at_most_one_selector(const TSeqLit &am
 }
 
 template <class TSeqLit, class TLit>
-constraintid MaxSATProoflogger::proof_log_at_most_one(constraintid base_reform_id, const TSeqLit &am1_lits, const TLit &selector_all_lit, int weight)
+constraintid MaxSATProoflogger::proof_log_at_most_one(constraintid base_reform_id, const TSeqLit &am1_lits, const TLit &selector_all_lit, wght weight)
 {
     constraintid am1_constraint = derive_at_most_one_constraint(am1_lits);
     constraintid am1_lower_bound = introduce_at_most_one_selector(am1_lits, selector_all_lit);

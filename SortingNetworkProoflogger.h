@@ -18,7 +18,7 @@ typedef struct {
     std::vector<constraintid> sortedness_inputA;
     std::vector<constraintid> sortedness_inputB;
     constraintid cxnUBinputs = 0;
-    int UB; 
+    wght UB; 
 
     std::vector<constraintid> sortedness_output;
     constraintid input_geq_output = 0;
@@ -47,7 +47,7 @@ typedef struct {
     constraintid input_geq_output = 0;
     constraintid input_leq_output = 0;
 
-    int UB;
+    wght UB;
     constraintid cxnUBinputs = 0;
 } ConstraintStoreSort;
 
@@ -132,10 +132,10 @@ public:
 
     // Derivation of definition of output variables
      template <class TSeqLit, class TSeqCxnId>
-    constraintid derive_counting_definition_of_outputvars_right(TSeqLit& inputlits, TSeqLit& outputlits, int j, constraintid input_geq_output, TSeqCxnId& sortedness_outputlits);
+    constraintid derive_counting_definition_of_outputvars_right(TSeqLit& inputlits, TSeqLit& outputlits, wght j, constraintid input_geq_output, TSeqCxnId& sortedness_outputlits);
 
     template <class TSeqLit, class TSeqCxnId>
-    constraintid derive_counting_definition_of_outputvars_left(TSeqLit& inputlits, TSeqLit& outputlits, int j, constraintid output_geq_input, TSeqCxnId& sortedness_outputlits);
+    constraintid derive_counting_definition_of_outputvars_left(TSeqLit& inputlits, TSeqLit& outputlits, wght j, constraintid output_geq_input, TSeqCxnId& sortedness_outputlits);
 
     // Deletions of constraints
     void delete_temp_constraints(ConstraintStoreMerge& plcxns);
