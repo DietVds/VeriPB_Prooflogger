@@ -348,7 +348,6 @@ constraintid PBtoCNFprooflogger::deriveBASeqInputGeqOutput(std::vector<constrain
     wght p2i = 1;
     for(int i = 1; i < singleAdders_inputGeqOutput.size(); i++ ){
       p2i = p2i*(wght)2;
-      PL->write_comment("i = " + std::to_string(i) + " p2i = " + std::to_string(p2i));
       cpder = PL->CP_addition(cpder, PL->CP_multiplication(PL->CP_constraintid(singleAdders_inputGeqOutput[i]), p2i));
     }
 
