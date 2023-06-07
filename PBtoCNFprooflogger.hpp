@@ -122,7 +122,7 @@ void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_nod
     RHS = RHS - PL->get_best_objective_value() + 1;
 
     //if(RHS > 0){
-        PL->write_comment("Derive UB for leafs of the left recursion in PB-CNF translation: " + sequence_to_string(leavesRight, weightsRight)); 
+        PL->write_comment("Derive UB for leafs of the right recursion in PB-CNF translation: " + sequence_to_string(leavesRight, weightsRight)); 
         UB_right_node = PL->write_CP_derivation(cpder_UBright); 
         PL->check_last_constraint(lits, weights, RHS);
     //}
