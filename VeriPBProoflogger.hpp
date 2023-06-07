@@ -13,14 +13,35 @@ void VeriPbProofLogger::set_proof_stream(std::ostream* proof){
 
 void VeriPbProofLogger::write_proof_header(int nbclause, int nbvars)
 {
+    n_variables = nbvars;
+
     *proof << "pseudo-Boolean proof version 1.0\n";
     *proof << "f " << nbclause << "\n";
 }
 
 void VeriPbProofLogger::write_proof_header(int nbvars)
 {
+    n_variables = nbvars;
+
     *proof << "pseudo-Boolean proof version 1.0\n";
     *proof << "f\n";
+}
+
+void VeriPbProofLogger::write_proof_header()
+{
+    *proof << "pseudo-Boolean proof version 1.0\n";
+    *proof << "f\n";
+}
+
+void VeriPbProofLogger::set_n_variables(int nbvars){
+
+    assert(n_variables == 0);
+    n_variables = nbvars;
+}
+
+void VeriPbProofLogger::set_n_constraints(int nbconstraints){
+    assert(constraint_counter == 0);
+    constraint_counter = nbconstraints;
 }
 
 template<class TSeqLit, class TSeqWght>

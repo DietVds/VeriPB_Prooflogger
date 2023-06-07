@@ -78,8 +78,9 @@ private:
 
     // Constraint counter
     //
+public:
     constraintid constraint_counter = 0;
-
+private:
     // Temporary string for reverse polish derivation
     //
     std::stringstream pol_string;
@@ -94,6 +95,9 @@ public:
     void set_proof_stream(std::ostream* proof);
     void write_proof_header(int nbclause, int nbvars);
     void write_proof_header(int nbclause);
+    void write_proof_header();
+    void set_n_variables(int nbvars);
+    void set_n_constraints(int nbconstraints);
     void increase_n_variables();
     void increase_constraint_counter();
 
