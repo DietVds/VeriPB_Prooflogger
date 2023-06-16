@@ -70,7 +70,7 @@ public:
     void derive_UB_for_recursive_sortingnetwork(ConstraintStoreSort& plcxns, ConstraintStoreSort& plcxns_recursive,  TSeqLit& input_recursive_network, TSeqLit& input_other_network);
 
     template <class TSeqLit>
-    void derive_UB_for_mergenetwork(ConstraintStoreMerge& plcxns_merge, ConstraintStoreSort& plcxns, ConstraintStoreSort& plcxns_left_sort, ConstraintStoreSort& plcxns_right_sort, TSeqLit& left_output, TSeqLit& right_output );
+    void derive_UB_for_mergenetwork(ConstraintStoreMerge& plcxns_merge, ConstraintStoreSort& plcxns, ConstraintStoreSort& plcxns_left_sort, ConstraintStoreSort& plcxns_right_sort, TSeqLit& left_output, TSeqLit& right_output , TSeqLit& left_input, TSeqLit& right_input);
 
     template <class TSeqLit>
     void derive_input_equals_output_sortingnetwork(ConstraintStoreSort& plcxns, ConstraintStoreSort& plcxns_left, ConstraintStoreSort& plcxns_right, ConstraintStoreMerge& plcxns_merge, TSeqLit& inputs, TSeqLit& outputs);

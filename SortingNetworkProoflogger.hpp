@@ -23,20 +23,21 @@ void SortingNetworkProoflogger::derive_UB_for_recursive_sortingnetwork(Constrain
 }
 
 template <class TSeqLit>
-void SortingNetworkProoflogger::derive_UB_for_mergenetwork(ConstraintStoreMerge& plcxns_merge, ConstraintStoreSort& plcxns, ConstraintStoreSort& plcxns_left, ConstraintStoreSort& plcxns_right, TSeqLit& left_output, TSeqLit& right_output ){
+void SortingNetworkProoflogger::derive_UB_for_mergenetwork(ConstraintStoreMerge& plcxns_merge, ConstraintStoreSort& plcxns, ConstraintStoreSort& plcxns_left, ConstraintStoreSort& plcxns_right, TSeqLit& left_output, TSeqLit& right_output, TSeqLit& left_input, TSeqLit& right_input ){
     assert(plcxns.cxnUBinputs != 0);
-    if(left_output.size() > 1)
+    
+    if(left_input.size() > 1)
         assert(plcxns_left.input_geq_output != 0);
-    if(right_output.size() > 1)
+    if(right_input.size() > 1)
         assert(plcxns_right.input_geq_output != 0);
     
     plcxns_merge.UB = plcxns.UB;
     
     PL->write_comment("Derive UB for mergenetwork inputs");
     PL->start_CP_derivation(plcxns.cxnUBinputs);
-    if(left_output.size() > 1)
+    if(left_input.size() > 1)
         PL->CP_add_constraint(plcxns_left.input_geq_output);
-    if(right_output.size() > 1)
+    if(right_input.size() > 1)
         PL->CP_add_constraint(plcxns_right.input_geq_output);
     plcxns_merge.cxnUBinputs = PL->end_CP_derivation();
 
@@ -92,7 +93,8 @@ template <class TSeqLit>
 void SortingNetworkProoflogger::derive_sortedness_odds(TSeqLit& literals, std::vector<constraintid>& sortedness_literals, std::vector<constraintid>& sortedness_odds){
     assert(sortedness_odds.size() == 0);
 
-    for(int i = 0; i < literals.size()-2 && i < sortedness_literals.size()-1 && toVeriPbLit(literals[i+2]) != zerolit; i+=2){ 
+    for(int i = 0; i < literals.size()-2 && i < (int)sortedness_literals.size()-1 && toVeriPbLit(literals[i+2]) != zerolit; i+=2){ 
+        //if()
         PL->start_CP_derivation(sortedness_literals[i]); 
         PL->CP_add_constraint(sortedness_literals[i+1]);
         sortedness_odds.push_back(PL->end_CP_derivation());
@@ -101,13 +103,14 @@ void SortingNetworkProoflogger::derive_sortedness_odds(TSeqLit& literals, std::v
         lits_for_check.push_back(toVeriPbLit(literals[i])); lits_for_check.push_back(neg(toVeriPbLit(literals[i+2]))); 
         PL->check_last_constraint(lits_for_check);
     }
+    std::cout << "jup2" << std::endl;
 }
 
 template <class TSeqLit>
 void SortingNetworkProoflogger::derive_sortedness_evens(TSeqLit& literals, std::vector<constraintid>& sortedness_literals, std::vector<constraintid>& sortedness_evens){
     assert(sortedness_evens.size() == 0);
 
-    for(int i = 1; i < literals.size()-2 && i < sortedness_literals.size()-1 && toVeriPbLit(literals[i+2]) != zerolit; i+=2){ // Odds of inputA
+    for(int i = 1; i < literals.size()-2 && i < (int)sortedness_literals.size()-1 && toVeriPbLit(literals[i+2]) != zerolit; i+=2){ // Odds of inputA
         PL->start_CP_derivation(sortedness_literals[i]); 
         PL->CP_add_constraint(sortedness_literals[i+1]);
         sortedness_evens.push_back(PL->end_CP_derivation());
@@ -121,8 +124,10 @@ void SortingNetworkProoflogger::derive_sortedness_evens(TSeqLit& literals, std::
 
 template <class TSeqLit>
 void SortingNetworkProoflogger::derive_sortedness_inputs_recursivemergenetworks(ConstraintStoreMerge& plcxns, ConstraintStoreMerge& plcxns_evens, ConstraintStoreMerge& plcxns_odds, TSeqLit& inputA, TSeqLit& inputB){
+    std::cout << "plcxns.sortedness_inputA.size() = " << std::to_string(plcxns.sortedness_inputA.size()) << std::endl;
     derive_sortedness_odds(inputA, plcxns.sortedness_inputA, plcxns_odds.sortedness_inputA);
     derive_sortedness_evens(inputA, plcxns.sortedness_inputA, plcxns_evens.sortedness_inputA);
+    std::cout << "plcxns.sortedness_inputB.size() = " << std::to_string(plcxns.sortedness_inputB.size()) << std::endl;
     derive_sortedness_odds(inputB, plcxns.sortedness_inputB, plcxns_odds.sortedness_inputB);
     derive_sortedness_evens(inputB, plcxns.sortedness_inputB, plcxns_evens.sortedness_inputB);
 }

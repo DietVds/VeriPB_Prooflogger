@@ -6,7 +6,7 @@ template SortingNetworkProoflogger::SortingNetworkProoflogger<Glucose::Lit>(Veri
 
 // Recursive sorting networks
 template void SortingNetworkProoflogger::derive_UB_for_recursive_sortingnetwork<Glucose::vec<Glucose::Lit>>(ConstraintStoreSort& plcxns, ConstraintStoreSort& plcxns_recursive,  Glucose::vec<Glucose::Lit>& input_recursive_network, Glucose::vec<Glucose::Lit>& input_other_network);
-template void SortingNetworkProoflogger::derive_UB_for_mergenetwork<Glucose::vec<Glucose::Lit>>(ConstraintStoreMerge& plcxns_merge, ConstraintStoreSort& plcxns, ConstraintStoreSort& plcxns_left, ConstraintStoreSort& plcxns_right, Glucose::vec<Glucose::Lit>& left_output, Glucose::vec<Glucose::Lit>& right_output );
+template void SortingNetworkProoflogger::derive_UB_for_mergenetwork<Glucose::vec<Glucose::Lit>>(ConstraintStoreMerge& plcxns_merge, ConstraintStoreSort& plcxns, ConstraintStoreSort& plcxns_left, ConstraintStoreSort& plcxns_right, Glucose::vec<Glucose::Lit>& left_output, Glucose::vec<Glucose::Lit>& right_output, Glucose::vec<Glucose::Lit>& left_input, Glucose::vec<Glucose::Lit>& right_input );
 template void SortingNetworkProoflogger::derive_input_equals_output_sortingnetwork<Glucose::vec<Glucose::Lit>>(ConstraintStoreSort& plcxns, ConstraintStoreSort& plcxns_left, ConstraintStoreSort& plcxns_right, ConstraintStoreMerge& plcxns_merge, Glucose::vec<Glucose::Lit>& inputliterals, Glucose::vec<Glucose::Lit>& outputliterals);
 
 // Merge networks
