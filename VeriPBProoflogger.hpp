@@ -376,6 +376,8 @@ void VeriPbProofLogger::set_rewrite_model_improvement_constraint(cuttingplanes_d
 template <class TSeqLBool>
 constraintid VeriPbProofLogger::log_solution_lbools(TSeqLBool &model, wght objective_value)
 {
+    write_comment("Model improvement update with objective value = " + std::to_string(objective_value));
+
     VeriPB::Var var;
     VeriPB::Lit lit;
 

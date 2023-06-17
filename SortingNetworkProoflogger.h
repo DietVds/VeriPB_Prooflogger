@@ -131,11 +131,11 @@ public:
     std::string sequence_to_string(TSeqLit& lits);  
 
     // Derivation of definition of output variables
-     template <class TSeqLit, class TSeqCxnId>
-    constraintid derive_counting_definition_of_outputvars_right(TSeqLit& inputlits, TSeqLit& outputlits, wght j, constraintid input_geq_output, TSeqCxnId& sortedness_outputlits);
+     template <class TSeqLit, class TSeqWght, class TSeqCxnId>
+    constraintid derive_counting_definition_of_outputvars_right(TSeqLit& inputlits, TSeqWght& wghtInputlits, TSeqLit& outputlits, wght j, constraintid input_geq_output, TSeqCxnId& sortedness_outputlits);
 
-    template <class TSeqLit, class TSeqCxnId>
-    constraintid derive_counting_definition_of_outputvars_left(TSeqLit& inputlits, TSeqLit& outputlits, wght j, constraintid output_geq_input, TSeqCxnId& sortedness_outputlits);
+    template <class TSeqLit, class TSeqWght, class TSeqCxnId>
+    constraintid derive_counting_definition_of_outputvars_left(TSeqLit& inputlits, TSeqWght& wghtInputlits, TSeqLit& outputlits, wght j, constraintid output_geq_input, TSeqCxnId& sortedness_outputlits);
 
     // Deletions of constraints
     void delete_temp_constraints(ConstraintStoreMerge& plcxns);

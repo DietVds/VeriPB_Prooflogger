@@ -38,8 +38,10 @@ constraintid PBtoCNFprooflogger::derive_leaves_leq_outputvars_after_binary_recur
         }
     }
     for(int i= 0; i < output.size(); i ++){
-        lits_cxn.push_back(toVeriPbLit(output[i]));
-        weights_cxn.push_back(weightsOutput[i]);
+        if(toVeriPbLit(output[i]) != zerolit){
+            lits_cxn.push_back(toVeriPbLit(output[i]));
+            weights_cxn.push_back(weightsOutput[i]);
+        }
     }
     PL->check_last_constraint(lits_cxn, weights_cxn, RHS);
 
@@ -67,10 +69,12 @@ constraintid PBtoCNFprooflogger::derive_leaves_geq_outputvars_after_binary_recur
             weights_cxn.push_back(weightsleaves[i]);
         }
     }
-    for(int i= 0; i < output.size(); i ++){
-        lits_cxn.push_back(neg(toVeriPbLit(output[i])));
-        weights_cxn.push_back(weightsOutput[i]);
-        RHS+=weightsOutput[i];
+    for(int i= 0; i < output.size() && toVeriPbLit(output[i]) != zerolit; i ++){
+        if(toVeriPbLit(output[i]) != zerolit){
+            lits_cxn.push_back(neg(toVeriPbLit(output[i])));
+            weights_cxn.push_back(weightsOutput[i]);
+            RHS+=weightsOutput[i];
+        }
     }
     PL->check_last_constraint(lits_cxn, weights_cxn, RHS);
 
@@ -93,9 +97,11 @@ void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_nod
     // Check derivation
     std::vector<VeriPB::Lit> lits; std::vector<wght> weights; wght RHS = 0;
     for(int i = 0; i < leavesLeft.size(); i++){
-        lits.push_back(neg(toVeriPbLit(leavesLeft[i])));
-        weights.push_back(weightsLeft[i]);
-        RHS += weightsLeft[i];
+        if(toVeriPbLit(leavesLeft[i]) != zerolit){
+            lits.push_back(neg(toVeriPbLit(leavesLeft[i])));
+            weights.push_back(weightsLeft[i]);
+            RHS += weightsLeft[i];
+        }
     }
     RHS = RHS - PL->get_best_objective_value() + 1;
 
@@ -115,9 +121,11 @@ void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_nod
     // Check derivation
     lits.clear(); weights.clear(); RHS = 0;
     for(int i = 0; i < leavesRight.size(); i++){
-        lits.push_back(neg(toVeriPbLit(leavesRight[i])));
-        weights.push_back(weightsRight[i]);
-        RHS += weightsRight[i];
+        if(toVeriPbLit(leavesRight[i]) != zerolit){
+            lits.push_back(neg(toVeriPbLit(leavesRight[i])));
+            weights.push_back(weightsRight[i]);
+            RHS += weightsRight[i];
+        }
     }
     RHS = RHS - PL->get_best_objective_value() + 1;
 
@@ -164,9 +172,11 @@ constraintid PBtoCNFprooflogger::derive_UB_on_outputliterals(constraintid& UB_le
 
     std::vector<VeriPB::Lit> lits; std::vector<wght> lit_weights; wght RHS=0;
     for(int i = 0; i < weights.size(); i ++){
-        lits.push_back(neg(toVeriPbLit(outputs[i])));
-        lit_weights.push_back(weights[i]);
-        RHS += weights[i];
+        if(toVeriPbLit(outputs[i]) != zerolit){
+            lits.push_back(neg(toVeriPbLit(outputs[i])));
+            lit_weights.push_back(weights[i]);
+            RHS += weights[i];
+        }
     }
     RHS = RHS - PL->get_best_objective_function() + 1;
 
