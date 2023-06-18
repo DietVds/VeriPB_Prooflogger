@@ -393,6 +393,62 @@ constraintid PBtoCNFprooflogger::deriveBASeqInputGeqOutput(std::vector<constrain
     return cxnid;
 }
 
+/*
+Totalizer:
+Olivier Bailleux and Yacine Boufkhad,
+"Efficient CNF Encoding of Boolean Cardinality Constraints",
+CP 2003, LNCS 2833, pp.108-122, 2003
+*/
+
+/**
+ * Derives the totalizer clauses. 
+ * If the boolean trivialcountingvar is true, countingLitsLeft, countingLitsRight and countingLits are all of the form <~zerolit, ..., zerolit>. 
+ *      These extra literals in the countingLits are not necessary, and thus some solvers do not add them.
+ * If the boolean clause_contains_zerolits is true, the clause that is derived contains a zero-literal in case alpha or beta is equal to 0, else they are discarded.     
+*/
+template <class TSeqLit, class TSeqWght>
+constraintid PBtoCNFprooflogger::derive_totalizer_clause(TSeqLit& leavesLeft, TSeqWght& weightsLeavesLeft, TSeqLit& countingLitsLeft, TSeqLit& leavesRight, TSeqWght& weightsLeavesRight,  TSeqLit& countingLitsRight, TSeqLit& countingLits, wght alpha, wght beta, wght sigma, TSeqLit& clause, bool trivialcountingvar, bool clause_contains_zerolits){
+    cuttingplanes_derivation cpder;
+    constraintid cxn = 0;
+
+    if(sigma != 0){// If sigma == 0, then no clause will be added to the solver.
+                    // TODO: sigma == 0 gives trivially satisfiable clause and will not be added to the solver by the addClause function in Glucose. However, addClause is called for this clause. On the other hand, VeriPB adds >= 0. Hence, we cannot do del find for this clause. 
+                    //       Look for a cleaner solution than just not derive the clause.
+        cpder = PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(countingLits[trivialcountingvar ? sigma : sigma - 1])));
+
+        if(alpha == 0){
+            for(int i = 0; i < leavesLeft.size(); i++)
+                cpder = PL->CP_weakening(cpder, variable(leavesLeft[i]));
+            if(clause_contains_zerolits)
+                cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
+        }
+        else if(leavesLeft.size() == 1 && (trivialcountingvar ?  (countingLitsLeft.size()-2 > 1) : (countingLitsLeft.size() > 1))) 
+                // Left node has only one leaf but more countingLiterals, which means a weighted instance. That case, countingLitsLeft consist of multiple times the same literal.
+                // Weakening the reified constraint by adding the leave its weight minus alpha results in the same derivation as it would be for internal nodes.
+            cpder = PL->CP_addition(cpder, PL->CP_multiplication(PL->CP_literal_axiom(leavesLeft[0]), weightsLeavesLeft[0]-alpha));
+        else if(leavesLeft.size() > 1)
+            cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(countingLitsLeft[trivialcountingvar ?  alpha : alpha - 1]))));
+
+        if(beta == 0){
+            for(int i = 0; i < leavesRight.size(); i++)
+                cpder = PL->CP_weakening(cpder, variable(leavesRight[i]));
+            if(clause_contains_zerolits)
+                cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
+        }
+        else if(leavesRight.size() == 1 && (trivialcountingvar ? (countingLitsRight.size()-2 > 1) : (countingLitsRight.size() > 1)) )
+            cpder = PL->CP_addition(cpder, PL->CP_multiplication(PL->CP_literal_axiom(leavesRight[0]), weightsLeavesRight[0]-beta));
+        else if(leavesRight.size() > 1)
+            cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(countingLitsRight[trivialcountingvar ?  beta : beta - 1]))));
+
+        cpder = PL->CP_saturation(cpder );
+
+        cxn = PL->write_CP_derivation(cpder);
+        PL->check_last_constraint(clause);
+    }
+    return cxn;
+}
+
+
 // Helper functions for commenting
 template<class TSeqLit>
 std::string PBtoCNFprooflogger::sequence_to_string(TSeqLit& lits){

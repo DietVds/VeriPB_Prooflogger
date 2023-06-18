@@ -87,6 +87,22 @@ public:
     constraintid deriveBASeqInputGeqOutput(std::vector<constraintid>& singleAdders_inputGeqOutput, TSeqLit& litsleft, TSeqLit& litsright, TSeqLit& outputs );
     
 
+    /*
+    Totalizer:
+    Olivier Bailleux and Yacine Boufkhad,
+    "Efficient CNF Encoding of Boolean Cardinality Constraints",
+    CP 2003, LNCS 2833, pp.108-122, 2003
+    */
+
+    /**
+     * Derives the totalizer clauses. 
+     * If the boolean trivialcountingvar is true, countingLitsLeft, countingLitsRight and countingLits are all of the form <~zerolit, ..., zerolit>. 
+     *      These extra literals in the countingLits are not necessary, and thus some solvers do not add them.
+     * If the boolean clause_contains_zerolits is true, the clause that is derived contains a zero-literal in case alpha or beta is equal to 0, else they are discarded.     
+    */
+    template <class TSeqLit, class TSeqWght>
+    constraintid derive_totalizer_clause(TSeqLit& leavesLeft, TSeqWght& weightsLeavesLeft, TSeqLit& countingLitsLeft, TSeqLit& leavesRight, TSeqWght& weightsLeavesRight,  TSeqLit& countingLitsRight, TSeqLit& countingLits, wght alpha, wght beta, wght sigma, TSeqLit& clause, bool trivialcountingvar, bool clause_contains_zerolits);
+
     // Helper functions for commenting
     template<class TSeqLit>
     std::string sequence_to_string(TSeqLit& lits); 

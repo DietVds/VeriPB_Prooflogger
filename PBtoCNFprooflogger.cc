@@ -59,6 +59,9 @@ template constraintid PBtoCNFprooflogger::deriveBASeqInputGeqOutput<Glucose::vec
 template constraintid PBtoCNFprooflogger::deriveBASeqInputLeqOutput<std::vector<VeriPB::Lit>>(std::vector<constraintid>& singleAdders_inputLeqOutput, std::vector<VeriPB::Lit>& litsleft, std::vector<VeriPB::Lit>& litsright, std::vector<VeriPB::Lit>& outputs);
 template constraintid PBtoCNFprooflogger::deriveBASeqInputGeqOutput<std::vector<VeriPB::Lit>>(std::vector<constraintid>& singleAdders_inputGeqOutput, std::vector<VeriPB::Lit>& litsleft, std::vector<VeriPB::Lit>& litsright, std::vector<VeriPB::Lit>& outputs );
 
+// Totalizer encoding
+template constraintid PBtoCNFprooflogger::derive_totalizer_clause<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(Glucose::vec<Glucose::Lit>& leavesLeft, Glucose::vec<wght>& weightsLeavesLeft, Glucose::vec<Glucose::Lit>& countingLitsLeft, Glucose::vec<Glucose::Lit>& leavesRight, Glucose::vec<wght>& weightsLeavesRight,  Glucose::vec<Glucose::Lit>& countingLitsRight, Glucose::vec<Glucose::Lit>& countingLits, wght alpha, wght beta, wght sigma, Glucose::vec<Glucose::Lit>& clause, bool trivialcountingvar, bool clause_contains_zerolits);
+
 
 template std::string PBtoCNFprooflogger::sequence_to_string<Glucose::vec<Glucose::Lit>>(Glucose::vec<Glucose::Lit>& lits); 
 template std::string PBtoCNFprooflogger::sequence_to_string<Glucose::vec<Glucose::Lit>, Glucose::vec<long long>>(Glucose::vec<Glucose::Lit>& lits, Glucose::vec<long long>& weights); 
