@@ -411,9 +411,24 @@ constraintid PBtoCNFprooflogger::derive_totalizer_clause(TSeqLit& leavesLeft, TS
     cuttingplanes_derivation cpder;
     constraintid cxn = 0;
 
-    if(sigma != 0){// If sigma == 0, then no clause will be added to the solver.
-                    // TODO: sigma == 0 gives trivially satisfiable clause and will not be added to the solver by the addClause function in Glucose. However, addClause is called for this clause. On the other hand, VeriPB adds >= 0. Hence, we cannot do del find for this clause. 
-                    //       Look for a cleaner solution than just not derive the clause.
+    if(sigma==0){
+        PL->write_comment("sigma = 0");
+        cpder = PL->CP_constraintid(def_one);
+        if(alpha == 0 && clause_contains_zerolits){
+            cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
+        }
+        else{
+            cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(countingLitsLeft[trivialcountingvar ? alpha : alpha-1]));
+        }
+        if(beta == 0 && clause_contains_zerolits){
+            cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
+        }
+        else{
+            cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(countingLitsRight[trivialcountingvar ? beta : beta-1]));
+        }
+    }
+    else{
+        
         cpder = PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(countingLits[trivialcountingvar ? sigma : sigma - 1])));
 
         if(alpha == 0){
@@ -442,11 +457,12 @@ constraintid PBtoCNFprooflogger::derive_totalizer_clause(TSeqLit& leavesLeft, TS
 
         cpder = PL->CP_saturation(cpder );
 
-        cxn = PL->write_CP_derivation(cpder);
-        PL->check_last_constraint(clause);
     }
+    cxn = PL->write_CP_derivation(cpder);
+    PL->check_last_constraint(clause);
     return cxn;
 }
+
 
 
 // Helper functions for commenting

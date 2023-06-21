@@ -281,16 +281,21 @@ public:
     void delete_constraint(TVec<TLit> &clause);
 
     template <class TSeqLit>
-    constraintid overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const wght RHS = 1);
+    constraintid overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const wght RHS = 1, bool origclause_in_coreset=false);
     template <class TSeqLit>
-    constraintid overwrite_constraint(const TSeqLit &lits_orig, const wght RHS_orig, const TSeqLit &lits, const wght RHS);
+    constraintid overwrite_constraint(const TSeqLit &lits_orig, const wght RHS_orig, const TSeqLit &lits, const wght RHS, bool origclause_in_coreset=false);
     template <class TSeqLit, class TSeqWght>
-    constraintid overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
+    constraintid overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, bool origclause_in_coreset=false);
     template <class TSeqLit, class TSeqWght>
-    constraintid overwrite_constraint(const TSeqLit &lits_orig, const TSeqWght &weights_orig, const wght RHS_orig, const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
+    constraintid overwrite_constraint(const TSeqLit &lits_orig, const TSeqWght &weights_orig, const wght RHS_orig, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, bool origclause_in_coreset=false);
     template <class TSeqLit>
-    constraintid overwrite_constraint(const TSeqLit &lits_orig, const TSeqLit &lits);
+    constraintid overwrite_constraint(const TSeqLit &lits_orig, const TSeqLit &lits, bool origclause_in_coreset=false);
 
+    void move_to_coreset(constraintid cxn);
+    template <class TSeqLit>
+    void move_to_coreset(TSeqLit& lits, wght RHS=1);
+    template <class TSeqLit, class TSeqWght>
+    void move_to_coreset(TSeqLit& lits, TSeqWght& wghts, wght RHS=1);
     // ------------- Handling contradiction -------------
     void write_previous_constraint_contradiction();
     void write_contradiction(constraintid cxnid);

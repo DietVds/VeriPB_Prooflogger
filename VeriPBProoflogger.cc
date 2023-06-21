@@ -139,18 +139,22 @@ template void VeriPbProofLogger::delete_constraint<Glucose::Clause>(const Glucos
 template void VeriPbProofLogger::delete_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
 template void VeriPbProofLogger::delete_constraint<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(const Glucose::vec<Glucose::Lit> &lits, const Glucose::vec<wght> &weights, const wght RHS);
 
-template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<VeriPB::Lit>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const wght RHS);
-template constraintid VeriPbProofLogger::overwrite_constraint<Glucose::vec<Glucose::Lit>>(const constraintid constraint_id, const Glucose::vec<Glucose::Lit> &lits, const wght RHS);
+template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<VeriPB::Lit>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const wght RHS, bool origclause_in_coreset);
+template constraintid VeriPbProofLogger::overwrite_constraint<Glucose::vec<Glucose::Lit>>(const constraintid constraint_id, const Glucose::vec<Glucose::Lit> &lits, const wght RHS, bool origclause_in_coreset);
 
-template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits_orig, const wght RHS_orig, const std::vector<VeriPB::Lit> &lits, const wght RHS);
-template constraintid VeriPbProofLogger::overwrite_constraint<Glucose::vec<Glucose::Lit>>(const Glucose::vec<Glucose::Lit> &lits_orig, const wght RHS_orig, const Glucose::vec<Glucose::Lit> &lits, const wght RHS);
+template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits_orig, const wght RHS_orig, const std::vector<VeriPB::Lit> &lits, const wght RHS, bool origclause_in_coreset);
+template constraintid VeriPbProofLogger::overwrite_constraint<Glucose::vec<Glucose::Lit>>(const Glucose::vec<Glucose::Lit> &lits_orig, const wght RHS_orig, const Glucose::vec<Glucose::Lit> &lits, const wght RHS, bool origclause_in_coreset);
 
-template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
-template constraintid VeriPbProofLogger::overwrite_constraint<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(const constraintid constraint_id, const Glucose::vec<Glucose::Lit> &lits, const Glucose::vec<wght> &weights, const wght RHS);
+template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, bool origclause_in_coreset);
+template constraintid VeriPbProofLogger::overwrite_constraint<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(const constraintid constraint_id, const Glucose::vec<Glucose::Lit> &lits, const Glucose::vec<wght> &weights, const wght RHS, bool origclause_in_coreset);
 
-template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits_orig, const std::vector<wght> &weights_orig, const wght RHS_orig, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
-template constraintid VeriPbProofLogger::overwrite_constraint<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(const Glucose::vec<Glucose::Lit> &lits_orig, const Glucose::vec<wght> &weights_orig, const wght RHS_orig, const Glucose::vec<Glucose::Lit> &lits, const Glucose::vec<wght> &weights, const wght RHS);
+template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits_orig, const std::vector<wght> &weights_orig, const wght RHS_orig, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, bool origclause_in_coreset);
+template constraintid VeriPbProofLogger::overwrite_constraint<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(const Glucose::vec<Glucose::Lit> &lits_orig, const Glucose::vec<wght> &weights_orig, const wght RHS_orig, const Glucose::vec<Glucose::Lit> &lits, const Glucose::vec<wght> &weights, const wght RHS, bool origclause_in_coreset);
 
-template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits_orig, const std::vector<VeriPB::Lit> &lits);
-template constraintid VeriPbProofLogger::overwrite_constraint<Glucose::vec<Glucose::Lit>>(const Glucose::vec<Glucose::Lit> &lits_orig, const Glucose::vec<Glucose::Lit> &lits);
+template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits_orig, const std::vector<VeriPB::Lit> &lits, bool origclause_in_coreset);
+template constraintid VeriPbProofLogger::overwrite_constraint<Glucose::vec<Glucose::Lit>>(const Glucose::vec<Glucose::Lit> &lits_orig, const Glucose::vec<Glucose::Lit> &lits, bool origclause_in_coreset);
 
+template void VeriPbProofLogger::move_to_coreset<std::vector<VeriPB::Lit>>(std::vector<VeriPB::Lit>& lits, wght RHS=1);
+template void VeriPbProofLogger::move_to_coreset<Glucose::vec<Glucose::Lit>>(Glucose::vec<Glucose::Lit>& lits, wght RHS=1);
+template void VeriPbProofLogger::move_to_coreset<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& wghts, wght RHS=1);
+template void VeriPbProofLogger::move_to_coreset<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(Glucose::vec<Glucose::Lit>& lits, Glucose::vec<wght>& wghts, wght RHS=1);

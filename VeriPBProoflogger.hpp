@@ -839,43 +839,65 @@ void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &w
 }
 
 template <class TSeqLit>
-constraintid VeriPbProofLogger::overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const wght RHS)
+constraintid VeriPbProofLogger::overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const wght RHS, bool origclause_in_coreset)
 {
     constraintid newconstraint = rup(lits, RHS);
+    if(origclause_in_coreset)
+        move_to_coreset(-1);
     delete_constraint(constraint_id);
     return newconstraint;
 }
 
 template <class TSeqLit>
-constraintid VeriPbProofLogger::overwrite_constraint(const TSeqLit &lits_orig, const wght RHS_orig, const TSeqLit &lits, const wght RHS)
+constraintid VeriPbProofLogger::overwrite_constraint(const TSeqLit &lits_orig, const wght RHS_orig, const TSeqLit &lits, const wght RHS, bool origclause_in_coreset)
 {
     constraintid newconstraint = rup(lits, RHS);
+    if(origclause_in_coreset)
+        move_to_coreset(-1);
     delete_constraint(lits_orig, RHS_orig);
     return newconstraint;
 }
 
 template <class TSeqLit, class TSeqWght>
-constraintid VeriPbProofLogger::overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const TSeqWght &weights, const wght RHS)
+constraintid VeriPbProofLogger::overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, bool origclause_in_coreset)
 {
     constraintid newconstraint = rup(lits, weights, RHS);
+    if(origclause_in_coreset)
+        move_to_coreset(-1);
     delete_constraint(constraint_id);
     return newconstraint;
 }
 
 template <class TSeqLit, class TSeqWght>
-constraintid VeriPbProofLogger::overwrite_constraint(const TSeqLit &lits_orig, const TSeqWght &weights_orig, const wght RHS_orig, const TSeqLit &lits, const TSeqWght &weights, const wght RHS)
+constraintid VeriPbProofLogger::overwrite_constraint(const TSeqLit &lits_orig, const TSeqWght &weights_orig, const wght RHS_orig, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, bool origclause_in_coreset)
 {
     constraintid newconstraint = rup(lits, weights, RHS);
+    if(origclause_in_coreset)
+        move_to_coreset(-1);
     delete_constraint(lits_orig, weights_orig, RHS_orig);
     return newconstraint;
 }
 
 template <class TSeqLit>
-constraintid VeriPbProofLogger::overwrite_constraint(const TSeqLit&lits_orig, const TSeqLit &lits)
+constraintid VeriPbProofLogger::overwrite_constraint(const TSeqLit&lits_orig, const TSeqLit &lits, bool origclause_in_coreset)
 {
     constraintid newconstraint = rup(lits);
+    if(origclause_in_coreset)
+        move_to_coreset(-1);
     delete_constraint(lits_orig, 1);
     return newconstraint;
+}
+
+void VeriPbProofLogger::move_to_coreset(constraintid cxn){
+    *proof << "core id " << std::to_string(cxn) << "\n";
+}
+template <class TSeqLit>
+void VeriPbProofLogger::move_to_coreset(TSeqLit& lits, wght RHS){
+    *proof << "core find "; write_cardinality_constraint(lits, RHS); *proof << "\n";
+}
+template <class TSeqLit, class TSeqWght>
+void VeriPbProofLogger::move_to_coreset(TSeqLit& lits, TSeqWght& wghts, wght RHS){
+    *proof << "core find "; write_PB_constraint(lits, wghts, RHS); *proof << "\n";
 }
 
 // ------------- Handling contradiction -------------
