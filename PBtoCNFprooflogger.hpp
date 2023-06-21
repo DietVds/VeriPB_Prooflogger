@@ -412,7 +412,6 @@ constraintid PBtoCNFprooflogger::derive_totalizer_clause(TSeqLit& leavesLeft, TS
     constraintid cxn = 0;
 
     if(sigma==0){
-        PL->write_comment("sigma = 0");
         cpder = PL->CP_constraintid(def_one);
         if(alpha == 0 && clause_contains_zerolits){
             cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
@@ -463,6 +462,71 @@ constraintid PBtoCNFprooflogger::derive_totalizer_clause(TSeqLit& leavesLeft, TS
     return cxn;
 }
 
+/**
+ * Derives the inverse totalizer clauses. These clauses are the clauses that are called C2 in Bailleux's paper.
+ * If the boolean trivialcountingvar is true, countingLitsLeft, countingLitsRight and countingLits are all of the form <~zerolit, ..., zerolit>. 
+ *      These extra literals in the countingLits are not necessary, and thus some solvers do not add them.
+ * If the boolean clause_contains_zerolits is true, the clause that is derived contains a zero-literal in case alpha or beta is equal to 0, else they are discarded.     
+*/
+template <class TSeqLit, class TSeqWght>
+constraintid PBtoCNFprooflogger::derive_totalizer_inverse_clause(TSeqLit& leavesLeft, TSeqWght& weightsLeavesLeft, TSeqLit& countingLitsLeft, TSeqLit& leavesRight, TSeqWght& weightsLeavesRight,  TSeqLit& countingLitsRight, TSeqLit& countingLits, wght alpha, wght beta, wght sigma, TSeqLit& clause, bool trivialcountingvar, bool clause_contains_zerolits){
+    PL->write_comment("Derive inverse totalizer clause");
+    
+    cuttingplanes_derivation cpder;
+    constraintid cxn = 0;
+    
+    wght nbCountingLitsLeft = trivialcountingvar ?  countingLitsLeft.size() - 2 : countingLitsLeft.size();
+    wght nbCountingLitsRight = trivialcountingvar ?  countingLitsRight.size() - 2 : countingLitsRight.size();
+    wght nbCountingLits = trivialcountingvar ?  countingLits.size() - 2 : countingLits.size();
+
+    if(sigma == nbCountingLits){
+        cpder = PL->CP_constraintid(def_one);
+        if(alpha == nbCountingLitsLeft && clause_contains_zerolits){
+            cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
+        }
+        else{
+            cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(neg(countingLitsLeft[trivialcountingvar ? alpha+1 : alpha])));
+        }
+        if(beta == nbCountingLitsRight && clause_contains_zerolits){
+            cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
+        }
+        else{
+            cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(neg(countingLitsRight[trivialcountingvar ? beta+1 : beta])));
+        }
+    }
+    else{
+        cpder = PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(countingLits[trivialcountingvar ? sigma+1 : sigma])));
+
+        if(alpha == nbCountingLitsLeft){
+            for(int i = 0; i < leavesLeft.size(); i++)
+                cpder = PL->CP_weakening(cpder, variable(leavesLeft[i]));
+            if(clause_contains_zerolits)
+                cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
+        }
+        else if(leavesLeft.size() == 1 && (trivialcountingvar ?  (countingLitsLeft.size()-2 > 1) : (countingLitsLeft.size() > 1))) 
+                // Left node has only one leaf but more countingLiterals, which means a weighted instance. That case, countingLitsLeft consist of multiple times the same literal.
+                // Weakening the reified constraint by adding the leave alpha times results in the same derivation as it would be for internal nodes.
+            cpder = PL->CP_addition(cpder, PL->CP_multiplication(PL->CP_literal_axiom(neg(leavesLeft[0])), alpha));
+        else if(leavesLeft.size() > 1)
+            cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(countingLitsLeft[trivialcountingvar ?  alpha+1 : alpha]))));
+
+        if(beta == nbCountingLitsRight){
+            for(int i = 0; i < leavesRight.size(); i++)
+                cpder = PL->CP_weakening(cpder, variable(leavesRight[i]));
+            if(clause_contains_zerolits)
+                cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
+        }
+        else if(leavesRight.size() == 1 && (trivialcountingvar ? (countingLitsRight.size()-2 > 1) : (countingLitsRight.size() > 1)) )
+            cpder = PL->CP_addition(cpder, PL->CP_multiplication(PL->CP_literal_axiom(neg(leavesRight[0])), beta));
+        else if(leavesRight.size() > 1)
+            cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(countingLitsRight[trivialcountingvar ?  beta+1 : beta]))));
+
+        cpder = PL->CP_saturation(cpder );
+    }
+    cxn = PL->write_CP_derivation(cpder);
+    PL->check_last_constraint(clause);
+    return cxn;
+}
 
 
 // Helper functions for commenting
