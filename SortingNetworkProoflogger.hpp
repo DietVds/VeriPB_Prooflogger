@@ -440,10 +440,14 @@ void SortingNetworkProoflogger::remove_wire_mergenetwork_output(ConstraintStoreM
     // Only need to derive the removal of non-zero wires.
     if(toVeriPbLit(removed_wire) != zerolit){
         plcxns.removed_wires.push_back(toVeriPbLit(removed_wire));
-
+    
         std::vector<VeriPB::Lit> lits_for_check;
         lits_for_check.push_back(toVeriPbLit(neg(removed_wire)));
         plcxns.constraints_removed_wires.push_back(PL->rup(lits_for_check));
+        PL->move_to_coreset(-1); // Unit clauses propagate and therefore need to be in the core.
+    }
+    else{
+        PL->write_CP_derivation(PL->CP_constraintid(def_one));
     }
 }
 
