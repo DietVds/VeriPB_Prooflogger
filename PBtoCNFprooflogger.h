@@ -9,9 +9,6 @@ class PBtoCNFprooflogger
 {
 public:
     // Constructor
-    //SortingNetworkProoflogger(VeriPbProofLogger *PL);
-    // template <class TLit>
-    //PbTransProoflogger(VeriPbProofLogger *PL, TLit zero, constraintid def_one) : PL(PL), zerolit(toVeriPbLit(zero)), def_one(def_one) {}
     PBtoCNFprooflogger(VeriPbProofLogger *PL) : PL(PL) {};
 
     // an extra literal that is always true is added as a unit clause. We will add this to the proof logger, since we will need it in multiple encodings.
@@ -58,7 +55,10 @@ public:
     template <class TSeqLit, class TSeqWght>
     constraintid derive_UB_on_outputliterals(constraintid& UB_leaves, constraintid& leaves_geq_outputs, TSeqLit& outputs, TSeqWght& weights );
 
-    
+    // Functions to use when the encoding has as output variables a unary representation of the sum of the leaves. 
+
+    template <class TSeqLit> 
+    constraintid derive_leaves_lessthan_unary_k_from_reification(TSeqLit& countingLits, wght k, TSeqLit& clause, bool trivialcountingvars=false );
 
     /*
     Binary Adder:

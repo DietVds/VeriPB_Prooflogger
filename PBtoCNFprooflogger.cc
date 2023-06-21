@@ -39,6 +39,11 @@ template void PBtoCNFprooflogger::derive_UB_on_recursion_inputs<std::vector<Veri
 template constraintid PBtoCNFprooflogger::derive_UB_on_outputliterals<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(constraintid& UB_leaves, constraintid& leaves_geq_outputs, Glucose::vec<Glucose::Lit>& outputs, Glucose::vec<wght>& weights );
 template constraintid PBtoCNFprooflogger::derive_UB_on_outputliterals<std::vector<VeriPB::Lit>, std::vector<wght>>(constraintid& UB_leaves, constraintid& leaves_geq_outputs, std::vector<VeriPB::Lit>& outputs, std::vector<wght>& weights );
 
+// Functions to use when the encoding has as output variables a unary representation of the sum of the leaves. 
+
+template constraintid PBtoCNFprooflogger::derive_leaves_lessthan_unary_k_from_reification<Glucose::vec<Glucose::Lit>>(Glucose::vec<Glucose::Lit>& countingLits, wght k, Glucose::vec<Glucose::Lit>& clause, bool trivialcountingvars=false );
+
+
 // Binary Adders
 
 template void PBtoCNFprooflogger::reifyCarryBA<Glucose::Lit>(Glucose::Lit& a, Glucose::Lit& b, Glucose::Lit& c, Glucose::Lit& carry );

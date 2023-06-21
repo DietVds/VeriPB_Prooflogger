@@ -184,6 +184,29 @@ constraintid PBtoCNFprooflogger::derive_UB_on_outputliterals(constraintid& UB_le
     return cxn_id;
 }
 
+
+// Functions to use when the encoding has as output variables a unary representation of the sum of the leaves. 
+
+template <class TSeqLit> 
+constraintid PBtoCNFprooflogger::derive_leaves_lessthan_unary_k_from_reification(TSeqLit& countingLits, wght k, TSeqLit& clause, bool trivialcountingvars){
+    cuttingplanes_derivation cpder;
+    
+
+    if(toVeriPbLit(countingLits[trivialcountingvars? k : k-1]) == zerolit){
+        cpder =  PL->CP_constraintid(def_one);
+    }
+    else{
+        cpder = PL->CP_constraintid(PL->get_model_improving_constraint());
+        cpder = PL->CP_addition(cpder, PL->CP_constraintid( PL->getReifiedConstraintRightImpl(variable(countingLits[trivialcountingvars? k : k-1]))));
+        cpder = PL->CP_division(cpder, k -  PL->get_best_objective_value() + 1);
+        cpder = PL->CP_saturation(cpder);
+    }
+    constraintid cxn = PL->write_CP_derivation(cpder);
+    PL->check_last_constraint(clause);
+    return cxn;
+}
+
+
 // Binary Adders
 
 template <class TLit>
