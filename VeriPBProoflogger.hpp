@@ -838,6 +838,19 @@ void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &w
     *proof << ";\n";
 }
 
+// Removal by del find where a literal occuring multiple times in lits is only written once.
+// Note: TSeqLit must be sorted.
+template <class TSeqLit>
+void VeriPbProofLogger::delete_clause(const TSeqLit& lits){
+    *proof << "del find ";
+    write_weighted_literal(lits[0]);
+    for(int i = 1; i < lits.size(); i++){
+        if(lits[i] != lits[i-1])
+            write_weighted_literal(lits[i]);
+    }
+    *proof << " >= 1 ;\n";
+}
+
 template <class TSeqLit>
 constraintid VeriPbProofLogger::overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const wght RHS, bool origclause_in_coreset)
 {

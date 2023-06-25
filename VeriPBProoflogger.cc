@@ -139,6 +139,8 @@ template void VeriPbProofLogger::delete_constraint<Glucose::Clause>(const Glucos
 template void VeriPbProofLogger::delete_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
 template void VeriPbProofLogger::delete_constraint<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(const Glucose::vec<Glucose::Lit> &lits, const Glucose::vec<wght> &weights, const wght RHS);
 
+template void VeriPbProofLogger::delete_clause<Glucose::vec<Glucose::Lit>>(const Glucose::vec<Glucose::Lit>& lits);
+
 template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<VeriPB::Lit>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const wght RHS, bool origclause_in_coreset);
 template constraintid VeriPbProofLogger::overwrite_constraint<Glucose::vec<Glucose::Lit>>(const constraintid constraint_id, const Glucose::vec<Glucose::Lit> &lits, const wght RHS, bool origclause_in_coreset);
 

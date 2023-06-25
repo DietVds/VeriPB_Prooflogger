@@ -280,6 +280,10 @@ public:
     template <template <class T> class TVec, class TLit>
     void delete_constraint(TVec<TLit> &clause);
 
+    // Removal by del find where a literal occuring multiple times in lits is only written once.
+    template <class TSeqLit>
+    void delete_clause(const TSeqLit& lits);
+
     template <class TSeqLit>
     constraintid overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const wght RHS = 1, bool origclause_in_coreset=false);
     template <class TSeqLit>
