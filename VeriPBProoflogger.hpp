@@ -691,6 +691,30 @@ void VeriPbProofLogger::deleteReifiedConstraintRightImpl(const TVar& var){
     }
 }
 
+/**
+ * Remove the right reification constraint from the reification constraint store without deleting it in the proof. 
+ * Only needed for not maintaining a constraint id in memory that will not be used in the proof anymore.
+*/
+template <class TVar>
+void VeriPbProofLogger::removeReifiedConstraintRightImplFromConstraintStore(const TVar& var){
+    VeriPB::VarIdx id = varidx(toVeriPbVar(var));
+    if(reifiedConstraintRightImpl.find(id) != reifiedConstraintRightImpl.end()){
+        reifiedConstraintRightImpl.erase(id);
+    }
+}
+
+/**
+ * Remove the left reification constraint from the reification constraint store without deleting it in the proof. 
+ * Only needed for not maintaining a constraint id in memory that will not be used in the proof anymore.
+*/
+template <class TVar>
+void VeriPbProofLogger::removeReifiedConstraintLeftImplFromConstraintStore(const TVar& var){
+    VeriPB::VarIdx id = varidx(toVeriPbVar(var));
+    if(reifiedConstraintLeftImpl.find(id) != reifiedConstraintLeftImpl.end()){
+        reifiedConstraintLeftImpl.erase(id);
+    }
+}
+
 // ------------- Cutting Planes derivations -------------
 
 cuttingplanes_derivation VeriPbProofLogger::CP_constraintid(const constraintid& constraint_id){

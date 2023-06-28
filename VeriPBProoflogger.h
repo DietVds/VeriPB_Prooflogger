@@ -229,6 +229,19 @@ public:
     template <class TVar>
     void deleteReifiedConstraintRightImpl(const TVar& var);
 
+    /**
+     * Remove the right reification constraint from the reification constraint store without deleting it in the proof. 
+     * Only needed for not maintaining a constraint id in memory that will not be used in the proof anymore.
+    */
+    template <class TVar>
+    void removeReifiedConstraintRightImplFromConstraintStore(const TVar& var);
+    /**
+     * Remove the left reification constraint from the reification constraint store without deleting it in the proof. 
+     * Only needed for not maintaining a constraint id in memory that will not be used in the proof anymore.
+    */
+    template <class TVar>
+    void removeReifiedConstraintLeftImplFromConstraintStore(const TVar& var);
+
     // ------------- Cutting Planes derivations -------------
 
     cuttingplanes_derivation CP_constraintid(const constraintid& constraint_id);

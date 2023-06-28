@@ -112,6 +112,10 @@ template void VeriPbProofLogger::deleteReifiedConstraintLeftImpl<VeriPB::Var>(co
 template void VeriPbProofLogger::deleteReifiedConstraintLeftImpl<Glucose::Var>(const Glucose::Var& var);
 template void VeriPbProofLogger::deleteReifiedConstraintRightImpl<VeriPB::Var>(const VeriPB::Var& var);
 template void VeriPbProofLogger::deleteReifiedConstraintRightImpl<Glucose::Var>(const Glucose::Var& var);
+template void VeriPbProofLogger::removeReifiedConstraintRightImplFromConstraintStore<VeriPB::Var>(const VeriPB::Var& var);
+template void VeriPbProofLogger::removeReifiedConstraintRightImplFromConstraintStore<Glucose::Var>(const Glucose::Var& var);
+template void VeriPbProofLogger::removeReifiedConstraintLeftImplFromConstraintStore<VeriPB::Var>(const VeriPB::Var& var);
+template void VeriPbProofLogger::removeReifiedConstraintLeftImplFromConstraintStore<Glucose::Var>(const Glucose::Var& var);
 
 template cuttingplanes_derivation VeriPbProofLogger::CP_literal_axiom<VeriPB::Lit>(const VeriPB::Lit& lit); 
 template cuttingplanes_derivation VeriPbProofLogger::CP_literal_axiom<Glucose::Lit>(const Glucose::Lit& lit); 
