@@ -756,6 +756,14 @@ template <class TVar>
 cuttingplanes_derivation VeriPbProofLogger::CP_weakening(const TVar& var){
     return " " + var_name(var) + " w";
 }
+template <class TLit>
+cuttingplanes_derivation VeriPbProofLogger::CP_weakening(const cuttingplanes_derivation& cp, const TLit& lit, const wght& weight){
+    return CP_addition(cp, CP_multiplication(CP_literal_axiom(lit), weight));
+}
+template <class TLit>
+cuttingplanes_derivation VeriPbProofLogger::CP_weakening(const TLit& lit, const wght& weight){
+    return CP_multiplication(CP_literal_axiom(lit), weight);
+}
 cuttingplanes_derivation VeriPbProofLogger::CP_apply(const cuttingplanes_derivation& cp_start, const cuttingplanes_derivation& cp_to_be_applied){
     return cp_start + " " + cp_to_be_applied;
 }

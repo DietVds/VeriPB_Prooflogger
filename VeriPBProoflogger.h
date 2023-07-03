@@ -259,6 +259,10 @@ public:
     cuttingplanes_derivation CP_weakening(const cuttingplanes_derivation& cp, const TVar& var);
     template <class TVar>
     cuttingplanes_derivation CP_weakening(const TVar& var);
+    template <class TLit>
+    cuttingplanes_derivation CP_weakening(const cuttingplanes_derivation& cp, const TLit& lit, const wght& weight);
+    template <class TLit>
+    cuttingplanes_derivation CP_weakening(const TLit& lit, const wght& weight);
     cuttingplanes_derivation CP_apply(const cuttingplanes_derivation& cp_start, const cuttingplanes_derivation& cp_to_be_applied);
     constraintid write_CP_derivation(const cuttingplanes_derivation& cp);
     

@@ -91,7 +91,8 @@ void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_nod
 
     cuttingplanes_derivation cpder_UBleft = PL->CP_constraintid(UB_current_node);
     for(int i = 0; i < leavesRight.size(); i++)
-        cpder_UBleft = PL->CP_weakening(cpder_UBleft, variable(leavesRight[i]));
+        cpder_UBleft = PL->CP_weakening(cpder_UBleft, leavesRight[i], weightsRight[i]);
+        //cpder_UBleft = PL->CP_weakening(cpder_UBleft, variable(leavesRight[i]));
     
 
     // Check derivation
@@ -115,7 +116,8 @@ void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_nod
 
     cuttingplanes_derivation cpder_UBright = PL->CP_constraintid(UB_current_node);
     for(int i = 0; i < leavesLeft.size(); i++)
-        cpder_UBright = PL->CP_weakening(cpder_UBright, variable(leavesLeft[i]));
+        cpder_UBright = PL->CP_weakening(cpder_UBright, leavesLeft[i], weightsLeft[i]);
+        //cpder_UBright = PL->CP_weakening(cpder_UBright, variable(leavesLeft[i]));
     
 
     // Check derivation
@@ -455,7 +457,8 @@ constraintid PBtoCNFprooflogger::derive_totalizer_clause(TSeqLit& leavesLeft, TS
 
         if(alpha == 0){
             for(int i = 0; i < leavesLeft.size(); i++)
-                cpder = PL->CP_weakening(cpder, variable(leavesLeft[i]));
+                cpder = PL->CP_weakening(cpder, leavesLeft[i], weightsLeavesLeft[i]);
+                //cpder = PL->CP_weakening(cpder, variable(leavesLeft[i]));
             if(clause_contains_zerolits)
                 cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
         }
@@ -468,7 +471,8 @@ constraintid PBtoCNFprooflogger::derive_totalizer_clause(TSeqLit& leavesLeft, TS
 
         if(beta == 0){
             for(int i = 0; i < leavesRight.size(); i++)
-                cpder = PL->CP_weakening(cpder, variable(leavesRight[i]));
+                cpder = PL->CP_weakening(cpder, leavesRight[i], weightsLeavesRight[i]);
+                //cpder = PL->CP_weakening(cpder, variable(leavesRight[i]));
             if(clause_contains_zerolits)
                 cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
         }
@@ -522,7 +526,8 @@ constraintid PBtoCNFprooflogger::derive_totalizer_inverse_clause(TSeqLit& leaves
 
         if(alpha == nbCountingLitsLeft){
             for(int i = 0; i < leavesLeft.size(); i++)
-                cpder = PL->CP_weakening(cpder, variable(leavesLeft[i]));
+                cpder = PL->CP_weakening(cpder, leavesLeft[i], weightsLeavesLeft[i]);
+                //cpder = PL->CP_weakening(cpder, variable(leavesLeft[i]));
             if(clause_contains_zerolits)
                 cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
         }
@@ -535,7 +540,8 @@ constraintid PBtoCNFprooflogger::derive_totalizer_inverse_clause(TSeqLit& leaves
 
         if(beta == nbCountingLitsRight){
             for(int i = 0; i < leavesRight.size(); i++)
-                cpder = PL->CP_weakening(cpder, variable(leavesRight[i]));
+                cpder = PL->CP_weakening(cpder, leavesRight[i], weightsLeavesRight[i]);
+                //cpder = PL->CP_weakening(cpder, variable(leavesRight[i]));
             if(clause_contains_zerolits)
                 cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
         }

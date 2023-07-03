@@ -123,6 +123,10 @@ template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<VeriPB::Var>(c
 template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<Glucose::Var>(const cuttingplanes_derivation& cp, const Glucose::Var& var);
 template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<VeriPB::Var>(const VeriPB::Var& var);
 template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<Glucose::Var>(const Glucose::Var& var);
+template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<VeriPB::Lit>(const cuttingplanes_derivation& cp, const VeriPB::Lit& lit, const wght& weight);
+template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<Glucose::Lit>(const cuttingplanes_derivation& cp, const Glucose::Lit& lit, const wght& weight);
+template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<VeriPB::Lit>(const VeriPB::Lit& lit, const wght& weight);
+template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<Glucose::Lit>(const Glucose::Lit& lit, const wght& weight);
 
 template void VeriPbProofLogger::start_CP_derivation_with_lit_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
 template void VeriPbProofLogger::start_CP_derivation_with_lit_axiom<Glucose::Lit>(const Glucose::Lit &lit);
