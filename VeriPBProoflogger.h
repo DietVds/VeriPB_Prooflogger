@@ -194,10 +194,22 @@ public:
     template <class TVar>
     void write_witness(const substitution<TVar> &witness);
 
+    // Assumption here is that these can prove the implication F ^ not C |- F\w ^ C\w trivially,
+    // i.e., for every constraint C' in F\w ^ C\w, C' is either in F or that w only assigns literals to true in C'.
     template <class TSeqLit, class TVar>
     constraintid redundanceBasedStrengthening(const TSeqLit &lits, const wght RHS, const substitution<TVar> &witness);
     template <class TSeqLit, class TSeqWght, class TVar>
     constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution<TVar> &witness);
+
+    typedef struct {
+        std::string proofgoal;
+        std::vector<cuttingplanes_derivation> derivations;
+    } subproof;
+
+    // In contrast to all other overloads, this overload of redundanceBasedStrenghtening suspects that at least one proof goal is not trivial (and that it should be proven by either RUP or by an explicit cutting planes proof). 
+    // This is important for counting the number of constraints, since constraints are created while proving non-trivial proofgoals.
+    template <class TSeqLit, class TSeqWght, class TVar>
+    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution<TVar> &witness, std::vector<subproof> subproofs);
 
     // ------------- Reification Variables -------------
     // Proves the constraints encoding the reification constraint l <-> C, with l a literal and C a boolean constraint.
@@ -283,6 +295,30 @@ public:
     template <class TLit>
     void CP_write_literal_axiom(const TLit &lit);
     constraintid end_CP_derivation();
+
+    // ------------- Extra Proof Techniques -------------
+    /**
+     * Derives a constraint C by assuming the negation of C and showing by means of a cutting planes derivation that a 
+     * conflict is derived if the negation of C is derived.
+     * This is done by proving C using substitution redundancy with an empty witness. 
+     * If C is proven by substitution redundancy using any witness w, it should be proven that for a formula F : F ^ ~C |= F\w  ^ C\w.
+     * Hence, if w is empty, then it has to be proven that F ^ ~C |= C, which is indeed a contradiction. 
+     * 
+    */
+    template <class TSeqLit, class TSeqWght>
+    constraintid prove_by_contradiction(TSeqLit& lits, TSeqWght& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
+    
+    /**
+     * If it is possible to derive the following two constraints:
+     *      k x + t >= k
+     *      k ~x + t >= k
+     * then it is possible to derive t >= k. 
+     * 
+     * Lits and weights are then the literals and weights in t, whereas the RHS coincides with k.   
+     * case1 and case2 are the constraintid's for the constraints depicted above.
+    */
+    template <class TSeqLit, class TSeqWght>
+    constraintid prove_by_casesplitting(TSeqLit& lits, TSeqWght& weights, wght RHS, constraintid case1, constraintid case2);
 
     // ------------- Deleting & Overwriting Constraints -------------
     void delete_constraint(const constraintid constraint_id);

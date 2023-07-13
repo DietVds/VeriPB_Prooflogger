@@ -87,17 +87,26 @@ template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Glucose::v
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Var>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, const substitution<VeriPB::Var> &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>, Glucose::Var>(const Glucose::vec<Glucose::Lit> &lits, const Glucose::vec<wght> &weights, const wght RHS, const substitution<Glucose::Var> &witness);
 
+template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>, Glucose::Var>(const Glucose::vec<Glucose::Lit> &lits, const Glucose::vec<wght> &weights, const wght RHS, const substitution<Glucose::Var> &witness, std::vector<subproof> subproofs);
+template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>, VeriPB::Var>(const Glucose::vec<Glucose::Lit> &lits, const Glucose::vec<wght> &weights, const wght RHS, const substitution<VeriPB::Var> &witness, std::vector<subproof> subproofs);
+template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Var>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, const substitution<VeriPB::Var> &witness, std::vector<subproof> subproofs);
+
+
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>, Glucose::Lit>(const Glucose::Lit& lit, const Glucose::vec<Glucose::Lit> &lits, const Glucose::vec<wght> &weights, const wght RHS, bool store_reified_constraint);
+template constraintid VeriPbProofLogger::reificationLiteralRightImpl<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const Glucose::vec<Glucose::Lit> &lits, const Glucose::vec<wght> &weights, const wght RHS, bool store_reified_constraint);
 
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<std::vector<VeriPB::Lit>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &lits, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<Glucose::vec<Glucose::Lit>, Glucose::Lit>(const Glucose::Lit& lit, const Glucose::vec<Glucose::Lit> &lits, const wght RHS, bool store_reified_constraint);
+template constraintid VeriPbProofLogger::reificationLiteralRightImpl<Glucose::vec<Glucose::Lit>, VeriPB::Lit>(const VeriPB::Lit& lit, const Glucose::vec<Glucose::Lit> &lits, const wght RHS, bool store_reified_constraint);
 
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>, Glucose::Lit>(const Glucose::Lit& lit, const Glucose::vec<Glucose::Lit> &lits, const Glucose::vec<wght> &weights, const wght RHS, bool store_reified_constraint);
+template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const Glucose::vec<Glucose::Lit> &lits, const Glucose::vec<wght> &weights, const wght RHS, bool store_reified_constraint);
 
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<std::vector<VeriPB::Lit>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &lits, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<Glucose::vec<Glucose::Lit>, Glucose::Lit>(const Glucose::Lit& lit, const Glucose::vec<Glucose::Lit> &lits, const wght RHS, bool store_reified_constraint);
+template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<Glucose::vec<Glucose::Lit>, VeriPB::Lit>(const VeriPB::Lit& lit, const Glucose::vec<Glucose::Lit> &lits, const wght RHS, bool store_reified_constraint);
 
 template constraintid VeriPbProofLogger::getReifiedConstraintLeftImpl<Glucose::Var>(const Glucose::Var& var);
 template constraintid VeriPbProofLogger::getReifiedConstraintLeftImpl<VeriPB::Var>(const VeriPB::Var& var);
@@ -139,6 +148,12 @@ template void VeriPbProofLogger::CP_add_literal_axiom<Glucose::Lit>(const Glucos
 
 template void VeriPbProofLogger::CP_write_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
 template void VeriPbProofLogger::CP_write_literal_axiom<Glucose::Lit>(const Glucose::Lit &lit);
+
+template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
+template constraintid VeriPbProofLogger::prove_by_contradiction<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(Glucose::vec<Glucose::Lit>& lits, Glucose::vec<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
+
+template constraintid VeriPbProofLogger::prove_by_casesplitting<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights, wght RHS, constraintid case1, constraintid case2);
+template constraintid VeriPbProofLogger::prove_by_casesplitting<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(Glucose::vec<Glucose::Lit>& lits, Glucose::vec<wght>& weights, wght RHS, constraintid case1, constraintid case2);
 
 template void VeriPbProofLogger::delete_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS);
 template void VeriPbProofLogger::delete_constraint<Glucose::vec<Glucose::Lit>>(const Glucose::vec<Glucose::Lit> &lits, const wght RHS);

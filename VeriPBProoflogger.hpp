@@ -493,6 +493,35 @@ constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits
     return ++constraint_counter;
 }
 
+template <class TSeqLit, class TSeqWght, class TVar>
+constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution<TVar> &witness, std::vector<subproof> subproofs){
+    *proof << "red ";
+    write_PB_constraint(lits, weights, RHS);
+    *proof << "; ";
+    write_witness(witness);
+
+    constraint_counter++; // constraint not C
+    
+    if(subproofs.size() > 0)
+        *proof << "; begin \n";
+    
+    for(int i = 0; i < subproofs.size(); i++){
+        subproof p = subproofs[i];
+        constraint_counter++; // constraint C\w
+        *proof << "\tproofgoal " << p.proofgoal << "\n";
+        for(int i = 0; i < p.derivations.size(); i++){
+            *proof << "\t\tp " << p.derivations[i] << "\n";
+            constraint_counter++;
+        }
+        *proof << "\t\t c -1\n";
+        *proof << "\tend\n";
+    }
+    *proof << "end\n";
+
+    return ++constraint_counter;
+}
+
+
 // ------------- Reification Literals -------------
 // Proves the constraints encoding the reification constraint l <-> C, with l a literal and C a boolean constraint.
 // The right implication is the encoding of l -> C, whereas the left implication means l <- C.
@@ -835,6 +864,32 @@ constraintid VeriPbProofLogger::end_CP_derivation()
     *proof << pol_string.rdbuf() << "\n";
     return ++constraint_counter;
 }
+
+// ------------- Extra Proof Techniques -------------
+
+template <class TSeqLit, class TSeqWght>
+constraintid VeriPbProofLogger::prove_by_contradiction(TSeqLit& lits, TSeqWght& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder){
+    std::vector<subproof> subproofs;
+    subproofs.push_back({"#1", cpder});
+    substitution<VeriPB::Var> witness ;
+    std::cout << "prove by contradiction before subred" << std::endl;
+    return redundanceBasedStrengthening(lits, weights, RHS, witness, subproofs );
+}
+
+template <class TSeqLit, class TSeqWght>
+constraintid VeriPbProofLogger::prove_by_casesplitting(TSeqLit& lits, TSeqWght& weights, wght RHS, constraintid case1, constraintid case2){
+    constraintid cxn_assumption = constraint_counter+1;
+
+    std::vector<cuttingplanes_derivation> p;
+
+    p.push_back(CP_saturation(CP_addition(CP_constraintid(cxn_assumption), CP_constraintid(case1))));
+    p.push_back(CP_saturation(CP_addition(CP_constraintid(cxn_assumption), CP_constraintid(case2))));
+    p.push_back(CP_addition(CP_constraintid(-1), CP_constraintid(-2)));
+
+    std::cout << "prove by casesplitting before prove by contradiction" << std::endl;
+    return prove_by_contradiction(lits, weights, RHS, p);
+}
+
 
 //  ------------- Deleting & Overwriting Constraints -------------
 
