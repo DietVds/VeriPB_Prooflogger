@@ -16,6 +16,7 @@ void PBtoCNFprooflogger::define_zerolit(TLit& zero){
 
 // Functions to use when the PB-CNF Translation creates a binary tree, derives variables with specific properties for its children and then merges the children into the parent node.
 
+// TODO: rewrite in terms of chain_IO_constraints_binary_recursion
 template <class TSeqLit, class TSeqWght>
 constraintid PBtoCNFprooflogger::derive_leaves_leq_outputvars_after_binary_recursion(constraintid& leaves_leq_outputs_leftrecursion, constraintid& leaves_leq_outputs_rightrecursion, constraintid& outputs_recursion_leq_outputs, TSeqLit& leaves, TSeqWght& weightsleaves, TSeqLit& output, TSeqWght& weightsOutput){
     PL->write_comment("Derive leaves =< outputvars");
@@ -80,6 +81,93 @@ constraintid PBtoCNFprooflogger::derive_leaves_geq_outputvars_after_binary_recur
 
     return cxn_id;
 }
+
+/**
+ * Let X1, X2, Y1, Y2 and O be linear terms over pairwise disjoint sets of literals and let >=< be either >= or =<. 
+ * If the following constraints have been derived: X1 =< Y1, X2 =< Y2, Y1 U Y2 =< O, then it is possible to derive X1 U X2 =< O. 
+*/
+template <class TSeqLit, class TSeqWght>
+constraintid PBtoCNFprooflogger::chain_IO_constraints_binary_recursion_leq(constraintid& X1_leq_Y1, constraintid& X2_leq_Y2, constraintid& Y1_U_Y2_leq_O, TSeqLit& litsX1, TSeqWght& wghtsX1, TSeqLit& litsX2, TSeqWght& wghtsX2, TSeqLit& litsO, TSeqWght& wghtsO ){
+    cuttingplanes_derivation cpder = PL->CP_constraintid(Y1_U_Y2_leq_O);
+
+    if(X1_leq_Y1 != 0)
+        cpder = PL->CP_addition(cpder, PL->CP_constraintid(X1_leq_Y1));
+    if(X2_leq_Y2 != 0)
+        cpder = PL->CP_addition(cpder, PL->CP_constraintid(X2_leq_Y2));
+
+    constraintid cxn_id = PL->write_CP_derivation(cpder);
+
+    // Check constraint
+    // TODO: rewrite by adding equals rule for non-normalized constraints to VeriPBProoflogger.
+    std::vector<VeriPB::Lit> lits_cxn; std::vector<wght> weights_cxn; wght RHS = 0;
+    for(int i = 0; i < litsX1.size(); i++){
+        if(toVeriPbLit(litsX1[i]) != zerolit && toVeriPbLit(litsX1[i]) != neg(zerolit)) {
+            lits_cxn.push_back(neg(toVeriPbLit(litsX1[i])));
+            weights_cxn.push_back(wghtsX1[i]);
+            RHS += wghtsX1[i];
+        }
+    }
+    for(int i = 0; i < litsX2.size(); i++){
+        if(toVeriPbLit(litsX2[i]) != zerolit && toVeriPbLit(litsX2[i]) != neg(zerolit)) {
+            lits_cxn.push_back(neg(toVeriPbLit(litsX2[i])));
+            weights_cxn.push_back(wghtsX2[i]);
+            RHS += wghtsX2[i];
+        }
+    }
+    for(int i= 0; i < litsO.size(); i ++){
+        if(toVeriPbLit(litsO[i]) != zerolit && toVeriPbLit(litsO[i]) != neg(zerolit)){
+            lits_cxn.push_back(toVeriPbLit(litsO[i]));
+            weights_cxn.push_back(wghtsO[i]);
+        }
+    }
+    PL->check_last_constraint(lits_cxn, weights_cxn, RHS);
+
+    return cxn_id;
+}
+
+/**
+ * Let X1, X2, Y1, Y2 and O be linear terms over pairwise disjoint sets of literals and let >=< be either >= or =<. 
+ * If the following constraints have been derived: X1 >= Y1, X2 >= Y2, Y1 U Y2 >= O, then it is possible to derive X1 U X2 >= O. 
+*/
+template <class TSeqLit, class TSeqWght>
+constraintid PBtoCNFprooflogger::chain_IO_constraints_binary_recursion_geq(constraintid& X1_geq_Y1, constraintid& X2_geq_Y2, constraintid& Y1_U_Y2_geq_O, TSeqLit& litsX1, TSeqWght& wghtsX1, TSeqLit& litsX2, TSeqWght& wghtsX2, TSeqLit& litsO, TSeqWght& wghtsO ){
+    cuttingplanes_derivation cpder = PL->CP_constraintid(Y1_U_Y2_geq_O);
+
+    if(X1_geq_Y1 != 0)
+        cpder = PL->CP_addition(cpder, PL->CP_constraintid(X1_geq_Y1));
+    if(X2_geq_Y2 != 0)
+        cpder = PL->CP_addition(cpder, PL->CP_constraintid(X2_geq_Y2));
+
+    constraintid cxn_id = PL->write_CP_derivation(cpder);
+
+    // Check constraint
+    std::vector<VeriPB::Lit> lits_cxn; std::vector<wght> weights_cxn; wght RHS = 0;
+    for(int i = 0; i < litsX1.size(); i++){
+        if(toVeriPbLit(litsX1[i]) != zerolit && toVeriPbLit(litsX1[i]) != neg(zerolit)) {
+            lits_cxn.push_back(toVeriPbLit(litsX1[i]));
+            weights_cxn.push_back(wghtsX1[i]);
+        }
+    }
+    for(int i = 0; i < litsX2.size(); i++){
+        if(toVeriPbLit(litsX2[i]) != zerolit && toVeriPbLit(litsX2[i]) != neg(zerolit)) {
+            lits_cxn.push_back(toVeriPbLit(litsX2[i]));
+            weights_cxn.push_back(wghtsX2[i]);
+        }
+    }
+    for(int i= 0; i < litsO.size(); i ++){
+        if(toVeriPbLit(litsO[i]) != zerolit && toVeriPbLit(litsO[i]) != neg(zerolit)){
+            lits_cxn.push_back(toVeriPbLit(neg(litsO[i])));
+            weights_cxn.push_back(wghtsO[i]);
+            RHS += wghtsO[i];
+        }
+    }
+    PL->check_last_constraint(lits_cxn, weights_cxn, RHS);
+
+    return cxn_id;
+}
+
+
+
 
 template <class TSeqLit, class TSeqWght>
 void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_node, constraintid& UB_right_node,
@@ -190,7 +278,7 @@ constraintid PBtoCNFprooflogger::derive_UB_on_outputliterals(constraintid& UB_le
 // Functions to use when the encoding has as output variables a unary representation of the sum of the leaves. 
 
 template <class TSeqLit> 
-constraintid PBtoCNFprooflogger::derive_leaves_lessthan_unary_k_from_reification(TSeqLit& countingLits, wght k, TSeqLit& clause, bool trivialcountingvars){
+constraintid PBtoCNFprooflogger::derive_leaves_leq_unary_k_from_reification(TSeqLit& countingLits, wght k, TSeqLit& clause, bool trivialcountingvars){
     cuttingplanes_derivation cpder;
     
 
@@ -419,6 +507,195 @@ constraintid PBtoCNFprooflogger::deriveBASeqInputGeqOutput(std::vector<constrain
 }
 
 /*
+Modulo Totalizer:
+Toru Ogawa, YangYang Liu, Ryuzo Hasegawa, Miyuki Koshimura, Hiroshi Fujita,
+"Modulo Based CNF Encoding of Cardinality Constraints and Its Application to
+MaxSAT Solvers",
+ICTAI 2013.
+*/
+
+template < class TSeqLit>
+VeriPB::Lit PBtoCNFprooflogger::getRemainderLiteral(TSeqLit& countingLiteralsMTO, wght j){
+    return toVeriPbLit( countingLiteralsMTO[j]);
+}
+
+template <class TSeqLit>
+VeriPB::Lit PBtoCNFprooflogger::getQuotientLiteral(TSeqLit& countingLiteralsMTO, wght j, wght div){
+    return toVeriPbLit( countingLiteralsMTO[div+j]);
+}
+
+template <class TSeqLit>
+wght PBtoCNFprooflogger::getNrOfQuotientLiterals(TSeqLit& countingLiteralsMTO, wght div){
+    return countingLiteralsMTO.size() - div - 1;
+}
+
+
+template <class TLit, class TSeqLit, class TSeqWght >
+void PBtoCNFprooflogger::reifyQuotientLiteralMTO(TLit& quotientliteral, TSeqLit& leaves, TSeqWght& leaves_wght, wght j, wght div){
+    PL->reificationLiteralRightImpl(quotientliteral, leaves, leaves_wght, j*div, true);
+    PL->reificationLiteralLeftImpl(quotientliteral, leaves, leaves_wght, j*div, true);
+}
+
+template <class TLit, class TSeqLit, class TSeqWght>
+void PBtoCNFprooflogger::reifyRemainderLiteralMTO(TLit& remainderliteral, TSeqLit& leaves, TSeqWght& leaves_wght, TSeqLit& countingLiteralsMTO, wght j, wght div){
+    std::vector<VeriPB::Lit> litsC; std::vector<wght> wghtsC;
+
+    for(int i = 0; i < leaves.size(); i++){
+        litsC.push_back(toVeriPbLit(leaves[i]));
+        wghtsC.push_back(leaves_wght[i]);
+    }
+
+    wght sigma = getNrOfQuotientLiterals(countingLiteralsMTO, div); // Nr of quotient literals
+
+    for(int j=1; j <= sigma; j++){
+        litsC.push_back(toVeriPbLit(neg(getQuotientLiteral(countingLiteralsMTO, j, div))));
+        wghtsC.push_back(div);
+    }
+
+    PL->reificationLiteralRightImpl(toVeriPbLit(remainderliteral), litsC, wghtsC, j + sigma * div, true );
+    PL->reificationLiteralLeftImpl(toVeriPbLit(remainderliteral), litsC, wghtsC, j + sigma * div, true );
+}
+
+template <class TLit, class TSeqLit>
+void PBtoCNFprooflogger::reifyCarryLiteralMTO(TLit& carryLit, TSeqLit& countingLiteralsMTOLeft, TSeqLit& countingLiteralsMTORight, wght div){
+    std::vector<VeriPB::Lit> litsC;
+
+    for(int j = 1; j < div; j++)
+        litsC.push_back(getRemainderLiteral(countingLiteralsMTOLeft, j));
+    
+    for(int j = 1; j < div; j++)
+        litsC.push_back(getRemainderLiteral(countingLiteralsMTORight, j));
+    
+    
+    PL->reificationLiteralRightImpl(toVeriPbLit(carryLit), litsC, div, true);
+    PL->reificationLiteralLeftImpl(toVeriPbLit(carryLit), litsC, div, true);
+}
+
+template <class TLit, class TSeqLit, class TSeqWght>
+constraintid PBtoCNFprooflogger::derive_leaves_leq_countinglits_MTO(TSeqLit& countingLiteralsMTO, TSeqLit& leaves, TSeqWght& wght_leaves, wght div){
+    cuttingplanes_derivation cpder;
+
+    wght sigma = getNrOfQuotientLiterals(countingLiteralsMTO, div);
+
+    cpder = PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(getRemainderLiteral(countingLiteralsMTO, div-1))));
+
+    for(int j = 1; j < div-1; j++){
+        cpder = PL->CP_multiplication(cpder, j + sigma * div);
+        cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(getRemainderLiteral(countingLiteralsMTO, div-(j+1))))));
+        cpder = PL->CP_division(cpder, j + sigma * div);
+    }
+
+    constraintid cxn = PL->write_CP_derivation(cpder);
+
+     // Check constraint
+    std::vector<VeriPB::Lit> litsC; std::vector<wght> wghtsC; wght RHS = 0;
+
+    for(int i = 0; i < leaves.size(); i++){
+        litsC.push_back(toVeriPbLit(neg(leaves[i])));
+        wghtsC.push_back(wght_leaves[i]);
+        RHS+=wght_leaves[i];
+    }
+
+    for(int j = 1; j <= sigma; j++){
+        litsC.push_back(getQuotientLiteral(countingLiteralsMTO, j, div));
+        wghtsC.push_back(div);
+    }
+    for(int j = 1; j < div-1; j++){
+        litsC.push_back(getRemainderLiteral(countingLiteralsMTO, j));
+        wghtsC.push_back(1);
+    }
+
+    PL->check_last_constraint(litsC, wghtsC, RHS);
+    
+
+    return cxn;
+}
+
+template <class TLit, class TSeqLit, class TSeqWght>
+constraintid PBtoCNFprooflogger::derive_leaves_geq_countinglits_MTO(TSeqLit& countingLiteralsMTO, TSeqLit& leaves, TSeqWght& wght_leaves, wght div){
+    wght sigma = getNrOfQuotientLiterals(countingLiteralsMTO, div); // Number of quotient literals.
+
+    cuttingplanes_derivation cpder, cpder2;
+
+    //cpder = PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(getRemainderLiteral(countingLiteralsMTO, 1))));
+
+    std::vector<VeriPB::Lit> litsC; std::vector<wght> wghtsC; wght RHS=0;
+
+    // Proving X >= pH
+    constraintid constraint_for_j = PL->getReifiedConstraintRightImpl(variable(getQuotientLiteral(countingLiteralsMTO, 1, div)));
+    for(int j = 1; j < sigma; j++){
+        // Derive the case that represents the constraint ~h_j+1 -> p \sum_{1 =< i =< j+1} ~h_j + X >= (j+1)p
+        cpder = PL->CP_constraintid(constraint_for_j);
+        cpder2 = PL->CP_multiplication(PL->CP_literal_axiom(getQuotientLiteral(countingLiteralsMTO, j+1, div)), j*div);
+        cpder = PL->CP_addition(cpder, cpder2);
+        constraintid case_hjp1_false = PL->write_CP_derivation(cpder);
+
+        // Derive the case that represents the constraint h_j+1 -> p \sum_{1 =< i =< j+1} ~h_j + X >= (j+1)p
+        cpder = PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(getQuotientLiteral(countingLiteralsMTO, j+1, div))));
+        for(int i = 1; i <= j+1; i++ ){
+            cpder2 = PL->CP_multiplication(PL->CP_literal_axiom(neg(getQuotientLiteral(countingLiteralsMTO, i, div))), div);
+            cpder = PL->CP_addition(cpder, cpder2);
+        }
+        constraintid case_hjp1_true = PL->write_CP_derivation(cpder);
+
+        // Derive \sum_{1 =< i =< j+1} ~h_j + X >= (j+1)p by using case splitting with previously derived constraints.
+        litsC.clear(); wghtsC.clear(); RHS=(j+1)*div;
+        
+        for(int i = 1; i <= j + 1; i++ ){
+            litsC.push_back(neg(getQuotientLiteral(countingLiteralsMTO, i, div)));
+            wghtsC.push_back(div);
+        }
+        for(int i = 0; i < leaves.size(); i++){
+            litsC.push_back(toVeriPbLit(leaves[i]));
+            wghtsC.push_back(wght_leaves[i]);
+        }
+
+        PL->delete_constraint(constraint_for_j);
+        constraint_for_j = PL->prove_by_casesplitting(litsC, wghtsC, RHS, case_hjp1_false, case_hjp1_true);
+        PL->delete_constraint(case_hjp1_false);
+        PL->delete_constraint(case_hjp1_true);
+    }
+
+    cpder = PL->CP_constraintid(constraint_for_j);
+
+    // Induction steps for j for the constraint \sum_{1 =< i =< j} ~r_i + p~H + X >= p*|H| + j
+    for(int j = 0; j < div-1; j++){
+        cpder = PL->CP_multiplication(cpder, j + sigma * div);
+        cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(getRemainderLiteral(countingLiteralsMTO, j+1)))));
+        cpder = PL->CP_division(cpder, j + sigma * div + 1);
+    }
+
+    constraintid cxn = PL->write_CP_derivation(cpder);
+
+    // Check constraint
+    litsC.clear(); wghtsC.clear(); RHS = 0;
+
+    for(int i = 0; i < leaves.size(); i++){
+        litsC.push_back(toVeriPbLit(leaves[i]));
+        wghtsC.push_back(wght_leaves[i]);
+    }
+    
+    VeriPB::Lit l;
+
+    for(wght j = 1; j <= sigma; j++){
+        litsC.push_back(neg(getQuotientLiteral(countingLiteralsMTO, j, div)));
+        wghtsC.push_back(div);
+        RHS+=div;
+    }
+    
+    for(wght j = 1; j < div; j++){
+        litsC.push_back(toVeriPbLit(neg(getRemainderLiteral(countingLiteralsMTO, j))));
+        wghtsC.push_back(1);
+        RHS++;
+    }
+    
+    PL->check_last_constraint(litsC, wghtsC, RHS);
+    
+    return cxn;
+}
+
+
+/*
 Totalizer:
 Olivier Bailleux and Yacine Boufkhad,
 "Efficient CNF Encoding of Boolean Cardinality Constraints",
@@ -557,6 +834,88 @@ constraintid PBtoCNFprooflogger::derive_totalizer_inverse_clause(TSeqLit& leaves
     return cxn;
 }
 
+/*
+    Functions for handling the unary representation of a value.
+*/
+
+/**
+ * Given a set of counting literals L = {l_j | 1 =< j =< |X|} for which every literal l_j is reified as l_j -> \sum_{i = 1}^{|X|} a_i x_i >= j,
+ * it is possible to derive the constraint \sum_{i = 1}^{|X|} l_i =<  \sum_{i = 1}^{|X|} a_i x_i .
+*/
+
+// TODO: take into account the extra variables in the totalizer output. (See functions for totalizer derivation)
+template <class TSeqLit, class TSeqWght>
+constraintid PBtoCNFprooflogger::derive_input_geq_unary_output_from_output_definitions(TSeqLit& inputlits, TSeqWght& inputweights, TSeqLit& outputlits, bool trivialcountingvar){
+    cuttingplanes_derivation cpder;
+
+    assert(trivialcountingvar ? outputlits.size() > 1 : outputlits.size() > 0);
+    wght size_output = trivialcountingvar ? outputlits.size()-2 : outputlits.size();
+
+    cpder = PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(outputlits[trivialcountingvar ? 1 : 0])));
+
+    for(int j = 1; j < size_output; j++){ 
+        cpder = PL->CP_multiplication(cpder, j);
+        cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(outputlits[trivialcountingvar ? j+1 : j]))));
+        cpder = PL->CP_division(cpder, j+1);
+    }
+
+    constraintid cxn = PL->write_CP_derivation(cpder);
+
+    std::vector<VeriPB::Lit> lits; std::vector<wght> weights; wght RHS=0;
+    for(int i = 0; i < outputlits.size(); i++){
+        if(toVeriPbLit(outputlits[i]) != zerolit && toVeriPbLit(outputlits[i]) != neg(zerolit)){
+            lits.push_back(toVeriPbLit(neg(outputlits[i])));
+            weights.push_back(1);
+            RHS++;
+        }
+    }
+    for(int i = 0; i < inputlits.size(); i++){
+        lits.push_back(toVeriPbLit(inputlits[i]));
+        weights.push_back(inputweights[i]);
+    }
+    PL->check_last_constraint(lits, weights, RHS);
+
+    return cxn;
+
+}
+
+/**
+ * Given a set of counting literals L = {l_j | 1 =< j =< |X|} for which every literal l_j is reified as l_j <- \sum_{i = 1}^{|X|} a_i x_i >= j,
+ * it is possible to derive the constraint \sum_{i = 1}^{|X|} l_i >=  \sum_{i = 1}^{|X|} a_i x_i .
+*/
+template <class TSeqLit, class TSeqWght>
+constraintid PBtoCNFprooflogger::derive_input_leq_unary_output_from_output_definitions(TSeqLit& inputlits, TSeqWght& inputweights, TSeqLit& outputlits, bool trivialcountingvar){
+    cuttingplanes_derivation cpder;
+
+    assert(trivialcountingvar ? outputlits.size() > 1 : outputlits.size() > 0);
+    wght size_output = trivialcountingvar ? outputlits.size()-2 : outputlits.size();
+
+    cpder = PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(outputlits[trivialcountingvar ? outputlits.size()-2 : outputlits.size()-1])));
+
+    for(int j = 1; j < size_output; j++){ 
+        cpder = PL->CP_multiplication(cpder, j);
+        cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(outputlits[trivialcountingvar ? outputlits.size()-1-(j+1) : outputlits.size()-(j+1)]))));
+        cpder = PL->CP_division(cpder, j+1);
+    }
+
+    constraintid cxn = PL->write_CP_derivation(cpder);
+
+    std::vector<VeriPB::Lit> lits; std::vector<wght> weights; wght RHS=0;
+    for(int i = 0; i < outputlits.size(); i++){
+        if(toVeriPbLit(outputlits[i]) != zerolit && toVeriPbLit(outputlits[i]) != neg(zerolit)){
+            lits.push_back(toVeriPbLit(outputlits[i]));
+            weights.push_back(1);
+        }
+    }
+    for(int i = 0; i < inputlits.size(); i++){
+        lits.push_back(toVeriPbLit(neg(inputlits[i])));
+        weights.push_back(inputweights[i]);
+        RHS += inputweights[i];
+    }
+    PL->check_last_constraint(lits, weights, RHS);
+
+    return cxn;
+}
 
 // Helper functions for commenting
 template<class TSeqLit>
