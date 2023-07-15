@@ -98,6 +98,7 @@ void VeriPbProofLogger::write_comment(const char *comment)
 {
     if(comments)
         *proof << "* " << comment << "\n";
+    // proof->flush(); // Can be uncommented for debugging reasons
 }
 
 void VeriPbProofLogger::write_comment(const std::string &comment)
@@ -137,8 +138,10 @@ std::string VeriPbProofLogger::var_name(const TVar &var)
 template <class TLit>
 void VeriPbProofLogger::write_weighted_literal(const TLit &literal, wght weight)
 {
-    *proof << std::to_string(weight) + " ";
-    write_literal<TLit>(literal);
+    if(weight != 0){
+        *proof << std::to_string(weight) + " ";
+        write_literal<TLit>(literal);
+    }
 }
 
 // The variable is the original variable of which we look to rewrite. In the first call, the literal is over the original variable.
@@ -417,7 +420,7 @@ constraintid VeriPbProofLogger::unchecked_assumption(const TSeqLit &lits, const 
 template <class TSeqLit, class TSeqWght>
 constraintid VeriPbProofLogger::unchecked_assumption(const TSeqLit &lits, const TSeqWght &weights, const wght RHS)
 {
-    *proof << "u ";
+    *proof << "a ";
     write_PB_constraint(lits, weights, RHS);
     *proof << " ;\n";
     return ++constraint_counter;
@@ -501,22 +504,23 @@ constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits
     write_witness(witness);
 
     constraint_counter++; // constraint not C
-    
-    if(subproofs.size() > 0)
+
+    if(subproofs.size() > 0){
         *proof << "; begin \n";
     
-    for(int i = 0; i < subproofs.size(); i++){
-        subproof p = subproofs[i];
-        constraint_counter++; // constraint C\w
-        *proof << "\tproofgoal " << p.proofgoal << "\n";
-        for(int i = 0; i < p.derivations.size(); i++){
-            *proof << "\t\tp " << p.derivations[i] << "\n";
-            constraint_counter++;
+        for(int i = 0; i < subproofs.size(); i++){
+            subproof p = subproofs[i];
+            constraint_counter++; // constraint C\w
+            *proof << "\tproofgoal " << p.proofgoal << "\n";
+            for(int i = 0; i < p.derivations.size(); i++){
+                *proof << "\t\tp " << p.derivations[i] << "\n";
+                constraint_counter++;
+            }
+            *proof << "\t\t c -1\n";
+            *proof << "\tend\n";
         }
-        *proof << "\t\t c -1\n";
-        *proof << "\tend\n";
+        *proof << "end\n";
     }
-    *proof << "end\n";
 
     return ++constraint_counter;
 }
@@ -872,7 +876,6 @@ constraintid VeriPbProofLogger::prove_by_contradiction(TSeqLit& lits, TSeqWght& 
     std::vector<subproof> subproofs;
     subproofs.push_back({"#1", cpder});
     substitution<VeriPB::Var> witness ;
-    std::cout << "prove by contradiction before subred" << std::endl;
     return redundanceBasedStrengthening(lits, weights, RHS, witness, subproofs );
 }
 
@@ -885,8 +888,6 @@ constraintid VeriPbProofLogger::prove_by_casesplitting(TSeqLit& lits, TSeqWght& 
     p.push_back(CP_saturation(CP_addition(CP_constraintid(cxn_assumption), CP_constraintid(case1))));
     p.push_back(CP_saturation(CP_addition(CP_constraintid(cxn_assumption), CP_constraintid(case2))));
     p.push_back(CP_addition(CP_constraintid(-1), CP_constraintid(-2)));
-
-    std::cout << "prove by casesplitting before prove by contradiction" << std::endl;
     return prove_by_contradiction(lits, weights, RHS, p);
 }
 
