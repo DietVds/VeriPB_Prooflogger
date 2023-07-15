@@ -3,6 +3,11 @@
 template void PBtoCNFprooflogger::define_zerolit<Glucose::Lit>(Glucose::Lit& zero);
 template void PBtoCNFprooflogger::define_zerolit<VeriPB::Lit>(VeriPB::Lit& zero);
 
+// Functions for deriving sortedness
+template constraintid PBtoCNFprooflogger::derive_sortedness_from_reified_constraints<Glucose::Lit>(Glucose::Lit& lj, Glucose::Lit& ljp1, wght a);
+template constraintid PBtoCNFprooflogger::derive_sortedness_from_reified_constraints<VeriPB::Lit>(VeriPB::Lit& lj, VeriPB::Lit& ljp1, wght a);
+
+
 // Functions to use when the PB-CNF Translation creates a binary tree, derives variables with specific properties for its children and then merges the children into the parent node.
 
 template constraintid PBtoCNFprooflogger::derive_leaves_leq_outputvars_after_binary_recursion<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(constraintid& leaves_leq_outputs_leftrecursion, constraintid& leaves_leq_outputs_rightrecursion, 
@@ -38,6 +43,12 @@ template void PBtoCNFprooflogger::derive_UB_on_recursion_inputs<std::vector<Veri
 
 template constraintid PBtoCNFprooflogger::derive_UB_on_outputliterals<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(constraintid& UB_leaves, constraintid& leaves_geq_outputs, Glucose::vec<Glucose::Lit>& outputs, Glucose::vec<wght>& weights );
 template constraintid PBtoCNFprooflogger::derive_UB_on_outputliterals<std::vector<VeriPB::Lit>, std::vector<wght>>(constraintid& UB_leaves, constraintid& leaves_geq_outputs, std::vector<VeriPB::Lit>& outputs, std::vector<wght>& weights );
+
+template constraintid PBtoCNFprooflogger::chain_IO_constraints_binary_recursion_leq<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(constraintid& X1_leq_Y1, constraintid& X2_leq_Y2, constraintid& Y1_U_Y2_leq_O, Glucose::vec<Glucose::Lit>& litsX1, Glucose::vec<wght>& wghtsX1, Glucose::vec<Glucose::Lit>& litsX2, Glucose::vec<wght>& wghtsX2, Glucose::vec<Glucose::Lit>& litsO, Glucose::vec<wght>& wghtsO );
+template constraintid PBtoCNFprooflogger::chain_IO_constraints_binary_recursion_leq<std::vector<VeriPB::Lit>, std::vector<wght>>(constraintid& X1_leq_Y1, constraintid& X2_leq_Y2, constraintid& Y1_U_Y2_leq_O, std::vector<VeriPB::Lit>& litsX1, std::vector<wght>& wghtsX1, std::vector<VeriPB::Lit>& litsX2, std::vector<wght>& wghtsX2, std::vector<VeriPB::Lit>& litsO, std::vector<wght>& wghtsO );
+template constraintid PBtoCNFprooflogger::chain_IO_constraints_binary_recursion_geq<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(constraintid& X1_geq_Y1, constraintid& X2_geq_Y2, constraintid& Y1_U_Y2_geq_O, Glucose::vec<Glucose::Lit>& litsX1, Glucose::vec<wght>& wghtsX1, Glucose::vec<Glucose::Lit>& litsX2, Glucose::vec<wght>& wghtsX2, Glucose::vec<Glucose::Lit>& litsO, Glucose::vec<wght>& wghtsO );
+template constraintid PBtoCNFprooflogger::chain_IO_constraints_binary_recursion_geq<std::vector<VeriPB::Lit>, std::vector<wght>>(constraintid& X1_geq_Y1, constraintid& X2_geq_Y2, constraintid& Y1_U_Y2_geq_O, std::vector<VeriPB::Lit>& litsX1, std::vector<wght>& wghtsX1, std::vector<VeriPB::Lit>& litsX2, std::vector<wght>& wghtsX2, std::vector<VeriPB::Lit>& litsO, std::vector<wght>& wghtsO );
+
 
 // Functions to use when the encoding has as output variables a unary representation of the sum of the leaves. 
 
@@ -81,8 +92,8 @@ template void PBtoCNFprooflogger::reifyQuotientLiteralMTO<VeriPB::Lit, Glucose::
 template void PBtoCNFprooflogger::reifyRemainderLiteralMTO<Glucose::Lit, Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(Glucose::Lit& remainderliteral, Glucose::vec<Glucose::Lit>& leaves, Glucose::vec<wght>& leaves_wght, Glucose::vec<Glucose::Lit>& countingLiteralsMTO, wght j, wght div);
 template void PBtoCNFprooflogger::reifyRemainderLiteralMTO<VeriPB::Lit, Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(VeriPB::Lit& remainderliteral, Glucose::vec<Glucose::Lit>& leaves, Glucose::vec<wght>& leaves_wght, Glucose::vec<Glucose::Lit>& countingLiteralsMTO, wght j, wght div);
 template void PBtoCNFprooflogger::reifyCarryLiteralMTO<Glucose::Lit, Glucose::vec<Glucose::Lit>>(Glucose::Lit& carryLit, Glucose::vec<Glucose::Lit>& countingLiteralsMTOLeft, Glucose::vec<Glucose::Lit>& countingLiteralsMTORight, wght div);
-template constraintid PBtoCNFprooflogger::derive_leaves_leq_countinglits_MTO<Glucose::Lit, Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(Glucose::vec<Glucose::Lit>& countingLiteralsMTO, Glucose::vec<Glucose::Lit>& leaves, Glucose::vec<wght>& wght_leaves, wght div);
-template constraintid PBtoCNFprooflogger::derive_leaves_geq_countinglits_MTO<Glucose::Lit, Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(Glucose::vec<Glucose::Lit>& countingLiteralsMTO, Glucose::vec<Glucose::Lit>& leaves, Glucose::vec<wght>& wght_leaves, wght div);
+template constraintid PBtoCNFprooflogger::derive_leaves_geq_countinglits_MTO<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(Glucose::vec<Glucose::Lit>& countingLiteralsMTO, Glucose::vec<Glucose::Lit>& leaves, Glucose::vec<wght>& wght_leaves, wght div);
+template constraintid PBtoCNFprooflogger::derive_leaves_leq_countinglits_MTO<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(Glucose::vec<Glucose::Lit>& countingLiteralsMTO, Glucose::vec<Glucose::Lit>& leaves, Glucose::vec<wght>& wght_leaves, wght div);
 
 
 // Printing help

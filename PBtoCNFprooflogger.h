@@ -19,6 +19,18 @@ public:
     template <class TLit>
     void define_zerolit(TLit& zerolit);
 
+    // Functions for deriving sortedness
+
+    /**
+     * If there exists the following literals: 
+     *      l_j <-> X >= aj+b
+     *      l_{j+1} <-> X >= a(j+1)+b
+     * Then, it is possible to derive the sortedness constraint l_j >= l_{j+1} by cutting planes derivation starting from C<-(l_j) and C->(l_{j+1}). 
+     * If the literals are part of a unary representation, a is equal to 1.
+    */
+   template <class TLit>
+   constraintid derive_sortedness_from_reified_constraints(TLit& lj, TLit& ljp1, wght a=1);
+
     // Functions to use when the PB-CNF Translation creates a binary tree, derives variables with specific properties for its children and then merges the children into the parent node.
 
 
@@ -141,10 +153,10 @@ public:
     template <class TLit, class TSeqLit>
     void reifyCarryLiteralMTO(TLit& carryLit, TSeqLit& countingLiteralsMTOLeft, TSeqLit& countingLiteralsMTORight, wght div);
 
-    template <class TLit, class TSeqLit, class TSeqWght>
+    template <class TSeqLit, class TSeqWght>
     constraintid derive_leaves_leq_countinglits_MTO(TSeqLit& countingLiteralsMTO, TSeqLit& leaves, TSeqWght& wght_leaves, wght div);
 
-    template <class TLit, class TSeqLit, class TSeqWght>
+    template <class TSeqLit, class TSeqWght>
     constraintid derive_leaves_geq_countinglits_MTO(TSeqLit& countingLiteralsMTO, TSeqLit& leaves, TSeqWght& wght_leaves, wght div);
 
     /*

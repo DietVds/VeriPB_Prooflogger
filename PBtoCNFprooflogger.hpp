@@ -10,9 +10,41 @@ void PBtoCNFprooflogger::define_zerolit(TLit& zero){
     lits.push_back(neg(zerolit));
     substitution<VeriPB::Var> witness; witness.push_back({variable(zerolit), is_negated(zerolit) ? true : false});
 
+    PL->store_meaningful_name(variable(zerolit), is_negated(zerolit) ? "true": "false");
+
     def_one = PL->redundanceBasedStrengthening(lits, 1, witness );
 }
 
+// Functions for deriving sortedness
+
+/**
+ * If there exists the following literals: 
+ *      l_j <-> X >= aj+b
+ *      l_{j+1} <-> X >= a(j+1)+b
+ * Then, it is possible to derive the sortedness constraint l_j >= l_{j+1} by cutting planes derivation starting from C<-(l_j) and C->(l_{j+1}). 
+*/
+template <class TLit>
+constraintid PBtoCNFprooflogger::derive_sortedness_from_reified_constraints(TLit& lj, TLit& ljp1, wght a){
+    cuttingplanes_derivation cpder;
+
+    cuttingplanes_derivation reifleft_lj = PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(lj)));
+    cuttingplanes_derivation reifright_ljp1 = PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(ljp1)));
+
+    cpder = PL->CP_addition(reifleft_lj, reifright_ljp1);
+    cpder = PL->CP_division(cpder, 1+a);
+    cpder = PL->CP_saturation(cpder);
+
+    constraintid cxn = PL->write_CP_derivation(cpder);
+
+    std::vector<VeriPB::Lit> litsC; 
+
+    litsC.push_back(toVeriPbLit(lj));
+    litsC.push_back(neg(toVeriPbLit(ljp1)));
+
+    PL->check_last_constraint(litsC);
+
+    return cxn;
+}
 
 // Functions to use when the PB-CNF Translation creates a binary tree, derives variables with specific properties for its children and then merges the children into the parent node.
 
@@ -571,47 +603,60 @@ void PBtoCNFprooflogger::reifyCarryLiteralMTO(TLit& carryLit, TSeqLit& countingL
     PL->reificationLiteralLeftImpl(toVeriPbLit(carryLit), litsC, div, true);
 }
 
-template <class TLit, class TSeqLit, class TSeqWght>
+template <class TSeqLit, class TSeqWght>
 constraintid PBtoCNFprooflogger::derive_leaves_leq_countinglits_MTO(TSeqLit& countingLiteralsMTO, TSeqLit& leaves, TSeqWght& wght_leaves, wght div){
     cuttingplanes_derivation cpder;
+    
+    // Base case as unchecked assumption for now to check the code. 
+    std::vector<VeriPB::Lit> litsBase; std::vector<wght> wghtsBase; wght sizeX = 0;
 
-    wght sigma = getNrOfQuotientLiterals(countingLiteralsMTO, div);
-
-    cpder = PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(getRemainderLiteral(countingLiteralsMTO, div-1))));
-
-    for(int j = 1; j < div-1; j++){
-        cpder = PL->CP_multiplication(cpder, j + sigma * div);
-        cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(getRemainderLiteral(countingLiteralsMTO, div-(j+1))))));
-        cpder = PL->CP_division(cpder, j + sigma * div);
+    for(int j = 1; j <= getNrOfQuotientLiterals(countingLiteralsMTO, div); j++){
+        litsBase.push_back(getQuotientLiteral(countingLiteralsMTO, j, div));
+        wghtsBase.push_back(div);
+    }
+    for(int i = 0; i < leaves.size(); i++){
+        litsBase.push_back(toVeriPbLit(neg(leaves[i])));
+        wghtsBase.push_back(wght_leaves[i]);
+        sizeX += wght_leaves[i];
     }
 
+    constraintid base = PL->unchecked_assumption(litsBase, wghtsBase, sizeX-div+1);
+
+
+    // Derive the constraint R + p H + ~X >= |X| by iteratively building constraint 
+    // p H + ~X + \sum_{i=j+1}^{p-1} r_i >+ |X| - j
+    cpder = PL->CP_constraintid(base);
+
+    for(int j = div-1; j >= 1; j--){
+        PL->write_CP_derivation(cpder); cpder = PL->CP_constraintid(-1);
+        cpder = PL->CP_multiplication(cpder, sizeX-j);
+        cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(toVeriPbVar(variable(getRemainderLiteral(countingLiteralsMTO, j))))));
+        cpder = PL->CP_division(cpder, sizeX-j+1);
+    }
     constraintid cxn = PL->write_CP_derivation(cpder);
 
-     // Check constraint
+    // Check constraint
     std::vector<VeriPB::Lit> litsC; std::vector<wght> wghtsC; wght RHS = 0;
-
-    for(int i = 0; i < leaves.size(); i++){
-        litsC.push_back(toVeriPbLit(neg(leaves[i])));
-        wghtsC.push_back(wght_leaves[i]);
-        RHS+=wght_leaves[i];
-    }
-
-    for(int j = 1; j <= sigma; j++){
+    
+    for(int j = 1; j <= getNrOfQuotientLiterals(countingLiteralsMTO, div); j++){
         litsC.push_back(getQuotientLiteral(countingLiteralsMTO, j, div));
         wghtsC.push_back(div);
     }
-    for(int j = 1; j < div-1; j++){
+    for(int j = 1; j < div; j++){
         litsC.push_back(getRemainderLiteral(countingLiteralsMTO, j));
         wghtsC.push_back(1);
     }
-
+    for(int i = 0; i < leaves.size(); i++){
+        litsC.push_back(toVeriPbLit(neg(leaves[i])));
+        wghtsC.push_back(wght_leaves[i]);
+        RHS += wght_leaves[i];
+    }
     PL->check_last_constraint(litsC, wghtsC, RHS);
-    
 
     return cxn;
 }
 
-template <class TLit, class TSeqLit, class TSeqWght>
+template <class TSeqLit, class TSeqWght>
 constraintid PBtoCNFprooflogger::derive_leaves_geq_countinglits_MTO(TSeqLit& countingLiteralsMTO, TSeqLit& leaves, TSeqWght& wght_leaves, wght div){
     wght sigma = getNrOfQuotientLiterals(countingLiteralsMTO, div); // Number of quotient literals.
 
