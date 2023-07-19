@@ -95,6 +95,8 @@ template void PBtoCNFprooflogger::reifyCarryLiteralMTO<Glucose::Lit, Glucose::ve
 template constraintid PBtoCNFprooflogger::derive_leaves_geq_countinglits_MTO<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(Glucose::vec<Glucose::Lit>& countingLiteralsMTO, Glucose::vec<Glucose::Lit>& leaves, Glucose::vec<wght>& wght_leaves, wght div);
 template constraintid PBtoCNFprooflogger::derive_leaves_leq_countinglits_MTO<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(Glucose::vec<Glucose::Lit>& countingLiteralsMTO, Glucose::vec<Glucose::Lit>& leaves, Glucose::vec<wght>& wght_leaves, wght div);
 
+template void PBtoCNFprooflogger::derive_modulo_sum_constraints<Glucose::Lit, Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(constraintid& out_modulo_sum_constraint_quotient, constraintid& out_modulo_sum_constraint_remainder, constraintid modsum_input_geq_output, constraintid modsum_input_leq_output, Glucose::vec<Glucose::Lit>& countingLits, Glucose::vec<Glucose::Lit>& countingLitsL, Glucose::vec<Glucose::Lit>& countingLitsR, Glucose::Lit& carry, Glucose::vec<Glucose::Lit>& leavesL, Glucose::vec<wght>& wghtLeavesL, Glucose::vec<Glucose::Lit>& leavesR, Glucose::vec<wght>& wghtLeavesR, wght divisor);
+
 
 // Printing help
 

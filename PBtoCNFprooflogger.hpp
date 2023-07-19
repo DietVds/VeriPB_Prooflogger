@@ -204,14 +204,14 @@ constraintid PBtoCNFprooflogger::chain_IO_constraints_binary_recursion_geq(const
 template <class TSeqLit, class TSeqWght>
 void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_node, constraintid& UB_right_node,
                                     constraintid& UB_current_node, 
-                                     TSeqLit& leavesLeft, TSeqWght& weightsLeft, TSeqLit& leavesRight, TSeqWght& weightsRight){
+                                     TSeqLit& leavesLeft, TSeqWght& wghtLeavesL, TSeqLit& leavesRight, TSeqWght& wghtLeavesR){
 
     PL->write_comment("Derive UB for recursion in PB-CNF translation. UB = " + std::to_string(PL->get_best_objective_value() ));      
     // Left recursion
 
     cuttingplanes_derivation cpder_UBleft = PL->CP_constraintid(UB_current_node);
     for(int i = 0; i < leavesRight.size(); i++)
-        cpder_UBleft = PL->CP_weakening(cpder_UBleft, leavesRight[i], weightsRight[i]);
+        cpder_UBleft = PL->CP_weakening(cpder_UBleft, leavesRight[i], wghtLeavesR[i]);
         //cpder_UBleft = PL->CP_weakening(cpder_UBleft, variable(leavesRight[i]));
     
 
@@ -220,14 +220,14 @@ void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_nod
     for(int i = 0; i < leavesLeft.size(); i++){
         if(toVeriPbLit(leavesLeft[i]) != zerolit){
             lits.push_back(neg(toVeriPbLit(leavesLeft[i])));
-            weights.push_back(weightsLeft[i]);
-            RHS += weightsLeft[i];
+            weights.push_back(wghtLeavesL[i]);
+            RHS += wghtLeavesL[i];
         }
     }
     RHS = RHS - PL->get_best_objective_value() + 1;
 
     //if(RHS > 0){
-        PL->write_comment("Derive UB for leafs of the left recursion in PB-CNF translation: " + sequence_to_string(leavesLeft, weightsLeft)); 
+        PL->write_comment("Derive UB for leafs of the left recursion in PB-CNF translation: " + sequence_to_string(leavesLeft, wghtLeavesL)); 
         UB_left_node = PL->write_CP_derivation(cpder_UBleft); 
         PL->check_last_constraint(lits, weights, RHS);
     // }
@@ -236,7 +236,7 @@ void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_nod
 
     cuttingplanes_derivation cpder_UBright = PL->CP_constraintid(UB_current_node);
     for(int i = 0; i < leavesLeft.size(); i++)
-        cpder_UBright = PL->CP_weakening(cpder_UBright, leavesLeft[i], weightsLeft[i]);
+        cpder_UBright = PL->CP_weakening(cpder_UBright, leavesLeft[i], wghtLeavesL[i]);
         //cpder_UBright = PL->CP_weakening(cpder_UBright, variable(leavesLeft[i]));
     
 
@@ -245,14 +245,14 @@ void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_nod
     for(int i = 0; i < leavesRight.size(); i++){
         if(toVeriPbLit(leavesRight[i]) != zerolit){
             lits.push_back(neg(toVeriPbLit(leavesRight[i])));
-            weights.push_back(weightsRight[i]);
-            RHS += weightsRight[i];
+            weights.push_back(wghtLeavesR[i]);
+            RHS += wghtLeavesR[i];
         }
     }
     RHS = RHS - PL->get_best_objective_value() + 1;
 
     //if(RHS > 0){
-        PL->write_comment("Derive UB for leafs of the right recursion in PB-CNF translation: " + sequence_to_string(leavesRight, weightsRight)); 
+        PL->write_comment("Derive UB for leafs of the right recursion in PB-CNF translation: " + sequence_to_string(leavesRight, wghtLeavesR)); 
         UB_right_node = PL->write_CP_derivation(cpder_UBright); 
         PL->check_last_constraint(lits, weights, RHS);
     //}
@@ -264,22 +264,22 @@ void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_nod
                                     constraintid& UB_current_node, 
                                     TSeqLit& leavesLeft, TSeqLit& leavesRight){
 
-    std::vector<VeriPB::Lit> vleavesLeft; std::vector<wght> weightsLeft; 
-    std::vector<VeriPB::Lit> vleavesRight; std::vector<wght> weightsRight; 
+    std::vector<VeriPB::Lit> vleavesLeft; std::vector<wght> wghtLeavesL; 
+    std::vector<VeriPB::Lit> vleavesRight; std::vector<wght> wghtLeavesR; 
 
     for(int i = 0; i < leavesLeft.size(); i++){
         vleavesLeft.push_back(toVeriPbLit(leavesLeft[i]));
-        weightsLeft.push_back(1);
+        wghtLeavesL.push_back(1);
     }
 
     for(int i = 0; i < leavesRight.size(); i++){
         vleavesRight.push_back(toVeriPbLit(leavesRight[i]));
-        weightsRight.push_back(1);
+        wghtLeavesR.push_back(1);
     }
 
     derive_UB_on_recursion_inputs(UB_left_node, UB_right_node,
                                     UB_current_node, 
-                                    leavesLeft, weightsLeft, leavesRight, weightsRight);
+                                    leavesLeft, wghtLeavesL, leavesRight, wghtLeavesR);
 
 }
 
@@ -742,6 +742,122 @@ constraintid PBtoCNFprooflogger::derive_leaves_geq_countinglits_MTO(TSeqLit& cou
     PL->check_last_constraint(litsC, wghtsC, RHS);
     
     return cxn;
+}
+
+
+template <class TLit, class TSeqLit, class TSeqWght>
+void PBtoCNFprooflogger::derive_modulo_sum_constraints(constraintid& out_modulo_sum_constraint_quotient, constraintid& out_modulo_sum_constraint_remainder, constraintid modsum_input_geq_output, constraintid modsum_input_leq_output, TSeqLit& countingLits, TSeqLit& countingLitsL, TSeqLit& countingLitsR, TLit& carry, TSeqLit& leavesL, TSeqWght& wghtLeavesL, TSeqLit& leavesR, TSeqWght& wghtLeavesR, wght divisor){
+    VeriPB::Lit r, q;
+    std::vector<VeriPB::Lit> litsC; std::vector<wght> wghtsC; wght RHS=0;
+
+    // Derive H' + H'' + c =< H
+    PL->write_comment("Derive H' + H'' + c =< H");
+    cuttingplanes_derivation cpder;
+    cpder = PL->CP_addition(PL->CP_constraintid(modsum_input_leq_output), PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(carry))));
+    for(int j = 1; j <= divisor-1; j++)
+      cpder = PL->CP_weakening(cpder, variable(getRemainderLiteral(countingLits, j)));
+    cpder = PL->CP_division(cpder, divisor);
+    out_modulo_sum_constraint_quotient = PL->write_CP_derivation(cpder);
+
+    litsC.clear(); RHS=0;
+    for(int j = 1; j <= getNrOfQuotientLiterals(countingLits, divisor); j++){
+      litsC.push_back(toVeriPbLit(getQuotientLiteral(countingLits, j, divisor)));
+    }
+    for(int j = 1; j <= getNrOfQuotientLiterals(countingLitsL, divisor); j++){
+      litsC.push_back(neg(toVeriPbLit(getQuotientLiteral(countingLitsL, j, divisor))));
+      RHS++;
+    }
+    for(int j = 1; j <= getNrOfQuotientLiterals(countingLitsR, divisor); j++){
+      litsC.push_back(neg(toVeriPbLit(getQuotientLiteral(countingLitsR, j, divisor))));
+      RHS++;
+    }
+    litsC.push_back(toVeriPbLit(neg(carry))); RHS++;
+    
+    PL->check_last_constraint(litsC, RHS);
+
+    // Derive H' + H'' + c >= H
+    PL->write_comment("Derive H' + H'' + c >= H");
+    cpder.clear();
+
+    wght remainder_size_left = 0; 
+    wght remainder_size_right = 0;
+
+    for(int j = 1; j <= divisor-1; j++){
+      if(getRemainderLiteral(countingLitsL, j) != zerolit)
+        remainder_size_left++;
+      if(getRemainderLiteral(countingLitsR, j) != zerolit)
+        remainder_size_right++;
+    }
+
+    if(remainder_size_left + remainder_size_right >= divisor){
+      cpder = PL->CP_addition(PL->CP_constraintid(modsum_input_geq_output), PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(carry))));
+    }
+    else{
+      cpder = PL->CP_constraintid(modsum_input_geq_output);
+      for(int j = 1; j <= divisor-1; j++){
+        r = getRemainderLiteral(countingLitsL, j);
+        if(r != zerolit)
+          cpder = PL->CP_weakening(cpder, variable(r));
+      }
+      for(int j = 1; j <= divisor-1; j++){
+        r = getRemainderLiteral(countingLitsR, j);
+        if(r != zerolit)
+          cpder = PL->CP_weakening(cpder, variable(r));
+      }
+      cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(carry));
+    }
+    for(int j = 1; j <= divisor-1; j++)
+      cpder = PL->CP_weakening(cpder, variable(getRemainderLiteral(countingLits, j)));
+    cpder = PL->CP_division(cpder, divisor);
+    constraintid modsum_quotient_geq_cxn = PL->write_CP_derivation(cpder);
+
+    litsC.clear(); RHS=0;
+    for(int j = 1; j <= getNrOfQuotientLiterals(countingLits, divisor); j++){
+      litsC.push_back(toVeriPbLit(neg(getQuotientLiteral(countingLits, j, divisor))));
+      RHS++;
+    }
+    for(int j = 1; j <= getNrOfQuotientLiterals(countingLitsL, divisor); j++){
+      litsC.push_back(toVeriPbLit(getQuotientLiteral(countingLitsL, j, divisor)));
+    }
+    for(int j = 1; j <= getNrOfQuotientLiterals(countingLitsR, divisor); j++){
+      litsC.push_back(toVeriPbLit(getQuotientLiteral(countingLitsR, j, divisor)));
+    }
+    litsC.push_back(toVeriPbLit(carry)); //RHS++;
+
+    PL->check_last_constraint(litsC, RHS);
+
+    // Derivation of remainder sum constraint
+    // R + pC >= R' + R''
+
+    PL->write_comment("Derive R + pC >= R' + R''");
+
+    cpder.clear();
+
+    cpder = PL->CP_addition(PL->CP_multiplication(PL->CP_constraintid(modsum_quotient_geq_cxn), divisor), PL->CP_constraintid(modsum_input_leq_output));
+    out_modulo_sum_constraint_remainder = PL->write_CP_derivation(cpder);
+
+    litsC.clear(); RHS = 0; wghtsC.clear();
+    for(int j = 1; j < divisor; j++){
+      r = getRemainderLiteral(countingLitsL, j);
+      if(r != zerolit){
+        litsC.push_back(neg(r));
+        wghtsC.push_back(1);
+        RHS++;
+      }
+      r = getRemainderLiteral(countingLitsR, j);
+      if(r != zerolit){
+        litsC.push_back(neg(r));
+        wghtsC.push_back(1);
+        RHS++;
+      }
+      r = getRemainderLiteral(countingLits, j);
+      litsC.push_back(r);
+      wghtsC.push_back(1);
+    }
+    litsC.push_back(toVeriPbLit(carry));
+    wghtsC.push_back(divisor);
+
+    PL->check_last_constraint(litsC, wghtsC, RHS);
 }
 
 

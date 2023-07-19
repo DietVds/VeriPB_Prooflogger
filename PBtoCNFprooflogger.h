@@ -125,11 +125,11 @@ public:
     The rest of the code can be adapted quickly to other representations by modifying the following three functions. 
     */
     template <class TSeqLit>
-    VeriPB::Lit getRemainderLiteral(TSeqLit& countingLiteralsMTO, wght j);
+    VeriPB::Lit getRemainderLiteral(TSeqLit& countingLitsMTO, wght j);
     template <class TSeqLit>
-    VeriPB::Lit getQuotientLiteral(TSeqLit& countingLiteralsMTO, wght j, wght div);
+    VeriPB::Lit getQuotientLiteral(TSeqLit& countingLitsMTO, wght j, wght div);
     template <class TSeqLit>
-    wght getNrOfQuotientLiterals(TSeqLit& countingLiteralsMTO, wght div);
+    wght getNrOfQuotientLiterals(TSeqLit& countingLitsMTO, wght div);
 
     /**
      * Given a number d, set of literals L with associated weights W, it is possible to derive the following 
@@ -144,20 +144,26 @@ public:
      * r_j <-> \sum_{l in L, w in W} w*l - \sum{q_j in Q} q_j >= j
     */
     template <class TLit, class TSeqLit, class TSeqWght>
-    void reifyRemainderLiteralMTO(TLit& remainderliteral, TSeqLit& leaves, TSeqWght& leaves_wght, TSeqLit& countingLiteralsMTO, wght j, wght div);
+    void reifyRemainderLiteralMTO(TLit& remainderliteral, TSeqLit& leaves, TSeqWght& leaves_wght, TSeqLit& countingLitsMTO, wght j, wght div);
     /**
      * Given a number d, two sets of literals R' and R'', it is possible to derive the reified constraints for a literal c:
      * c <-> \sum_{r in R'} r + \sum_{r in R''} r >= d
      * 
     */
     template <class TLit, class TSeqLit>
-    void reifyCarryLiteralMTO(TLit& carryLit, TSeqLit& countingLiteralsMTOLeft, TSeqLit& countingLiteralsMTORight, wght div);
+    void reifyCarryLiteralMTO(TLit& carryLit, TSeqLit& countingLitsMTOLeft, TSeqLit& countingLitsMTORight, wght div);
 
     template <class TSeqLit, class TSeqWght>
-    constraintid derive_leaves_leq_countinglits_MTO(TSeqLit& countingLiteralsMTO, TSeqLit& leaves, TSeqWght& wght_leaves, wght div);
+    constraintid derive_leaves_leq_countinglits_MTO(TSeqLit& countingLitsMTO, TSeqLit& leaves, TSeqWght& wght_leaves, wght div);
 
     template <class TSeqLit, class TSeqWght>
-    constraintid derive_leaves_geq_countinglits_MTO(TSeqLit& countingLiteralsMTO, TSeqLit& leaves, TSeqWght& wght_leaves, wght div);
+    constraintid derive_leaves_geq_countinglits_MTO(TSeqLit& countingLitsMTO, TSeqLit& leaves, TSeqWght& wght_leaves, wght div);
+
+    /**
+     * Derives the constraints that are, together with sortedness of all remainder and quotient variables, necessary to allow the Modulo Totalizer's clauses to be derived by RUP.
+    */
+    template <class TLit, class TSeqLit, class TSeqWght>
+    void derive_modulo_sum_constraints(constraintid& out_modulo_sum_constraint_quotient, constraintid& out_modulo_sum_constraint_remainder, constraintid modsum_input_geq_output, constraintid modsum_input_leq_output, TSeqLit& countingLits, TSeqLit& countingLitsL, TSeqLit& countingLitsR, TLit& carry, TSeqLit& leavesL, TSeqWght& wghtLeavesL, TSeqLit& leavesR, TSeqWght& wghtLeavesR, wght divisor);
 
     /*
     Totalizer:
