@@ -592,12 +592,17 @@ template <class TLit, class TSeqLit>
 void PBtoCNFprooflogger::reifyCarryLiteralMTO(TLit& carryLit, TSeqLit& countingLiteralsMTOLeft, TSeqLit& countingLiteralsMTORight, wght div){
     std::vector<VeriPB::Lit> litsC;
 
-    for(int j = 1; j < div; j++)
-        litsC.push_back(getRemainderLiteral(countingLiteralsMTOLeft, j));
-    
-    for(int j = 1; j < div; j++)
-        litsC.push_back(getRemainderLiteral(countingLiteralsMTORight, j));
-    
+    VeriPB::Lit r;
+    for(int j = 1; j < div; j++){
+        r = getRemainderLiteral(countingLiteralsMTOLeft, j);
+        if(r != zerolit)
+            litsC.push_back(r);
+    }
+    for(int j = 1; j < div; j++){
+        r = getRemainderLiteral(countingLiteralsMTORight, j);
+        if(r != zerolit)
+            litsC.push_back(r);
+    }
     
     PL->reificationLiteralRightImpl(toVeriPbLit(carryLit), litsC, div, true);
     PL->reificationLiteralLeftImpl(toVeriPbLit(carryLit), litsC, div, true);
