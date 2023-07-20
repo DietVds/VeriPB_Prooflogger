@@ -322,6 +322,7 @@ wght VeriPbProofLogger::calculate_objective_value(const TSeqLit &model)
 template <class TSeqLit>
 constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, wght objective_value)
 {
+    write_comment("Solution with objective value: " + std::to_string(objective_value));
     *proof << "o ";
     for (int i = 0; i < model.size(); i++)
         if(!is_aux_var(variable(model[i]))) 
