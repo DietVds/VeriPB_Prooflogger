@@ -126,6 +126,8 @@ public:
     void write_literal(const TLit &lit);
     template <class TSeqLit, class TSeqWght>
     void write_PB_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
+    template <class TSeqLit, class TSeqWght>
+    void write_PB_constraint(const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller );
     template <class TSeqLit>
     void write_cardinality_constraint(const TSeqLit &lits, const wght RHS);
     template <class TSeqLit>
@@ -147,11 +149,16 @@ public:
     void equals_rule(const constraintid constraint_id, const TSeqLit &lits, const wght RHS = 1);
     template <class TSeqLit, class TSeqWght>
     void equals_rule(const constraintid constraint_id, const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
+    template <class TSeqLit, class TSeqWght>
+    void equals_rule(const constraintid constraint_id, const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  );
 
     template <class TSeqLit>
     void check_last_constraint(const TSeqLit &lits, const wght RHS = 1);
     template <class TSeqLit, class TSeqWght>
     void check_last_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
+    template <class TSeqLit, class TSeqWght>
+    void check_last_constraint(const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  );
+
 
     // ------------- Rules for optimisation -------------
 

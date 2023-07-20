@@ -203,6 +203,22 @@ void VeriPbProofLogger::write_PB_constraint(const TSeqLit &lits, const TSeqWght 
     *proof << ">= " << RHS;
 }
 
+template <class TSeqLit, class TSeqWght>
+void VeriPbProofLogger::write_PB_constraint(const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller ){
+    assert(lits_greater.size() == weights_greater.size());
+    assert(lits_smaller.size() == weights_smaller.size());
+
+    for(int i = 0; i < lits_greater.size(); i++){
+        write_weighted_literal(lits_greater[i], weights_greater[i]);
+    }
+    wght RHS = 0;
+    for(int i =0; i < lits_smaller.size(); i++){
+        write_weighted_literal(neg(lits_smaller[i]), weights_smaller[i]);
+        RHS+= weights_smaller[i];
+    }
+    *proof << " >= " << std::to_string(RHS + const_smaller - const_greater);
+}
+
 // ------------- Rewrite variables by literals -------------
 template <class TVar, class TLit>
 void VeriPbProofLogger::rewrite_variable_by_literal(const TVar& var, const TLit& lit)
@@ -242,6 +258,13 @@ void VeriPbProofLogger::equals_rule(const constraintid constraint_id, const TSeq
     *proof << ";\n";
 }
 
+template <class TSeqLit, class TSeqWght>
+void VeriPbProofLogger::equals_rule(const constraintid constraint_id, const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  ){
+    *proof << "e " << std::to_string(constraint_id) << " " ;
+    write_PB_constraint(lits_greater, weights_greater, const_greater, lits_smaller, weights_smaller, const_smaller);    
+    *proof << ";\n";
+}
+
 template <class TSeqLit>
 void VeriPbProofLogger::check_last_constraint(const TSeqLit &lits, const wght RHS)
 {
@@ -252,6 +275,11 @@ template <class TSeqLit, class TSeqWght>
 void VeriPbProofLogger::check_last_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS)
 {
     equals_rule(-1, lits, weights, RHS);
+}
+
+template <class TSeqLit, class TSeqWght>
+void VeriPbProofLogger::check_last_constraint(const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  ){
+    equals_rule(-1, lits_greater, weights_greater, const_greater, lits_smaller, weights_smaller, const_smaller);
 }
 
 // ------------- Rules for optimisation -------------

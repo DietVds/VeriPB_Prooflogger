@@ -48,14 +48,24 @@ template void VeriPbProofLogger::delete_meaningful_name<Glucose::Var>(const Gluc
 template void VeriPbProofLogger::equals_rule<std::vector<VeriPB::Lit>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const wght RHS);
 template void VeriPbProofLogger::equals_rule<Glucose::vec<Glucose::Lit>>(const constraintid constraint_id, const Glucose::vec<Glucose::Lit> &lits, const wght RHS);
 
+template void VeriPbProofLogger::write_PB_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit>& lits_greater, const std::vector<wght>& weights_greater, const wght const_greater, const std::vector<VeriPB::Lit>& lits_smaller, const std::vector<wght>& weights_smaller, const wght const_smaller );
+template void VeriPbProofLogger::write_PB_constraint<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(const Glucose::vec<Glucose::Lit>& lits_greater, const Glucose::vec<wght>& weights_greater, const wght const_greater, const Glucose::vec<Glucose::Lit>& lits_smaller, const Glucose::vec<wght>& weights_smaller, const wght const_smaller );
+
 template void VeriPbProofLogger::equals_rule<std::vector<VeriPB::Lit>, std::vector<wght>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
 template void VeriPbProofLogger::equals_rule<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(const constraintid constraint_id, const Glucose::vec<Glucose::Lit> &lits, const Glucose::vec<wght> &weights, const wght RHS);
+
+template void VeriPbProofLogger::equals_rule<std::vector<VeriPB::Lit>, std::vector<wght>>(const constraintid constraint_id, const std::vector<VeriPB::Lit>& lits_greater, const std::vector<wght>& weights_greater, const wght const_greater, const std::vector<VeriPB::Lit>& lits_smaller, const std::vector<wght>& weights_smaller, const wght const_smaller  );
+template void VeriPbProofLogger::equals_rule<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(const constraintid constraint_id, const Glucose::vec<Glucose::Lit>& lits_greater, const Glucose::vec<wght>& weights_greater, const wght const_greater, const Glucose::vec<Glucose::Lit>& lits_smaller, const Glucose::vec<wght>& weights_smaller, const wght const_smaller  );
+
 
 template void VeriPbProofLogger::check_last_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS);
 template void VeriPbProofLogger::check_last_constraint<Glucose::vec<Glucose::Lit>>(const Glucose::vec<Glucose::Lit> &lits, const wght RHS);
 
 template void VeriPbProofLogger::check_last_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
 template void VeriPbProofLogger::check_last_constraint<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(const Glucose::vec<Glucose::Lit> &lits, const Glucose::vec<wght> &weights, const wght RHS);
+
+template void VeriPbProofLogger::check_last_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit>& lits_greater, const std::vector<wght>& weights_greater, const wght const_greater, const std::vector<VeriPB::Lit>& lits_smaller, const std::vector<wght>& weights_smaller, const wght const_smaller  );
+template void VeriPbProofLogger::check_last_constraint<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(const Glucose::vec<Glucose::Lit>& lits_greater, const Glucose::vec<wght>& weights_greater, const wght const_greater, const Glucose::vec<Glucose::Lit>& lits_smaller, const Glucose::vec<wght>& weights_smaller, const wght const_smaller  );
 
 template wght VeriPbProofLogger::calculate_objective_value<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &model);
 
