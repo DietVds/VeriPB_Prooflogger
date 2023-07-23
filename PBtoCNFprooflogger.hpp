@@ -628,7 +628,6 @@ constraintid PBtoCNFprooflogger::derive_leaves_leq_countinglits_MTO(TSeqLit& cou
     }
 
     // Base case in derivation of pH + (p-1) >= X,
-    PL->write_comment("sizeX - sigma * div + 1 - div = " + std::to_string(sizeX - sigma * div + 1 - div));
     VeriPB::Lit h_j = getQuotientLiteral(countingLiteralsMTO, sigma , div);
     cpder = PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(h_j)));
     if(sizeX - sigma * div + 1 <= div)
@@ -653,8 +652,6 @@ constraintid PBtoCNFprooflogger::derive_leaves_leq_countinglits_MTO(TSeqLit& cou
         cxn_reif_j = PL->getReifiedConstraintLeftImpl(variable(h_j));
         
         PL->write_comment("case 1");
-
-        PL->write_comment("cxn_jp1 = " + std::to_string(cxn_jp1));
 
         cpder_case1 = PL->CP_constraintid(cxn_jp1);
         cpder_case1 = PL->CP_addition(cpder_case1, PL->CP_multiplication(PL->CP_literal_axiom(neg(h_j)), sizeX - j * div + 1 - div));
