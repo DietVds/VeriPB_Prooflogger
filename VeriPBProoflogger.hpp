@@ -910,12 +910,10 @@ constraintid VeriPbProofLogger::prove_by_contradiction(TSeqLit& lits, TSeqWght& 
 
 template <class TSeqLit, class TSeqWght>
 constraintid VeriPbProofLogger::prove_by_casesplitting(TSeqLit& lits, TSeqWght& weights, wght RHS, constraintid case1, constraintid case2){
-    constraintid cxn_assumption = constraint_counter+1;
-
     std::vector<cuttingplanes_derivation> p;
 
-    p.push_back(CP_saturation(CP_addition(CP_constraintid(cxn_assumption), CP_constraintid(case1))));
-    p.push_back(CP_saturation(CP_addition(CP_constraintid(cxn_assumption), CP_constraintid(case2))));
+    p.push_back(CP_saturation(CP_addition(CP_constraintid(-1), CP_constraintid(case1))));
+    p.push_back(CP_saturation(CP_addition(CP_constraintid(-2), CP_constraintid(case2))));
     p.push_back(CP_addition(CP_constraintid(-1), CP_constraintid(-2)));
     return prove_by_contradiction(lits, weights, RHS, p);
 }

@@ -611,22 +611,80 @@ void PBtoCNFprooflogger::reifyCarryLiteralMTO(TLit& carryLit, TSeqLit& countingL
 template <class TSeqLit, class TSeqWght>
 constraintid PBtoCNFprooflogger::derive_leaves_leq_countinglits_MTO(TSeqLit& countingLiteralsMTO, TSeqLit& leaves, TSeqWght& wght_leaves, wght div){
     cuttingplanes_derivation cpder;
-    
-    // Base case as unchecked assumption for now to check the code. 
-    std::vector<VeriPB::Lit> litsBase; std::vector<wght> wghtsBase; wght sizeX = 0;
 
-    for(int j = 1; j <= getNrOfQuotientLiterals(countingLiteralsMTO, div); j++){
-        litsBase.push_back(getQuotientLiteral(countingLiteralsMTO, j, div));
-        wghtsBase.push_back(div);
-    }
-    for(int i = 0; i < leaves.size(); i++){
-        litsBase.push_back(toVeriPbLit(neg(leaves[i])));
-        wghtsBase.push_back(wght_leaves[i]);
+    wght sigma = getNrOfQuotientLiterals(countingLiteralsMTO, div);
+    
+
+    // Derive the constraint pH + (p-1) >= X, or equivalently, pH + ~X >= |X| - p + 1
+     wght sizeX = 0;
+    for(int i = 0; i < wght_leaves.size(); i++){
         sizeX += wght_leaves[i];
     }
 
-    constraintid base = PL->unchecked_assumption(litsBase, wghtsBase, sizeX-div+1);
+    std::vector<VeriPB::Lit> litsBase; std::vector<wght> wghtsBase;
+    for(int i = 0; i < leaves.size(); i++){
+        litsBase.push_back(toVeriPbLit(neg(leaves[i])));
+        wghtsBase.push_back(wght_leaves[i]);
+    }
 
+    // Base case in derivation of pH + (p-1) >= X,
+    PL->write_comment("sizeX - sigma * div + 1 - div = " + std::to_string(sizeX - sigma * div + 1 - div));
+    VeriPB::Lit h_j = getQuotientLiteral(countingLiteralsMTO, sigma , div);
+    cpder = PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(h_j)));
+    if(sizeX - sigma * div + 1 <= div)
+        cpder = PL->CP_addition(cpder, PL->CP_multiplication(PL->CP_literal_axiom(h_j), div - (sizeX - sigma * div + 1)));
+    
+    litsBase.push_back(h_j); wghtsBase.push_back(div);
+
+    constraintid cxn_jp1 = PL->write_CP_derivation(cpder);
+    constraintid cxn_j;
+    constraintid cxn_reif_j;
+    constraintid case1, case2;
+
+    constraintid base;
+
+    cuttingplanes_derivation cpder_case1, cpder_case2;
+
+    for(int j = sigma-1; j > 0; j--){
+        h_j = getQuotientLiteral(countingLiteralsMTO, j, div);
+
+        litsBase.push_back(h_j); wghtsBase.push_back(div);
+
+        cxn_reif_j = PL->getReifiedConstraintLeftImpl(variable(h_j));
+        
+        PL->write_comment("case 1");
+
+        PL->write_comment("cxn_jp1 = " + std::to_string(cxn_jp1));
+
+        cpder_case1 = PL->CP_constraintid(cxn_jp1);
+        cpder_case1 = PL->CP_addition(cpder_case1, PL->CP_multiplication(PL->CP_literal_axiom(neg(h_j)), sizeX - j * div + 1 - div));
+        case1 = PL->write_CP_derivation(cpder_case1);
+
+        PL->write_comment("case 2");
+
+        cpder_case2 = PL->CP_constraintid(cxn_reif_j);
+        VeriPB::Lit h_i;
+
+        for(int i = j; i <= sigma; i++){
+            h_i = getQuotientLiteral(countingLiteralsMTO, i, div);
+            cpder_case2 = PL->CP_addition(cpder_case2, PL->CP_multiplication(PL->CP_literal_axiom(h_i), div));
+        }
+        case2 = PL->write_CP_derivation(cpder_case2);
+
+        cxn_j = PL->prove_by_casesplitting(litsBase, wghtsBase, sizeX-j*div+1, case1, case2);
+
+        PL->delete_constraint(case1);
+        PL->delete_constraint(case2);
+        PL->delete_constraint(cxn_jp1);
+
+        cxn_jp1 = cxn_j;
+    }
+    
+    base = cxn_jp1;
+
+    PL->equals_rule(base, litsBase, wghtsBase, sizeX-div+1);
+
+    PL->write_comment("Derive R + p H + ~X >= |X|");
 
     // Derive the constraint R + p H + ~X >= |X| by iteratively building constraint 
     // p H + ~X + \sum_{i=j+1}^{p-1} r_i >+ |X| - j
@@ -643,7 +701,7 @@ constraintid PBtoCNFprooflogger::derive_leaves_leq_countinglits_MTO(TSeqLit& cou
     // Check constraint
     std::vector<VeriPB::Lit> litsC; std::vector<wght> wghtsC; wght RHS = 0;
     
-    for(int j = 1; j <= getNrOfQuotientLiterals(countingLiteralsMTO, div); j++){
+    for(int j = 1; j <= sigma; j++){
         litsC.push_back(getQuotientLiteral(countingLiteralsMTO, j, div));
         wghtsC.push_back(div);
     }
