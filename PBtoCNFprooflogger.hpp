@@ -809,8 +809,10 @@ void PBtoCNFprooflogger::derive_modulo_sum_constraints(constraintid& out_modulo_
     PL->write_comment("Derive H' + H'' + c =< H");
     cuttingplanes_derivation cpder;
     cpder = PL->CP_addition(PL->CP_constraintid(modsum_input_leq_output), PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(carry))));
-    for(int j = 1; j <= divisor-1; j++)
-      cpder = PL->CP_weakening(cpder, variable(getRemainderLiteral(countingLits, j)));
+    for(int j = 1; j <= divisor-1; j++){
+      r = getRemainderLiteral(countingLits, j);
+      cpder = PL->CP_weakening(cpder, neg(r), 1);
+    }
     cpder = PL->CP_division(cpder, divisor);
     out_modulo_sum_constraint_quotient = PL->write_CP_derivation(cpder);
 
@@ -832,6 +834,7 @@ void PBtoCNFprooflogger::derive_modulo_sum_constraints(constraintid& out_modulo_
 
     // Derive H' + H'' + c >= H
     PL->write_comment("Derive H' + H'' + c >= H");
+    PL->write_comment("H' = " + sequence_to_string(countingLitsL) + " H'' = " + sequence_to_string(countingLitsR) + " H = " + sequence_to_string(countingLits) + " carry = " + PL->to_string(carry));
     cpder.clear();
 
     wght remainder_size_left = 0; 
@@ -852,17 +855,22 @@ void PBtoCNFprooflogger::derive_modulo_sum_constraints(constraintid& out_modulo_
       for(int j = 1; j <= divisor-1; j++){
         r = getRemainderLiteral(countingLitsL, j);
         if(r != zerolit)
-          cpder = PL->CP_weakening(cpder, variable(r));
+          cpder = PL->CP_weakening(cpder, neg(r), 1);
+          // cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(neg(r))); // Weakening
       }
       for(int j = 1; j <= divisor-1; j++){
         r = getRemainderLiteral(countingLitsR, j);
         if(r != zerolit)
-          cpder = PL->CP_weakening(cpder, variable(r));
+          cpder = PL->CP_weakening(cpder, neg(r), 1);
+          // cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(neg(r)));// Weakening
       }
       cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(carry));
     }
-    for(int j = 1; j <= divisor-1; j++)
-      cpder = PL->CP_weakening(cpder, variable(getRemainderLiteral(countingLits, j)));
+    for(int j = 1; j <= divisor-1; j++){ 
+      r = getRemainderLiteral(countingLits, j);
+      cpder = PL->CP_weakening(cpder, r, 1);
+      // cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(r)); // Weakening
+    }
     cpder = PL->CP_division(cpder, divisor);
     constraintid modsum_quotient_geq_cxn = PL->write_CP_derivation(cpder);
 
