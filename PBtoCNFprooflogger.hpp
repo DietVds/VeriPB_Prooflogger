@@ -713,6 +713,8 @@ constraintid PBtoCNFprooflogger::derive_leaves_leq_countinglits_MTO(TSeqLit& cou
     }
     PL->check_last_constraint(litsC, wghtsC, RHS);
 
+    PL->delete_constraint(base);
+
     return cxn;
 }
 
@@ -795,6 +797,8 @@ constraintid PBtoCNFprooflogger::derive_leaves_geq_countinglits_MTO(TSeqLit& cou
     }
     
     PL->check_last_constraint(litsC, wghtsC, RHS);
+
+    PL->delete_constraint(constraint_for_j);
     
     return cxn;
 }
@@ -1072,7 +1076,6 @@ constraintid PBtoCNFprooflogger::derive_totalizer_inverse_clause(TSeqLit& leaves
  * it is possible to derive the constraint \sum_{i = 1}^{|X|} l_i =<  \sum_{i = 1}^{|X|} a_i x_i .
 */
 
-// TODO: take into account the extra variables in the totalizer output. (See functions for totalizer derivation)
 template <class TSeqLit, class TSeqWght>
 constraintid PBtoCNFprooflogger::derive_input_geq_unary_output_from_output_definitions(TSeqLit& inputlits, TSeqWght& inputweights, TSeqLit& outputlits, bool trivialcountingvar){
     cuttingplanes_derivation cpder;
