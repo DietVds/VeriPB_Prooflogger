@@ -15,7 +15,7 @@ void VeriPbProofLogger::write_proof_header(int nbclause, int nbvars)
 {
     n_variables = nbvars;
 
-    *proof << "pseudo-Boolean proof version 1.0\n";
+    *proof << "pseudo-Boolean proof version 2.0\n";
     *proof << "f " << nbclause << "\n";
 }
 
@@ -23,13 +23,13 @@ void VeriPbProofLogger::write_proof_header(int nbvars)
 {
     n_variables = nbvars;
 
-    *proof << "pseudo-Boolean proof version 1.0\n";
+    *proof << "pseudo-Boolean proof version 2.0\n";
     *proof << "f\n";
 }
 
 void VeriPbProofLogger::write_proof_header()
 {
-    *proof << "pseudo-Boolean proof version 1.0\n";
+    *proof << "pseudo-Boolean proof version 2.0\n";
     *proof << "f\n";
 }
 
@@ -42,6 +42,33 @@ void VeriPbProofLogger::set_n_variables(int nbvars){
 void VeriPbProofLogger::set_n_constraints(int nbconstraints){
     assert(constraint_counter == 0);
     constraint_counter = nbconstraints;
+}
+
+// Conclusion
+void VeriPbProofLogger::write_conclusion_NONE(){
+    *proof << "output NONE\n"
+        << "conclusion NONE\n"
+        << "end pseudo-Boolean proof";
+}
+void VeriPbProofLogger::write_conclusion_UNSAT(){
+    *proof << "output NONE\n"
+        << "conclusion UNSAT\n"
+        << "end pseudo-Boolean proof";
+}
+void VeriPbProofLogger::write_conclusion_SAT(){
+    *proof << "output NONE\n"
+        << "conclusion SAT\n"
+        << "end pseudo-Boolean proof";
+}
+void VeriPbProofLogger::write_conclusion_OPTIMAL(){
+    *proof << "output NONE\n"
+        << "conclusion BOUNDS " << std::to_string(best_objective_value) << " " << std::to_string(best_objective_value) << "\n"
+        << "end pseudo-Boolean proof";
+}
+void VeriPbProofLogger::write_conclusion_BOUNDS(wght LB, wght UB){
+    *proof << "output NONE\n"
+        << "conclusion BOUNDS " << std::to_string(LB) << " " << std::to_string(UB) << "\n"
+        << "end pseudo-Boolean proof";
 }
 
 template<class TSeqLit, class TSeqWght>
@@ -245,7 +272,7 @@ void VeriPbProofLogger::delete_meaningful_name(const TVar &var)
 template <class TSeqLit>
 void VeriPbProofLogger::equals_rule(const constraintid constraint_id, const TSeqLit &lits, const wght RHS)
 {
-    *proof << "e " << constraint_id << " ";
+    *proof << "e " << constraint_id << " : ";
     write_cardinality_constraint(lits, RHS);
     *proof << ";\n";
 }
@@ -253,14 +280,14 @@ void VeriPbProofLogger::equals_rule(const constraintid constraint_id, const TSeq
 template <class TSeqLit, class TSeqWght>
 void VeriPbProofLogger::equals_rule(const constraintid constraint_id, const TSeqLit &lits, const TSeqWght &weights, const wght RHS)
 {
-    *proof << "e " << constraint_id << " ";
+    *proof << "e " << constraint_id << " : ";
     write_PB_constraint(lits, weights, RHS);
     *proof << ";\n";
 }
 
 template <class TSeqLit, class TSeqWght>
 void VeriPbProofLogger::equals_rule(const constraintid constraint_id, const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  ){
-    *proof << "e " << std::to_string(constraint_id) << " " ;
+    *proof << "e " << std::to_string(constraint_id) << " : " ;
     write_PB_constraint(lits_greater, weights_greater, const_greater, lits_smaller, weights_smaller, const_smaller);    
     *proof << ";\n";
 }
@@ -323,7 +350,7 @@ template <class TSeqLit>
 constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, wght objective_value)
 {
     write_comment("Solution with objective value: " + std::to_string(objective_value));
-    *proof << "o ";
+    *proof << "soli ";
     for (int i = 0; i < model.size(); i++)
         if(!is_aux_var(variable(model[i]))) 
             write_literal(model[i]);
@@ -481,6 +508,10 @@ constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const TSeqWght &weights
 // ------------- Redundance Based Strenghtening -------------
 
 // TODO: add witness that could also map to other variables.
+
+void VeriPbProofLogger::strenghten_to_core(){
+    *proof << "strenghtening_to_core on\n"; 
+}
 
 template <class TVar>
 void VeriPbProofLogger::write_witness(const substitution<TVar> &witness)

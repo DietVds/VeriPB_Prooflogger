@@ -101,6 +101,13 @@ public:
     void increase_n_variables();
     void increase_constraint_counter();
 
+    // Conclusion
+    void write_conclusion_NONE();
+    void write_conclusion_UNSAT();
+    void write_conclusion_SAT();
+    void write_conclusion_OPTIMAL();
+    void write_conclusion_BOUNDS(wght LB, wght UB);
+
     // Objective Function 
     template<class TSeqLit, class TSeqWght>
     void set_objective(const TSeqLit &lits, const TSeqWght &weights, wght constant_cost);
@@ -198,6 +205,8 @@ public:
     constraintid rup(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
 
     // ------------- Redundance Based Strenghtening -------------
+    void strenghten_to_core();
+
     template <class TVar>
     void write_witness(const substitution<TVar> &witness);
 
