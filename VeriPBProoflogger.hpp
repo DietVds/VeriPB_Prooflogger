@@ -576,8 +576,8 @@ constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits
                 *proof << "\t\tp " << p.derivations[i] << "\n";
                 constraint_counter++;
             }
-            *proof << "\t\t c -1\n";
-            *proof << "\tend\n";
+            // *proof << "\t\t c -1\n";
+            *proof << "\tend -1\n";
         }
         *proof << "end\n";
     }
