@@ -7,7 +7,7 @@ namespace VeriPB {
     typedef int VarIdx; // The VarIdx type is used as an identifier for a variable that will be used as index in maps and vectors.
 
     struct Var{
-        int v;
+        uint32_t v;
     };
     struct Lit{
         Var v;
