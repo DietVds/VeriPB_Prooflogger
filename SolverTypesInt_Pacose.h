@@ -20,7 +20,8 @@
 #define SolverTypes_Int_h
 
 #include "VeriPbSolverTypes.h"
-#include "../solver-proxy/glucose-4.2.1/core/SolverTypes.h"
+#include <cmath>
+#include <cstdint>
 
 // the type that is presenting weights in the solver. This should be defined by the solver developer.
 #define wght uint64_t

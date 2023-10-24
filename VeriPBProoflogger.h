@@ -7,11 +7,12 @@
 #include <map>
 #include <sstream>
 #include <set>
+#include <cassert>
 
 #include<iostream>
 
 // NOTE! Should include definition for types Var, Lit and Clause
-#include "SolverTypesInt.h"
+#include "SolverTypesInt_Pacose.h"
 
 /******************
  * Posssible template classes:
@@ -172,7 +173,7 @@ public:
     template <class TSeqLit>
     wght calculate_objective_value(const TSeqLit &model);
     template <class TSeqLit>
-    constraintid log_solution(const TSeqLit &model, wght objective_value=INT_MAX);
+    constraintid log_solution(const TSeqLit &model, wght objective_value=wght_max);
     template <class TSeqLit>
     constraintid log_solution_with_check(const TSeqLit &model);
     constraintid get_model_improving_constraint();
@@ -186,7 +187,7 @@ public:
     // void reset_rewritten_best_solution_constraint();
 
     template <class TSeqLBool>
-    constraintid log_solution_lbools(TSeqLBool &model, wght objective_value=INT_MAX);
+    constraintid log_solution_lbools(TSeqLBool &model, wght objective_value=wght_max);
 
     // TODO: write calculate_objective_value and log_solution_with_check for TSeqLBool 
 
@@ -345,7 +346,7 @@ public:
     void delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
 
     //Minisat:
-    void delete_constraint(Glucose::Clause &clause);
+    // void delete_constraint(Glucose::Clause &clause);
     template <template <class T> class TVec, class TLit>
     void delete_constraint(TVec<TLit> &clause);
 

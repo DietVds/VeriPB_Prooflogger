@@ -1,6 +1,9 @@
 #ifndef VeriPB_SolverTypes_h
 #define VeriPB_SolverTypes_h
 
+#include <cinttypes>
+
+
 // The veripb data structures are defined as a struct instead of a typedef to have a clear type that is relied to the VeriPB datatypes.
 
 namespace VeriPB {
