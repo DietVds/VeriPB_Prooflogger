@@ -65,7 +65,7 @@ void CadicalProofTracer::veripb_delete_clause (uint64_t id, bool redundant) {
   if (!redundant && checked_deletions && marked) 
     return;
  
-  vPL->delete_constraint(clauses_vpb[id]);
+  vPL->delete_constraint_by_id(clauses_vpb[id]);
 
   clauses_vpb.erase(id);  
 }

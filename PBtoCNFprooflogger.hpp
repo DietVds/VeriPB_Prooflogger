@@ -670,9 +670,9 @@ constraintid PBtoCNFprooflogger::derive_leaves_leq_countinglits_MTO(TSeqLit& cou
 
         cxn_j = PL->prove_by_casesplitting(litsBase, wghtsBase, sizeX-j*div+1, case1, case2);
 
-        PL->delete_constraint(case1);
-        PL->delete_constraint(case2);
-        PL->delete_constraint(cxn_jp1);
+        PL->delete_constraint_by_id(case1);
+        PL->delete_constraint_by_id(case2);
+        PL->delete_constraint_by_id(cxn_jp1);
 
         cxn_jp1 = cxn_j;
     }
@@ -713,7 +713,7 @@ constraintid PBtoCNFprooflogger::derive_leaves_leq_countinglits_MTO(TSeqLit& cou
     }
     PL->check_last_constraint(litsC, wghtsC, RHS);
 
-    PL->delete_constraint(base);
+    PL->delete_constraint_by_id(base);
 
     return cxn;
 }
@@ -757,10 +757,10 @@ constraintid PBtoCNFprooflogger::derive_leaves_geq_countinglits_MTO(TSeqLit& cou
             wghtsC.push_back(wght_leaves[i]);
         }
 
-        PL->delete_constraint(constraint_for_j);
+        PL->delete_constraint_by_id(constraint_for_j);
         constraint_for_j = PL->prove_by_casesplitting(litsC, wghtsC, RHS, case_hjp1_false, case_hjp1_true);
-        PL->delete_constraint(case_hjp1_false);
-        PL->delete_constraint(case_hjp1_true);
+        PL->delete_constraint_by_id(case_hjp1_false);
+        PL->delete_constraint_by_id(case_hjp1_true);
     }
 
     cpder = PL->CP_constraintid(constraint_for_j);
@@ -798,7 +798,7 @@ constraintid PBtoCNFprooflogger::derive_leaves_geq_countinglits_MTO(TSeqLit& cou
     
     PL->check_last_constraint(litsC, wghtsC, RHS);
 
-    PL->delete_constraint(constraint_for_j);
+    PL->delete_constraint_by_id(constraint_for_j);
     
     return cxn;
 }

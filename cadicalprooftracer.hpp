@@ -50,8 +50,6 @@ public:
   CadicalProofTracer(bool antecedents, bool check_deletion, VeriPbProofLogger *vPL);
   ~CadicalProofTracer ();
 
-  void begin_proof (uint64_t) override;
-
   void add_original_clause (uint64_t, bool, const vector<int> &,
                             bool = false) override {} // skip
 
@@ -64,6 +62,7 @@ public:
   void weaken_minus (uint64_t, const vector<int> &) override;
   void strengthen (uint64_t) override;
 };
+
 
 // } // namespace CaDiCaL
 
