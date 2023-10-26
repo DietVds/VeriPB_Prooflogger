@@ -51,7 +51,7 @@ public:
   ~CadicalProofTracer ();
 
   void add_original_clause (uint64_t, bool, const vector<int> &,
-                            bool = false) override {} // skip
+                            bool = false) override;
 
   void add_derived_clause (uint64_t, bool, const vector<int> &,
                            const vector<uint64_t> &) override;

@@ -79,6 +79,11 @@ void CadicalProofTracer::veripb_strengthen (uint64_t id) {
 
 /*------------------------------------------------------------------------*/
 
+void CadicalProofTracer::add_original_clause (uint64_t id, bool redundant, const vector<int> &clause,
+                            bool restored){
+  clauses_vpb[id] = vPL->constraint_counter;
+}       
+
 void CadicalProofTracer::add_derived_clause (uint64_t id, bool redundant,
                                        const vector<int> &clause,
                                        const vector<uint64_t> &chain) {
