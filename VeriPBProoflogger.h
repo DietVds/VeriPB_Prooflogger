@@ -60,7 +60,7 @@ private:
     std::vector<wght> objective_weights;
     wght objective_constant_cost = 0;
     wght best_objective_value = wght_max;
-    constraintid model_improvement_constraint; // Last model improvement constraint
+    constraintid model_improvement_constraint = 0; // Last model improvement constraint
     // The model improving constraint needs to be rewritten in many applications (e.g., for MaxSAT prooflogging: addition of blocking variables to unit clauses, hardening in QMaxSAT 14.07 )
     constraintid rewritten_model_improvement_constraint = 0; // last rewritten model improvement constraint. 0 means that it hasn't been rewritten. 
 
