@@ -56,6 +56,11 @@ void VeriPbProofLogger::write_conclusion_UNSAT(){
         << "conclusion UNSAT\n"
         << "end pseudo-Boolean proof";
 }
+void VeriPbProofLogger::write_conclusion_UNSAT_optimization(){
+    *proof << "output NONE\n"
+        << "conclusion BOUNDS INF INF\n"
+        << "end pseudo-Boolean proof";
+}
 void VeriPbProofLogger::write_conclusion_SAT(){
     *proof << "output NONE\n"
         << "conclusion SAT\n"
