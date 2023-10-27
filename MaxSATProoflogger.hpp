@@ -21,7 +21,7 @@ void MaxSATProoflogger::add_blocking_literal(TLit lit, constraintid cxn_id){
 }
 
 template <class TLit>
-void MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, constraintid cxn_id, TLit unitclause){
+constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, constraintid cxn_id, TLit unitclause){
     add_blocking_literal(blocking_lit, cxn_id);
 
     VeriPB::Lit _blocking_lit = toVeriPbLit(blocking_lit);
@@ -39,6 +39,8 @@ void MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, cons
     cuttingplanes_derivation cpder_rewrite_mic = PL->get_rewrite_model_improvement_constraint();
     cpder_rewrite_mic = PL->CP_addition(cpder_rewrite_mic, PL->CP_constraintid(c_id));
     PL->set_rewrite_model_improvement_constraint(cpder_rewrite_mic);
+
+    return c_id;
 }
 //=================================================================================================
 // Objective reformulation

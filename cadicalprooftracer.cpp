@@ -21,13 +21,14 @@ void CadicalProofTracer::veripb_add_derived_clause(
 
   cuttingplanes_derivation cpder;
   bool first = true;
-  for(int i = 0; i < chain.size(); i++){
+  for (auto p = chain.rbegin (); p != chain.rend (); p++) {
+    auto cid = *p;
     if(first){
       first = false;
-      cpder = vPL->CP_constraintid(clauses_vpb[chain[i]]);
+      cpder = vPL->CP_constraintid(clauses_vpb[cid]);
     }
     else{
-      cpder = vPL->CP_addition(cpder, vPL->CP_constraintid(clauses_vpb[chain[i]]));
+      cpder = vPL->CP_addition(cpder, vPL->CP_constraintid(clauses_vpb[cid]));
       cpder = vPL->CP_saturation(cpder);
     }
   }
@@ -82,6 +83,7 @@ void CadicalProofTracer::veripb_strengthen (uint64_t id) {
 void CadicalProofTracer::add_original_clause (uint64_t id, bool redundant, const vector<int> &clause,
                             bool restored){
   clauses_vpb[id] = vPL->constraint_counter;
+  added++;
 }       
 
 void CadicalProofTracer::add_derived_clause (uint64_t id, bool redundant,
@@ -110,6 +112,17 @@ void CadicalProofTracer::strengthen (uint64_t id) {
   veripb_strengthen (id);
 }
 
+void CadicalProofTracer::update_veripb_id(uint64_t cadical_id, uint64_t veripb_id){
+  clauses_vpb[cadical_id] = veripb_id;
+}
+
+uint64_t CadicalProofTracer::last_clause_id(){
+  return added;
+}
+
+constraintid CadicalProofTracer::getVeriPbConstraintId(uint64_t clauseid){
+  return clauses_vpb[clauseid];
+}
 /*------------------------------------------------------------------------*/
 
 // } // namespace CaDiCaL

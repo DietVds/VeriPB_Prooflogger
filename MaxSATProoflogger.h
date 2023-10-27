@@ -23,7 +23,7 @@ public:
     void add_blocking_literal(TLit lit, constraintid cxn_id);
 
     template <class TLit>
-    void add_unit_clause_blocking_literal(TLit blocking_lit, constraintid cxn_id, TLit unitclause);
+    constraintid add_unit_clause_blocking_literal(TLit blocking_lit, constraintid cxn_id, TLit unitclause);
     
 
     // Functions to help with objective reformulation
