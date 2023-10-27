@@ -49,32 +49,32 @@ void VeriPbProofLogger::set_n_constraints(int nbconstraints){
 void VeriPbProofLogger::write_conclusion_NONE(){
     *proof << "output NONE\n"
         << "conclusion NONE\n"
-        << "end pseudo-Boolean proof";
+        << "end pseudo-Boolean proof\n";
 }
 void VeriPbProofLogger::write_conclusion_UNSAT(){
     *proof << "output NONE\n"
         << "conclusion UNSAT\n"
-        << "end pseudo-Boolean proof";
+        << "end pseudo-Boolean proof\n";
 }
 void VeriPbProofLogger::write_conclusion_UNSAT_optimization(){
     *proof << "output NONE\n"
         << "conclusion BOUNDS INF INF\n"
-        << "end pseudo-Boolean proof";
+        << "end pseudo-Boolean proof\n";
 }
 void VeriPbProofLogger::write_conclusion_SAT(){
     *proof << "output NONE\n"
         << "conclusion SAT\n"
-        << "end pseudo-Boolean proof";
+        << "end pseudo-Boolean proof\n";
 }
 void VeriPbProofLogger::write_conclusion_OPTIMAL(){
     *proof << "output NONE\n"
         << "conclusion BOUNDS " << std::to_string(best_objective_value) << " " << std::to_string(best_objective_value) << "\n"
-        << "end pseudo-Boolean proof";
+        << "end pseudo-Boolean proof\n";
 }
 void VeriPbProofLogger::write_conclusion_BOUNDS(wght LB, wght UB){
     *proof << "output NONE\n"
         << "conclusion BOUNDS " << std::to_string(LB) << " " << std::to_string(UB) << "\n"
-        << "end pseudo-Boolean proof";
+        << "end pseudo-Boolean proof\n";
 }
 
 template<class TSeqLit, class TSeqWght>
