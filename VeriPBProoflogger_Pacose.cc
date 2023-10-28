@@ -24,8 +24,8 @@ template void VeriPbProofLogger::check_last_constraint<std::vector<VeriPB::Lit>>
 template void VeriPbProofLogger::check_last_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
 template void VeriPbProofLogger::check_last_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit>& lits_greater, const std::vector<wght>& weights_greater, const wght const_greater, const std::vector<VeriPB::Lit>& lits_smaller, const std::vector<wght>& weights_smaller, const wght const_smaller  );
 template wght VeriPbProofLogger::calculate_objective_value<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &model);
-template constraintid VeriPbProofLogger::log_solution<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &model, wght objective_value);
-template constraintid VeriPbProofLogger::log_solution_with_check<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &model);
+template constraintid VeriPbProofLogger::log_solution<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &model, wght objective_value, bool only_original_variables_necessary);
+template constraintid VeriPbProofLogger::log_solution_with_check<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &model, bool only_original_variables_necessary);
 template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS);
 template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
 template constraintid VeriPbProofLogger::rup<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS);
@@ -90,8 +90,8 @@ template void VeriPbProofLogger::check_last_constraint<std::vector<uint32_t>>(co
 template void VeriPbProofLogger::check_last_constraint<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS);
 template void VeriPbProofLogger::check_last_constraint<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t>& lits_greater, const std::vector<wght>& weights_greater, const wght const_greater, const std::vector<uint32_t>& lits_smaller, const std::vector<wght>& weights_smaller, const wght const_smaller  );
 template wght VeriPbProofLogger::calculate_objective_value<std::vector<uint32_t>>(const std::vector<uint32_t> &model);
-template constraintid VeriPbProofLogger::log_solution<std::vector<uint32_t>>(const std::vector<uint32_t> &model, wght objective_value);
-template constraintid VeriPbProofLogger::log_solution_with_check<std::vector<uint32_t>>(const std::vector<uint32_t> &model);
+template constraintid VeriPbProofLogger::log_solution<std::vector<uint32_t>>(const std::vector<uint32_t> &model, wght objective_value, bool only_original_variables_necessary);
+template constraintid VeriPbProofLogger::log_solution_with_check<std::vector<uint32_t>>(const std::vector<uint32_t> &model, bool only_original_variables_necessary);
 template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<uint32_t>>(const std::vector<uint32_t> &lits, const wght RHS);
 template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS);
 template constraintid VeriPbProofLogger::rup<std::vector<uint32_t>>(const std::vector<uint32_t> &lits, const wght RHS);
@@ -155,8 +155,8 @@ template void VeriPbProofLogger::check_last_constraint<std::vector<int>>(const s
 template void VeriPbProofLogger::check_last_constraint<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS);
 template void VeriPbProofLogger::check_last_constraint<std::vector<int>, std::vector<wght>>(const std::vector<int>& lits_greater, const std::vector<wght>& weights_greater, const wght const_greater, const std::vector<int>& lits_smaller, const std::vector<wght>& weights_smaller, const wght const_smaller  );
 template wght VeriPbProofLogger::calculate_objective_value<std::vector<int>>(const std::vector<int> &model);
-template constraintid VeriPbProofLogger::log_solution<std::vector<int>>(const std::vector<int> &model, wght objective_value);
-template constraintid VeriPbProofLogger::log_solution_with_check<std::vector<int>>(const std::vector<int> &model);
+template constraintid VeriPbProofLogger::log_solution<std::vector<int>>(const std::vector<int> &model, wght objective_value, bool only_original_variables_necessary);
+template constraintid VeriPbProofLogger::log_solution_with_check<std::vector<int>>(const std::vector<int> &model, bool only_original_variables_necessary);
 template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<int>>(const std::vector<int> &lits, const wght RHS);
 template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS);
 template constraintid VeriPbProofLogger::rup<std::vector<int>>(const std::vector<int> &lits, const wght RHS);

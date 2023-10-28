@@ -354,13 +354,15 @@ wght VeriPbProofLogger::calculate_objective_value(const TSeqLit &model)
 
 // TODO - Dieter: Add argument for writing full model.
 template <class TSeqLit>
-constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, wght objective_value)
+constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, wght objective_value, bool only_original_variables_necessary)
 {
     write_comment("Solution with objective value: " + std::to_string(objective_value));
     *proof << "soli ";
-    for (int i = 0; i < model.size(); i++)
-        if(!is_aux_var(variable(model[i]))) 
-            write_literal(model[i]);
+    for (int i = 0; i < model.size(); i++){
+        if(only_original_variables_necessary && is_aux_var(variable(model[i])))
+            continue;
+        write_literal(model[i]);
+    }
     *proof << "\n";
     // Veripb automatically adds an improvement constraint so counter needs to be incremented
     model_improvement_constraint = ++constraint_counter;
@@ -375,13 +377,13 @@ constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, wght objectiv
 }
 
 template <class TSeqLit>
-constraintid VeriPbProofLogger::log_solution_with_check(const TSeqLit &model)
+constraintid VeriPbProofLogger::log_solution_with_check(const TSeqLit &model, bool only_original_variables_necessary)
 {
     int current_objective_value = calculate_objective_value(model);
     if (current_objective_value < best_objective_value)
     {
         write_comment("Objective update from " + std::to_string(best_objective_value) + " to " + std::to_string(current_objective_value));
-        log_solution(model, current_objective_value);
+        log_solution(model, current_objective_value, only_original_variables_necessary);
     }
 
     return get_model_improving_constraint();
