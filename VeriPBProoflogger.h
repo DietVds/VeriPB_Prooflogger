@@ -180,6 +180,7 @@ public:
     constraintid get_model_improving_constraint();
     wght get_best_objective_value();
 
+    //TODO-DIETER: Change to using the new objective update rule!
     // Rewriting of the model improvement constraint. Example of usage: when an objective literal is hardened and we only want to continue reasoning on the non-hardened literals.
     cuttingplanes_derivation get_rewrite_model_improvement_constraint();
     void set_rewrite_model_improvement_constraint(cuttingplanes_derivation cpder);

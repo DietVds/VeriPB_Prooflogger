@@ -352,6 +352,7 @@ wght VeriPbProofLogger::calculate_objective_value(const TSeqLit &model)
     return objective_value;
 }
 
+// TODO - Dieter: Add argument for writing full model.
 template <class TSeqLit>
 constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, wght objective_value)
 {
