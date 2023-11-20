@@ -12,7 +12,11 @@
 #include<iostream>
 
 // NOTE! Should include definition for types Var, Lit and Clause
-#include "SolverTypesInt_Pacose.h"
+#ifdef SOLVERTYPES_MAXCDCL
+    #include "SolverTypesInt_Minisat.h"
+#else
+    #include "SolverTypesInt_Pacose.h"
+#endif
 
 /******************
  * Posssible template classes:
@@ -66,6 +70,8 @@ private:
 
     constraintid rewrite_model_improving_constraint();
 
+    
+
     // Meaningful variable names
     std::map<VeriPB::VarIdx, std::string> meaningful_names_store;
 
@@ -109,15 +115,20 @@ public:
     void write_conclusion_SAT();
     void write_conclusion_OPTIMAL();
     void write_conclusion_BOUNDS(wght LB, wght UB);
+    void write_fail();
 
     // Objective Function 
     template<class TSeqLit, class TSeqWght>
     void set_objective(const TSeqLit &lits, const TSeqWght &weights, wght constant_cost);
     template <class TLit> 
     void add_objective_literal(TLit lit, wght weight);
+    template <class TLit>
+    void remove_objective_literal(TLit lit);
     void add_objective_constant(wght weight);
+    void subtract_objective_constant(wght weight);
     void write_comment_objective_function();
     wght get_best_objective_function();
+    void write_objective_update();
 
     // ------------- Helping functions -------------
     void write_comment(const char *comment);
@@ -361,9 +372,9 @@ public:
     template <class TSeqLit>
     constraintid overwrite_constraint(const TSeqLit &lits_orig, const wght RHS_orig, const TSeqLit &lits, const wght RHS, bool origclause_in_coreset=false);
     template <class TSeqLit, class TSeqWght>
-    constraintid overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, bool origclause_in_coreset=false);
+    constraintid overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, bool origclause_in_coreset);
     template <class TSeqLit, class TSeqWght>
-    constraintid overwrite_constraint(const TSeqLit &lits_orig, const TSeqWght &weights_orig, const wght RHS_orig, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, bool origclause_in_coreset=false);
+    constraintid overwrite_constraint(const TSeqLit &lits_orig, const TSeqWght &weights_orig, const wght RHS_orig, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, bool origclause_in_coreset);
     template <class TSeqLit>
     constraintid overwrite_constraint(const TSeqLit &lits_orig, const TSeqLit &lits, bool origclause_in_coreset=false);
 

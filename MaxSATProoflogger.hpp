@@ -42,6 +42,12 @@ constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_l
 
     return c_id;
 }
+
+
+void MaxSATProoflogger::derive_blocking_literal_value_for_satisfied_soft_clause(constraintid wcnflinenumber, bool value){
+    *(PL->proof) << "red _b" << std::to_string(wcnflinenumber) << " >= 1; " << (value ? "" : "~") << "_b" << std::to_string(wcnflinenumber) << "\n";
+    PL->increase_constraint_counter();
+}
 //=================================================================================================
 // Objective reformulation
 

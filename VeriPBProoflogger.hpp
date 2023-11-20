@@ -77,6 +77,10 @@ void VeriPbProofLogger::write_conclusion_BOUNDS(wght LB, wght UB){
         << "end pseudo-Boolean proof\n";
 }
 
+void VeriPbProofLogger::write_fail(){
+    *proof << "fail\n";
+}
+
 template<class TSeqLit, class TSeqWght>
 void VeriPbProofLogger::set_objective(const TSeqLit &lits, const TSeqWght &weights, wght constant_cost)
 {
@@ -100,6 +104,21 @@ void VeriPbProofLogger::add_objective_literal(TLit lit, wght weight){
     objective_weights.push_back(weight);
 }
 
+template <class TLit>
+void VeriPbProofLogger::remove_objective_literal(TLit lit){
+    int i=0;
+    while(toVeriPbLit(lit) != objective_lits[i]) i++;
+    
+    while(i+1 < objective_lits.size()) {
+        objective_lits[i] = objective_lits[i+1];
+        objective_weights[i] = objective_weights[i+1];
+        i++;
+    }
+    
+    objective_lits.resize(objective_lits.size()-1);
+    objective_weights.resize(objective_weights.size()-1);
+}
+
 void VeriPbProofLogger::add_objective_constant(wght weight){
     objective_constant_cost += weight;
 }
@@ -112,6 +131,15 @@ void VeriPbProofLogger::write_comment_objective_function()
     if(objective_constant_cost != 0)
         *proof << " + " << std::to_string(objective_constant_cost);
     *proof << "\n";
+}
+
+void VeriPbProofLogger::write_objective_update(){
+    *proof << "obju ";
+    for (int i = 0; i < objective_lits.size(); i++)
+        write_weighted_literal(objective_lits[i], objective_weights[i]);
+    if(objective_constant_cost != 0)
+        *proof << " + " << std::to_string(objective_constant_cost);
+    *proof << ";\n";
 }
 
 wght VeriPbProofLogger::get_best_objective_function(){
@@ -979,7 +1007,7 @@ void VeriPbProofLogger::delete_constraint_by_id(const std::vector<constraintid> 
 template <class TSeqLit>
 void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const wght RHS)
 {
-    *proof << "del find ";
+    *proof << "del spec ";
     write_cardinality_constraint(lits, RHS);
     *proof << ";\n";
 }
@@ -988,7 +1016,7 @@ void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const wght RHS)
 template <class TSeqLit, class TSeqWght>
 void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS)
 {
-    *proof << "del find ";
+    *proof << "del spec ";
     write_PB_constraint(lits, weights, RHS);
     *proof << ";\n";
 }
@@ -997,7 +1025,7 @@ void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &w
 // Note: TSeqLit must be sorted.
 template <class TSeqLit>
 void VeriPbProofLogger::delete_clause(const TSeqLit& lits){
-    *proof << "del find ";
+    *proof << "del spec ";
     write_weighted_literal(lits[0]);
     for(int i = 1; i < lits.size(); i++){
         if(lits[i] != lits[i-1])

@@ -25,6 +25,7 @@ public:
     template <class TLit>
     constraintid add_unit_clause_blocking_literal(TLit blocking_lit, constraintid cxn_id, TLit unitclause);
     
+    void derive_blocking_literal_value_for_satisfied_soft_clause(constraintid wcnflinenumber, bool value);
 
     // Functions to help with objective reformulation
 
