@@ -142,6 +142,16 @@ void VeriPbProofLogger::write_objective_update(){
     *proof << ";\n";
 }
 
+void VeriPbProofLogger::write_objective_update(subproof& new_geq_old, subproof& new_leq_old){
+    *proof << "obju ";
+    for (int i = 0; i < objective_lits.size(); i++)
+        write_weighted_literal(objective_lits[i], objective_weights[i]);
+    if(objective_constant_cost != 0)
+        *proof << " + " << std::to_string(objective_constant_cost);
+    
+    *proof << "begin \n \t proofgoal #1 \n " ;
+}
+
 wght VeriPbProofLogger::get_best_objective_function(){
     return best_objective_value;
 }
@@ -417,43 +427,43 @@ constraintid VeriPbProofLogger::log_solution_with_check(const TSeqLit &model, bo
     return get_model_improving_constraint();
 }
 
-constraintid VeriPbProofLogger::rewrite_model_improving_constraint(){
-    assert(CP_modelimprovingconstraint_rewrite != "" && rewritten_model_improvement_constraint < model_improvement_constraint );
+// constraintid VeriPbProofLogger::rewrite_model_improving_constraint(){
+//     assert(CP_modelimprovingconstraint_rewrite != "" && rewritten_model_improvement_constraint < model_improvement_constraint );
 
-    write_comment("Rewrite model improving constraint");
-    if(rewritten_model_improvement_constraint > 0) delete_constraint_by_id(rewritten_model_improvement_constraint);
+//     write_comment("Rewrite model improving constraint");
+//     if(rewritten_model_improvement_constraint > 0) delete_constraint_by_id(rewritten_model_improvement_constraint);
 
-    cuttingplanes_derivation cpder = CP_apply(CP_constraintid(model_improvement_constraint), CP_modelimprovingconstraint_rewrite);
-    rewritten_model_improvement_constraint = write_CP_derivation(cpder);
+//     cuttingplanes_derivation cpder = CP_apply(CP_constraintid(model_improvement_constraint), CP_modelimprovingconstraint_rewrite);
+//     rewritten_model_improvement_constraint = write_CP_derivation(cpder);
 
-    return rewritten_model_improvement_constraint;
-}
+//     return rewritten_model_improvement_constraint;
+// }
 
-constraintid VeriPbProofLogger::get_model_improving_constraint()
-{
-    if(CP_modelimprovingconstraint_rewrite == "")
-        return model_improvement_constraint;
-    else if(rewritten_model_improvement_constraint > model_improvement_constraint) // Already rewritten
-        return rewritten_model_improvement_constraint;
-    else{
-        return rewrite_model_improving_constraint();
-    }
+// constraintid VeriPbProofLogger::get_model_improving_constraint()
+// {
+//     if(CP_modelimprovingconstraint_rewrite == "")
+//         return model_improvement_constraint;
+//     else if(rewritten_model_improvement_constraint > model_improvement_constraint) // Already rewritten
+//         return rewritten_model_improvement_constraint;
+//     else{
+//         return rewrite_model_improving_constraint();
+//     }
 
-}
+// }
 
 wght VeriPbProofLogger::get_best_objective_value(){
     return best_objective_value;
 }
 
-cuttingplanes_derivation VeriPbProofLogger::get_rewrite_model_improvement_constraint(){
-    return CP_modelimprovingconstraint_rewrite;
-}
+// cuttingplanes_derivation VeriPbProofLogger::get_rewrite_model_improvement_constraint(){
+//     return CP_modelimprovingconstraint_rewrite;
+// }
 
-void VeriPbProofLogger::set_rewrite_model_improvement_constraint(cuttingplanes_derivation cpder){
-    CP_modelimprovingconstraint_rewrite = cpder;
-    if(model_improvement_constraint > 0)
-        rewrite_model_improving_constraint();
-}
+// void VeriPbProofLogger::set_rewrite_model_improvement_constraint(cuttingplanes_derivation cpder){
+//     CP_modelimprovingconstraint_rewrite = cpder;
+//     if(model_improvement_constraint > 0)
+//         rewrite_model_improving_constraint();
+// }
 
 // constraintid VeriPbProofLogger::get_rewritten_best_solution_constraint(){
 //     return rewritten_best_solution_constraint;
@@ -847,124 +857,234 @@ void VeriPbProofLogger::removeReifiedConstraintLeftImplFromConstraintStore(const
 
 // ------------- Cutting Planes derivations -------------
 
-cuttingplanes_derivation VeriPbProofLogger::CP_constraintid(const constraintid& constraint_id){
-    return std::to_string(constraint_id);
-}
-template <class TLit>
-cuttingplanes_derivation VeriPbProofLogger::CP_literal_axiom(const TLit& lit){
-    return to_string(lit);
-}
-cuttingplanes_derivation VeriPbProofLogger::CP_addition(const cuttingplanes_derivation& left, const cuttingplanes_derivation& right){
-    return left + " " + right + " +";
-}
-cuttingplanes_derivation VeriPbProofLogger::CP_addition(const cuttingplanes_derivation& cp){
-    return cp + " +";
-}
-cuttingplanes_derivation VeriPbProofLogger::CP_division(const cuttingplanes_derivation& cp, const wght& n){
-    return cp + " " + std::to_string(n) + " d";
-}
-cuttingplanes_derivation VeriPbProofLogger::CP_division(const wght& n){
-    return " " + std::to_string(n) + " d";
-}
-cuttingplanes_derivation VeriPbProofLogger::CP_saturation(const cuttingplanes_derivation& cp){
-    return cp + " s";
-}
-cuttingplanes_derivation VeriPbProofLogger::CP_saturation(){
-    return " s";
-}
-cuttingplanes_derivation VeriPbProofLogger::CP_multiplication(const cuttingplanes_derivation& cp, const wght& n){
-    return cp + " " + std::to_string(n) + " *";
-}
-cuttingplanes_derivation VeriPbProofLogger::CP_multiplication(const wght& n){
-    return " " + std::to_string(n) + " *";
-}
-template <class TVar>
-cuttingplanes_derivation VeriPbProofLogger::CP_weakening(const cuttingplanes_derivation& cp, const TVar& var){
-    return cp + " " + var_name(var) + " w";
-}
-template <class TVar>
-cuttingplanes_derivation VeriPbProofLogger::CP_weakening(const TVar& var){
-    return " " + var_name(var) + " w";
-}
-template <class TLit>
-cuttingplanes_derivation VeriPbProofLogger::CP_weakening(const cuttingplanes_derivation& cp, const TLit& lit, const wght& weight){
-    return CP_addition(cp, CP_multiplication(CP_literal_axiom(lit), weight));
-}
-template <class TLit>
-cuttingplanes_derivation VeriPbProofLogger::CP_weakening(const TLit& lit, const wght& weight){
-    return CP_multiplication(CP_literal_axiom(lit), weight);
-}
-cuttingplanes_derivation VeriPbProofLogger::CP_apply(const cuttingplanes_derivation& cp_start, const cuttingplanes_derivation& cp_to_be_applied){
-    return cp_start + " " + cp_to_be_applied;
-}
-constraintid VeriPbProofLogger::write_CP_derivation(const cuttingplanes_derivation& cp){
-    *proof << "p " << cp << "\n";
-    return ++constraint_counter;
-}
+    cuttingplanes_derivation VeriPbProofLogger::new_CPDer(){
+        if(_free_cpder.empty()){
+            std::stringstream new_cpder; // TODO: This should probably be pushing a new std::stringstream instead of how I do it here!
+            _cpder.push_back(new_cpder);
+            return _cpder.size()-1;
+        }
+        else{
+            cuttingplanes_derivation cpder =  _free_cpder.front();
+            _free_cpder.pop();
+            return cpder;
+        }
+    }
+    
+    constraintid VeriPbProofLogger::end_CPDer(const cuttingplanes_derivation& cp_id){
+        *proof << _cpder[cp_id].str();
+        clean_CPDer(cp_id);
+    }
 
-void VeriPbProofLogger::start_CP_derivation(const constraintid constraint_id)
-{
-    pol_string.clear();
-    pol_string << "p " << constraint_id;
-}
+    void VeriPbProofLogger::clean_CPDer(const cuttingplanes_derivation& cp_id){
+        _cpder[cp_id].clear();
+        _free_cpder.push(cp_id);
+    }
+   
+    template <class TLit>
+    void VeriPbProofLogger::CP_lit_axiom(const cuttingplanes_derivation& cp_id, const TLit& lit, const wght& n=1){
+        _cpder[cp_id] << write_literal(lit) << " ";
+        if(n!=1)
+            CP_multiply(cp_id, n);
+    }
+    void VeriPbProofLogger::CP_constraintid(const cuttingplanes_derivation& cp_id, const constraintid& cxnid, const wght& n=1){
+        _cpder[cp_id] << cxnid << " ";
+        if(n!=1)
+            CP_multiply(cp_id, n);
+    }
+    template <class TLit>
+    void VeriPbProofLogger::CP_add_lit_axiom(const cuttingplanes_derivation& cp_id, const TLit& lit, const wght& n=1){
+        CP_lit_axiom(cp_id, lit, n);
+        CP_write_add(cp_id);
+    }
+    void VeriPbProofLogger::CP_add_constraintid(const cuttingplanes_derivation& cp_id, const constraintid& cxnid, const wght& n=1){
+        CP_constraintid(cp_id, cxnid, n);
+        CP_write_add(cp_id);
+    }
+    void VeriPbProofLogger::CP_add_cpder(const cuttingplanes_derivation& cp_id, const cuttingplanes_derivation& cp_id_to_add, const bool end_cpder_to_add = false){
+        CP_apply(cp_id, cp_id_to_add);
+        CP_write_add(cp_id);
+    }
+    void VeriPbProofLogger::CP_multiply(const cuttingplanes_derivation& cp_id, const wght& n){
+        _cpder[cp_id] << n << "* ";
+    }
+    void VeriPbProofLogger::CP_write_add(const cuttingplanes_derivation& cp_id){
+        _cpder[cp_id] << "+ ";
+    }
+    void VeriPbProofLogger::CP_divide(const cuttingplanes_derivation& cp_id, const wght& n){
+         _cpder[cp_id] << n << "d ";
+    }
+    void VeriPbProofLogger::CP_saturate(const cuttingplanes_derivation& cp_id){
+        _cpder[cp_id] << "s ";
+    }
+    template <class TVar>
+    void VeriPbProofLogger::CP_weaken(const cuttingplanes_derivation& cp_id, const TVar& var){
+        _cpder[cp_id] << var_name(var) << "w ";
+    }
+    void VeriPbProofLogger::CP_apply(const cuttingplanes_derivation& cp_id, const cuttingplanes_derivation& cp_id_to_apply, const bool end_cpder_to_apply=false){
+        _cpder[cp_id] << _cpder[cp_id_to_apply].str() << " ";
+        if(end_cpder_to_apply)
+            clean_CPDer(cp_id_to_apply);
+    }
 
-template <class TLit>
-void VeriPbProofLogger::start_CP_derivation_with_lit_axiom(const TLit &lit)
-{
-    pol_string << "p ";
-    pol_string << to_string(lit);
-}
+// void VeriPbProofLogger::CP_cxnid(cuttingplanes_derivation& cp_id, const constraintid& cxnid){
+//     cpder << std::to_string(cxnid) << " ";
+// }
+// template <class TLit>
+// void VeriPbProofLogger::CP_litaxiom(cuttingplanes_derivation& cp_id, const TLit& lit){
+//     cpder << to_string(lit) << " "; // TODO: rewrite this such that you can rewrite to a stream directly. 
+// }
 
-void VeriPbProofLogger::CP_load_constraint(const constraintid constraint_id)
-{
-    pol_string << " " << constraint_id;
-}
+// void VeriPbProofLogger::CP_add_cxnid(cuttingplanes_derivation& cp_id, const constraintid& cxnid){
+//     cpder << std::to_string(cxnid) << " + ";
+// }
+// template <class TLit>
+// void VeriPbProofLogger::CP_add_litaxiom(cuttingplanes_derivation& cp_id, const TLit& lit){
+//     cpder << to_string(lit) << " + ";
+// }
+// void VeriPbProofLogger::CP_add_cpder(cuttingplanes_derivation& cp_id, cuttingplanes_derivation& cp_id_to_add){
+//     cpder << cpder_to_add.rdbuf() << " + ";
+// }
 
-void VeriPbProofLogger::CP_add()
-{
-    pol_string << " +";
-}
+// void VeriPbProofLogger::CP_multiply(cuttingplanes_derivation& cp_id, const wght& n){
+//     cpder << std::to_string(n) << " * ";
+// }
+// void VeriPbProofLogger::CP_divide(cuttingplanes_derivation& cp_id, const wght& n){
+//     cpder << std::to_string(n) << " d ";
+// }
+// void VeriPbProofLogger::CP_saturate(cuttingplanes_derivation& cp_id){
+//     cpder <<  " w ";
+// }
+// template<class TVar>
+// void VeriPbProofLogger::CP_weaken(cuttingplanes_derivation& cp_id, const TVar& var){
+//     cpder << var_name(var) << " w ";
+// }
+// void VeriPbProofLogger::CP_apply(cuttingplanes_derivation& cp_id, cuttingplanes_derivation& cp_id_to_apply){
+//     cpder << cpder_to_apply.rdbuf();
+// }
 
-void VeriPbProofLogger::CP_add_constraint(const constraintid constraint_id)
-{
-    pol_string << " " << constraint_id << " +";
-}
+// constraintid VeriPbProofLogger::write_cuttingplanes_derivation(cuttingplanes_derivation& cp_id){
+//     *proof << cpder.rdbuf() << "\n";
+//     return ++constraint_counter;
+// }
 
-template <class TLit>
-void VeriPbProofLogger::CP_add_literal_axiom(const TLit &lit){
-    pol_string << " " << to_string(lit) << " +";
-}
+// cuttingplanes_derivation VeriPbProofLogger::CP_constraintid(const constraintid& constraint_id){
+//     return std::to_string(constraint_id);
+// }
+// template <class TLit>
+// cuttingplanes_derivation VeriPbProofLogger::CP_literal_axiom(const TLit& lit){
+//     return to_string(lit);
+// }
+// cuttingplanes_derivation VeriPbProofLogger::CP_addition(const cuttingplanes_derivation& left, const cuttingplanes_derivation& right){
+//     return left + " " + right + " +";
+// }
+// cuttingplanes_derivation VeriPbProofLogger::CP_addition(const cuttingplanes_derivation& cp){
+//     return cp + " +";
+// }
+// cuttingplanes_derivation VeriPbProofLogger::CP_division(const cuttingplanes_derivation& cp, const wght& n){
+//     return cp + " " + std::to_string(n) + " d";
+// }
+// cuttingplanes_derivation VeriPbProofLogger::CP_division(const wght& n){
+//     return " " + std::to_string(n) + " d";
+// }
+// cuttingplanes_derivation VeriPbProofLogger::CP_saturation(const cuttingplanes_derivation& cp){
+//     return cp + " s";
+// }
+// cuttingplanes_derivation VeriPbProofLogger::CP_saturation(){
+//     return " s";
+// }
+// cuttingplanes_derivation VeriPbProofLogger::CP_multiplication(const cuttingplanes_derivation& cp, const wght& n){
+//     return cp + " " + std::to_string(n) + " *";
+// }
+// cuttingplanes_derivation VeriPbProofLogger::CP_multiplication(const wght& n){
+//     return " " + std::to_string(n) + " *";
+// }
+// template <class TVar>
+// cuttingplanes_derivation VeriPbProofLogger::CP_weakening(const cuttingplanes_derivation& cp, const TVar& var){
+//     return cp + " " + var_name(var) + " w";
+// }
+// template <class TVar>
+// cuttingplanes_derivation VeriPbProofLogger::CP_weakening(const TVar& var){
+//     return " " + var_name(var) + " w";
+// }
+// template <class TLit>
+// cuttingplanes_derivation VeriPbProofLogger::CP_weakening(const cuttingplanes_derivation& cp, const TLit& lit, const wght& weight){
+//     return CP_addition(cp, CP_multiplication(CP_literal_axiom(lit), weight));
+// }
+// template <class TLit>
+// cuttingplanes_derivation VeriPbProofLogger::CP_weakening(const TLit& lit, const wght& weight){
+//     return CP_multiplication(CP_literal_axiom(lit), weight);
+// }
+// cuttingplanes_derivation VeriPbProofLogger::CP_apply(const cuttingplanes_derivation& cp_start, const cuttingplanes_derivation& cp_to_be_applied){
+//     return cp_start + " " + cp_to_be_applied;
+// }
+// constraintid VeriPbProofLogger::write_CP_derivation(const cuttingplanes_derivation& cp){
+//     *proof << "p " << cp << "\n";
+//     return ++constraint_counter;
+// }
 
-void VeriPbProofLogger::CP_divide(const wght v)
-{
-    pol_string << " " << v << " d";
-}
-void VeriPbProofLogger::CP_saturate()
-{
-    pol_string << " s";
-}
-void VeriPbProofLogger::CP_multiply(const wght v)
-{
-    pol_string << " " << v << " *";
-}
+// void VeriPbProofLogger::start_CP_derivation(const constraintid constraint_id)
+// {
+//     pol_string.clear();
+//     pol_string << "p " << constraint_id;
+// }
 
-template <class TVar>
-void VeriPbProofLogger::CP_weaken(const TVar &var)
-{
-    pol_string << " " << var_name(var) << " w";
-}
+// template <class TLit>
+// void VeriPbProofLogger::start_CP_derivation_with_lit_axiom(const TLit &lit)
+// {
+//     pol_string << "p ";
+//     pol_string << to_string(lit);
+// }
 
-template <class TLit>
-void VeriPbProofLogger::CP_write_literal_axiom(const TLit &lit)
-{
-    pol_string << " " << to_string(lit);
-}
+// void VeriPbProofLogger::CP_load_constraint(const constraintid constraint_id)
+// {
+//     pol_string << " " << constraint_id;
+// }
 
-constraintid VeriPbProofLogger::end_CP_derivation()
-{
-    *proof << pol_string.rdbuf() << "\n";
-    return ++constraint_counter;
-}
+// void VeriPbProofLogger::CP_add()
+// {
+//     pol_string << " +";
+// }
+
+// void VeriPbProofLogger::CP_add_constraint(const constraintid constraint_id)
+// {
+//     pol_string << " " << constraint_id << " +";
+// }
+
+// template <class TLit>
+// void VeriPbProofLogger::CP_add_literal_axiom(const TLit &lit){
+//     pol_string << " " << to_string(lit) << " +";
+// }
+
+// void VeriPbProofLogger::CP_divide(const wght v)
+// {
+//     pol_string << " " << v << " d";
+// }
+// void VeriPbProofLogger::CP_saturate()
+// {
+//     pol_string << " s";
+// }
+// void VeriPbProofLogger::CP_multiply(const wght v)
+// {
+//     pol_string << " " << v << " *";
+// }
+
+// template <class TVar>
+// void VeriPbProofLogger::CP_weaken(const TVar &var)
+// {
+//     pol_string << " " << var_name(var) << " w";
+// }
+
+// template <class TLit>
+// void VeriPbProofLogger::CP_write_literal_axiom(const TLit &lit)
+// {
+//     pol_string << " " << to_string(lit);
+// }
+
+// constraintid VeriPbProofLogger::end_CP_derivation()
+// {
+//     *proof << pol_string.rdbuf() << "\n";
+//     return ++constraint_counter;
+// }
 
 // ------------- Extra Proof Techniques -------------
 

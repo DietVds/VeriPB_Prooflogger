@@ -8,6 +8,8 @@
 #include <sstream>
 #include <set>
 #include <cassert>
+#include <limits>
+#include <queue>
 
 #include<iostream>
 
@@ -47,7 +49,16 @@ typedef int constraintid;
 template<class TVar>
 using substitution = std::vector<std::pair<TVar, bool>>;
 
-typedef std::string cuttingplanes_derivation;
+
+
+typedef uint32_t cuttingplanes_derivation; // We will keep track of different cutting planes derivations that can be reused. 
+                                                // Every time a new cutting planes derivation is started, it is checked if one of the derivations is unused at that moment.
+
+typedef struct {
+    std::string proofgoal;
+    std::vector<cuttingplanes_derivation> derivations;
+} subproof;
+
 
 class VeriPbProofLogger
 {
@@ -65,12 +76,7 @@ private:
     wght objective_constant_cost = 0;
     wght best_objective_value = wght_max;
     constraintid model_improvement_constraint = 0; // Last model improvement constraint
-    // The model improving constraint needs to be rewritten in many applications (e.g., for MaxSAT prooflogging: addition of blocking variables to unit clauses, hardening in QMaxSAT 14.07 )
-    constraintid rewritten_model_improvement_constraint = 0; // last rewritten model improvement constraint. 0 means that it hasn't been rewritten. 
-
-    constraintid rewrite_model_improving_constraint();
-
-    
+      
 
     // Meaningful variable names
     std::map<VeriPB::VarIdx, std::string> meaningful_names_store;
@@ -79,10 +85,6 @@ private:
     std::map<VeriPB::VarIdx, VeriPB::Lit> map_rewrite_var_by_literal;
 
     std::string to_string_rewrite_var_by_literal(VeriPB::Var& variable, VeriPB::Lit& literal);
-
-    // Rewrite model improvement constraint whenever the model improvement constraint id is asked.
-    cuttingplanes_derivation CP_modelimprovingconstraint_rewrite = "";  
-
     // Constraint counter
     //
 public:
@@ -92,6 +94,8 @@ private:
     //
     std::stringstream pol_string;
 
+    std::vector<std::stringstream> _cpder;
+    std::queue<cuttingplanes_derivation> _free_cpder;
        
 public:
     // Option to write comments. If false, all comments will be discarded
@@ -129,6 +133,7 @@ public:
     void write_comment_objective_function();
     wght get_best_objective_function();
     void write_objective_update();
+    void write_objective_update(subproof& new_geq_old, subproof& new_leq_old);
 
     // ------------- Helping functions -------------
     void write_comment(const char *comment);
@@ -191,14 +196,6 @@ public:
     constraintid get_model_improving_constraint();
     wght get_best_objective_value();
 
-    //TODO-DIETER: Change to using the new objective update rule!
-    // Rewriting of the model improvement constraint. Example of usage: when an objective literal is hardened and we only want to continue reasoning on the non-hardened literals.
-    cuttingplanes_derivation get_rewrite_model_improvement_constraint();
-    void set_rewrite_model_improvement_constraint(cuttingplanes_derivation cpder);
-    // constraintid get_rewritten_best_solution_constraint();
-    // void rewrite_model_improvement_constraint();
-    // void reset_rewritten_best_solution_constraint();
-
     template <class TSeqLBool>
     constraintid log_solution_lbools(TSeqLBool &model, wght objective_value=wght_max);
 
@@ -230,11 +227,6 @@ public:
     constraintid redundanceBasedStrengthening(const TSeqLit &lits, const wght RHS, const substitution<TVar> &witness);
     template <class TSeqLit, class TSeqWght, class TVar>
     constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution<TVar> &witness);
-
-    typedef struct {
-        std::string proofgoal;
-        std::vector<cuttingplanes_derivation> derivations;
-    } subproof;
 
     // In contrast to all other overloads, this overload of redundanceBasedStrenghtening suspects that at least one proof goal is not trivial (and that it should be proven by either RUP or by an explicit cutting planes proof). 
     // This is important for counting the number of constraints, since constraints are created while proving non-trivial proofgoals.
@@ -286,45 +278,112 @@ public:
 
     // ------------- Cutting Planes derivations -------------
 
-    cuttingplanes_derivation CP_constraintid(const constraintid& constraint_id);
+    // NEW
+    /**
+     * Returns a reference to an free (as in: not being used) cutting planes derivation. 
+     * In case no free cutting planes derivations are available, it will create a new one and return the reference to the new one.
+    */
+    cuttingplanes_derivation new_CPDer();
+    /**
+     * Ends the cutting planes derivation in the first argument by writing it to the proof and returning the constraintid of the derived constraint.
+    */
+    constraintid end_CPDer(const cuttingplanes_derivation& cp_id);
+
+    /**
+     * Ends the cutting planes derivation in the first argument without writing it to the proof. 
+    */
+    void clean_CPDer(const cuttingplanes_derivation& cp_id);
+
+    /**
+     * Writes a literal axiom to the cutting planes derivation. If n is different from 1, the literal axiom is multiplied by n. 
+    */
     template <class TLit>
-    cuttingplanes_derivation CP_literal_axiom(const TLit& lit);
-    cuttingplanes_derivation CP_addition(const cuttingplanes_derivation& left, const cuttingplanes_derivation& right);
-    cuttingplanes_derivation CP_addition(const cuttingplanes_derivation& cp);
-    cuttingplanes_derivation CP_division(const cuttingplanes_derivation& cp, const wght& n);
-    cuttingplanes_derivation CP_division(const wght& n);
-    cuttingplanes_derivation CP_saturation(const cuttingplanes_derivation& cp);
-    cuttingplanes_derivation CP_saturation();
-    cuttingplanes_derivation CP_multiplication(const cuttingplanes_derivation& cp, const wght& n);
-    cuttingplanes_derivation CP_multiplication(const wght& n);
+    void CP_lit_axiom(const cuttingplanes_derivation& cp_id, const TLit& lit, const wght& n=1);
+    /**
+     * Writes a constraintid to the cutting planes derivation. If n is different from 1, the constraint is multiplied by n.
+    */
+    void CP_constraintid(const cuttingplanes_derivation& cp_id, const constraintid& cxnid, const wght& n=1);
+    /**
+     * Writes the addition of a literal axiom to the cutting planes derivation. If n is different from 1, the constraint is multiplied by n.
+    */
+    template <class TLit>
+    void CP_add_lit_axiom(const cuttingplanes_derivation& cp_id, const TLit& lit, const wght& n=1);
+    /**
+     * Writes the addition of a constraintid to the cutting planes derivation. If n is different from 1, the constraint is multiplied by n.
+    */
+    void CP_add_constraintid(const cuttingplanes_derivation& cp_id, const constraintid& cxnid, const wght& n=1);
+    /** 
+     * Writes the addition of the cutting planes derivation in the second argument to the one in the first argument. If end_cpder_to_add is true, the cutting planes derivation cpder_to_add is ended without writing it to the proof file.
+    */
+    void CP_add_cpder(const cuttingplanes_derivation& cp_id, const cuttingplanes_derivation& cp_id_to_add, const bool end_cpder_to_add = false);
+    /**
+     * Writes the multiplication by n to the cutting planes derivation.
+    */
+    void CP_multiply(const cuttingplanes_derivation& cp_id, const wght& n);
+    /**
+     * Writes addition to the cutting planes argument. This can be used if you want to add two derivations together without using different cutting planes derivation.
+    */
+    void CP_write_add(const cuttingplanes_derivation& cp_id);
+    /**
+     * Writes division by n to the cutting planes derivation. 
+    */
+    void CP_divide(const cuttingplanes_derivation& cp_id, const wght& n);
+    /** 
+     * Writes saturation to the cutting planes derivation.
+    */
+    void CP_saturate(const cuttingplanes_derivation& cp_id);
+    /**
+     * Writes weakening of variable var to the cutting planes derivation.
+    */
     template <class TVar>
-    cuttingplanes_derivation CP_weakening(const cuttingplanes_derivation& cp, const TVar& var);
-    template <class TVar>
-    cuttingplanes_derivation CP_weakening(const TVar& var);
-    template <class TLit>
-    cuttingplanes_derivation CP_weakening(const cuttingplanes_derivation& cp, const TLit& lit, const wght& weight);
-    template <class TLit>
-    cuttingplanes_derivation CP_weakening(const TLit& lit, const wght& weight);
-    cuttingplanes_derivation CP_apply(const cuttingplanes_derivation& cp_start, const cuttingplanes_derivation& cp_to_be_applied);
-    constraintid write_CP_derivation(const cuttingplanes_derivation& cp);
+    void CP_weaken(const cuttingplanes_derivation& cp_id, const TVar& var);
+    /**
+     * Applies the derivation of cpder_to_apply to the derivation cpder. If end_cpder_to_apply is true, the cutting planes derivation cpder_to_apply is ended without writing it to the proof.
+    */
+    void CP_apply(const cuttingplanes_derivation& cp_id, const cuttingplanes_derivation& cp_id_to_apply, const bool end_cpder_to_apply=false);
+
+
+    // OLD
+
+    // cuttingplanes_derivation CP_constraintid(const constraintid& constraint_id);
+    // template <class TLit>
+    // cuttingplanes_derivation CP_literal_axiom(const TLit& lit);
+    // cuttingplanes_derivation CP_addition(const cuttingplanes_derivation& left, const cuttingplanes_derivation& right);
+    // cuttingplanes_derivation CP_addition(const cuttingplanes_derivation& cp);
+    // cuttingplanes_derivation CP_division(const cuttingplanes_derivation& cp, const wght& n);
+    // cuttingplanes_derivation CP_division(const wght& n);
+    // cuttingplanes_derivation CP_saturation(const cuttingplanes_derivation& cp);
+    // cuttingplanes_derivation CP_saturation();
+    // cuttingplanes_derivation CP_multiplication(const cuttingplanes_derivation& cp, const wght& n);
+    // cuttingplanes_derivation CP_multiplication(const wght& n);
+    // template <class TVar>
+    // cuttingplanes_derivation CP_weakening(const cuttingplanes_derivation& cp, const TVar& var);
+    // template <class TVar>
+    // cuttingplanes_derivation CP_weakening(const TVar& var);
+    // template <class TLit>
+    // cuttingplanes_derivation CP_weakening(const cuttingplanes_derivation& cp, const TLit& lit, const wght& weight);
+    // template <class TLit>
+    // cuttingplanes_derivation CP_weakening(const TLit& lit, const wght& weight);
+    // cuttingplanes_derivation CP_apply(const cuttingplanes_derivation& cp_start, const cuttingplanes_derivation& cp_to_be_applied);
+    // constraintid write_CP_derivation(const cuttingplanes_derivation& cp);
     
     // OLD:
-    void start_CP_derivation(const constraintid constraint_id);
-    template <class TLit>
-    void start_CP_derivation_with_lit_axiom(const TLit &lit);
-    void CP_load_constraint(const constraintid constraint_id);
-    void CP_add();
-    void CP_add_constraint(const constraintid constraint_id);
-    template <class TLit>
-    void CP_add_literal_axiom(const TLit &lit);
-    void CP_divide(const wght v);
-    void CP_saturate();
-    void CP_multiply(const wght v);
-    template <class TVar>
-    void CP_weaken(const TVar &var);
-    template <class TLit>
-    void CP_write_literal_axiom(const TLit &lit);
-    constraintid end_CP_derivation();
+    // void start_CP_derivation(const constraintid constraint_id);
+    // template <class TLit>
+    // void start_CP_derivation_with_lit_axiom(const TLit &lit);
+    // void CP_load_constraint(const constraintid constraint_id);
+    // void CP_add();
+    // void CP_add_constraint(const constraintid constraint_id);
+    // template <class TLit>
+    // void CP_add_literal_axiom(const TLit &lit);
+    // void CP_divide(const wght v);
+    // void CP_saturate();
+    // void CP_multiply(const wght v);
+    // template <class TVar>
+    // void CP_weaken(const TVar &var);
+    // template <class TLit>
+    // void CP_write_literal_axiom(const TLit &lit);
+    // constraintid end_CP_derivation();
 
     // ------------- Extra Proof Techniques -------------
     /**
