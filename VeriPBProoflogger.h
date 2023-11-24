@@ -66,8 +66,10 @@ private:
     wght best_objective_value = wght_max;
     constraintid model_improvement_constraint = 0; // Last model improvement constraint
     // The model improving constraint needs to be rewritten in many applications (e.g., for MaxSAT prooflogging: addition of blocking variables to unit clauses, hardening in QMaxSAT 14.07 )
-    constraintid rewritten_model_improvement_constraint = 0; // last rewritten model improvement constraint. 0 means that it hasn't been rewritten. 
 
+    // TODO: to remove due to the new objective improvement rule!
+    constraintid rewritten_model_improvement_constraint = 0; // last rewritten model improvement constraint. 0 means that it hasn't been rewritten. 
+            
     constraintid rewrite_model_improving_constraint();
 
     
@@ -178,6 +180,13 @@ public:
     void check_last_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
     template <class TSeqLit, class TSeqWght>
     void check_last_constraint(const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  );
+
+    template <class TSeqLit>
+    void check_constraint_exists(const TSeqLit &lits, const wght RHS = 1);
+    template <class TSeqLit, class TSeqWght>
+    void check_constraint_exists(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
+    template <class TSeqLit, class TSeqWght>
+    void check_constraint_exists(const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  );
 
 
     // ------------- Rules for optimisation -------------

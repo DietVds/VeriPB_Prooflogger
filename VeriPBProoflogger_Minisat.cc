@@ -67,6 +67,16 @@ template void VeriPbProofLogger::check_last_constraint<Minisat::vec<Minisat::Lit
 template void VeriPbProofLogger::check_last_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit>& lits_greater, const std::vector<wght>& weights_greater, const wght const_greater, const std::vector<VeriPB::Lit>& lits_smaller, const std::vector<wght>& weights_smaller, const wght const_smaller  );
 template void VeriPbProofLogger::check_last_constraint<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(const Minisat::vec<Minisat::Lit>& lits_greater, const Minisat::vec<wght>& weights_greater, const wght const_greater, const Minisat::vec<Minisat::Lit>& lits_smaller, const Minisat::vec<wght>& weights_smaller, const wght const_smaller  );
 
+template void VeriPbProofLogger::check_constraint_exists<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS);
+template void VeriPbProofLogger::check_constraint_exists<Minisat::vec<Minisat::Lit>>(const Minisat::vec<Minisat::Lit> &lits, const wght RHS);
+
+template void VeriPbProofLogger::check_constraint_exists<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
+template void VeriPbProofLogger::check_constraint_exists<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(const Minisat::vec<Minisat::Lit> &lits, const Minisat::vec<wght> &weights, const wght RHS);
+
+template void VeriPbProofLogger::check_constraint_exists<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit>& lits_greater, const std::vector<wght>& weights_greater, const wght const_greater, const std::vector<VeriPB::Lit>& lits_smaller, const std::vector<wght>& weights_smaller, const wght const_smaller  );
+template void VeriPbProofLogger::check_constraint_exists<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(const Minisat::vec<Minisat::Lit>& lits_greater, const Minisat::vec<wght>& weights_greater, const wght const_greater, const Minisat::vec<Minisat::Lit>& lits_smaller, const Minisat::vec<wght>& weights_smaller, const wght const_smaller  );
+
+
 template wght VeriPbProofLogger::calculate_objective_value<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &model);
 
 template constraintid VeriPbProofLogger::log_solution<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &model, wght objective_value, bool only_original_variables_necessary);

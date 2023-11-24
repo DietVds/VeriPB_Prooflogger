@@ -343,6 +343,29 @@ void VeriPbProofLogger::check_last_constraint(const TSeqLit& lits_greater, const
     equals_rule(-1, lits_greater, weights_greater, const_greater, lits_smaller, weights_smaller, const_smaller);
 }
 
+template <class TSeqLit>
+void VeriPbProofLogger::check_constraint_exists(const TSeqLit &lits, const wght RHS)
+{
+    *proof << "e ";
+    write_cardinality_constraint(lits, RHS);
+    *proof << ";\n";
+}
+
+template <class TSeqLit, class TSeqWght>
+void VeriPbProofLogger::check_constraint_exists(const TSeqLit &lits, const TSeqWght &weights, const wght RHS)
+{
+    *proof << "e ";
+    write_PB_constraint(lits, weights, RHS);
+    *proof << ";\n";
+}
+
+template <class TSeqLit, class TSeqWght>
+void VeriPbProofLogger::check_constraint_exists(const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  ){
+    *proof << "e ";
+    write_PB_constraint(lits_greater, weights_greater, const_greater, lits_smaller, weights_smaller, const_smaller);
+    *proof << ";\n";
+}
+
 // ------------- Rules for optimisation -------------
 
 /// @brief Calculate the objective value of the objective stored in VeriPBProoflogger for a model. This function uses the optimistic assumption that the literals are sorted.
@@ -397,6 +420,15 @@ constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, wght objectiv
 
     if(objective_value < best_objective_value)
         best_objective_value = objective_value;
+
+    std::vector<VeriPB::Lit> litsMIC;
+    wght RHS;
+    for(uint32_t i = 0; i < objective_lits.size(); i++){
+        litsMIC.push_back(neg(objective_lits[i]));
+        RHS += objective_weights[i];
+    }
+    RHS = RHS + objective_constant_cost - best_objective_value + 1;
+    check_last_constraint(litsMIC, objective_weights, RHS);
 
     if(CP_modelimprovingconstraint_rewrite != "")
         rewrite_model_improving_constraint();
@@ -477,7 +509,7 @@ constraintid VeriPbProofLogger::log_solution_lbools(TSeqLBool &model, wght objec
     VeriPB::Var var;
     VeriPB::Lit lit;
 
-    *proof << "o ";
+    *proof << "soli ";
     for (int i = 0; i < model.size(); i++){
         var = toVeriPbVar(i);
         lit = create_literal(var, !toBool(model[i]));
