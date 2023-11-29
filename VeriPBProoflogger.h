@@ -317,12 +317,6 @@ public:
     
 
     /**
-     * 
-    */
-    template <class TLit>
-    CPDerRef start_CPDer_from_lit_axiom(const TLit& lit, const wght& n=1);
-
-    /**
      * Writes the addition of a literal axiom to the cutting planes derivation. If n is different from 1, the constraint is multiplied by n.
     */
     template <class TLit>
