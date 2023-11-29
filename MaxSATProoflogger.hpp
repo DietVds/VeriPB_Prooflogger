@@ -36,7 +36,7 @@ constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_l
 
     constraintid c_id = PL->redundanceBasedStrengthening(cls, 1, witness);
 
-    cuttingplanes_derivation cpder_rewrite_mic = PL->get_rewrite_model_improvement_constraint();
+    CPDerRef cpder_rewrite_mic = PL->get_rewrite_model_improvement_constraint();
     cpder_rewrite_mic = PL->CP_addition(cpder_rewrite_mic, PL->CP_constraintid(c_id));
     PL->set_rewrite_model_improvement_constraint(cpder_rewrite_mic);
 
@@ -56,10 +56,12 @@ constraintid MaxSATProoflogger::add_core_lower_bound(
     const TVar &lazy_var, constraintid core_id, constraintid pb_definition_id,
     wght weight)
 {
-    PL->start_CP_derivation(core_id);
-    PL->CP_add_constraint(pb_definition_id);
-    PL->CP_divide(2);
-    constraintid lower_bound_id = PL->end_CP_derivation();
+    CPDerRef cpder = PL->new_CPDer();
+
+    PL->CP_constraintid(cpder, core_id);
+    PL->CP_add_constraintid(cpder, pb_definition_id);
+    PL->CP_divide(cpder, 2);
+    constraintid lower_bound_id = PL->end_CPDer(cpder);
     counting_var_to_core_idx[varidx(toVeriPbVar(lazy_var))] = core_lower_bounds.size();
     core_lower_bounds.push_back(lower_bound_id);
     core_weights.push_back(weight);
@@ -75,11 +77,11 @@ constraintid MaxSATProoflogger::update_core_lower_bound(const TVar &old_lazy_var
     counting_var_to_core_idx[varidx(toVeriPbVar(new_lazy_var))] = core_idx;
 
     // Update lower bound
-    PL->start_CP_derivation(core_lower_bounds[core_idx]);
-    PL->CP_multiply(bound);
-    PL->CP_add_constraint(pb_definition_id);
-    PL->CP_divide(bound + 1);
-    constraintid new_lower_bound_id = PL->end_CP_derivation();
+    PL->new_CPDer();
+    PL->CP_constraintid(cpder, core_lower_bounds[core_idx], bound);
+    PL->CP_add_constraintid(cpder, pb_definition_id);
+    PL->CP_divide(cpder, bound+1);
+    constraintid new_lower_bound_id = PL->end_CPDer(cpder);
     PL->delete_constraint_by_id(core_lower_bounds[core_idx]);
     core_lower_bounds[core_idx] = new_lower_bound_id;
     return new_lower_bound_id;
@@ -87,14 +89,13 @@ constraintid MaxSATProoflogger::update_core_lower_bound(const TVar &old_lazy_var
 
 constraintid MaxSATProoflogger::derive_objective_reformulation_constraint(constraintid base_reform_id)
 {
-    PL->start_CP_derivation(base_reform_id);
+    CPDerRef cpder = PL->new_CPDer();
+    PL->CP_constraintid(cpder, base_reform_id);
     for (int i = 0; i < core_lower_bounds.size(); i++)
     {
-        PL->CP_load_constraint(core_lower_bounds[i]);
-        PL->CP_multiply(core_weights[i]);
-        PL->CP_add();
+        PL->CP_add_constraintid(cpder, core_lower_bounds[i], core_weights[i]);
     }
-    return PL->end_CP_derivation();
+    return PL->end_CPDer(cpder);
 }
 
 constraintid MaxSATProoflogger::proof_log_objective_reformulation(constraintid base_reform_id, constraintid model_improve_id)
@@ -103,35 +104,35 @@ constraintid MaxSATProoflogger::proof_log_objective_reformulation(constraintid b
     constraintid objective_reform_id = derive_objective_reformulation_constraint(base_reform_id);
 
     // Add the model improving constraint to derive the desired constraint.
-    PL->start_CP_derivation(model_improve_id);
-    PL->CP_add_constraint(objective_reform_id);
-    constraintid lower_bound_reformulated_objective = PL->end_CP_derivation();
+    CPDerRef cpder = PL->new_CPDer();
+    PL->CP_constraintid(cpder, model_improve_id);
+    PL->CP_add_constraintid(cpder, objective_reform_id);
+    constraintid lower_bound_reformulated_objective = PL->end_CPDer(cpder);
     PL->delete_constraint_by_id(objective_reform_id);
     return lower_bound_reformulated_objective;
 }
 
 constraintid MaxSATProoflogger::base_reform_unit_core(constraintid base_reform_id, constraintid core_id, wght weight)
 {
-    PL->start_CP_derivation(core_id);
-    PL->CP_multiply(weight);
-    PL->CP_add_constraint(base_reform_id);
-    constraintid new_base_reform_id = PL->end_CP_derivation();
+    CPDerRef cpder = PL->new_CPDer();
+    PL->CP_constraintid(cpder, core_id, weight);
+    PL->CP_add_constraintid(cpder, base_reform_id);
+    constraintid new_base_reform_id = PL->end_CPDer(cpder);
     PL->delete_constraint_by_id(base_reform_id);
     return new_base_reform_id;
 }
 
 constraintid MaxSATProoflogger::reformulate_with_unprocessed_cores(constraintid base_reform_id, std::vector<constraintid> core_ids, std::vector<wght> core_weights)
 {
-    PL->start_CP_derivation(base_reform_id);
+    CPDerRef cpder = PL->new_CPDer();
+    PL->CP_constraintid(cpder, base_reform_id);
 
     for (int i = 0; i < core_ids.size(); i++)
     {
-        PL->CP_load_constraint(core_ids[i]);
-        PL->CP_multiply(core_weights[i]);
-        PL->CP_add();
+        PL->CP_add_constraintid(cpder, core_ids[i], core_weights[i]);
     }
 
-    constraintid reform_constraint_with_unprocessed_cores_id = PL->end_CP_derivation();
+    constraintid reform_constraint_with_unprocessed_cores_id = PL->end_CPDer(cpder);
     PL->delete_constraint_by_id(base_reform_id);
     return reform_constraint_with_unprocessed_cores_id;
 }
@@ -144,11 +145,13 @@ constraintid MaxSATProoflogger::derive_at_most_one_constraint(const TSeqLit &am1
 {
     std::vector<constraintid> binary_clauses;
 
+    CPDerRef cpder = PL->new_CPDer();
+
     for (int new_lit_idx = 1; new_lit_idx < am1_lits.size(); new_lit_idx++)
     {
         if (new_lit_idx != 1) // first constraint is not multiplied
         {
-            PL->CP_multiply(new_lit_idx - 1);
+            PL->CP_multiply(cpder, new_lit_idx - 1);
         }
         for (int lit_idx = 0; lit_idx < new_lit_idx; lit_idx++)
         {
@@ -158,7 +161,7 @@ constraintid MaxSATProoflogger::derive_at_most_one_constraint(const TSeqLit &am1
             // the first binary constraint to start the derivation
             if (new_lit_idx == 1)
             {
-                PL->start_CP_derivation(binary_clause_id);
+                PL->CP_constraintid(cpder, binary_clause_id);
             }
             else
             {
@@ -168,7 +171,7 @@ constraintid MaxSATProoflogger::derive_at_most_one_constraint(const TSeqLit &am1
         PL->CP_divide(new_lit_idx);
     }
 
-    constraintid am1_constraint_id = PL->end_CP_derivation();
+    constraintid am1_constraint_id = PL->end_CPDer(cpder);
     PL->delete_constraint_by_id(binary_clauses);
     return am1_constraint_id;
 }
@@ -208,10 +211,10 @@ constraintid MaxSATProoflogger::proof_log_at_most_one(constraintid base_reform_i
     constraintid am1_lower_bound = introduce_at_most_one_selector(am1_lits, selector_all_lit);
     PL->delete_constraint_by_id(am1_constraint);
 
-    PL->start_CP_derivation(am1_lower_bound);
-    PL->CP_multiply(weight);
-    PL->CP_add_constraint(base_reform_id);
-    constraintid new_base_reform_id = PL->end_CP_derivation();
+    CPDerRef cpder = PL->new_CPDer();
+    PL->CP_constraintid(cpder, am1_lower_bound, weight);
+    PL->CP_add_constraintid(base_reform_id);
+    constraintid new_base_reform_id = PL->end_CPDer(cpder);
     PL->delete_constraint_by_id(base_reform_id);
     PL->delete_constraint_by_id(am1_lower_bound);
     return new_base_reform_id;

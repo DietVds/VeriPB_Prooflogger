@@ -25,16 +25,17 @@ void PBtoCNFprooflogger::define_zerolit(TLit& zero){
 */
 template <class TLit>
 constraintid PBtoCNFprooflogger::derive_sortedness_from_reified_constraints(TLit& lj, TLit& ljp1, wght a){
-    cuttingplanes_derivation cpder;
+    CPDerRef cpder = PL->new_CPDer();
 
-    cuttingplanes_derivation reifleft_lj = PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(lj)));
-    cuttingplanes_derivation reifright_ljp1 = PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(ljp1)));
+    constraintid reifleft_lj = PL->getReifiedConstraintLeftImpl(variable(lj));
+    constraintid reifright_ljp1 = PL->getReifiedConstraintRightImpl(variable(ljp1));
 
-    cpder = PL->CP_addition(reifleft_lj, reifright_ljp1);
-    cpder = PL->CP_division(cpder, 1+a);
-    cpder = PL->CP_saturation(cpder);
+    PL->CP_constraintid(cpder, reifleft_lj);
+    PL->CP_add_constraintid(cpder, reifright_ljp1);
+    cpder = PL->CP_divide(cpder, 1+a);
+    cpder = PL->CP_saturate(cpder);
 
-    constraintid cxn = PL->write_CP_derivation(cpder);
+    constraintid cxn = PL->end_CPDer(cpder);
 
     std::vector<VeriPB::Lit> litsC; 
 
@@ -52,14 +53,16 @@ constraintid PBtoCNFprooflogger::derive_sortedness_from_reified_constraints(TLit
 template <class TSeqLit, class TSeqWght>
 constraintid PBtoCNFprooflogger::derive_leaves_leq_outputvars_after_binary_recursion(constraintid& leaves_leq_outputs_leftrecursion, constraintid& leaves_leq_outputs_rightrecursion, constraintid& outputs_recursion_leq_outputs, TSeqLit& leaves, TSeqWght& weightsleaves, TSeqLit& output, TSeqWght& weightsOutput){
     PL->write_comment("Derive leaves =< outputvars");
-    cuttingplanes_derivation cpder = PL->CP_constraintid(outputs_recursion_leq_outputs);
+    CPDerRef cpder = PL->new_CPDer();
+    PL->CP_constraintid(outputs_recursion_leq_outputs);
+
 
     if(leaves_leq_outputs_leftrecursion != 0)
-        cpder = PL->CP_addition(cpder, PL->CP_constraintid(leaves_leq_outputs_leftrecursion));
+        PL->CP_add_constraintid(cpder, leaves_leq_outputs_leftrecursion);
     if(leaves_leq_outputs_rightrecursion != 0)
-        cpder = PL->CP_addition(cpder, PL->CP_constraintid(leaves_leq_outputs_rightrecursion));
+        PL->CP_add_constraintid(cpder, leaves_leq_outputs_rightrecursion);
 
-    constraintid cxn_id = PL->write_CP_derivation(cpder);
+    constraintid cxn_id = PL->end_CPDer(cpder);
 
     // Check derived constraint
     std::vector<VeriPB::Lit> lits_cxn; std::vector<wght> weights_cxn; wght RHS = 0;
@@ -85,14 +88,15 @@ template <class TSeqLit, class TSeqWght>
 constraintid PBtoCNFprooflogger::derive_leaves_geq_outputvars_after_binary_recursion(constraintid& leaves_geq_outputs_leftrecursion, constraintid& leaves_geq_outputs_rightrecursion, constraintid& outputs_recursion_geq_outputs, TSeqLit& leaves, TSeqWght& weightsleaves, TSeqLit& output, TSeqWght& weightsOutput){
     PL->write_comment("Derive leaves >= outputvars");
     
-    cuttingplanes_derivation cpder = PL->CP_constraintid(outputs_recursion_geq_outputs);
+    CPDerRef cpder = PL->new_CPDer();
+    PL->CP_constraintid(cpder, outputs_recursion_geq_outputs);
 
     if(leaves_geq_outputs_leftrecursion != 0)
-        cpder = PL->CP_addition(cpder, PL->CP_constraintid(leaves_geq_outputs_leftrecursion));
+        cpder = PL->CP_add_constraintid(cpder, leaves_geq_outputs_leftrecursion);
     if(leaves_geq_outputs_rightrecursion != 0)
-        cpder = PL->CP_addition(cpder, PL->CP_constraintid(leaves_geq_outputs_rightrecursion));
+        cpder = PL->CP_add_constraintid(cpder, leaves_geq_outputs_rightrecursion);
 
-    constraintid cxn_id = PL->write_CP_derivation(cpder);
+    constraintid cxn_id = PL->end_CPDer(cpder);
 
     // Check constraint
     std::vector<VeriPB::Lit> lits_cxn; std::vector<wght> weights_cxn; wght RHS = 0;
@@ -120,14 +124,15 @@ constraintid PBtoCNFprooflogger::derive_leaves_geq_outputvars_after_binary_recur
 */
 template <class TSeqLit, class TSeqWght>
 constraintid PBtoCNFprooflogger::chain_IO_constraints_binary_recursion_leq(constraintid& X1_leq_Y1, constraintid& X2_leq_Y2, constraintid& Y1_U_Y2_leq_O, TSeqLit& litsX1, TSeqWght& wghtsX1, TSeqLit& litsX2, TSeqWght& wghtsX2, TSeqLit& litsO, TSeqWght& wghtsO ){
-    cuttingplanes_derivation cpder = PL->CP_constraintid(Y1_U_Y2_leq_O);
+    CPDerRef cpder = PL->new_CPDer();
+    PL->CP_constraintid(cpder, Y1_U_Y2_leq_O);
 
     if(X1_leq_Y1 != 0)
-        cpder = PL->CP_addition(cpder, PL->CP_constraintid(X1_leq_Y1));
+        cpder = PL->CP_add(cpder, X1_leq_Y1);
     if(X2_leq_Y2 != 0)
-        cpder = PL->CP_addition(cpder, PL->CP_constraintid(X2_leq_Y2));
+        cpder = PL->CP_add(cpder, X2_leq_Y2);
 
-    constraintid cxn_id = PL->write_CP_derivation(cpder);
+    constraintid cxn_id = PL->end_CPDer(cpder);
 
     // Check constraint
     // TODO: rewrite by adding equals rule for non-normalized constraints to VeriPBProoflogger.
@@ -163,14 +168,15 @@ constraintid PBtoCNFprooflogger::chain_IO_constraints_binary_recursion_leq(const
 */
 template <class TSeqLit, class TSeqWght>
 constraintid PBtoCNFprooflogger::chain_IO_constraints_binary_recursion_geq(constraintid& X1_geq_Y1, constraintid& X2_geq_Y2, constraintid& Y1_U_Y2_geq_O, TSeqLit& litsX1, TSeqWght& wghtsX1, TSeqLit& litsX2, TSeqWght& wghtsX2, TSeqLit& litsO, TSeqWght& wghtsO ){
-    cuttingplanes_derivation cpder = PL->CP_constraintid(Y1_U_Y2_geq_O);
+    CPDerRef cpder = PL->new_CPDer();
+    PL->CP_constraintid(cpder, Y1_U_Y2_geq_O);
 
     if(X1_geq_Y1 != 0)
-        cpder = PL->CP_addition(cpder, PL->CP_constraintid(X1_geq_Y1));
+        cpder = PL->CP_add(cpder, X1_geq_Y1);
     if(X2_geq_Y2 != 0)
-        cpder = PL->CP_addition(cpder, PL->CP_constraintid(X2_geq_Y2));
+        cpder = PL->CP_add(cpder, X2_geq_Y2);
 
-    constraintid cxn_id = PL->write_CP_derivation(cpder);
+    constraintid cxn_id = PL->end_CPDer(cpder);
 
     // Check constraint
     std::vector<VeriPB::Lit> lits_cxn; std::vector<wght> weights_cxn; wght RHS = 0;
@@ -199,8 +205,6 @@ constraintid PBtoCNFprooflogger::chain_IO_constraints_binary_recursion_geq(const
 }
 
 
-
-
 template <class TSeqLit, class TSeqWght>
 void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_node, constraintid& UB_right_node,
                                     constraintid& UB_current_node, 
@@ -209,9 +213,10 @@ void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_nod
     PL->write_comment("Derive UB for recursion in PB-CNF translation. UB = " + std::to_string(PL->get_best_objective_value() ));      
     // Left recursion
 
-    cuttingplanes_derivation cpder_UBleft = PL->CP_constraintid(UB_current_node);
+    CPDerRef cpder_UBleft = PL->new_CPDer();
+    PL->CP_constraintid(cpder_UBleft, UB_current_node);
     for(int i = 0; i < leavesRight.size(); i++)
-        cpder_UBleft = PL->CP_weakening(cpder_UBleft, leavesRight[i], wghtLeavesR[i]);
+        PL->CP_weakening(cpder_UBleft, leavesRight[i], wghtLeavesR[i]);
         //cpder_UBleft = PL->CP_weakening(cpder_UBleft, variable(leavesRight[i]));
     
 
@@ -228,15 +233,15 @@ void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_nod
 
     //if(RHS > 0){
         PL->write_comment("Derive UB for leafs of the left recursion in PB-CNF translation: " + sequence_to_string(leavesLeft, wghtLeavesL)); 
-        UB_left_node = PL->write_CP_derivation(cpder_UBleft); 
+        UB_left_node = PL->end_CPDer(cpder_UBleft); 
         PL->check_last_constraint(lits, weights, RHS);
     // }
 
     // Right recursion
-
-    cuttingplanes_derivation cpder_UBright = PL->CP_constraintid(UB_current_node);
+    CPDerRef cpder_UBright = PL->new_CPDer();
+    PL->CP_constraintid(cpder_UBright, UB_current_node);
     for(int i = 0; i < leavesLeft.size(); i++)
-        cpder_UBright = PL->CP_weakening(cpder_UBright, leavesLeft[i], wghtLeavesL[i]);
+        PL->CP_weakening(cpder_UBright, leavesLeft[i], wghtLeavesL[i]);
         //cpder_UBright = PL->CP_weakening(cpder_UBright, variable(leavesLeft[i]));
     
 
@@ -253,7 +258,7 @@ void PBtoCNFprooflogger::derive_UB_on_recursion_inputs(constraintid& UB_left_nod
 
     //if(RHS > 0){
         PL->write_comment("Derive UB for leafs of the right recursion in PB-CNF translation: " + sequence_to_string(leavesRight, wghtLeavesR)); 
-        UB_right_node = PL->write_CP_derivation(cpder_UBright); 
+        UB_right_node = PL->end_CPDer(cpder_UBright); 
         PL->check_last_constraint(lits, weights, RHS);
     //}
 }
@@ -289,8 +294,10 @@ constraintid PBtoCNFprooflogger::derive_UB_on_outputliterals(constraintid& UB_le
                                     TSeqLit& outputs, TSeqWght& weights ){
     
     PL->write_comment("Derive UB on output-variables of encoding.");
-    cuttingplanes_derivation cpder = PL->CP_addition(PL->CP_constraintid(UB_leaves), PL->CP_constraintid(leaves_geq_outputs));
-    constraintid cxn_id = PL->write_CP_derivation(cpder);
+    CPDerRef cpder = PL->new_CPDer();
+    PL->CP_constraintid(UB_leaves);
+    PL->CP_add_constraintid(leaves_geq_outputs);
+    constraintid cxn_id = PL->end_CPDer(cpder);
 
     std::vector<VeriPB::Lit> lits; std::vector<wght> lit_weights; wght RHS=0;
     for(int i = 0; i < weights.size(); i ++){
@@ -311,19 +318,19 @@ constraintid PBtoCNFprooflogger::derive_UB_on_outputliterals(constraintid& UB_le
 
 template <class TSeqLit> 
 constraintid PBtoCNFprooflogger::derive_leaves_leq_unary_k_from_reification(TSeqLit& countingLits, wght k, TSeqLit& clause, bool trivialcountingvars){
-    cuttingplanes_derivation cpder;
+    CPDerRef cpder = PL->new_CPDer();
     
 
     if(toVeriPbLit(countingLits[trivialcountingvars? k : k-1]) == zerolit){
-        cpder =  PL->CP_constraintid(def_one);
+        cpder =  PL->CP_constraintid(cpder, def_one);
     }
     else{
-        cpder = PL->CP_constraintid(PL->get_model_improving_constraint());
-        cpder = PL->CP_addition(cpder, PL->CP_constraintid( PL->getReifiedConstraintRightImpl(variable(countingLits[trivialcountingvars? k : k-1]))));
-        cpder = PL->CP_division(cpder, k -  PL->get_best_objective_value() + 1);
-        cpder = PL->CP_saturation(cpder);
+        cpder = PL->CP_constraintid(cpder, PL->get_model_improving_constraint());
+        cpder = PL->CP_add_constraintid(cpder, PL->getReifiedConstraintRightImpl(variable(countingLits[trivialcountingvars? k : k-1])));
+        cpder = PL->CP_divide(cpder, k -  PL->get_best_objective_value() + 1);
+        cpder = PL->CP_saturate(cpder);
     }
-    constraintid cxn = PL->write_CP_derivation(cpder);
+    constraintid cxn = PL->end_CPDer(cpder);
     PL->check_last_constraint(clause);
     return cxn;
 }
@@ -370,19 +377,18 @@ constraintid PBtoCNFprooflogger::deriveInputLeqOutputBA(TLit& a, TLit& b, TLit& 
     // Derive a + b + c =< s + 2c
     PL->write_comment("Derive " + (l1 != zerolit ? PL->to_string(l1) : "") + (l2 != zerolit? (l1 != zerolit ? " + " : "") + PL->to_string(l2) : "") + (l3 != zerolit ? (l1 != zerolit || l2 != zerolit ? " + " : "") + PL->to_string(l3) : "") + " =< " + PL->to_string(vsum) + " +  2 " + PL->to_string(vcarry));
 
-    cuttingplanes_derivation cp_inputLEQoutput;
-    cp_inputLEQoutput = PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(vcarry))); 
-    cp_inputLEQoutput = PL->CP_multiplication(cp_inputLEQoutput, 2);
-    cp_inputLEQoutput = PL->CP_addition(cp_inputLEQoutput, PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(vsum))));
-    cp_inputLEQoutput = PL->CP_division(cp_inputLEQoutput, 3);
+    CPDerRef cp_inputLEQoutput = PL->new_CPDer();
+    PL->CP_constraintid(cp_inputLEQoutput, PL->getReifiedConstraintLeftImpl(variable(vcarry)), 2); 
+    PL->CP_add_constraintid(cp_inputLEQoutput, PL->getReifiedConstraintLeftImpl(variable(vsum)));
+    PL->CP_divide(cp_inputLEQoutput, 3);
     if(int(l1 == zerolit) + int(l2==zerolit) + int(l3 == zerolit) >= 3)
-    cp_inputLEQoutput = PL->CP_addition(cp_inputLEQoutput, PL->CP_multiplication(PL->CP_literal_axiom(zerolit), 3));
+        PL->CP_add_lit_axiom(cp_inputLEQoutput, zerolit, 3);
     else if(int(l1 == zerolit) + int(l2==zerolit) + int(l3 == zerolit) >= 2)
-    cp_inputLEQoutput = PL->CP_addition(cp_inputLEQoutput, PL->CP_multiplication(PL->CP_literal_axiom(zerolit), 2));
+        PL->CP_add_lit_axiom(cp_inputLEQoutput, zerolit, 2);
     else if(int(l1 == zerolit) + int(l2 == zerolit) + int(l3 == zerolit) >= 1)
-        cp_inputLEQoutput = PL->CP_addition(cp_inputLEQoutput, PL->CP_literal_axiom(zerolit));
+        PL->CP_add_lit_axiom(cp_inputLEQoutput, zerolit);
     
-    constraintid inputLeqOutput = PL->write_CP_derivation(cp_inputLEQoutput);
+    constraintid inputLeqOutput = PL->end_CPDer(cp_inputLEQoutput);
 
     std::vector<VeriPB::Lit> lits; std::vector<wght> weights; wght RHS=0;
     if(l1 != zerolit){
@@ -412,19 +418,19 @@ constraintid PBtoCNFprooflogger::deriveInputGeqOutputBA(TLit& a, TLit& b, TLit& 
     PL->write_comment("Derive " + (l1 != zerolit ? PL->to_string(l1) : "") + (l2 != zerolit? (l1 != zerolit ? " + " : "") + PL->to_string(l2) : "") + (l3 != zerolit ? (l1 != zerolit || l2 != zerolit ? " + " : "") + PL->to_string(l3) : "") + " >= " + PL->to_string(vsum) + " +  2 " + PL->to_string(vcarry));
 
 
-    cuttingplanes_derivation cp_inputGEQoutput;
-    cp_inputGEQoutput = PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(vcarry))); 
-    cp_inputGEQoutput = PL->CP_multiplication(cp_inputGEQoutput, 2);
-    cp_inputGEQoutput = PL->CP_addition(cp_inputGEQoutput, PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(vsum))));
-    cp_inputGEQoutput = PL->CP_division(cp_inputGEQoutput, 3);
+    CPDerRef cp_inputGEQoutput = PL->new_CPDer();
+    PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(vcarry))); 
+    PL->CP_multiply(cp_inputGEQoutput, 2);
+    PL->CP_add_constraintid(cp_inputGEQoutput, PL->getReifiedConstraintRightImpl(variable(vsum)));
+    PL->CP_divide(cp_inputGEQoutput, 3);
     if(int(l1 == zerolit) + int(l2==zerolit) + int(l3 == zerolit) >= 3)
-        cp_inputGEQoutput = PL->CP_addition(cp_inputGEQoutput, PL->CP_multiplication(PL->CP_constraintid(def_one), 3));
+        PL->CP_add_constraintid(cp_inputGEQoutput, def_one, 3);
     else if(int(l1 == zerolit) + int(l2==zerolit) + int(l3 == zerolit) >= 2)
-        cp_inputGEQoutput = PL->CP_addition(cp_inputGEQoutput, PL->CP_multiplication(PL->CP_constraintid(def_one), 2));
+        PL->CP_add_constraintid(cp_inputGEQoutput, def_one, 2);
     else if(int(l1 == zerolit) + int(l2 == zerolit) + int(l3 == zerolit) >= 1)
-        cp_inputGEQoutput = PL->CP_addition(cp_inputGEQoutput, PL->CP_constraintid(def_one));
+        PL->CP_add_constraintid(cp_inputGEQoutput, def_one);
 
-    constraintid inputGeqOutput = PL->write_CP_derivation(cp_inputGEQoutput);
+    constraintid inputGeqOutput = PL->end_CPDer(cp_inputGEQoutput);
 
     std::vector<VeriPB::Lit> lits; std::vector<wght> weights;
     if(l1 != zerolit){
@@ -450,17 +456,17 @@ constraintid PBtoCNFprooflogger::deriveBASeqInputLeqOutput(std::vector<constrain
 
     PL->write_comment("Binary Adder on Sequences: Derive inputs =< outputs");
      
-    cuttingplanes_derivation cpder;
+    CPDerRef cpder = PL->new_CPDer();
     cpder = PL->CP_constraintid(singleAdders_inputLeqOutput[0]);
 
     wght p2i = 1;
 
     for(int i = 1; i < singleAdders_inputLeqOutput.size(); i++ ){
       p2i = p2i * 2;
-      cpder = PL->CP_addition(cpder, PL->CP_multiplication(PL->CP_constraintid(singleAdders_inputLeqOutput[i]), p2i));
+      cpder = PL->CP_add_constraintid(cpder, singleAdders_inputLeqOutput[i], p2i);
     }
 
-    constraintid cxnid = PL->write_CP_derivation(cpder);
+    constraintid cxnid = PL->end_CPDer(cpder);
 
     std::vector<VeriPB::Lit> lits_cxn; std::vector<wght> weights_cxn; wght RHS = 0;
 
@@ -497,16 +503,16 @@ template <class TSeqLit>
 constraintid PBtoCNFprooflogger::deriveBASeqInputGeqOutput(std::vector<constraintid>& singleAdders_inputGeqOutput, TSeqLit& litsleft,TSeqLit& litsright,TSeqLit& outputs ){
     PL->write_comment("Binary Adder on Sequences: Derive inputs >= outputs");
      
-    cuttingplanes_derivation cpder;
+    CPDerRef cpder = PL->new_CPDer();
     cpder = PL->CP_constraintid(singleAdders_inputGeqOutput[0]);
 
     wght p2i = 1;
     for(int i = 1; i < singleAdders_inputGeqOutput.size(); i++ ){
       p2i = p2i*(wght)2;
-      cpder = PL->CP_addition(cpder, PL->CP_multiplication(PL->CP_constraintid(singleAdders_inputGeqOutput[i]), p2i));
+      cpder = PL->CP_add_constraintid(cpder, singleAdders_inputGeqOutput[i], p2i);
     }
 
-    constraintid cxnid = PL->write_CP_derivation(cpder);
+    constraintid cxnid = PL->end_CPDer(cpder);
 
     std::vector<VeriPB::Lit> lits_cxn; std::vector<wght> weights_cxn; wght RHS = 0;
 
@@ -610,7 +616,7 @@ void PBtoCNFprooflogger::reifyCarryLiteralMTO(TLit& carryLit, TSeqLit& countingL
 
 template <class TSeqLit, class TSeqWght>
 constraintid PBtoCNFprooflogger::derive_leaves_leq_countinglits_MTO(TSeqLit& countingLiteralsMTO, TSeqLit& leaves, TSeqWght& wght_leaves, wght div){
-    cuttingplanes_derivation cpder;
+    CPDerRef cpder;
 
     wght sigma = getNrOfQuotientLiterals(countingLiteralsMTO, div);
     
@@ -635,14 +641,15 @@ constraintid PBtoCNFprooflogger::derive_leaves_leq_countinglits_MTO(TSeqLit& cou
     
     litsBase.push_back(h_j); wghtsBase.push_back(div);
 
-    constraintid cxn_jp1 = PL->write_CP_derivation(cpder);
+    constraintid cxn_jp1 = PL->end_CPDer(cpder);
     constraintid cxn_j;
     constraintid cxn_reif_j;
     constraintid case1, case2;
 
     constraintid base;
 
-    cuttingplanes_derivation cpder_case1, cpder_case2;
+    CPDerRef cpder_case1=PL->new_CPDer();
+    CPDerRef cpder_case2=PL->new_CPDer();
 
     for(int j = sigma-1; j > 0; j--){
         h_j = getQuotientLiteral(countingLiteralsMTO, j, div);
@@ -653,9 +660,9 @@ constraintid PBtoCNFprooflogger::derive_leaves_leq_countinglits_MTO(TSeqLit& cou
         
         PL->write_comment("case 1");
 
-        cpder_case1 = PL->CP_constraintid(cxn_jp1);
-        cpder_case1 = PL->CP_addition(cpder_case1, PL->CP_multiplication(PL->CP_literal_axiom(neg(h_j)), sizeX - j * div + 1 - div));
-        case1 = PL->write_CP_derivation(cpder_case1);
+        PL->CP_constraintid(cpder_case1, cxn_jp1);
+        PL->CP_add_lit_axiom(cpder_case1, neg(h_j), sizeX - j * div + 1 - div);
+        case1 = PL->end_CPDer(cpder_case1);
 
         PL->write_comment("case 2");
 
@@ -664,10 +671,11 @@ constraintid PBtoCNFprooflogger::derive_leaves_leq_countinglits_MTO(TSeqLit& cou
 
         for(int i = j; i <= sigma; i++){
             h_i = getQuotientLiteral(countingLiteralsMTO, i, div);
-            cpder_case2 = PL->CP_addition(cpder_case2, PL->CP_multiplication(PL->CP_literal_axiom(h_i), div));
+            PL->CP_add_lit_axiom(cpder_case2, PL->CP_literal_axiom(h_i), div);
         }
-        case2 = PL->write_CP_derivation(cpder_case2);
+        case2 = PL->end_CPDer(cpder_case2);
 
+        // TODO: Can be even optimized by writing the derivation of both cases in the proof itself.
         cxn_j = PL->prove_by_casesplitting(litsBase, wghtsBase, sizeX-j*div+1, case1, case2);
 
         PL->delete_constraint_by_id(case1);
@@ -685,15 +693,18 @@ constraintid PBtoCNFprooflogger::derive_leaves_leq_countinglits_MTO(TSeqLit& cou
 
     // Derive the constraint R + p H + ~X >= |X| by iteratively building constraint 
     // p H + ~X + \sum_{i=j+1}^{p-1} r_i >+ |X| - j
-    cpder = PL->CP_constraintid(base);
+    cpder = PL->new_CPDer();
+    PL->CP_constraintid(cpder, base);
 
     for(int j = div-1; j >= 1; j--){
-        PL->write_CP_derivation(cpder); cpder = PL->CP_constraintid(-1);
-        cpder = PL->CP_multiplication(cpder, sizeX-j);
-        cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(toVeriPbVar(variable(getRemainderLiteral(countingLiteralsMTO, j))))));
-        cpder = PL->CP_division(cpder, sizeX-j+1);
+        // PL->end_CPDer(cpder); cpder = PL->new_CPDer();
+        // cpder = PL->CP_constraintid(-1); // TODO: Can be optimized by writing this in one line in the proof.
+                
+        cpder = PL->CP_multiply(cpder, sizeX-j);
+        cpder = PL->CP_add_constraintid(cpder, PL->getReifiedConstraintLeftImpl(toVeriPbVar(variable(getRemainderLiteral(countingLiteralsMTO, j)))));
+        cpder = PL->CP_divide(cpder, sizeX-j+1);
     }
-    constraintid cxn = PL->write_CP_derivation(cpder);
+    constraintid cxn = PL->end_CPDer(cpder);
 
     // Check constraint
     std::vector<VeriPB::Lit> litsC; std::vector<wght> wghtsC; wght RHS = 0;
@@ -722,7 +733,8 @@ template <class TSeqLit, class TSeqWght>
 constraintid PBtoCNFprooflogger::derive_leaves_geq_countinglits_MTO(TSeqLit& countingLiteralsMTO, TSeqLit& leaves, TSeqWght& wght_leaves, wght div){
     wght sigma = getNrOfQuotientLiterals(countingLiteralsMTO, div); // Number of quotient literals.
 
-    cuttingplanes_derivation cpder, cpder2;
+    CPDerRef cpder = PL->new_CPDer();
+    // CPDerRef cpder2 = PL->new_CPDer();
 
     //cpder = PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(getRemainderLiteral(countingLiteralsMTO, 1))));
 
@@ -732,18 +744,17 @@ constraintid PBtoCNFprooflogger::derive_leaves_geq_countinglits_MTO(TSeqLit& cou
     constraintid constraint_for_j = PL->getReifiedConstraintRightImpl(variable(getQuotientLiteral(countingLiteralsMTO, 1, div)));
     for(int j = 1; j < sigma; j++){
         // Derive the case that represents the constraint ~h_j+1 -> p \sum_{1 =< i =< j+1} ~h_j + X >= (j+1)p
-        cpder = PL->CP_constraintid(constraint_for_j);
-        cpder2 = PL->CP_multiplication(PL->CP_literal_axiom(getQuotientLiteral(countingLiteralsMTO, j+1, div)), j*div);
-        cpder = PL->CP_addition(cpder, cpder2);
-        constraintid case_hjp1_false = PL->write_CP_derivation(cpder);
+        PL->CP_constraintid(cpder, constraint_for_j);
+        PL->CP_add_lit_axiom(cpder, getQuotientLiteral(countingLiteralsMTO, j+1, div), j*div);
+        constraintid case_hjp1_false = PL->end_CPDer(cpder);
 
         // Derive the case that represents the constraint h_j+1 -> p \sum_{1 =< i =< j+1} ~h_j + X >= (j+1)p
-        cpder = PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(getQuotientLiteral(countingLiteralsMTO, j+1, div))));
+        cpder = PL->new_CPDer();
+        PL->CP_constraintid(cpder, PL->getReifiedConstraintRightImpl(variable(getQuotientLiteral(countingLiteralsMTO, j+1, div))));
         for(int i = 1; i <= j+1; i++ ){
-            cpder2 = PL->CP_multiplication(PL->CP_literal_axiom(neg(getQuotientLiteral(countingLiteralsMTO, i, div))), div);
-            cpder = PL->CP_addition(cpder, cpder2);
+            PL->CP_add_lit_axiom(cpder, neg(getQuotientLiteral(countingLiteralsMTO, i, div)), div);
         }
-        constraintid case_hjp1_true = PL->write_CP_derivation(cpder);
+        constraintid case_hjp1_true = PL->end_CPDer(cpder);
 
         // Derive \sum_{1 =< i =< j+1} ~h_j + X >= (j+1)p by using case splitting with previously derived constraints.
         litsC.clear(); wghtsC.clear(); RHS=(j+1)*div;
@@ -763,16 +774,17 @@ constraintid PBtoCNFprooflogger::derive_leaves_geq_countinglits_MTO(TSeqLit& cou
         PL->delete_constraint_by_id(case_hjp1_true);
     }
 
-    cpder = PL->CP_constraintid(constraint_for_j);
+    cpder = PL->new_CPDer(); 
+    PL->CP_constraintid(cpder, constraint_for_j);
 
     // Induction steps for j for the constraint \sum_{1 =< i =< j} ~r_i + p~H + X >= p*|H| + j
     for(int j = 0; j < div-1; j++){
-        cpder = PL->CP_multiplication(cpder, j + sigma * div);
-        cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(getRemainderLiteral(countingLiteralsMTO, j+1)))));
-        cpder = PL->CP_division(cpder, j + sigma * div + 1);
+        cpder = PL->CP_multiply(cpder, j + sigma * div);
+        cpder = PL->CP_add_constraintid(cpder, PL->getReifiedConstraintRightImpl(variable(getRemainderLiteral(countingLiteralsMTO, j+1))));
+        cpder = PL->CP_divide(cpder, j + sigma * div + 1);
     }
 
-    constraintid cxn = PL->write_CP_derivation(cpder);
+    constraintid cxn = PL->end_CPDer(cpder);
 
     // Check constraint
     litsC.clear(); wghtsC.clear(); RHS = 0;
@@ -803,7 +815,7 @@ constraintid PBtoCNFprooflogger::derive_leaves_geq_countinglits_MTO(TSeqLit& cou
     return cxn;
 }
 
-
+// TODO: Until here rewritten for new cutting planes derivations.
 template <class TLit, class TSeqLit, class TSeqWght>
 void PBtoCNFprooflogger::derive_modulo_sum_constraints(constraintid& out_modulo_sum_constraint_quotient, constraintid& out_modulo_sum_constraint_remainder, constraintid modsum_input_geq_output, constraintid modsum_input_leq_output, TSeqLit& countingLits, TSeqLit& countingLitsL, TSeqLit& countingLitsR, TLit& carry, TSeqLit& leavesL, TSeqWght& wghtLeavesL, TSeqLit& leavesR, TSeqWght& wghtLeavesR, wght divisor){
     VeriPB::Lit r, q;
@@ -811,14 +823,15 @@ void PBtoCNFprooflogger::derive_modulo_sum_constraints(constraintid& out_modulo_
 
     // Derive H' + H'' + c =< H
     PL->write_comment("Derive H' + H'' + c =< H");
-    cuttingplanes_derivation cpder;
-    cpder = PL->CP_addition(PL->CP_constraintid(modsum_input_leq_output), PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(carry))));
+    CPDerRef cpder = PL->new_CPDer();
+    PL->CP_constraintid(cpder, modsum_input_leq_output);
+    PL->CP_add_constraintid(PL->getReifiedConstraintRightImpl(variable(carry)));
     for(int j = 1; j <= divisor-1; j++){
       r = getRemainderLiteral(countingLits, j);
-      cpder = PL->CP_weakening(cpder, neg(r), 1);
+      PL->CP_weaken(cpder, r, 1);
     }
-    cpder = PL->CP_division(cpder, divisor);
-    out_modulo_sum_constraint_quotient = PL->write_CP_derivation(cpder);
+    PL->CP_divide(cpder, divisor);
+    out_modulo_sum_constraint_quotient = PL->end_CPDer(cpder);
 
     litsC.clear(); RHS=0;
     for(int j = 1; j <= getNrOfQuotientLiterals(countingLits, divisor); j++){
@@ -839,7 +852,7 @@ void PBtoCNFprooflogger::derive_modulo_sum_constraints(constraintid& out_modulo_
     // Derive H' + H'' + c >= H
     PL->write_comment("Derive H' + H'' + c >= H");
     PL->write_comment("H' = " + sequence_to_string(countingLitsL) + " H'' = " + sequence_to_string(countingLitsR) + " H = " + sequence_to_string(countingLits) + " carry = " + PL->to_string(carry));
-    cpder.clear();
+    PL->new_CPDer();
 
     wght remainder_size_left = 0; 
     wght remainder_size_right = 0;
@@ -852,31 +865,29 @@ void PBtoCNFprooflogger::derive_modulo_sum_constraints(constraintid& out_modulo_
     }
 
     if(remainder_size_left + remainder_size_right >= divisor){
-      cpder = PL->CP_addition(PL->CP_constraintid(modsum_input_geq_output), PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(carry))));
+        PL->CP_constraintid(modsum_input_geq_output);
+        PL->CP_add_constraintid(PL->getReifiedConstraintLeftImpl(variable(carry)));
     }
     else{
-      cpder = PL->CP_constraintid(modsum_input_geq_output);
+      PL->CP_constraintid(cpder, modsum_input_geq_output);
       for(int j = 1; j <= divisor-1; j++){
         r = getRemainderLiteral(countingLitsL, j);
         if(r != zerolit)
-          cpder = PL->CP_weakening(cpder, neg(r), 1);
-          // cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(neg(r))); // Weakening
+          PL->CP_weaken(cpder, r, 1);
       }
       for(int j = 1; j <= divisor-1; j++){
         r = getRemainderLiteral(countingLitsR, j);
         if(r != zerolit)
-          cpder = PL->CP_weakening(cpder, neg(r), 1);
-          // cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(neg(r)));// Weakening
+          PL->CP_weaken(cpder, r, 1);
       }
-      cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(carry));
+      PL->CP_add_lit_axiom(cpder, carry);
     }
     for(int j = 1; j <= divisor-1; j++){ 
       r = getRemainderLiteral(countingLits, j);
-      cpder = PL->CP_weakening(cpder, r, 1);
-      // cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(r)); // Weakening
+      PL->CP_weaken(cpder, neg(r), 1);
     }
-    cpder = PL->CP_division(cpder, divisor);
-    constraintid modsum_quotient_geq_cxn = PL->write_CP_derivation(cpder);
+    PL->CP_divide(cpder, divisor);
+    constraintid modsum_quotient_geq_cxn = PL->end_CPDer(cpder);
 
     litsC.clear(); RHS=0;
     for(int j = 1; j <= getNrOfQuotientLiterals(countingLits, divisor); j++){
@@ -899,9 +910,11 @@ void PBtoCNFprooflogger::derive_modulo_sum_constraints(constraintid& out_modulo_
     PL->write_comment("Derive R + pC >= R' + R''");
 
     cpder.clear();
-
-    cpder = PL->CP_addition(PL->CP_multiplication(PL->CP_constraintid(modsum_quotient_geq_cxn), divisor), PL->CP_constraintid(modsum_input_leq_output));
-    out_modulo_sum_constraint_remainder = PL->write_CP_derivation(cpder);
+    cpder = PL->new_CPDer();
+    
+    PL->CP_constraintid(cpder, modsum_quotient_geq_cxn, divisor);
+    PL->CP_add_constraintid(cpder, modsum_input_leq_output);
+    out_modulo_sum_constraint_remainder = PL->end_CPDer(cpder);
 
     litsC.clear(); RHS = 0; wghtsC.clear();
     for(int j = 1; j < divisor; j++){
@@ -943,58 +956,56 @@ CP 2003, LNCS 2833, pp.108-122, 2003
 */
 template <class TSeqLit, class TSeqWght>
 constraintid PBtoCNFprooflogger::derive_totalizer_clause(TSeqLit& leavesLeft, TSeqWght& weightsLeavesLeft, TSeqLit& countingLitsLeft, TSeqLit& leavesRight, TSeqWght& weightsLeavesRight,  TSeqLit& countingLitsRight, TSeqLit& countingLits, wght alpha, wght beta, wght sigma, TSeqLit& clause, bool trivialcountingvar, bool clause_contains_zerolits){
-    cuttingplanes_derivation cpder;
+    CPDerRef cpder = PL->new_CPDer();
     constraintid cxn = 0;
 
     if(sigma==0){
-        cpder = PL->CP_constraintid(def_one);
+        PL->CP_constraintid(cpder, def_one);
         if(alpha == 0 && clause_contains_zerolits){
-            cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
+            PL->CP_add_lit_axiom(cpder, zerolit);
         }
         else{
-            cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(countingLitsLeft[trivialcountingvar ? alpha : alpha-1]));
+            PL->CP_add_lit_axiom(cpder, countingLitsLeft[trivialcountingvar ? alpha : alpha-1]);
         }
         if(beta == 0 && clause_contains_zerolits){
-            cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
+            PL->CP_add_lit_axiom(cpder, zerolit);
         }
         else{
-            cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(countingLitsRight[trivialcountingvar ? beta : beta-1]));
+            PL->CP_add_lit_axiom(cpder, countingLitsRight[trivialcountingvar ? beta : beta-1]);
         }
     }
     else{
         
-        cpder = PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(countingLits[trivialcountingvar ? sigma : sigma - 1])));
+        PL->CP_constraintid(cpder, PL->getReifiedConstraintLeftImpl(variable(countingLits[trivialcountingvar ? sigma : sigma - 1])));
 
         if(alpha == 0){
             for(int i = 0; i < leavesLeft.size(); i++)
-                cpder = PL->CP_weakening(cpder, leavesLeft[i], weightsLeavesLeft[i]);
-                //cpder = PL->CP_weakening(cpder, variable(leavesLeft[i]));
+                PL->CP_weaken(cpder, neg(leavesLeft[i]), weightsLeavesLeft[i]);
             if(clause_contains_zerolits)
-                cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
+                PL->CP_add_lit_axiom(cpder, zerolit);
         }
         else if(leavesLeft.size() == 1 && (trivialcountingvar ?  (countingLitsLeft.size()-2 > 1) : (countingLitsLeft.size() > 1))) 
                 // Left node has only one leaf but more countingLiterals, which means a weighted instance. That case, countingLitsLeft consist of multiple times the same literal.
                 // Weakening the reified constraint by adding the leave its weight minus alpha results in the same derivation as it would be for internal nodes.
-            cpder = PL->CP_addition(cpder, PL->CP_multiplication(PL->CP_literal_axiom(leavesLeft[0]), weightsLeavesLeft[0]-alpha));
+            PL->CP_add_lit_axiom(cpder, leavesLeft[0], weightsLeavesLeft[0]-alpha);
         else if(leavesLeft.size() > 1)
-            cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(countingLitsLeft[trivialcountingvar ?  alpha : alpha - 1]))));
+            PL->CP_add_constraintid(cpder, PL->getReifiedConstraintRightImpl(variable(countingLitsLeft[trivialcountingvar ?  alpha : alpha - 1])));
 
         if(beta == 0){
             for(int i = 0; i < leavesRight.size(); i++)
-                cpder = PL->CP_weakening(cpder, leavesRight[i], weightsLeavesRight[i]);
-                //cpder = PL->CP_weakening(cpder, variable(leavesRight[i]));
+                PL->CP_weaken(cpder, neg(leavesRight[i]), weightsLeavesRight[i]);
             if(clause_contains_zerolits)
-                cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
+                PL->CP_add_lit_axiom(cpder, zerolit);
         }
         else if(leavesRight.size() == 1 && (trivialcountingvar ? (countingLitsRight.size()-2 > 1) : (countingLitsRight.size() > 1)) )
-            cpder = PL->CP_addition(cpder, PL->CP_multiplication(PL->CP_literal_axiom(leavesRight[0]), weightsLeavesRight[0]-beta));
+            PL->CP_add_lit_axiom(cpder, leavesRight[0], weightsLeavesRight[0]-beta);
         else if(leavesRight.size() > 1)
-            cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(countingLitsRight[trivialcountingvar ?  beta : beta - 1]))));
+            PL->CP_add_constraintid(cpder, PL->getReifiedConstraintRightImpl(variable(countingLitsRight[trivialcountingvar ?  beta : beta - 1])));
 
-        cpder = PL->CP_saturation(cpder );
+        PL->CP_saturate(cpder );
 
     }
-    cxn = PL->write_CP_derivation(cpder);
+    cxn = PL->end_CPDer(cpder);
     PL->check_last_constraint(clause);
     return cxn;
 }
@@ -1009,7 +1020,7 @@ template <class TSeqLit, class TSeqWght>
 constraintid PBtoCNFprooflogger::derive_totalizer_inverse_clause(TSeqLit& leavesLeft, TSeqWght& weightsLeavesLeft, TSeqLit& countingLitsLeft, TSeqLit& leavesRight, TSeqWght& weightsLeavesRight,  TSeqLit& countingLitsRight, TSeqLit& countingLits, wght alpha, wght beta, wght sigma, TSeqLit& clause, bool trivialcountingvar, bool clause_contains_zerolits){
     PL->write_comment("Derive inverse totalizer clause");
     
-    cuttingplanes_derivation cpder;
+    CPDerRef cpder = PL->new_CPDer();
     constraintid cxn = 0;
     
     wght nbCountingLitsLeft = trivialcountingvar ?  countingLitsLeft.size() - 2 : countingLitsLeft.size();
@@ -1017,52 +1028,50 @@ constraintid PBtoCNFprooflogger::derive_totalizer_inverse_clause(TSeqLit& leaves
     wght nbCountingLits = trivialcountingvar ?  countingLits.size() - 2 : countingLits.size();
 
     if(sigma == nbCountingLits){
-        cpder = PL->CP_constraintid(def_one);
+        PL->CP_constraintid(def_one);
         if(alpha == nbCountingLitsLeft && clause_contains_zerolits){
-            cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
+            PL->CP_add_lit_axiom(cpder, zerolit);
         }
         else{
-            cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(neg(countingLitsLeft[trivialcountingvar ? alpha+1 : alpha])));
+            PL->CP_add_lit_axiom(cpder, neg(countingLitsLeft[trivialcountingvar ? alpha+1 : alpha]));
         }
         if(beta == nbCountingLitsRight && clause_contains_zerolits){
-            cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
+            PL->CP_add_lit_axiom(cpder, zerolit);
         }
         else{
-            cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(neg(countingLitsRight[trivialcountingvar ? beta+1 : beta])));
+            PL->CP_add_lit_axiom(cpder, neg(countingLitsRight[trivialcountingvar ? beta+1 : beta]));
         }
     }
     else{
-        cpder = PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(countingLits[trivialcountingvar ? sigma+1 : sigma])));
+        PL->CP_constraintid(cpder, PL->getReifiedConstraintRightImpl(variable(countingLits[trivialcountingvar ? sigma+1 : sigma])));
 
         if(alpha == nbCountingLitsLeft){
             for(int i = 0; i < leavesLeft.size(); i++)
-                cpder = PL->CP_weakening(cpder, leavesLeft[i], weightsLeavesLeft[i]);
-                //cpder = PL->CP_weakening(cpder, variable(leavesLeft[i]));
+                PL->CP_weaken(cpder, neg(leavesLeft[i]), weightsLeavesLeft[i]);
             if(clause_contains_zerolits)
-                cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
+                PL->CP_add_lit_axiom(cpder, zerolit);
         }
         else if(leavesLeft.size() == 1 && (trivialcountingvar ?  (countingLitsLeft.size()-2 > 1) : (countingLitsLeft.size() > 1))) 
                 // Left node has only one leaf but more countingLiterals, which means a weighted instance. That case, countingLitsLeft consist of multiple times the same literal.
                 // Weakening the reified constraint by adding the leave alpha times results in the same derivation as it would be for internal nodes.
-            cpder = PL->CP_addition(cpder, PL->CP_multiplication(PL->CP_literal_axiom(neg(leavesLeft[0])), alpha));
+            PL->CP_add_lit_axiom(cpder, neg(leavesLeft[0]), alpha);
         else if(leavesLeft.size() > 1)
-            cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(countingLitsLeft[trivialcountingvar ?  alpha+1 : alpha]))));
+            PL->CP_add_constraintid(cpder, PL->getReifiedConstraintLeftImpl(variable(countingLitsLeft[trivialcountingvar ?  alpha+1 : alpha])));
 
         if(beta == nbCountingLitsRight){
             for(int i = 0; i < leavesRight.size(); i++)
-                cpder = PL->CP_weakening(cpder, leavesRight[i], weightsLeavesRight[i]);
-                //cpder = PL->CP_weakening(cpder, variable(leavesRight[i]));
+                PL->CP_weakening(cpder, neg(leavesRight[i]), weightsLeavesRight[i]);
             if(clause_contains_zerolits)
-                cpder = PL->CP_addition(cpder, PL->CP_literal_axiom(zerolit));
+                PL->CP_add_lit_axiom(cpder, zerolit);
         }
         else if(leavesRight.size() == 1 && (trivialcountingvar ? (countingLitsRight.size()-2 > 1) : (countingLitsRight.size() > 1)) )
-            cpder = PL->CP_addition(cpder, PL->CP_multiplication(PL->CP_literal_axiom(neg(leavesRight[0])), beta));
+            PL->CP_add_lit_axiom(cpder, neg(leavesRight[0]), beta);
         else if(leavesRight.size() > 1)
-            cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(countingLitsRight[trivialcountingvar ?  beta+1 : beta]))));
+            PL->CP_add_constraintid(cpder,  PL->getReifiedConstraintLeftImpl(variable(countingLitsRight[trivialcountingvar ?  beta+1 : beta])));
 
-        cpder = PL->CP_saturation(cpder );
+        PL->CP_saturate(cpder );
     }
-    cxn = PL->write_CP_derivation(cpder);
+    cxn = PL->end_CPDer(cpder);
     PL->check_last_constraint(clause);
     return cxn;
 }
@@ -1078,20 +1087,20 @@ constraintid PBtoCNFprooflogger::derive_totalizer_inverse_clause(TSeqLit& leaves
 
 template <class TSeqLit, class TSeqWght>
 constraintid PBtoCNFprooflogger::derive_input_geq_unary_output_from_output_definitions(TSeqLit& inputlits, TSeqWght& inputweights, TSeqLit& outputlits, bool trivialcountingvar){
-    cuttingplanes_derivation cpder;
+    CPDerRef cpder = PL->new_CPDer();
 
     assert(trivialcountingvar ? outputlits.size() > 1 : outputlits.size() > 0);
     wght size_output = trivialcountingvar ? outputlits.size()-2 : outputlits.size();
 
-    cpder = PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(outputlits[trivialcountingvar ? 1 : 0])));
+    PL->CP_constraintid(cpder, PL->getReifiedConstraintRightImpl(variable(outputlits[trivialcountingvar ? 1 : 0])));
 
     for(int j = 1; j < size_output; j++){ 
-        cpder = PL->CP_multiplication(cpder, j);
-        cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(outputlits[trivialcountingvar ? j+1 : j]))));
-        cpder = PL->CP_division(cpder, j+1);
+        PL->CP_multiply(cpder, j);
+        PL->CP_add_constraintid(cpder, PL->getReifiedConstraintRightImpl(variable(outputlits[trivialcountingvar ? j+1 : j])));
+        PL->CP_divide(cpder, j+1);
     }
 
-    constraintid cxn = PL->write_CP_derivation(cpder);
+    constraintid cxn = PL->end_CPDer(cpder);
 
     std::vector<VeriPB::Lit> lits; std::vector<wght> weights; wght RHS=0;
     for(int i = 0; i < outputlits.size(); i++){
@@ -1117,20 +1126,20 @@ constraintid PBtoCNFprooflogger::derive_input_geq_unary_output_from_output_defin
 */
 template <class TSeqLit, class TSeqWght>
 constraintid PBtoCNFprooflogger::derive_input_leq_unary_output_from_output_definitions(TSeqLit& inputlits, TSeqWght& inputweights, TSeqLit& outputlits, bool trivialcountingvar){
-    cuttingplanes_derivation cpder;
+    CPDerRef cpder = PL->new_CPDer();
 
     assert(trivialcountingvar ? outputlits.size() > 1 : outputlits.size() > 0);
     wght size_output = trivialcountingvar ? outputlits.size()-2 : outputlits.size();
 
-    cpder = PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(outputlits[trivialcountingvar ? outputlits.size()-2 : outputlits.size()-1])));
+    PL->CP_constraintid(cpder, PL->getReifiedConstraintLeftImpl(variable(outputlits[trivialcountingvar ? outputlits.size()-2 : outputlits.size()-1])));
 
     for(int j = 1; j < size_output; j++){ 
-        cpder = PL->CP_multiplication(cpder, j);
-        cpder = PL->CP_addition(cpder, PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(outputlits[trivialcountingvar ? outputlits.size()-1-(j+1) : outputlits.size()-(j+1)]))));
-        cpder = PL->CP_division(cpder, j+1);
+        cpder = PL->CP_multiply(cpder, j);
+        cpder = PL->CP_add_constraintid(cpder, PL->getReifiedConstraintLeftImpl(variable(outputlits[trivialcountingvar ? outputlits.size()-1-(j+1) : outputlits.size()-(j+1)])));
+        cpder = PL->CP_divide(cpder, j+1);
     }
 
-    constraintid cxn = PL->write_CP_derivation(cpder);
+    constraintid cxn = PL->end_CPDer(cpder);
 
     std::vector<VeriPB::Lit> lits; std::vector<wght> weights; wght RHS=0;
     for(int i = 0; i < outputlits.size(); i++){

@@ -19,21 +19,21 @@ void CadicalProofTracer::veripb_add_derived_clause(
     uint64_t id, bool redundant, const vector<int> &clause,
     const vector<uint64_t> &chain) {
 
-  cuttingplanes_derivation cpder;
+  CPDerRef cpder = vPL->new_CPDer();
   bool first = true;
   for (auto p = chain.rbegin (); p != chain.rend (); p++) {
     auto cid = *p;
     if(first){
       first = false;
-      cpder = vPL->CP_constraintid(clauses_vpb[cid]);
+      vPL->CP_constraintid(clauses_vpb[cid]);
     }
     else{
-      cpder = vPL->CP_addition(cpder, vPL->CP_constraintid(clauses_vpb[cid]));
-      cpder = vPL->CP_saturation(cpder);
+      vPL->CP_add_constraintid(cpder, clauses_vpb[cid]);
+      vPL->CP_saturate(cpder);
     }
   }
 
-  constraintid cxn = vPL->write_CP_derivation(cpder);
+  constraintid cxn = vPL->end_CPDer(cpder); 
 
   clauses_vpb[id] = cxn;
 

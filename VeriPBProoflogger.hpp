@@ -857,70 +857,88 @@ void VeriPbProofLogger::removeReifiedConstraintLeftImplFromConstraintStore(const
 
 // ------------- Cutting Planes derivations -------------
 
-    cuttingplanes_derivation VeriPbProofLogger::new_CPDer(){
+    CPDerRef VeriPbProofLogger::new_CPDer(){
         if(_free_cpder.empty()){
-            std::stringstream new_cpder; // TODO: This should probably be pushing a new std::stringstream instead of how I do it here!
+            std::stringstream new_cpder; 
             _cpder.push_back(new_cpder);
             return _cpder.size()-1;
         }
         else{
-            cuttingplanes_derivation cpder =  _free_cpder.front();
+            CPDerRef cpder =  _free_cpder.front();
             _free_cpder.pop();
             return cpder;
         }
     }
     
-    constraintid VeriPbProofLogger::end_CPDer(const cuttingplanes_derivation& cp_id){
+    constraintid VeriPbProofLogger::end_CPDer(const CPDerRef& cp_id){
         *proof << _cpder[cp_id].str();
         clean_CPDer(cp_id);
     }
 
-    void VeriPbProofLogger::clean_CPDer(const cuttingplanes_derivation& cp_id){
+    void VeriPbProofLogger::clean_CPDer(const CPDerRef& cp_id){
         _cpder[cp_id].clear();
         _free_cpder.push(cp_id);
     }
    
     template <class TLit>
-    void VeriPbProofLogger::CP_lit_axiom(const cuttingplanes_derivation& cp_id, const TLit& lit, const wght& n=1){
+    void VeriPbProofLogger::CP_lit_axiom(const CPDerRef& cp_id, const TLit& lit, const wght& n=1){
         _cpder[cp_id] << write_literal(lit) << " ";
         if(n!=1)
             CP_multiply(cp_id, n);
     }
-    void VeriPbProofLogger::CP_constraintid(const cuttingplanes_derivation& cp_id, const constraintid& cxnid, const wght& n=1){
+    void VeriPbProofLogger::CP_constraintid(const CPDerRef& cp_id, const constraintid& cxnid, const wght& n=1){
         _cpder[cp_id] << cxnid << " ";
         if(n!=1)
             CP_multiply(cp_id, n);
     }
+
     template <class TLit>
-    void VeriPbProofLogger::CP_add_lit_axiom(const cuttingplanes_derivation& cp_id, const TLit& lit, const wght& n=1){
+    CPDerRef VeriPbProofLogger::start_CPDer_from_lit_axiom(const TLit& lit, const wght& n=1){
+        CPDerRef cpder = new_CPDer();
+        CP_lit_axiom(cpder, lit, n);
+        return cpder;
+    }
+
+    CPDerRef VeriPbProofLogger::start_CPDer_from_constraintid(const constraintid& cxnid, const wght& n=1){
+        CPDerRef cpder = new_CPDer();
+        CP_constraintid(cpder, cxnid, n);
+        return cpder;
+    }
+
+    template <class TLit>
+    void VeriPbProofLogger::CP_add_lit_axiom(const CPDerRef& cp_id, const TLit& lit, const wght& n=1){
         CP_lit_axiom(cp_id, lit, n);
         CP_write_add(cp_id);
     }
-    void VeriPbProofLogger::CP_add_constraintid(const cuttingplanes_derivation& cp_id, const constraintid& cxnid, const wght& n=1){
+    void VeriPbProofLogger::CP_add_constraintid(const CPDerRef& cp_id, const constraintid& cxnid, const wght& n=1){
         CP_constraintid(cp_id, cxnid, n);
         CP_write_add(cp_id);
     }
-    void VeriPbProofLogger::CP_add_cpder(const cuttingplanes_derivation& cp_id, const cuttingplanes_derivation& cp_id_to_add, const bool end_cpder_to_add = false){
+    void VeriPbProofLogger::CP_add_cpder(const CPDerRef& cp_id, const CPDerRef& cp_id_to_add, const bool end_cpder_to_add = false){
         CP_apply(cp_id, cp_id_to_add);
         CP_write_add(cp_id);
     }
-    void VeriPbProofLogger::CP_multiply(const cuttingplanes_derivation& cp_id, const wght& n){
+    void VeriPbProofLogger::CP_multiply(const CPDerRef& cp_id, const wght& n){
         _cpder[cp_id] << n << "* ";
     }
-    void VeriPbProofLogger::CP_write_add(const cuttingplanes_derivation& cp_id){
+    void VeriPbProofLogger::CP_write_add(const CPDerRef& cp_id){
         _cpder[cp_id] << "+ ";
     }
-    void VeriPbProofLogger::CP_divide(const cuttingplanes_derivation& cp_id, const wght& n){
+    void VeriPbProofLogger::CP_divide(const CPDerRef& cp_id, const wght& n){
          _cpder[cp_id] << n << "d ";
     }
-    void VeriPbProofLogger::CP_saturate(const cuttingplanes_derivation& cp_id){
+    void VeriPbProofLogger::CP_saturate(const CPDerRef& cp_id){
         _cpder[cp_id] << "s ";
     }
     template <class TVar>
-    void VeriPbProofLogger::CP_weaken(const cuttingplanes_derivation& cp_id, const TVar& var){
+    void VeriPbProofLogger::CP_weaken(const CPDerRef& cp_id, const TVar& var){
         _cpder[cp_id] << var_name(var) << "w ";
     }
-    void VeriPbProofLogger::CP_apply(const cuttingplanes_derivation& cp_id, const cuttingplanes_derivation& cp_id_to_apply, const bool end_cpder_to_apply=false){
+    template <class TLit>
+    void VeriPbProofLogger::CP_weaken(const CPDerRef& cp_id, const TLit& l, const wght& n){
+        CP_add_lit_axiom(cp_id, neg(l), n);
+    }
+    void VeriPbProofLogger::CP_apply(const CPDerRef& cp_id, const CPDerRef& cp_id_to_apply, const bool end_cpder_to_apply=false){
         _cpder[cp_id] << _cpder[cp_id_to_apply].str() << " ";
         if(end_cpder_to_apply)
             clean_CPDer(cp_id_to_apply);
@@ -1089,7 +1107,7 @@ void VeriPbProofLogger::removeReifiedConstraintLeftImplFromConstraintStore(const
 // ------------- Extra Proof Techniques -------------
 
 template <class TSeqLit, class TSeqWght>
-constraintid VeriPbProofLogger::prove_by_contradiction(TSeqLit& lits, TSeqWght& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder){
+constraintid VeriPbProofLogger::prove_by_contradiction(TSeqLit& lits, TSeqWght& weights, wght RHS, std::vector<CPDerRef> cpder){
     std::vector<subproof> subproofs;
     subproofs.push_back({"#1", cpder});
     substitution<VeriPB::Var> witness ;
@@ -1098,7 +1116,7 @@ constraintid VeriPbProofLogger::prove_by_contradiction(TSeqLit& lits, TSeqWght& 
 
 template <class TSeqLit, class TSeqWght>
 constraintid VeriPbProofLogger::prove_by_casesplitting(TSeqLit& lits, TSeqWght& weights, wght RHS, constraintid case1, constraintid case2){
-    std::vector<cuttingplanes_derivation> p;
+    std::vector<CPDerRef> p;
 
     p.push_back(CP_saturation(CP_addition(CP_constraintid(-1), CP_constraintid(case1))));
     p.push_back(CP_saturation(CP_addition(CP_constraintid(-2), CP_constraintid(case2))));

@@ -136,30 +136,18 @@ template void VeriPbProofLogger::removeReifiedConstraintRightImplFromConstraintS
 template void VeriPbProofLogger::removeReifiedConstraintLeftImplFromConstraintStore<VeriPB::Var>(const VeriPB::Var& var);
 template void VeriPbProofLogger::removeReifiedConstraintLeftImplFromConstraintStore<Minisat::Var>(const Minisat::Var& var);
 
-template cuttingplanes_derivation VeriPbProofLogger::CP_literal_axiom<VeriPB::Lit>(const VeriPB::Lit& lit); 
-template cuttingplanes_derivation VeriPbProofLogger::CP_literal_axiom<Minisat::Lit>(const Minisat::Lit& lit); 
-template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<VeriPB::Var>(const cuttingplanes_derivation& cp, const VeriPB::Var& var);
-template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<Minisat::Var>(const cuttingplanes_derivation& cp, const Minisat::Var& var);
-template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<VeriPB::Var>(const VeriPB::Var& var);
-template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<Minisat::Var>(const Minisat::Var& var);
-template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<VeriPB::Lit>(const cuttingplanes_derivation& cp, const VeriPB::Lit& lit, const wght& weight);
-template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<Minisat::Lit>(const cuttingplanes_derivation& cp, const Minisat::Lit& lit, const wght& weight);
-template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<VeriPB::Lit>(const VeriPB::Lit& lit, const wght& weight);
-template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<Minisat::Lit>(const Minisat::Lit& lit, const wght& weight);
+template void VeriPbProofLogger::CP_lit_axiom<VeriPB::Lit>(const CPDerRef& cp_id, const VeriPB::Lit& lit, const wght& n=1);
+template CPDerRef VeriPbProofLogger::start_CPDer_from_lit_axiom<VeriPB::Lit>(const VeriPB::Lit& lit, const wght& n=1);
+template void VeriPbProofLogger::CP_add_lit_axiom<VeriPB::Lit>(const CPDerRef& cp_id, const VeriPB::Lit& lit, const wght& n=1);
+template void VeriPbProofLogger::CP_weaken<VeriPB::Var>(const CPDerRef& cp_id, const VeriPB::Var& var);
+template void VeriPbProofLogger::CP_weaken<VeriPB::Lit>(const CPDerRef& cp_id, const VeriPB::Lit& l, const wght& n);
+template void VeriPbProofLogger::CP_lit_axiom<Minisat::Lit>(const CPDerRef& cp_id, const Minisat::Lit& lit, const wght& n=1);
+template CPDerRef VeriPbProofLogger::start_CPDer_from_lit_axiom<Minisat::Lit>(const VeriPB::Minisat& lit, const wght& n=1);
+template void VeriPbProofLogger::CP_add_lit_axiom<Minisat::Lit>(const CPDerRef& cp_id, const Minisat::Lit& lit, const wght& n=1);
+template void VeriPbProofLogger::CP_weaken<Minisat::Var>(const CPDerRef& cp_id, const Minisat::Var& var);
+template void VeriPbProofLogger::CP_weaken<Minisat::Lit>(const CPDerRef& cp_id, const Minisat::Lit& l, const wght& n);
 
-template void VeriPbProofLogger::start_CP_derivation_with_lit_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
-template void VeriPbProofLogger::start_CP_derivation_with_lit_axiom<Minisat::Lit>(const Minisat::Lit &lit);
-
-template void VeriPbProofLogger::CP_weaken<Minisat::Var>(const Minisat::Var &var);
-template void VeriPbProofLogger::CP_weaken<VeriPB::Var>(const VeriPB::Var &var);
-
-template void VeriPbProofLogger::CP_add_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
-template void VeriPbProofLogger::CP_add_literal_axiom<Minisat::Lit>(const Minisat::Lit &lit);
-
-template void VeriPbProofLogger::CP_write_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
-template void VeriPbProofLogger::CP_write_literal_axiom<Minisat::Lit>(const Minisat::Lit &lit);
-
-template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
+template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights, wght RHS, std::vector<CPDerRef> cpder);
 template constraintid VeriPbProofLogger::prove_by_contradiction<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(Minisat::vec<Minisat::Lit>& lits, Minisat::vec<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
 
 template constraintid VeriPbProofLogger::prove_by_casesplitting<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights, wght RHS, constraintid case1, constraintid case2);
