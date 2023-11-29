@@ -13,11 +13,13 @@
 
 #include<iostream>
 
-// NOTE! Should include definition for types Var, Lit and Clause
-#ifdef SOLVERTYPES_MAXCDCL
-    #include "SolverTypesInt_Minisat.h"
-#else
-    #include "SolverTypesInt_Pacose.h"
+#include "VeriPbSolverTypes.h"
+
+#ifndef wght 
+    #define wght uint64_t
+#endif
+#ifndef wght_max
+    #define wght_max UINT64_MAX
 #endif
 
 /******************
@@ -29,7 +31,7 @@
  *        Examples are std::vector<VeriPB::Lit>, Glucose::vec<Glucose::Lit>, Glucose::Clause, ...
  *        Also necessary: size() function.
  * TSeqWght = A Sequence Container containing Integers. 
- * TSeqLBool = A sequence container containing Minisat's (and Glucose's) lbool's.
+ * TSeqLBool = A sequence container containing Minisat's (or Glucose's) lbool's.
  *******************/
 
 //prooflogging Library

@@ -909,7 +909,6 @@ void PBtoCNFprooflogger::derive_modulo_sum_constraints(constraintid& out_modulo_
 
     PL->write_comment("Derive R + pC >= R' + R''");
 
-    cpder.clear();
     cpder = PL->new_CPDer();
     
     PL->CP_constraintid(cpder, modsum_quotient_geq_cxn, divisor);
