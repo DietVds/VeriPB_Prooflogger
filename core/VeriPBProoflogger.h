@@ -9,7 +9,7 @@
 #include <set>
 #include <cassert>
 #include <limits>
-#include <queue>
+#include <list>
 
 #include<iostream>
 
@@ -51,8 +51,6 @@ typedef int constraintid;
 template<class TVar>
 using substitution = std::vector<std::pair<TVar, bool>>;
 
-
-
 typedef uint32_t CPDerRef; // We will keep track of different cutting planes derivations that can be reused. 
                                                 // Every time a new cutting planes derivation is started, it is checked if one of the derivations is unused at that moment.
 
@@ -79,7 +77,6 @@ private:
     wght best_objective_value = wght_max;
     constraintid model_improvement_constraint = 0; // Last model improvement constraint
       
-
     // Meaningful variable names
     std::map<VeriPB::VarIdx, std::string> meaningful_names_store;
 
@@ -92,12 +89,8 @@ private:
 public:
     constraintid constraint_counter = 0;
 private:
-    // Temporary string for reverse polish derivation
-    //
-    std::stringstream pol_string;
-
-    std::vector<std::stringstream> _cpder;
-    std::queue<CPDerRef> _free_cpder;
+    std::vector<std::stringstream*> _cpder;
+    std::list<CPDerRef> _free_cpder;
        
 public:
     // Option to write comments. If false, all comments will be discarded
@@ -127,9 +120,11 @@ public:
     template<class TSeqLit, class TSeqWght>
     void set_objective(const TSeqLit &lits, const TSeqWght &weights, wght constant_cost);
     template <class TLit> 
-    void add_objective_literal(TLit lit, wght weight);
+    void add_objective_literal(TLit& lit, wght weight);
     template <class TLit>
-    void remove_objective_literal(TLit lit);
+    void remove_objective_literal(TLit& lit);
+    template <class TLit>
+    wght get_objective_weight(TLit& lit);
     void add_objective_constant(wght weight);
     void subtract_objective_constant(wght weight);
     void write_comment_objective_function();
@@ -150,7 +145,7 @@ public:
     template <class TLit>
     std::string to_string(const TLit &lit);
     template <class TLit>
-    void write_literal(const TLit &lit);
+    void write_literal(const TLit &lit, std::ostream* o);
     template <class TSeqLit, class TSeqWght>
     void write_PB_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
     template <class TSeqLit, class TSeqWght>
@@ -466,7 +461,10 @@ public:
     void write_previous_constraint_contradiction();
     void write_contradiction(constraintid cxnid);
     void rup_empty_clause();  
-    
+
+
+    // ------------- Destructor -------------
+    ~VeriPbProofLogger();
 
 };
 

@@ -23,7 +23,7 @@ public:
     void add_blocking_literal(TLit lit, constraintid cxn_id);
 
     template <class TLit>
-    constraintid add_unit_clause_blocking_literal(TLit blocking_lit, constraintid cxn_id, TLit unitclause);
+    constraintid add_unit_clause_blocking_literal(TLit blocking_lit, constraintid cxn_id, TLit unitclause, bool rewrite_objective=true, bool write_objective_update=true);
     
     void derive_blocking_literal_value_for_satisfied_soft_clause(constraintid wcnflinenumber, bool value);
 

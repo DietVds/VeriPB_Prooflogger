@@ -21,8 +21,10 @@ void MaxSATProoflogger::add_blocking_literal(TLit lit, constraintid cxn_id){
 }
 
 template <class TLit>
-constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, constraintid cxn_id, TLit unitclause){
+constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, constraintid cxn_id, TLit unitclause, bool rewrite_objective, bool write_objective_update){
     add_blocking_literal(blocking_lit, cxn_id);
+
+    wght weight_softclause = PL->get_objective_weight(blocking_lit);
 
     VeriPB::Lit _blocking_lit = toVeriPbLit(blocking_lit);
     VeriPB::Lit _unitclause = toVeriPbLit(unitclause);
@@ -34,11 +36,27 @@ constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_l
     substitution<VeriPB::Var> witness;
     witness.push_back({variable(_blocking_lit), !is_negated(_blocking_lit)});
 
-    constraintid c_id = PL->redundanceBasedStrengthening(cls, 1, witness);
+    constraintid c_id =  PL->redundanceBasedStrengthening(cls, 1, witness);
+        
+    // TODO: Test if this direction is necessary!! (is used in Pacose. Probably necessary for objective update.)
+    cls.clear();
+    cls.push_back(neg(_blocking_lit));
+    cls.push_back(neg(_unitclause));
 
-    CPDerRef cpder_rewrite_mic = PL->get_rewrite_model_improvement_constraint();
-    cpder_rewrite_mic = PL->CP_addition(cpder_rewrite_mic, PL->CP_constraintid(c_id));
-    PL->set_rewrite_model_improvement_constraint(cpder_rewrite_mic);
+    witness.clear();
+    witness.push_back({variable(_blocking_lit), is_negated(_blocking_lit)});
+
+    constraintid c_id_inv = PL->redundanceBasedStrengthening(cls, 1, witness);
+   
+    if(rewrite_objective){
+        PL->remove_objective_literal(unitclause);
+        PL->add_objective_literal(blocking_lit, weight_softclause);
+        if(write_objective_update){
+            PL->write_comment("Rewriting objective after adding blocking literal " + PL->to_string(blocking_lit) + " to unit clause " + PL->to_string(unitclause));
+            PL->write_objective_update();
+            PL->delete_constraint_by_id(c_id_inv);
+        }
+    }
 
     return c_id;
 }
@@ -77,7 +95,7 @@ constraintid MaxSATProoflogger::update_core_lower_bound(const TVar &old_lazy_var
     counting_var_to_core_idx[varidx(toVeriPbVar(new_lazy_var))] = core_idx;
 
     // Update lower bound
-    PL->new_CPDer();
+    CPDerRef cpder = PL->new_CPDer();
     PL->CP_constraintid(cpder, core_lower_bounds[core_idx], bound);
     PL->CP_add_constraintid(cpder, pb_definition_id);
     PL->CP_divide(cpder, bound+1);
@@ -165,10 +183,10 @@ constraintid MaxSATProoflogger::derive_at_most_one_constraint(const TSeqLit &am1
             }
             else
             {
-                PL->CP_add_constraint(binary_clause_id);
+                PL->CP_add_constraintid(cpder, binary_clause_id);
             }
         }
-        PL->CP_divide(new_lit_idx);
+        PL->CP_divide(cpder, new_lit_idx);
     }
 
     constraintid am1_constraint_id = PL->end_CPDer(cpder);
@@ -213,7 +231,7 @@ constraintid MaxSATProoflogger::proof_log_at_most_one(constraintid base_reform_i
 
     CPDerRef cpder = PL->new_CPDer();
     PL->CP_constraintid(cpder, am1_lower_bound, weight);
-    PL->CP_add_constraintid(base_reform_id);
+    PL->CP_add_constraintid(cpder, base_reform_id);
     constraintid new_base_reform_id = PL->end_CPDer(cpder);
     PL->delete_constraint_by_id(base_reform_id);
     PL->delete_constraint_by_id(am1_lower_bound);
