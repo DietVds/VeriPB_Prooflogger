@@ -214,6 +214,22 @@ std::string VeriPbProofLogger::var_name(const TVar &var)
     return name;
 }
 
+template <class TVar>
+void VeriPbProofLogger::write_var(const TVar &var, std::ostream* o){
+    if (meaningful_names_store.find(varidx(toVeriPbVar(var))) != meaningful_names_store.end())
+    {
+        *o << meaningful_names_store[varidx(toVeriPbVar(var))];
+    }
+    else if (is_aux_var(var))
+    {
+        *o << "y" << std::to_string(varidx(toVeriPbVar(var)));
+    }
+    else
+    {
+        *o <<  "x" << std::to_string(varidx(toVeriPbVar(var)));
+    }
+}
+
 template <class TLit>
 void VeriPbProofLogger::write_weighted_literal(const TLit &literal, wght weight)
 {
@@ -226,23 +242,24 @@ void VeriPbProofLogger::write_weighted_literal(const TLit &literal, wght weight)
 // The variable is the original variable of which we look to rewrite. In the first call, the literal is over the original variable.
 // Next, it is checked whether the variable over which the literal is, should again be rewritten (i.e., variable x should be rewritten by literal ~y, and variable y should be rewritten to literal z).
 // Once the variable of litvar is finaly not rewritten or the original variable, the correct literal is written.
-std::string VeriPbProofLogger::to_string_rewrite_var_by_literal(VeriPB::Var& var, VeriPB::Lit& lit){
+void VeriPbProofLogger::write_literal_after_rewrite_var_by_lit(VeriPB::Var& var, VeriPB::Lit& lit, std::ostream* o){
     VeriPB::Var litvar = variable(lit);
 
-    if(map_rewrite_var_by_literal.find(varidx(litvar)) == map_rewrite_var_by_literal.end()){
-        return (is_negated(lit) ? "~" : "") + var_name(litvar);
-    }
-    else{
-        VeriPB::Lit lit_to_rewrite_to = map_rewrite_var_by_literal[varidx(litvar)];
+    //if(map_rewrite_var_by_literal.find(varidx(litvar)) == map_rewrite_var_by_literal.end()){
+        *o << (is_negated(lit) ? "~" : ""); write_var(litvar, o);
+    // }
+    // else{
+    //     VeriPB::Lit lit_to_rewrite_to = map_rewrite_var_by_literal[varidx(litvar)];
 
-        if(is_negated(lit))
-            lit_to_rewrite_to = neg(lit_to_rewrite_to);
+    //     if(is_negated(lit))
+    //         lit_to_rewrite_to = neg(lit_to_rewrite_to);
 
-        if(variable(lit_to_rewrite_to) == var)
-            return (is_negated(lit_to_rewrite_to) ? "~" : "") + var_name(variable(lit_to_rewrite_to));
-        else
-            return to_string_rewrite_var_by_literal(var, lit_to_rewrite_to);
-    }
+    //     if(variable(lit_to_rewrite_to) == var){
+    //         *o << (is_negated(lit_to_rewrite_to) ? "~" : ""); write_var(var, o);
+    //     }
+    //     else
+    //         write_literal_after_rewrite_var_by_lit(var, lit_to_rewrite_to, o);
+    // }
 }
 
 template <class TLit>
@@ -251,14 +268,20 @@ std::string VeriPbProofLogger::to_string(const TLit &lit)
     VeriPB::Lit l = toVeriPbLit(lit);
     VeriPB::Var varl = variable(l);
 
-    return to_string_rewrite_var_by_literal(varl, l);
+    std::stringstream s; 
+    write_literal_after_rewrite_var_by_lit(varl, l, &s);
+
+    return s.str();
 }
 
 
 template <class TLit>
 void VeriPbProofLogger::write_literal(const TLit &lit, std::ostream* o)
 {
-    *o << to_string(lit) << " ";
+    VeriPB::Lit l = toVeriPbLit(lit);
+    VeriPB::Var varl = variable(l);
+
+    write_literal_after_rewrite_var_by_lit(varl, l, o);
 }
 
 template <class TSeqLit>
@@ -546,8 +569,8 @@ void VeriPbProofLogger::write_witness(const substitution<TVar> &witness)
             if(is_negated(map_rewrite_var_by_literal[idx_var]))
                 to = !to;
         }
-
-        *proof << var_name(var) << " -> " << std::to_string(to) ;
+        write_var(var, proof);
+        *proof << " -> " << std::to_string(to) ;
     }    
 }
 
@@ -830,6 +853,7 @@ void VeriPbProofLogger::removeReifiedConstraintLeftImplFromConstraintStore(const
 
     CPDerRef VeriPbProofLogger::new_CPDer(){
         if(_free_cpder.empty()){
+            std::cout << "create new cpder" << std::endl;
             std::stringstream* new_cpder = new std::stringstream; 
             _cpder.push_back(new_cpder);
             return _cpder.size()-1;
@@ -844,11 +868,12 @@ void VeriPbProofLogger::removeReifiedConstraintLeftImplFromConstraintStore(const
     constraintid VeriPbProofLogger::end_CPDer(const CPDerRef& cp_id){
         *proof << _cpder[cp_id]->str();
         clean_CPDer(cp_id);
+        return ++constraint_counter;
     }
 
     void VeriPbProofLogger::clean_CPDer(const CPDerRef& cp_id){
         _cpder[cp_id]->clear();
-        _free_cpder.push_front(cp_id);
+        _free_cpder.push_back(cp_id);
     }
    
     template <class TLit>
@@ -904,7 +929,8 @@ void VeriPbProofLogger::removeReifiedConstraintLeftImplFromConstraintStore(const
     }
     template <class TVar>
     void VeriPbProofLogger::CP_weaken(const CPDerRef& cp_id, const TVar& var){
-        *_cpder[cp_id] << var_name(var) << "w ";
+        write_var(var, _cpder[cp_id]);
+        *_cpder[cp_id] << "w ";
     }
     template <class TLit>
     void VeriPbProofLogger::CP_weaken(const CPDerRef& cp_id, const TLit& l, const wght& n){

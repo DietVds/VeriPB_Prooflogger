@@ -21,6 +21,9 @@ template bool VeriPbProofLogger::is_aux_var<Glucose::Var>(const Glucose::Var &va
 template std::string VeriPbProofLogger::var_name<VeriPB::Var>(const VeriPB::Var &var);
 template std::string VeriPbProofLogger::var_name<Glucose::Var>(const Glucose::Var &var);
 
+template void VeriPbProofLogger::write_var<VeriPB::Var>(const VeriPB::Var &var, std::ostream* o);
+template void VeriPbProofLogger::write_var<Glucose::Var>(const Glucose::Var &var, std::ostream* o);
+
 template void VeriPbProofLogger::write_weighted_literal<VeriPB::Lit>(const VeriPB::Lit &literal, wght weight);
 template void VeriPbProofLogger::write_weighted_literal<Glucose::Lit>(const Glucose::Lit &literal, wght weight);
 

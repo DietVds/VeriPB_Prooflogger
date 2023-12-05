@@ -729,7 +729,7 @@ template <class TSeqLit, class TSeqWght>
 constraintid PBtoCNFprooflogger::derive_leaves_geq_countinglits_MTO(TSeqLit& countingLiteralsMTO, TSeqLit& leaves, TSeqWght& wght_leaves, wght div){
     wght sigma = getNrOfQuotientLiterals(countingLiteralsMTO, div); // Number of quotient literals.
 
-    CPDerRef cpder = PL->new_CPDer();
+    CPDerRef cpder;
     // CPDerRef cpder2 = PL->new_CPDer();
 
     //cpder = PL->CP_constraintid(PL->getReifiedConstraintRightImpl(variable(getRemainderLiteral(countingLiteralsMTO, 1))));

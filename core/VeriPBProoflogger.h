@@ -83,7 +83,7 @@ private:
     // Variables to be rewritten by literals.
     std::map<VeriPB::VarIdx, VeriPB::Lit> map_rewrite_var_by_literal;
 
-    std::string to_string_rewrite_var_by_literal(VeriPB::Var& variable, VeriPB::Lit& literal);
+    void write_literal_after_rewrite_var_by_lit(VeriPB::Var& variable, VeriPB::Lit& literal, std::ostream* o);
     // Constraint counter
     //
 public:
@@ -139,6 +139,9 @@ public:
     bool is_aux_var(const TVar &var);
     template <class TVar>
     std::string var_name(const TVar &var);
+    template <class TVar>
+    void write_var(const TVar &var, std::ostream* o);
+    
 
     template <class TLit>
     void write_weighted_literal(const TLit &literal, wght weight = 1);
