@@ -258,14 +258,14 @@ private:
     std::map<VeriPB::VarIdx, constraintid> reifiedConstraintRightImpl;
 public:
     template <class TSeqLit, class TSeqWght, class TLit>
-    constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, bool store_reified_constraint=false);
+    constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, bool store_reified_constraint);
     template <class TSeqLit, class TLit>
-    constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const wght RHS, bool store_reified_constraint=false);
+    constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const wght RHS, bool store_reified_constraint);
 
     template <class TSeqLit, class TSeqWght, class TLit>
-    constraintid reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, bool store_reified_constraint=false);
+    constraintid reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, bool store_reified_constraint);
     template <class TSeqLit, class TLit>
-    constraintid reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const wght RHS, bool store_reified_constraint=false);
+    constraintid reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const wght RHS, bool store_reified_constraint);
 
     template <class TVar>
     constraintid getReifiedConstraintLeftImpl(const TVar& var);
