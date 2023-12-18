@@ -18,6 +18,7 @@ CadicalProofTracer::~CadicalProofTracer () {}
 void CadicalProofTracer::veripb_add_derived_clause(
     uint64_t id, bool redundant, const vector<int> &clause,
     const vector<uint64_t> &chain) {
+  vPL->write_comment("VeriPB add derived clause");
 
   cuttingplanes_derivation cpder;
   bool first = true;
@@ -82,6 +83,7 @@ void CadicalProofTracer::veripb_strengthen (uint64_t id) {
 
 void CadicalProofTracer::add_original_clause (uint64_t id, bool redundant, const vector<int> &clause,
                             bool restored){
+  vPL->write_comment("VeriPB add original clause");
   clauses_vpb[id] = vPL->constraint_counter;
   added++;
 }       
