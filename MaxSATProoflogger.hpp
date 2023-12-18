@@ -72,7 +72,7 @@ constraintid MaxSATProoflogger::update_core_lower_bound(const TVar &old_lazy_var
     PL->CP_add_constraint(pb_definition_id);
     PL->CP_divide(bound + 1);
     constraintid new_lower_bound_id = PL->end_CP_derivation();
-    PL->delete_constraint(core_lower_bounds[core_idx]);
+    PL->delete_constraint_by_id(core_lower_bounds[core_idx]);
     core_lower_bounds[core_idx] = new_lower_bound_id;
     return new_lower_bound_id;
 }
@@ -98,7 +98,7 @@ constraintid MaxSATProoflogger::proof_log_objective_reformulation(constraintid b
     PL->start_CP_derivation(model_improve_id);
     PL->CP_add_constraint(objective_reform_id);
     constraintid lower_bound_reformulated_objective = PL->end_CP_derivation();
-    PL->delete_constraint(objective_reform_id);
+    PL->delete_constraint_by_id(objective_reform_id);
     return lower_bound_reformulated_objective;
 }
 
@@ -108,7 +108,7 @@ constraintid MaxSATProoflogger::base_reform_unit_core(constraintid base_reform_i
     PL->CP_multiply(weight);
     PL->CP_add_constraint(base_reform_id);
     constraintid new_base_reform_id = PL->end_CP_derivation();
-    PL->delete_constraint(base_reform_id);
+    PL->delete_constraint_by_id(base_reform_id);
     return new_base_reform_id;
 }
 
@@ -124,7 +124,7 @@ constraintid MaxSATProoflogger::reformulate_with_unprocessed_cores(constraintid 
     }
 
     constraintid reform_constraint_with_unprocessed_cores_id = PL->end_CP_derivation();
-    PL->delete_constraint(base_reform_id);
+    PL->delete_constraint_by_id(base_reform_id);
     return reform_constraint_with_unprocessed_cores_id;
 }
 
@@ -161,7 +161,7 @@ constraintid MaxSATProoflogger::derive_at_most_one_constraint(const TSeqLit &am1
     }
 
     constraintid am1_constraint_id = PL->end_CP_derivation();
-    PL->delete_constraint(binary_clauses);
+    PL->delete_constraint_by_id(binary_clauses);
     return am1_constraint_id;
 }
 
@@ -198,13 +198,13 @@ constraintid MaxSATProoflogger::proof_log_at_most_one(constraintid base_reform_i
 {
     constraintid am1_constraint = derive_at_most_one_constraint(am1_lits);
     constraintid am1_lower_bound = introduce_at_most_one_selector(am1_lits, selector_all_lit);
-    PL->delete_constraint(am1_constraint);
+    PL->delete_constraint_by_id(am1_constraint);
 
     PL->start_CP_derivation(am1_lower_bound);
     PL->CP_multiply(weight);
     PL->CP_add_constraint(base_reform_id);
     constraintid new_base_reform_id = PL->end_CP_derivation();
-    PL->delete_constraint(base_reform_id);
-    PL->delete_constraint(am1_lower_bound);
+    PL->delete_constraint_by_id(base_reform_id);
+    PL->delete_constraint_by_id(am1_lower_bound);
     return new_base_reform_id;
 }
