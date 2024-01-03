@@ -441,9 +441,6 @@ constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, wght objectiv
     RHS = RHS + objective_constant_cost - best_objective_value + 1;
     check_last_constraint(litsMIC, objective_weights, RHS);
 
-    if(CP_modelimprovingconstraint_rewrite != "")
-        rewrite_model_improving_constraint();
-
     return get_model_improving_constraint(); 
 }
 
