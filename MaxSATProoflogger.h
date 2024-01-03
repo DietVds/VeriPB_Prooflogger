@@ -23,7 +23,7 @@ public:
     void add_blocking_literal(TLit lit, constraintid cxn_id);
 
     template <class TLit>
-    void add_unit_clause_blocking_literal(TLit var, constraintid cxn_id, TLit unitclause);
+    void add_unit_clause_blocking_literal(TLit var, constraintid cxn_id, TLit unitclause, wght weight_softclause, bool bidir_reif = false, bool rewrite_objective = false, bool write_objective_update = false);
     
 
     // Functions to help with objective reformulation

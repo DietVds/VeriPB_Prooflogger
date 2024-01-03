@@ -60,10 +60,6 @@ private:
     wght objective_constant_cost = 0;
     wght best_objective_value = wght_max;
     constraintid model_improvement_constraint; // Last model improvement constraint
-    // The model improving constraint needs to be rewritten in many applications (e.g., for MaxSAT prooflogging: addition of blocking variables to unit clauses, hardening in QMaxSAT 14.07 )
-    constraintid rewritten_model_improvement_constraint = 0; // last rewritten model improvement constraint. 0 means that it hasn't been rewritten. 
-
-    constraintid rewrite_model_improving_constraint();
 
     // Meaningful variable names
     std::map<VeriPB::VarIdx, std::string> meaningful_names_store;
@@ -71,10 +67,7 @@ private:
     // Variables to be rewritten by literals.
     std::map<VeriPB::VarIdx, VeriPB::Lit> map_rewrite_var_by_literal;
 
-    std::string to_string_rewrite_var_by_literal(VeriPB::Var& variable, VeriPB::Lit& literal);
-
-    // Rewrite model improvement constraint whenever the model improvement constraint id is asked.
-    cuttingplanes_derivation CP_modelimprovingconstraint_rewrite = "";  
+    std::string to_string_rewrite_var_by_literal(VeriPB::Var& variable, VeriPB::Lit& literal); 
 
     // Constraint counter
     //
@@ -112,10 +105,20 @@ public:
     template<class TSeqLit, class TSeqWght>
     void set_objective(const TSeqLit &lits, const TSeqWght &weights, wght constant_cost);
     template <class TLit> 
-    void add_objective_literal(TLit lit, wght weight);
+    void add_objective_literal(TLit& lit, wght weight);
+    template <class TLit>
+    void remove_objective_literal(TLit& lit);
+    template <class TLit>
+    wght get_objective_weight(TLit& lit);
     void add_objective_constant(wght weight);
+    void subtract_objective_constant(wght weight);
     void write_comment_objective_function();
     wght get_best_objective_function();
+    void write_objective_update();
+    // TODO: 
+    // void write_objective_update(subproof& new_geq_old, subproof& new_leq_old);
+
+
 
     // ------------- Helping functions -------------
     void write_comment(const char *comment);
@@ -177,13 +180,6 @@ public:
     constraintid log_solution_with_check(const TSeqLit &model);
     constraintid get_model_improving_constraint();
     wght get_best_objective_value();
-
-    // Rewriting of the model improvement constraint. Example of usage: when an objective literal is hardened and we only want to continue reasoning on the non-hardened literals.
-    cuttingplanes_derivation get_rewrite_model_improvement_constraint();
-    void set_rewrite_model_improvement_constraint(cuttingplanes_derivation cpder);
-    // constraintid get_rewritten_best_solution_constraint();
-    // void rewrite_model_improvement_constraint();
-    // void reset_rewritten_best_solution_constraint();
 
     template <class TSeqLBool>
     constraintid log_solution_lbools(TSeqLBool &model, wght objective_value=INT_MAX);
