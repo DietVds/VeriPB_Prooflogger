@@ -3,8 +3,8 @@
 template void MaxSATProoflogger::add_blocking_literal<VeriPB::Lit>(VeriPB::Lit lit, constraintid cxn_id);
 template void MaxSATProoflogger::add_blocking_literal<Glucose::Lit>(Glucose::Lit lit, constraintid cxn_id);
 
-template void MaxSATProoflogger::add_unit_clause_blocking_literal<VeriPB::Lit>(VeriPB::Lit blocking_lit, constraintid cxn_id, VeriPB::Lit unitclause, wght weight_softclause, bool rewrite_objective);
-template void MaxSATProoflogger::add_unit_clause_blocking_literal<Glucose::Lit>(Glucose::Lit blocking_lit, constraintid cxn_id, VeriPB::Lit unitclause, wght weight_softclause, bool rewrite_objective);
+template constraintid MaxSATProoflogger::add_unit_clause_blocking_literal<VeriPB::Lit>(VeriPB::Lit blocking_lit, constraintid cxn_id, VeriPB::Lit unitclause, wght weight_softclause, bool rewrite_objective);
+template constraintid MaxSATProoflogger::add_unit_clause_blocking_literal<Glucose::Lit>(Glucose::Lit blocking_lit, constraintid cxn_id, VeriPB::Lit unitclause, wght weight_softclause, bool rewrite_objective);
 
 template constraintid MaxSATProoflogger::add_core_lower_bound<VeriPB::Var>(const VeriPB::Var &lazy_var, constraintid core_id, constraintid pb_definition_id, wght weight);
 template constraintid MaxSATProoflogger::add_core_lower_bound<Glucose::Var>(const Glucose::Var &lazy_var, constraintid core_id, constraintid pb_definition_id, wght weight);

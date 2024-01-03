@@ -21,7 +21,7 @@ void MaxSATProoflogger::add_blocking_literal(TLit lit, constraintid cxn_id){
 }
 
 template <class TLit>
-void MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, constraintid cxn_id, TLit unitclause, wght weight_softclause, bool rewrite_objective = false){
+constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, constraintid cxn_id, TLit unitclause, wght weight_softclause, bool rewrite_objective){
     add_blocking_literal(blocking_lit, cxn_id);
 
     VeriPB::Lit _blocking_lit = toVeriPbLit(blocking_lit);
@@ -53,11 +53,9 @@ void MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, cons
         PL->add_objective_literal(blocking_lit, weight_softclause);
 
         rewrite_for_unitsoftclauses = PL->CP_addition(rewrite_for_unitsoftclauses, PL->CP_constraintid(c_id));
-
-        if(write_objective_update){
-            PL->write_objective_update();
-        }
     }
+    
+    return c_id;
 }
 
 constraintid MaxSATProoflogger::rewrite_objective_for_unitsoftclauses(){
