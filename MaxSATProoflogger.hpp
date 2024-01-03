@@ -21,9 +21,7 @@ void MaxSATProoflogger::add_blocking_literal(TLit lit, constraintid cxn_id){
 }
 
 template <class TLit>
-void MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, constraintid cxn_id, TLit unitclause, wght weight_softclause, bool bidir_reif, bool rewrite_objective, bool write_objective_update){
-    assert(!(!bidir_reif && rewrite_objective));  // TODO: find out how to handle the 
-    
+void MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, constraintid cxn_id, TLit unitclause, wght weight_softclause, bool rewrite_objective = false){
     add_blocking_literal(blocking_lit, cxn_id);
 
     VeriPB::Lit _blocking_lit = toVeriPbLit(blocking_lit);
@@ -39,24 +37,32 @@ void MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, cons
     constraintid c_id = PL->redundanceBasedStrengthening(cls, 1, witness);
 
     
-    if(bidir_reif){
-        cls.clear();
-        cls.push_back(neg(_blocking_lit));
-        cls.push_back(neg(_unitclause));
+    // if(bidir_reif){
+    //     cls.clear();
+    //     cls.push_back(neg(_blocking_lit));
+    //     cls.push_back(neg(_unitclause));
 
-        witness.clear();
-        witness.push_back({variable(_blocking_lit), is_negated(_blocking_lit)});
+    //     witness.clear();
+    //     witness.push_back({variable(_blocking_lit), is_negated(_blocking_lit)});
 
-        PL->redundanceBasedStrengthening(cls, 1, witness);
-    }
+    //     PL->redundanceBasedStrengthening(cls, 1, witness);
+    // }
 
     if(rewrite_objective){
         PL->remove_objective_literal(unitclause);
         PL->add_objective_literal(blocking_lit, weight_softclause);
+
+        rewrite_for_unitsoftclauses = PL->CP_addition(rewrite_for_unitsoftclauses, PL->CP_constraintid(c_id));
+
         if(write_objective_update){
             PL->write_objective_update();
         }
     }
+}
+
+constraintid MaxSATProoflogger::rewrite_objective_for_unitsoftclauses(){
+    cuttingplanes_derivation cpder = PL->CP_apply(PL->CP_constraintid(PL->get_model_improving_constraint()), rewrite_for_unitsoftclauses);
+    return PL->write_CP_derivation(cpder);
 }
 //=================================================================================================
 // Objective reformulation
