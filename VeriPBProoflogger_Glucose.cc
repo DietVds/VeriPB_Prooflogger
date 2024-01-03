@@ -5,8 +5,14 @@
 template void VeriPbProofLogger::set_objective<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, wght constant_cost);
 template void VeriPbProofLogger::set_objective<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(const Glucose::vec<Glucose::Lit> &lits, const Glucose::vec<wght> &weights, wght constant_cost);
 
-template void VeriPbProofLogger::add_objective_literal<VeriPB::Lit>(VeriPB::Lit lit, wght weight);
-template void VeriPbProofLogger::add_objective_literal<Glucose::Lit>(Glucose::Lit lit, wght weight);
+template void VeriPbProofLogger::add_objective_literal<VeriPB::Lit>(VeriPB::Lit& lit, wght weight);
+template void VeriPbProofLogger::add_objective_literal<Glucose::Lit>(Glucose::Lit& lit, wght weight);
+
+template void VeriPbProofLogger::remove_objective_literal<VeriPB::Lit>(VeriPB::Lit& lit);
+template void VeriPbProofLogger::remove_objective_literal<Glucose::Lit>(Glucose::Lit& lit);
+
+template wght VeriPbProofLogger::get_objective_weight<VeriPB::Lit>(VeriPB::Lit& lit);
+template wght VeriPbProofLogger::get_objective_weight<Glucose::Lit>(Glucose::Lit& lit);
 
 template bool VeriPbProofLogger::is_aux_var<VeriPB::Var>(const VeriPB::Var &var);
 template bool VeriPbProofLogger::is_aux_var<Glucose::Var>(const Glucose::Var &var);

@@ -98,14 +98,15 @@ void VeriPbProofLogger::set_objective(const TSeqLit &lits, const TSeqWght &weigh
     objective_constant_cost = constant_cost;
 }
 
+
 template <class TLit> 
-void VeriPbProofLogger::add_objective_literal(TLit lit, wght weight){
+void VeriPbProofLogger::add_objective_literal(TLit& lit, wght weight){
     objective_lits.push_back(toVeriPbLit(lit));
     objective_weights.push_back(weight);
 }
 
 template <class TLit>
-void VeriPbProofLogger::remove_objective_literal(TLit lit){
+void VeriPbProofLogger::remove_objective_literal(TLit& lit){
     int i=0;
     while(toVeriPbLit(lit) != objective_lits[i]) i++;
     
@@ -117,6 +118,14 @@ void VeriPbProofLogger::remove_objective_literal(TLit lit){
     
     objective_lits.resize(objective_lits.size()-1);
     objective_weights.resize(objective_weights.size()-1);
+}
+
+template <class TLit>
+wght VeriPbProofLogger::get_objective_weight(TLit& lit){
+    int i=0;
+    while(toVeriPbLit(lit) != objective_lits[i]) i++;
+
+    return objective_weights[i];
 }
 
 void VeriPbProofLogger::add_objective_constant(wght weight){
@@ -138,13 +147,15 @@ void VeriPbProofLogger::write_objective_update(){
     for (int i = 0; i < objective_lits.size(); i++)
         write_weighted_literal(objective_lits[i], objective_weights[i]);
     if(objective_constant_cost != 0)
-        *proof << " " << std::to_string(objective_constant_cost);
+        *proof << " + " << std::to_string(objective_constant_cost);
     *proof << ";\n";
 }
 
 wght VeriPbProofLogger::get_best_objective_function(){
     return best_objective_value;
 }
+
+
 
 void VeriPbProofLogger::increase_n_variables(){
     n_variables++;
@@ -198,9 +209,9 @@ std::string VeriPbProofLogger::var_name(const TVar &var)
 
 template <class TLit>
 void VeriPbProofLogger::write_weighted_literal(const TLit &literal, wght weight)
-{
+{   
     if(weight != 0){
-        *proof << std::to_string(weight) + " ";
+        *proof << std::to_string(weight) << " ";
         write_literal<TLit>(literal);
     }
 }
@@ -247,7 +258,7 @@ template <class TSeqLit>
 void VeriPbProofLogger::write_cardinality_constraint(const TSeqLit &lits, const wght RHS)
 {
     for (int i = 0; i < lits.size(); i++)
-        write_weighted_literal(lits[i]);
+        write_weighted_literal(lits[i], 1);
     *proof << ">= " << RHS;
 }
 
@@ -449,57 +460,14 @@ constraintid VeriPbProofLogger::log_solution_with_check(const TSeqLit &model, bo
     return get_model_improving_constraint();
 }
 
-constraintid VeriPbProofLogger::rewrite_model_improving_constraint(){
-    assert(CP_modelimprovingconstraint_rewrite != "" && rewritten_model_improvement_constraint < model_improvement_constraint );
-
-    write_comment("Rewrite model improving constraint");
-    if(rewritten_model_improvement_constraint > 0) delete_constraint_by_id(rewritten_model_improvement_constraint);
-
-    cuttingplanes_derivation cpder = CP_apply(CP_constraintid(model_improvement_constraint), CP_modelimprovingconstraint_rewrite);
-    rewritten_model_improvement_constraint = write_CP_derivation(cpder);
-
-    return rewritten_model_improvement_constraint;
-}
-
 constraintid VeriPbProofLogger::get_model_improving_constraint()
 {
-    if(CP_modelimprovingconstraint_rewrite == "")
-        return model_improvement_constraint;
-    else if(rewritten_model_improvement_constraint > model_improvement_constraint) // Already rewritten
-        return rewritten_model_improvement_constraint;
-    else{
-        return rewrite_model_improving_constraint();
-    }
-
+    return model_improvement_constraint;
 }
 
 wght VeriPbProofLogger::get_best_objective_value(){
     return best_objective_value;
 }
-
-cuttingplanes_derivation VeriPbProofLogger::get_rewrite_model_improvement_constraint(){
-    return CP_modelimprovingconstraint_rewrite;
-}
-
-void VeriPbProofLogger::set_rewrite_model_improvement_constraint(cuttingplanes_derivation cpder){
-    CP_modelimprovingconstraint_rewrite = cpder;
-    if(model_improvement_constraint > 0)
-        rewrite_model_improving_constraint();
-}
-
-// constraintid VeriPbProofLogger::get_rewritten_best_solution_constraint(){
-//     return rewritten_best_solution_constraint;
-// }
-// void VeriPbProofLogger::rewrite_model_improving_constraint(){
-//     rewritten_best_solution_constraint = write_CP_derivation(
-//                 CP_apply(
-//                     CP_constraintid(get_model_improving_constraint()), 
-//                     CP_modelimprovingconstraint_rewrite));
-// }
-// 
-// void VeriPbProofLogger::reset_rewritten_best_solution_constraint(){
-//     rewritten_best_solution_constraint = 0;
-// }
 
 template <class TSeqLBool>
 constraintid VeriPbProofLogger::log_solution_lbools(TSeqLBool &model, wght objective_value)
@@ -521,9 +489,6 @@ constraintid VeriPbProofLogger::log_solution_lbools(TSeqLBool &model, wght objec
 
     // Veripb automatically adds an improvement constraint so counter needs to be incremented
     model_improvement_constraint = ++constraint_counter;
-    
-    if(CP_modelimprovingconstraint_rewrite != "")
-        rewrite_model_improving_constraint();
 
     if(objective_value < best_objective_value)
         best_objective_value = objective_value;

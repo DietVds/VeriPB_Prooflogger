@@ -21,7 +21,9 @@ void MaxSATProoflogger::add_blocking_literal(TLit lit, constraintid cxn_id){
 }
 
 template <class TLit>
-constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, constraintid cxn_id, TLit unitclause){
+void MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, constraintid cxn_id, TLit unitclause, wght weight_softclause, bool bidir_reif, bool rewrite_objective, bool write_objective_update){
+    assert(!(!bidir_reif && rewrite_objective));  // TODO: find out how to handle the 
+    
     add_blocking_literal(blocking_lit, cxn_id);
 
     VeriPB::Lit _blocking_lit = toVeriPbLit(blocking_lit);
@@ -36,18 +38,25 @@ constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_l
 
     constraintid c_id = PL->redundanceBasedStrengthening(cls, 1, witness);
 
-    cuttingplanes_derivation cpder_rewrite_mic = PL->get_rewrite_model_improvement_constraint();
-    cpder_rewrite_mic = PL->CP_addition(cpder_rewrite_mic, PL->CP_constraintid(c_id));
-    PL->set_rewrite_model_improvement_constraint(cpder_rewrite_mic);
+    
+    if(bidir_reif){
+        cls.clear();
+        cls.push_back(neg(_blocking_lit));
+        cls.push_back(neg(_unitclause));
 
-    return c_id;
-}
+        witness.clear();
+        witness.push_back({variable(_blocking_lit), is_negated(_blocking_lit)});
 
+        PL->redundanceBasedStrengthening(cls, 1, witness);
+    }
 
-void MaxSATProoflogger::derive_blocking_literal_value_for_satisfied_soft_clause(constraintid wcnflinenumber, bool value){
-    PL->write_comment("derive_blocking_literal_value_for_satisfied_soft_clause");
-    *(PL->proof) << "red 1 " << (value ? "~" : "") << "_b" << std::to_string(wcnflinenumber) << " >= 1; " << "_b" << std::to_string(wcnflinenumber) << " -> " << (value ? "0" : "1") << "\n";
-    PL->increase_constraint_counter();
+    if(rewrite_objective){
+        PL->remove_objective_literal(unitclause);
+        PL->add_objective_literal(blocking_lit, weight_softclause);
+        if(write_objective_update){
+            PL->write_objective_update();
+        }
+    }
 }
 //=================================================================================================
 // Objective reformulation
