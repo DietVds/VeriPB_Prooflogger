@@ -58,9 +58,14 @@ constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_l
     return c_id;
 }
 
-constraintid MaxSATProoflogger::rewrite_objective_for_unitsoftclauses(){
+constraintid MaxSATProoflogger::rewrite_model_improvement_constraint_for_unitsoftclauses(){
     cuttingplanes_derivation cpder = PL->CP_apply(PL->CP_constraintid(PL->get_model_improving_constraint()), rewrite_for_unitsoftclauses);
-    return PL->write_CP_derivation(cpder);
+    rewritten_objective_for_unitsoftclauses = PL->write_CP_derivation(cpder);
+    return rewritten_objective_for_unitsoftclauses;
+}
+
+constraintid MaxSATProoflogger::get_rewritten_model_improvement_constraint_for_unitsoftclauses(){
+    return rewritten_objective_for_unitsoftclauses;
 }
 //=================================================================================================
 // Objective reformulation

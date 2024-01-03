@@ -13,6 +13,7 @@ class MaxSATProoflogger
     std::map<VeriPB::VarIdx, int> counting_var_to_core_idx;
 
     cuttingplanes_derivation rewrite_for_unitsoftclauses = "";
+    constraintid rewritten_objective_for_unitsoftclauses = 0;
 
 public:
     /// @brief Constructor of the MaxSAT prooflogger object.
@@ -27,7 +28,8 @@ public:
     template <class TLit>
     constraintid add_unit_clause_blocking_literal(TLit var, constraintid cxn_id, TLit unitclause, wght weight_softclause, bool rewrite_objective = false);
 
-    constraintid rewrite_objective_for_unitsoftclauses();
+    constraintid rewrite_model_improvement_constraint_for_unitsoftclauses();
+    constraintid get_rewritten_model_improvement_constraint_for_unitsoftclauses();
     
     void derive_blocking_literal_value_for_satisfied_soft_clause(constraintid wcnflinenumber, bool value);
 
