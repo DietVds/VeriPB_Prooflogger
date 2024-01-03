@@ -3,7 +3,12 @@
 //=================================================================================================
 
 template void VeriPbProofLogger::set_objective<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, wght constant_cost);
-template void VeriPbProofLogger::add_objective_literal<VeriPB::Lit>(VeriPB::Lit lit, wght weight);
+
+template void VeriPbProofLogger::set_objective<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, wght constant_cost);
+template void VeriPbProofLogger::add_objective_literal<VeriPB::Lit>(VeriPB::Lit& lit, wght weight);
+template void VeriPbProofLogger::remove_objective_literal<VeriPB::Lit>(VeriPB::Lit& lit);
+template wght VeriPbProofLogger::get_objective_weight<VeriPB::Lit>(VeriPB::Lit& lit);
+
 template bool VeriPbProofLogger::is_aux_var<VeriPB::Var>(const VeriPB::Var &var);
 template std::string VeriPbProofLogger::var_name<VeriPB::Var>(const VeriPB::Var &var);
 template void VeriPbProofLogger::write_weighted_literal<VeriPB::Lit>(const VeriPB::Lit &literal, wght weight);
@@ -69,7 +74,11 @@ template void VeriPbProofLogger::move_to_coreset<std::vector<VeriPB::Lit>, std::
 
 
 template void VeriPbProofLogger::set_objective<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, wght constant_cost);
-template void VeriPbProofLogger::add_objective_literal<uint32_t>(uint32_t lit, wght weight);
+template void VeriPbProofLogger::add_objective_literal<uint32_t>(uint32_t& lit, wght weight);
+template void VeriPbProofLogger::remove_objective_literal<uint32_t>(uint32_t& lit);
+template wght VeriPbProofLogger::get_objective_weight<uint32_t>(uint32_t& lit);
+
+
 template bool VeriPbProofLogger::is_aux_var<uint32_t>(const uint32_t &var);
 template std::string VeriPbProofLogger::var_name<uint32_t>(const uint32_t &var);
 template void VeriPbProofLogger::write_weighted_literal<uint32_t>(const uint32_t &literal, wght weight);
@@ -134,7 +143,10 @@ template void VeriPbProofLogger::move_to_coreset<std::vector<uint32_t>>(std::vec
 template void VeriPbProofLogger::move_to_coreset<std::vector<uint32_t>, std::vector<wght>>(std::vector<uint32_t>& lits, std::vector<wght>& wghts, wght RHS=1);
 
 template void VeriPbProofLogger::set_objective<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, wght constant_cost);
-template void VeriPbProofLogger::add_objective_literal<int>(int lit, wght weight);
+template void VeriPbProofLogger::set_objective<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, wght constant_cost);
+template void VeriPbProofLogger::add_objective_literal<int>(int& lit, wght weight);
+template void VeriPbProofLogger::remove_objective_literal<int>(int& lit);
+template wght VeriPbProofLogger::get_objective_weight<int>(int& lit);
 template bool VeriPbProofLogger::is_aux_var<int>(const int &var);
 template std::string VeriPbProofLogger::var_name<int>(const int &var);
 template void VeriPbProofLogger::write_weighted_literal<int>(const int &literal, wght weight);
