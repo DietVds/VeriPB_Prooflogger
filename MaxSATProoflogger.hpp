@@ -35,10 +35,10 @@ constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_l
     witness.push_back({variable(_blocking_lit), !is_negated(_blocking_lit)});
 
     constraintid c_id = PL->redundanceBasedStrengthening(cls, 1, witness);
-    PL->move_to_coreset(-1);
-
     
     if(rewrite_objective){
+        PL->move_to_coreset(-1); // Is necessary for the objective update rule.
+
         cls.clear();
         cls.push_back(neg(_unitclause));
         cls.push_back(neg(_blocking_lit));        
@@ -52,7 +52,7 @@ constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_l
         PL->add_objective_literal(blocking_lit, weight_softclause);
         
         std::vector<VeriPB::Lit> litsOnewminusold = {toVeriPbLit(neg(unitclause)), toVeriPbLit(blocking_lit)};
-        std::vector<signedWght> wghtsOnewminusold = {-1, 1};
+        std::vector<signedWght> wghtsOnewminusold = {-weight_softclause, weight_softclause};
 
         PL->write_objective_update_diff(litsOnewminusold, wghtsOnewminusold);
 

@@ -444,7 +444,7 @@ constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, wght objectiv
         best_objective_value = objective_value;
 
     std::vector<VeriPB::Lit> litsMIC;
-    wght RHS;
+    wght RHS = 0;
     for(uint32_t i = 0; i < objective_lits.size(); i++){
         litsMIC.push_back(neg(objective_lits[i]));
         RHS += objective_weights[i];
