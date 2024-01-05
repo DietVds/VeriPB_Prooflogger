@@ -143,12 +143,22 @@ void VeriPbProofLogger::write_comment_objective_function()
 }
 
 void VeriPbProofLogger::write_objective_update(){
-    *proof << "obju ";
+    *proof << "obju new ";
     for (int i = 0; i < objective_lits.size(); i++)
         write_weighted_literal(objective_lits[i], objective_weights[i]);
     if(objective_constant_cost != 0)
-        *proof << " + " << std::to_string(objective_constant_cost);
+        *proof << std::to_string(objective_constant_cost);
     *proof << ";\n";
+}
+
+template <class TSeqLit, class TSeqSignedWght>
+void VeriPbProofLogger::write_objective_update_diff(TSeqLit& litsOnewminusold, TSeqSignedWght& wghtsOnewminusold, signedWght constantOnewminusold){
+    *proof << "obju diff ";
+    for(int i = 0; i < litsOnewminusold.size(); i++){
+        *proof << std::to_string(wghtsOnewminusold[i]) << " "; 
+        write_literal(litsOnewminusold[i]);
+    }
+    *proof << (constantOnewminusold == 0 ? "" : std::to_string(constantOnewminusold)) << ";\n";
 }
 
 wght VeriPbProofLogger::get_best_objective_function(){

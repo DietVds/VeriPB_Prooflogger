@@ -26,6 +26,7 @@
 // the type that is presenting weights in the solver. This should be defined by the solver developer.
 #define wght uint64_t
 #define wght_max UINT64_MAX
+#define signedWght int64_t 
 // typedef long long int wght; 
 
 

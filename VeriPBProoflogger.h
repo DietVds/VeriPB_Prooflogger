@@ -122,6 +122,8 @@ public:
     void write_comment_objective_function();
     wght get_best_objective_function();
     void write_objective_update();
+    template <class TSeqLit, class TSeqSignedWght>
+    void write_objective_update_diff(TSeqLit& litsOnewminusold, TSeqSignedWght& wghtsOnewminusold, signedWght constantOnewminusold = 0);
     // TODO: 
     // void write_objective_update(subproof& new_geq_old, subproof& new_leq_old);
 

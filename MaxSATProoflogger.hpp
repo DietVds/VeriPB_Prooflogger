@@ -36,24 +36,28 @@ constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_l
 
     constraintid c_id = PL->redundanceBasedStrengthening(cls, 1, witness);
 
-    
-    // if(bidir_reif){
-    //     cls.clear();
-    //     cls.push_back(neg(_blocking_lit));
-    //     cls.push_back(neg(_unitclause));
+    cls.clear();
+    cls.push_back(neg(_blocking_lit));
+    cls.push_back(neg(_unitclause));
 
-    //     witness.clear();
-    //     witness.push_back({variable(_blocking_lit), is_negated(_blocking_lit)});
+    witness.clear();
+    witness.push_back({variable(_blocking_lit), is_negated(_blocking_lit)});
 
-    //     PL->redundanceBasedStrengthening(cls, 1, witness);
-    // }
+    constraintid c_inverse_id = PL->redundanceBasedStrengthening(cls, 1, witness);
 
     if(rewrite_objective){
         PL->remove_objective_literal(unitclause);
         PL->add_objective_literal(blocking_lit, weight_softclause);
 
-        rewrite_for_unitsoftclauses = PL->CP_addition(rewrite_for_unitsoftclauses, PL->CP_constraintid(c_id));
+        std::vector<VeriPB::Lit> litsOnewminusold = {toVeriPbLit(unitclause), toVeriPbLit(blocking_lit)};
+        std::vector<signedWght> wghtsOnewminusold = {-1, 1};
+
+        PL->write_objective_update_diff(litsOnewminusold, wghtsOnewminusold);
+
+        // PL->write_objective_update(); // TODO Dieter: Change to obju diff. 
     }
+
+    PL->delete_constraint_by_id(c_inverse_id);
     
     return c_id;
 }
