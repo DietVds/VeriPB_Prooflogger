@@ -350,11 +350,19 @@ public:
 
     // ------------- Deleting & Overwriting Constraints -------------
     void delete_constraint_by_id(const constraintid constraint_id);
+    template <class TVar>
+    void delete_constraint_by_id(const constraintid constraint_id, const substitution<TVar>& witness); // TODO-Dieter
     void delete_constraint_by_id(const std::vector<constraintid> &constraint_ids);
     template <class TSeqLit>
     void delete_constraint(const TSeqLit &lits, const wght RHS);
+    template <class TSeqLit, class TVar>
+    void delete_constraint(const TSeqLit &lits, const wght RHS, const substitution<TVar>& witness);    
     template <class TSeqLit, class TSeqWght>
     void delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
+    template <class TSeqLit, class TSeqWght, class TVar>
+    void delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution<TVar>& witness);    
+
+    
 
     //Minisat:
     // void delete_constraint(Glucose::Clause &clause);

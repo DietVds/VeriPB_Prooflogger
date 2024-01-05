@@ -108,16 +108,17 @@ void VeriPbProofLogger::add_objective_literal(TLit& lit, wght weight){
 template <class TLit>
 void VeriPbProofLogger::remove_objective_literal(TLit& lit){
     int i=0;
-    while(toVeriPbLit(lit) != objective_lits[i]) i++;
-    
+    VeriPB::Lit vLit = toVeriPbLit(lit);
+    while(i < objective_lits.size() && vLit != objective_lits[i]) i++;
     while(i+1 < objective_lits.size()) {
         objective_lits[i] = objective_lits[i+1];
         objective_weights[i] = objective_weights[i+1];
         i++;
     }
-    
-    objective_lits.resize(objective_lits.size()-1);
-    objective_weights.resize(objective_weights.size()-1);
+    if(objective_lits.size() > 0)
+        objective_lits.resize(objective_lits.size()-1);
+    if(objective_lits.size() > 0)
+        objective_weights.resize(objective_weights.size()-1);
 }
 
 template <class TLit>
@@ -551,7 +552,7 @@ constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const TSeqWght &weights
 // TODO: add witness that could also map to other variables.
 
 void VeriPbProofLogger::strenghten_to_core(){
-    *proof << "strenghtening_to_core on\n"; 
+    *proof << "strengthening_to_core on\n"; 
 }
 
 template <class TVar>
@@ -1016,6 +1017,14 @@ void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const wght RHS)
     *proof << ";\n";
 }
 
+template <class TSeqLit, class TVar>
+void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const wght RHS, const substitution<TVar>& witness){
+    *proof << "del spec ";
+    write_cardinality_constraint(lits, RHS);
+    *proof << "; ";
+    write_witness(witness);
+    *proof << "\n";
+}
 
 template <class TSeqLit, class TSeqWght>
 void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS)
@@ -1023,6 +1032,15 @@ void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &w
     *proof << "del spec ";
     write_PB_constraint(lits, weights, RHS);
     *proof << ";\n";
+}
+
+template <class TSeqLit, class TSeqWght, class TVar>
+void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution<TVar>& witness){
+    *proof << "del spec ";
+    write_PB_constraint(lits, weights, RHS);
+    *proof << "; ";
+    write_witness(witness);
+    *proof << "\n";
 }
 
 // Removal by del find where a literal occuring multiple times in lits is only written once.
