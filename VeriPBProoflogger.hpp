@@ -543,6 +543,45 @@ constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const TSeqWght &weights
     return ++constraint_counter;
 }
 
+template <class TLit>
+constraintid VeriPbProofLogger::rup_unit_clause(const TLit& lit, bool core_constraint){
+    *proof << "u ";
+    write_weighted_literal(lit);
+    *proof << " >= 1;\n";
+
+    if(core_constraint)
+        move_to_coreset(-1);
+
+    return ++constraint_counter;
+}
+
+template <class TLit>
+constraintid VeriPbProofLogger::rup_binary_clause(const TLit& lit1, const TLit& lit2, bool core_constraint){
+    *proof << "u ";
+    write_weighted_literal(lit1);
+    write_weighted_literal(lit2);
+    *proof << " >= 1;\n";
+
+    if(core_constraint)
+        move_to_coreset(-1);
+
+    return ++constraint_counter;
+}
+
+template <class TLit> 
+constraintid VeriPbProofLogger::rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, bool core_constraint){
+    *proof << "u ";
+    write_weighted_literal(lit1);
+    write_weighted_literal(lit2);
+    write_weighted_literal(lit3);
+    *proof << " >= 1;\n";
+
+    if(core_constraint)
+        move_to_coreset(-1);
+
+    return ++constraint_counter;
+}
+
 //  ------------- Dominance Rule -------------
 
 // TODO

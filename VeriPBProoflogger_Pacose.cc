@@ -34,6 +34,9 @@ template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<VeriPB
 template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
 template constraintid VeriPbProofLogger::rup<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS);
 template constraintid VeriPbProofLogger::rup<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
+template constraintid VeriPbProofLogger::rup_unit_clause<VeriPB::Lit>(const VeriPB::Lit& lit, bool core_constraint);
+template constraintid VeriPbProofLogger::rup_binary_clause<VeriPB::Lit>(const VeriPB::Lit& lit1, const VeriPB::Lit& lit2, bool core_constraint);
+template constraintid VeriPbProofLogger::rup_ternary_clause<VeriPB::Lit>(const VeriPB::Lit& lit1, const VeriPB::Lit& lit2, const VeriPB::Lit& lit3, bool core_constraint);
 template void VeriPbProofLogger::write_witness<VeriPB::Var>(const substitution<VeriPB::Var> &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<VeriPB::Lit>, VeriPB::Var>(const std::vector<VeriPB::Lit> &lits, const wght RHS, const substitution<VeriPB::Var> &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Var>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, const substitution<VeriPB::Var> &witness);
@@ -106,6 +109,9 @@ template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<uint32
 template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS);
 template constraintid VeriPbProofLogger::rup<std::vector<uint32_t>>(const std::vector<uint32_t> &lits, const wght RHS);
 template constraintid VeriPbProofLogger::rup<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS);
+template constraintid VeriPbProofLogger::rup_unit_clause<uint32_t>(const uint32_t& lit, bool core_constraint);
+template constraintid VeriPbProofLogger::rup_binary_clause<uint32_t>(const uint32_t& lit1, const uint32_t& lit2, bool core_constraint);
+template constraintid VeriPbProofLogger::rup_ternary_clause<uint32_t>(const uint32_t& lit1, const uint32_t& lit2, const uint32_t& lit3, bool core_constraint);
 template void VeriPbProofLogger::write_witness<uint32_t>(const substitution<uint32_t> &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<uint32_t>, uint32_t>(const std::vector<uint32_t> &lits, const wght RHS, const substitution<uint32_t> &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<uint32_t>, std::vector<wght>, uint32_t>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS, const substitution<uint32_t> &witness);
@@ -175,6 +181,9 @@ template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<int>>(
 template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS);
 template constraintid VeriPbProofLogger::rup<std::vector<int>>(const std::vector<int> &lits, const wght RHS);
 template constraintid VeriPbProofLogger::rup<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS);
+template constraintid VeriPbProofLogger::rup_unit_clause<int>(const int& lit, bool core_constraint);
+template constraintid VeriPbProofLogger::rup_binary_clause<int>(const int& lit1, const int& lit2, bool core_constraint);
+template constraintid VeriPbProofLogger::rup_ternary_clause<int>(const int& lit1, const int& lit2, const int& lit3, bool core_constraint);
 template void VeriPbProofLogger::write_witness<int>(const substitution<int> &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<int>, int>(const std::vector<int> &lits, const wght RHS, const substitution<int> &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<int>, std::vector<wght>, int>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS, const substitution<int> &witness);

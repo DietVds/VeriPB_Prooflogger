@@ -215,6 +215,12 @@ public:
     constraintid rup(const TSeqLit &lits, const wght RHS = 1);
     template <class TSeqLit, class TSeqWght>
     constraintid rup(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
+    template <class TLit>
+    constraintid rup_unit_clause(const TLit& lit, bool core_constraint=true);
+    template <class TLit>
+    constraintid rup_binary_clause(const TLit& lit1, const TLit& lit2, bool core_constraint=false);
+    template <class TLit> 
+    constraintid rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, bool core_constraint=false);
 
     // ------------- Redundance Based Strenghtening -------------
     void strenghten_to_core();
