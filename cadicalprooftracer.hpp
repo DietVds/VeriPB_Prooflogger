@@ -33,6 +33,8 @@ class CadicalProofTracer : public Tracer {
 
   int64_t added, deleted;
 
+  constraintid next_cxnid = undefcxn;
+
   vector<uint64_t> delete_ids;
 
   // support veriPB
@@ -61,7 +63,7 @@ public:
 
   void weaken_minus (uint64_t, const vector<int> &) override;
   void strengthen (uint64_t) override;
-  void update_veripb_id(uint64_t, uint64_t);
+  void add_with_constraintid(constraintid);
   uint64_t last_clause_id();
   constraintid getVeriPbConstraintId(uint64_t);
 };

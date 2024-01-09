@@ -43,6 +43,7 @@
 // Prooflogger
 
 typedef int constraintid;
+#define undefcxn -1
 
 template<class TVar>
 using substitution = std::vector<std::pair<TVar, bool>>;

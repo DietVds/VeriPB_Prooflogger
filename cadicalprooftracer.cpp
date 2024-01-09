@@ -18,7 +18,7 @@ CadicalProofTracer::~CadicalProofTracer () {}
 void CadicalProofTracer::veripb_add_derived_clause(
     uint64_t id, bool redundant, const vector<int> &clause,
     const vector<uint64_t> &chain) {
-  vPL->write_comment("Cadical PT: add derived clause with id " + std::to_string(id) + " and veripb id " + std::to_string(vPL->constraint_counter));
+  vPL->write_comment("Cadical PT: add derived clause with id " + std::to_string(id) + " and veripb id " + std::to_string(vPL->constraint_counter+1));
   
   cuttingplanes_derivation cpder;
   bool first = true;
@@ -85,8 +85,10 @@ void CadicalProofTracer::veripb_strengthen (uint64_t id) {
 
 void CadicalProofTracer::add_original_clause (uint64_t id, bool redundant, const vector<int> &clause,
                             bool restored){
-  vPL->write_comment("Cadical PT: add original clause with id " + std::to_string(id) + " and veripb id " + std::to_string(vPL->constraint_counter));
-  clauses_vpb[id] = vPL->constraint_counter;
+  constraintid cxnid = next_cxnid == undefcxn ? vPL->constraint_counter : next_cxnid;
+  vPL->write_comment("Cadical PT: add original clause with id " + std::to_string(id) + " and veripb id " + std::to_string(cxnid));
+  clauses_vpb[id] = cxnid;
+  next_cxnid = undefcxn;
   added++;
 }       
 
@@ -116,9 +118,8 @@ void CadicalProofTracer::strengthen (uint64_t id) {
   veripb_strengthen (id);
 }
 
-void CadicalProofTracer::update_veripb_id(uint64_t cadical_id, uint64_t veripb_id){
-  vPL->write_comment("Cadical PT: update cadical clause id " + std::to_string(cadical_id) + " from veripb id " + std::to_string(clauses_vpb[cadical_id]) + " to veripb id " + std::to_string(veripb_id));
-  clauses_vpb[cadical_id] = veripb_id;
+void CadicalProofTracer::add_with_constraintid(constraintid veripb_id){
+  next_cxnid = veripb_id;
 }
 
 uint64_t CadicalProofTracer::last_clause_id(){
