@@ -109,15 +109,21 @@ template <class TLit>
 void VeriPbProofLogger::remove_objective_literal(TLit& lit){
     int i=0;
     VeriPB::Lit vLit = toVeriPbLit(lit);
+    bool found = false;
+
     while(i < objective_lits.size() && vLit != objective_lits[i]) i++;
+
+    if(vLit == objective_lits[i]) found=true; 
+
     while(i+1 < objective_lits.size()) {
         objective_lits[i] = objective_lits[i+1];
         objective_weights[i] = objective_weights[i+1];
         i++;
     }
-    if(objective_lits.size() > 0)
+    
+    if(found && objective_lits.size() > 0)
         objective_lits.resize(objective_lits.size()-1);
-    if(objective_lits.size() > 0)
+    if(found && objective_lits.size() > 0)
         objective_weights.resize(objective_weights.size()-1);
 }
 

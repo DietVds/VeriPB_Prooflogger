@@ -50,6 +50,9 @@ constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_l
         PL->move_to_coreset(-1);
 
         PL->add_objective_literal(blocking_lit, weight_softclause);
+        TLit neglit = neg(unitclause);
+        PL->remove_objective_literal(neglit);
+        
         
         std::vector<VeriPB::Lit> litsOnewminusold = {toVeriPbLit(neg(unitclause)), toVeriPbLit(blocking_lit)};
         std::vector<signedWght> wghtsOnewminusold = {-static_cast<signedWght>(weight_softclause), static_cast<signedWght>(weight_softclause)};
