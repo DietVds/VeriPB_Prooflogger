@@ -18,6 +18,7 @@ CadicalProofTracer::~CadicalProofTracer () {}
 void CadicalProofTracer::veripb_add_derived_clause(
     uint64_t id, bool redundant, const vector<int> &clause,
     const vector<uint64_t> &chain) {
+
   vPL->write_comment("Cadical PT: add derived clause with id " + std::to_string(id) + " and veripb id " + std::to_string(vPL->constraint_counter+1));
   
   cuttingplanes_derivation cpder;
@@ -48,6 +49,7 @@ void CadicalProofTracer::veripb_add_derived_clause(
 void CadicalProofTracer::veripb_add_derived_clause (uint64_t id, bool redundant,
                                               const vector<int> &clause) {
 
+  vPL->write_comment("Cadical PT: add derived clause with id " + std::to_string(id) + " and veripb id " + std::to_string(vPL->constraint_counter+1));
   constraintid cxn = vPL->rup(clause);
 
   // assert(checked_deletions);
@@ -60,7 +62,7 @@ void CadicalProofTracer::veripb_add_derived_clause (uint64_t id, bool redundant,
 
 void CadicalProofTracer::veripb_delete_clause (uint64_t id, bool redundant) {
 
-  vPL->write_comment("Cadical PT: delete clause with id " + std::to_string(id) );
+  vPL->write_comment("Cadical PT: delete clause with id " + std::to_string(id) + " and veripb id " + std::to_string(clauses_vpb[id]));
   
   bool marked = weakened_clauses.find(id) != weakened_clauses.end();
 
