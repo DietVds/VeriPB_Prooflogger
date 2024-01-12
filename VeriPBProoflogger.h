@@ -208,6 +208,8 @@ public:
     constraintid unchecked_assumption(const TSeqLit &lits, const wght RHS = 1);
     template <class TSeqLit, class TSeqWght>
     constraintid unchecked_assumption(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
+    template <class TLit> 
+    constraintid unchecked_assumption_unit_clause(const TLit& lit);
 
     
     // ------------- Reverse Unit Propagation -------------

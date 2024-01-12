@@ -530,6 +530,14 @@ constraintid VeriPbProofLogger::unchecked_assumption(const TSeqLit &lits, const 
     return ++constraint_counter;
 }
 
+template <class TLit> 
+constraintid VeriPbProofLogger::unchecked_assumption_unit_clause(const TLit& lit){
+    *proof << "a ";
+    write_weighted_literal(lit, 1);
+    *proof << " ;\n";
+    return ++constraint_counter;
+}
+
 // ------------- Reverse Unit Propagation -------------
 template <class TSeqLit>
 constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const wght RHS)
