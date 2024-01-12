@@ -827,6 +827,9 @@ template <class TVar>
 constraintid VeriPbProofLogger::getReifiedConstraintLeftImpl(const TVar& var){
     VeriPB::VarIdx id = varidx(toVeriPbVar(var));
 
+    if(reifiedConstraintLeftImpl.find(id) == reifiedConstraintLeftImpl.end())
+        std::cout << "ERROR: Cannot find left reification constraint for variable " << var_name(var) << std::endl;
+
     assert(reifiedConstraintLeftImpl.find(id) != reifiedConstraintLeftImpl.end());
 
     return reifiedConstraintLeftImpl[id];
@@ -835,6 +838,10 @@ constraintid VeriPbProofLogger::getReifiedConstraintLeftImpl(const TVar& var){
 template <class TVar>
 constraintid VeriPbProofLogger::getReifiedConstraintRightImpl(const TVar& var){
     VeriPB::VarIdx id = varidx(toVeriPbVar(var));
+
+    if(reifiedConstraintRightImpl.find(id) == reifiedConstraintRightImpl.end())
+        std::cout << "ERROR: Cannot find right reification constraint for variable " << var_name(var) << std::endl;
+    
 
     assert(reifiedConstraintRightImpl.find(id) != reifiedConstraintRightImpl.end());
 
