@@ -535,6 +535,7 @@ constraintid VeriPbProofLogger::unchecked_assumption_unit_clause(const TLit& lit
     *proof << "a ";
     write_weighted_literal(lit, 1);
     *proof << " ;\n";
+    move_to_coreset(-1);
     return ++constraint_counter;
 }
 
