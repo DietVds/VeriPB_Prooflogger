@@ -106,7 +106,9 @@ public:
     void write_conclusion_UNSAT_optimization();
     void write_conclusion_SAT();
     void write_conclusion_OPTIMAL();
+    void write_conclusion_OPTIMAL(constraintid hint);
     void write_conclusion_BOUNDS(wght LB, wght UB);
+    void write_conclusion_BOUNDS(wght LB, constraintid hint, wght UB);
     void write_fail();
 
     // Objective Function 

@@ -71,9 +71,23 @@ void VeriPbProofLogger::write_conclusion_OPTIMAL(){
         << "conclusion BOUNDS " << std::to_string(best_objective_value) << " " << std::to_string(best_objective_value) << "\n"
         << "end pseudo-Boolean proof\n";
 }
+
+void VeriPbProofLogger::write_conclusion_OPTIMAL(constraintid hint){
+    *proof << "output NONE\n"
+        << "conclusion BOUNDS " << std::to_string(best_objective_value) << " : " << std::to_string(hint) << " " << std::to_string(best_objective_value) << "\n"
+        << "end pseudo-Boolean proof\n";
+}
+
+
 void VeriPbProofLogger::write_conclusion_BOUNDS(wght LB, wght UB){
     *proof << "output NONE\n"
         << "conclusion BOUNDS " << std::to_string(LB) << " " << std::to_string(UB) << "\n"
+        << "end pseudo-Boolean proof\n";
+}
+
+void VeriPbProofLogger::write_conclusion_BOUNDS(wght LB, constraintid hint, wght UB){
+    *proof << "output NONE\n"
+        << "conclusion BOUNDS " << std::to_string(LB) << " : " << std::to_string(hint) << " " << std::to_string(UB) << "\n"
         << "end pseudo-Boolean proof\n";
 }
 
@@ -467,6 +481,7 @@ constraintid VeriPbProofLogger::log_solution_with_check(const TSeqLit &model, bo
     int current_objective_value = calculate_objective_value(model);
     if (current_objective_value < best_objective_value)
     {
+        write_comment_objective_function();
         write_comment("Objective update from " + std::to_string(best_objective_value) + " to " + std::to_string(current_objective_value));
         log_solution(model, current_objective_value, only_original_variables_necessary);
     }
@@ -534,7 +549,7 @@ template <class TLit>
 constraintid VeriPbProofLogger::unchecked_assumption_unit_clause(const TLit& lit){
     *proof << "a ";
     write_weighted_literal(lit, 1);
-    *proof << " ;\n";
+    *proof << ">= 1 ;\n";
     move_to_coreset(-1);
     return ++constraint_counter;
 }
