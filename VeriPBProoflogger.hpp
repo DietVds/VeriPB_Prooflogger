@@ -120,16 +120,21 @@ void VeriPbProofLogger::add_objective_literal(TLit& lit, wght weight){
 }
 
 template <class TLit>
-void VeriPbProofLogger::remove_objective_literal(TLit& lit){
+bool VeriPbProofLogger::remove_objective_literal(TLit& lit){
     int i=0;
     VeriPB::Lit vLit = toVeriPbLit(lit);
     bool found = false;
 
+    write_comment("objective before removal: "); write_comment_objective_function();
+    write_comment("size objective literals = " + std::to_string(objective_lits.size()));
+
     while(i < objective_lits.size() && vLit != objective_lits[i]) i++;
 
-    if(vLit == objective_lits[i]) found=true; 
+    if(i < objective_lits.size() && vLit == objective_lits[i]) found=true; 
 
-    while(i+1 < objective_lits.size()) {
+    if(found) write_comment("removal of objective literal " + to_string(vLit) + " and objective_lits[i] = " + to_string(objective_lits[i]));
+
+    while(found && i+1 < objective_lits.size()) {
         objective_lits[i] = objective_lits[i+1];
         objective_weights[i] = objective_weights[i+1];
         i++;
@@ -139,6 +144,12 @@ void VeriPbProofLogger::remove_objective_literal(TLit& lit){
         objective_lits.resize(objective_lits.size()-1);
     if(found && objective_lits.size() > 0)
         objective_weights.resize(objective_weights.size()-1);
+
+    write_comment("objective after removal: "); write_comment_objective_function();
+    write_comment("found = " + std::to_string(found));
+    write_comment("size objective literals = " + std::to_string(objective_lits.size()));
+
+    return found;
 }
 
 template <class TLit>

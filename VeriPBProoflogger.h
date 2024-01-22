@@ -117,7 +117,7 @@ public:
     template <class TLit> 
     void add_objective_literal(TLit& lit, wght weight);
     template <class TLit>
-    void remove_objective_literal(TLit& lit);
+    bool remove_objective_literal(TLit& lit);
     template <class TLit>
     wght get_objective_weight(TLit& lit);
     void add_objective_constant(wght weight);
