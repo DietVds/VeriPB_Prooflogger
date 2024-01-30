@@ -635,55 +635,53 @@ void VeriPbProofLogger::strenghten_to_core(){
     *proof << "strengthening_to_core on\n"; 
 }
 
+substitution VeriPbProofLogger::get_new_substitution(){
+    return "";
+}
+
 template <class TVar>
-void VeriPbProofLogger::write_witness(const substitution<TVar> &witness)
+void VeriPbProofLogger::add_boolean_assignment(substitution &s, const TVar& var, const bool value){
+    s += var_name(var) + " -> " + (value ? " 1 " : " 0 ");
+}
+template <class TVar, class TLit>
+void VeriPbProofLogger::add_literal_assignment(substitution &s, const TVar& var, const TLit& value){
+    s += var_name(var) + " -> " + to_string(value) + " ";
+}
+
+void VeriPbProofLogger::write_substitution(const substitution &witness)
 {
-    for(int i = 0; i < witness.size(); i++){
-        VeriPB::Var var = toVeriPbVar(witness[i].first);
-        bool to = witness[i].second;
-
-        VeriPB::VarIdx idx_var = varidx(var);
-
-        // If the variable in the witness has to be rewritten by a negated literal, than it should be witnessed on the negation.
-        if(map_rewrite_var_by_literal.find(idx_var) != map_rewrite_var_by_literal.end()){
-            var = variable(map_rewrite_var_by_literal[idx_var]);
-            if(is_negated(map_rewrite_var_by_literal[idx_var]))
-                to = !to;
-        }
-
-        *proof << var_name(var) << " -> " << std::to_string(to) ;
-    }    
+    *proof << witness;    
 }
 
 
-template <class TSeqLit, class TVar>
-constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits, const wght RHS, const substitution<TVar> &witness)
+template <class TSeqLit>
+constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits, const wght RHS, const substitution &witness)
 {
     *proof << "red ";
     write_cardinality_constraint(lits, RHS);
     *proof << "; ";
-    write_witness(witness);
+    write_substitution(witness);
     *proof << "\n";
     return ++constraint_counter;
 }
 
-template <class TSeqLit, class TSeqWght, class TVar>
-constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution<TVar> &witness)
+template <class TSeqLit, class TSeqWght>
+constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution &witness)
 {
     *proof << "red ";
     write_PB_constraint(lits, weights, RHS);
     *proof << "; ";
-    write_witness(witness);
+    write_substitution(witness);
     *proof << "\n";
     return ++constraint_counter;
 }
 
-template <class TSeqLit, class TSeqWght, class TVar>
-constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution<TVar> &witness, std::vector<subproof> subproofs){
+template <class TSeqLit, class TSeqWght>
+constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs){
     *proof << "red ";
     write_PB_constraint(lits, weights, RHS);
     *proof << "; ";
-    write_witness(witness);
+    write_substitution(witness);
 
     constraint_counter++; // constraint not C
 
@@ -734,8 +732,8 @@ constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, con
     _lits[i] = neglit;
     _weights[i] = RHS;
 
-    substitution<VeriPB::Var> witness;
-    witness.push_back({variable(neglit), !is_negated(neglit)});
+    substitution witness = get_new_substitution();
+    add_boolean_assignment(witness, variable(neglit), !is_negated(neglit));
 
     constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, RHS, witness);
 
@@ -768,8 +766,8 @@ constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, con
     _lits[i] = _neglit;
     _weights[i] = RHS;
 
-    substitution<VeriPB::Var> witness;
-    witness.push_back({variable(_neglit), !is_negated(_neglit)});
+    substitution witness = get_new_substitution();
+    add_boolean_assignment(witness, variable(_neglit), !is_negated(_neglit));
 
     constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, RHS, witness);
 
@@ -810,8 +808,8 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, cons
     _lits[i] = _lit;
     _weights[i] = j;
 
-    substitution<VeriPB::Var> witness;
-    witness.push_back({variable(_lit), !is_negated(_lit)});
+    substitution witness = get_new_substitution();
+    add_boolean_assignment(witness, variable(_lit), !is_negated(_lit));
 
     constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, j, witness);
 
@@ -847,8 +845,9 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, cons
     _lits[i] = _lit;
     _weights[i] = j;
 
-    substitution<VeriPB::Var> witness;
-    witness.push_back({variable(_lit), !is_negated(_lit)});
+    substitution witness = get_new_substitution();
+    add_boolean_assignment(witness, variable(_lit), !is_negated(_lit));
+    
 
     constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, j, witness);
 
@@ -1064,7 +1063,7 @@ template <class TSeqLit, class TSeqWght>
 constraintid VeriPbProofLogger::prove_by_contradiction(TSeqLit& lits, TSeqWght& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder){
     std::vector<subproof> subproofs;
     subproofs.push_back({"#1", cpder});
-    substitution<VeriPB::Var> witness ;
+    substitution witness = get_new_substitution();
     return redundanceBasedStrengthening(lits, weights, RHS, witness, subproofs );
 }
 
@@ -1104,12 +1103,12 @@ void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const wght RHS)
     *proof << ";\n";
 }
 
-template <class TSeqLit, class TVar>
-void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const wght RHS, const substitution<TVar>& witness){
+template <class TSeqLit>
+void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const wght RHS, const substitution& witness){
     *proof << "del spec ";
     write_cardinality_constraint(lits, RHS);
     *proof << "; ";
-    write_witness(witness);
+    write_substitution(witness);
     *proof << "\n";
 }
 
@@ -1121,12 +1120,12 @@ void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &w
     *proof << ";\n";
 }
 
-template <class TSeqLit, class TSeqWght, class TVar>
-void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution<TVar>& witness){
+template <class TSeqLit, class TSeqWght>
+void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution& witness){
     *proof << "del spec ";
     write_PB_constraint(lits, weights, RHS);
     *proof << "; ";
-    write_witness(witness);
+    write_substitution(witness);
     *proof << "\n";
 }
 

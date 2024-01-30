@@ -31,9 +31,9 @@ constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_l
     cls.push_back(_unitclause);
     cls.push_back(_blocking_lit);    
 
-    substitution<VeriPB::Var> witness;
-    witness.push_back({variable(_blocking_lit), !is_negated(_blocking_lit)});
-
+    substitution witness = PL->get_new_substitution();
+    PL->add_boolean_assignment(witness, variable(_blocking_lit), !is_negated(_blocking_lit));
+    
     constraintid c_id = PL->redundanceBasedStrengthening(cls, 1, witness);
     
     if(rewrite_objective){
@@ -43,9 +43,9 @@ constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_l
         cls.push_back(neg(_unitclause));
         cls.push_back(neg(_blocking_lit));        
 
-        witness.clear();
-        witness.push_back({variable(_blocking_lit), is_negated(_blocking_lit)});
-
+        witness = PL->get_new_substitution();
+        PL->add_boolean_assignment(witness, variable(_blocking_lit), is_negated(_blocking_lit));
+        
         constraintid c_inverse_id = PL->redundanceBasedStrengthening(cls, 1, witness);
         PL->move_to_coreset(-1);
 
@@ -212,8 +212,8 @@ constraintid MaxSATProoflogger::introduce_at_most_one_selector(const TSeqLit &am
 
     constraint_lits.push_back(sel);
 
-    substitution<VeriPB::Var> witness;
-    witness.push_back({variable(sel), !is_negated(sel)});
+    substitution witness = PL->get_new_substitution();
+    PL->add_boolean_assignment(witness, variable(sel), !is_negated(sel));
 
     constraintid reified_am1_constraint_id = PL->redundanceBasedStrengthening(constraint_lits, am1_lits.size(), witness);
 
@@ -222,8 +222,8 @@ constraintid MaxSATProoflogger::introduce_at_most_one_selector(const TSeqLit &am
         constraint_lits[i] = neg(constraint_lits[i]);
     }
 
-    witness.clear();
-    witness.push_back({variable(sel), is_negated(sel)});
+    witness =  PL->get_new_substitution();
+    PL->add_boolean_assignment(witness, variable(sel), is_negated(sel));
     PL->redundanceBasedStrengthening(constraint_lits, 1, witness);
 
     return reified_am1_constraint_id;

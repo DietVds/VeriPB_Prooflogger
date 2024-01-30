@@ -8,7 +8,8 @@ void PBtoCNFprooflogger::define_zerolit(TLit& zero){
     
     std::vector<VeriPB::Lit> lits; 
     lits.push_back(neg(zerolit));
-    substitution<VeriPB::Var> witness; witness.push_back({variable(zerolit), is_negated(zerolit) ? true : false});
+    substitution witness = PL->get_new_substitution();
+    PL->add_boolean_assignment(witness, variable(zerolit), is_negated(zerolit));
 
     PL->store_meaningful_name(variable(zerolit), is_negated(zerolit) ? "true": "false");
 

@@ -45,9 +45,7 @@
 typedef int constraintid;
 #define undefcxn -1
 
-template<class TVar>
-using substitution = std::vector<std::pair<TVar, bool>>;
-
+typedef std::string substitution;
 typedef std::string cuttingplanes_derivation;
 
 class VeriPbProofLogger
@@ -230,15 +228,19 @@ public:
     // ------------- Redundance Based Strenghtening -------------
     void strenghten_to_core();
 
+    void write_substitution(const substitution &witness);
+    substitution get_new_substitution();
     template <class TVar>
-    void write_witness(const substitution<TVar> &witness);
+    void add_boolean_assignment(substitution &s, const TVar& var, const bool value);
+    template <class TVar, class TLit>
+    void add_literal_assignment(substitution &s, const TVar& var, const TLit& value);
 
     // Assumption here is that these can prove the implication F ^ not C |- F\w ^ C\w trivially,
     // i.e., for every constraint C' in F\w ^ C\w, C' is either in F or that w only assigns literals to true in C'.
-    template <class TSeqLit, class TVar>
-    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const wght RHS, const substitution<TVar> &witness);
-    template <class TSeqLit, class TSeqWght, class TVar>
-    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution<TVar> &witness);
+    template <class TSeqLit>
+    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const wght RHS, const substitution &witness);
+    template <class TSeqLit, class TSeqWght>
+    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution &witness);
 
     typedef struct {
         std::string proofgoal;
@@ -247,8 +249,8 @@ public:
 
     // In contrast to all other overloads, this overload of redundanceBasedStrenghtening suspects that at least one proof goal is not trivial (and that it should be proven by either RUP or by an explicit cutting planes proof). 
     // This is important for counting the number of constraints, since constraints are created while proving non-trivial proofgoals.
-    template <class TSeqLit, class TSeqWght, class TVar>
-    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution<TVar> &witness, std::vector<subproof> subproofs);
+    template <class TSeqLit, class TSeqWght>
+    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
 
     // ------------- Reification Variables -------------
     // Proves the constraints encoding the reification constraint l <-> C, with l a literal and C a boolean constraint.
@@ -361,17 +363,16 @@ public:
 
     // ------------- Deleting & Overwriting Constraints -------------
     void delete_constraint_by_id(const constraintid constraint_id);
-    template <class TVar>
-    void delete_constraint_by_id(const constraintid constraint_id, const substitution<TVar>& witness); // TODO-Dieter
+    void delete_constraint_by_id(const constraintid constraint_id, const substitution& witness); // TODO-Dieter
     void delete_constraint_by_id(const std::vector<constraintid> &constraint_ids);
     template <class TSeqLit>
     void delete_constraint(const TSeqLit &lits, const wght RHS);
-    template <class TSeqLit, class TVar>
-    void delete_constraint(const TSeqLit &lits, const wght RHS, const substitution<TVar>& witness);    
+    template <class TSeqLit>
+    void delete_constraint(const TSeqLit &lits, const wght RHS, const substitution& witness);    
     template <class TSeqLit, class TSeqWght>
     void delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
-    template <class TSeqLit, class TSeqWght, class TVar>
-    void delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution<TVar>& witness);    
+    template <class TSeqLit, class TSeqWght>
+    void delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution& witness);    
 
     
 
