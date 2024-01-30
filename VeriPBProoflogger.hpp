@@ -230,23 +230,39 @@ bool VeriPbProofLogger::is_aux_var(const TVar &var)
 template <class TVar>
 std::string VeriPbProofLogger::var_name(const TVar &var)
 {
-    std::string name;
+    VeriPB::Var v = toVeriPbVar(var);
+    VeriPB::VarIdx v_idx = varidx(v);
 
-    if (meaningful_names_store.find(varidx(toVeriPbVar(var))) != meaningful_names_store.end())
-    {
-        name = meaningful_names_store[varidx(toVeriPbVar(var))];
+    if(v.only_known_in_proof){
+        if(names_vars_only_in_proof.find(v_idx) != names_vars_only_in_proof.end())
+            return names_vars_only_in_proof[v_idx];
+        else
+            return "_p" + std::to_string(v_idx);
+
     }
-    else if (is_aux_var(var))
-    {
-        name = "y";
-        name += std::to_string(varidx(toVeriPbVar(var)));
+    else{
+        if (meaningful_names_store.find(v_idx) != meaningful_names_store.end())
+        {
+            return  meaningful_names_store[v_idx];
+        }
+        else if (is_aux_var(var))
+        {
+            return  "y" +  std::to_string(varidx(toVeriPbVar(var)));
+        }
+        else
+        {
+            return "x" + std::to_string(varidx(toVeriPbVar(var)));
+        }
     }
-    else
-    {
-        name = "x";
-        name += std::to_string(varidx(toVeriPbVar(var)));
-    }
-    return name;
+}
+
+VeriPB::Var VeriPbProofLogger::new_variable_only_in_proof(std::string name){
+    VeriPB::Var v; 
+    v.only_known_in_proof = true; 
+    v.v = ++n_vars_only_known_in_proof;
+    if(name != "")
+        names_vars_only_in_proof[n_vars_only_known_in_proof];
+    return v;
 }
 
 template <class TLit>

@@ -67,6 +67,9 @@ private:
 
     // Meaningful variable names
     std::map<VeriPB::VarIdx, std::string> meaningful_names_store;
+    std::map<VeriPB::VarIdx, std::string> names_vars_only_in_proof;
+    uint32_t n_vars_only_known_in_proof;
+    
 
     // Variables to be rewritten by literals.
     std::map<VeriPB::VarIdx, VeriPB::Lit> map_rewrite_var_by_literal;
@@ -137,6 +140,8 @@ public:
     bool is_aux_var(const TVar &var);
     template <class TVar>
     std::string var_name(const TVar &var);
+
+    VeriPB::Var new_variable_only_in_proof(std::string name="");
 
     template <class TLit>
     void write_weighted_literal(const TLit &literal, wght weight = 1);

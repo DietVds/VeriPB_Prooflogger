@@ -11,6 +11,7 @@ namespace VeriPB {
 
     struct Var{
         uint32_t v;
+        bool only_known_in_proof = false;
     };
     struct Lit{
         Var v;
