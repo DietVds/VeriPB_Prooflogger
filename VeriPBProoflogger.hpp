@@ -12,6 +12,10 @@ void VeriPbProofLogger::set_proof_stream(std::ostream* proof){
     this->proof = proof;
 }
 
+void VeriPbProofLogger::set_keep_original_formula(){
+    keep_original_formula = true;
+}
+
 void VeriPbProofLogger::write_proof_header(int nbclause, int nbvars)
 {
     n_variables = nbvars;
@@ -43,6 +47,7 @@ void VeriPbProofLogger::set_n_variables(int nbvars){
 void VeriPbProofLogger::set_n_constraints(int nbconstraints){
     assert(constraint_counter == 0);
     constraint_counter = nbconstraints;
+    n_original_constraints = nbconstraints;
 }
 
 // Conclusion
@@ -205,6 +210,10 @@ void VeriPbProofLogger::increase_n_variables(){
 
 void VeriPbProofLogger::increase_constraint_counter(){
     constraint_counter++;
+}
+
+bool VeriPbProofLogger::is_original_constraint(constraintid cxn){
+    return cxn <= n_original_constraints;
 }
 // ------------- Helping functions -------------
 
@@ -580,11 +589,12 @@ constraintid VeriPbProofLogger::unchecked_assumption(const TSeqLit &lits, const 
 }
 
 template <class TLit> 
-constraintid VeriPbProofLogger::unchecked_assumption_unit_clause(const TLit& lit){
+constraintid VeriPbProofLogger::unchecked_assumption_unit_clause(const TLit& lit, bool core_constraint){
     *proof << "a ";
     write_weighted_literal(lit, 1);
     *proof << ">= 1 ;\n";
-    move_to_coreset(-1);
+    if(core_constraint)
+        move_to_coreset(-1);
     return ++constraint_counter;
 }
 
@@ -1105,15 +1115,17 @@ constraintid VeriPbProofLogger::prove_by_casesplitting(TSeqLit& lits, TSeqWght& 
 
 void VeriPbProofLogger::delete_constraint_by_id(const constraintid constraint_id)
 {
-    *proof << "del id " << constraint_id << "\n";
+    if(!(keep_original_formula && is_original_constraint(constraint_id)))
+        *proof << "del id " << constraint_id << "\n";
 }
 
 void VeriPbProofLogger::delete_constraint_by_id(const std::vector<constraintid> &constraint_ids)
 {
     *proof << "del id";
-    for (int i = 0; i < constraint_ids.size(); i++)
+    for (constraintid id : constraint_ids)
     {
-        *proof << " " << constraint_ids[i];
+        if(!(keep_original_formula && is_original_constraint(id)))
+            *proof << " " << id;
     }
     *proof << "\n";
 }
@@ -1121,6 +1133,8 @@ void VeriPbProofLogger::delete_constraint_by_id(const std::vector<constraintid> 
 template <class TSeqLit>
 void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const wght RHS)
 {
+    assert(!keep_original_formula);
+
     *proof << "del spec ";
     write_cardinality_constraint(lits, RHS);
     *proof << ";\n";
@@ -1128,6 +1142,7 @@ void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const wght RHS)
 
 template <class TSeqLit>
 void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const wght RHS, const substitution& witness){
+    assert(!keep_original_formula);
     *proof << "del spec ";
     write_cardinality_constraint(lits, RHS);
     *proof << "; ";
@@ -1138,6 +1153,7 @@ void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const wght RHS, c
 template <class TSeqLit, class TSeqWght>
 void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS)
 {
+    assert(!keep_original_formula);
     *proof << "del spec ";
     write_PB_constraint(lits, weights, RHS);
     *proof << ";\n";
@@ -1145,6 +1161,7 @@ void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &w
 
 template <class TSeqLit, class TSeqWght>
 void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution& witness){
+    assert(!keep_original_formula);
     *proof << "del spec ";
     write_PB_constraint(lits, weights, RHS);
     *proof << "; ";
@@ -1156,6 +1173,7 @@ void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &w
 // Note: TSeqLit must be sorted.
 template <class TSeqLit>
 void VeriPbProofLogger::delete_clause(const TSeqLit& lits){
+    assert(!keep_original_formula);
     *proof << "del spec ";
     write_weighted_literal(lits[0]);
     for(int i = 1; i < lits.size(); i++){
@@ -1216,15 +1234,18 @@ constraintid VeriPbProofLogger::overwrite_constraint(const TSeqLit&lits_orig, co
 }
 
 void VeriPbProofLogger::move_to_coreset(constraintid cxn){
-    *proof << "core id " << std::to_string(cxn) << "\n";
+    if(!keep_original_formula)
+        *proof << "core id " << std::to_string(cxn) << "\n";
 }
 template <class TSeqLit>
 void VeriPbProofLogger::move_to_coreset(TSeqLit& lits, wght RHS){
-    *proof << "core find "; write_cardinality_constraint(lits, RHS); *proof << "\n";
+    if(!keep_original_formula)
+        *proof << "core find "; write_cardinality_constraint(lits, RHS); *proof << "\n";
 }
 template <class TSeqLit, class TSeqWght>
 void VeriPbProofLogger::move_to_coreset(TSeqLit& lits, TSeqWght& wghts, wght RHS){
-    *proof << "core find "; write_PB_constraint(lits, wghts, RHS); *proof << "\n";
+    if(!keep_original_formula)
+        *proof << "core find "; write_PB_constraint(lits, wghts, RHS); *proof << "\n";
 }
 
 // ------------- Handling contradiction -------------

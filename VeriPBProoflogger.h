@@ -51,11 +51,15 @@ typedef std::string cuttingplanes_derivation;
 class VeriPbProofLogger
 {
 private:
+    bool keep_original_formula = false; // If true, the proof logging library will never delete any constraint that is an original constraint and will never move a constraint to the core set. 
+
+
     // Formula information
     // Only used for the variable naming scheme.
     // Variables in the input starts with x,
     // variables created after parsing input starts with y (except for variables having a meaningful name).
     int n_variables = 0;
+    int n_original_constraints = 0;
 
     // Objective function
     //
@@ -93,6 +97,7 @@ public:
     // Proof file
     std::ostream* proof;
     void set_proof_stream(std::ostream* proof);
+    void set_keep_original_formula();
     void write_proof_header(int nbclause, int nbvars);
     void write_proof_header(int nbclause);
     void write_proof_header();
@@ -100,6 +105,7 @@ public:
     void set_n_constraints(int nbconstraints);
     void increase_n_variables();
     void increase_constraint_counter();
+    bool is_original_constraint(constraintid cxn);
 
     // Conclusion
     void write_conclusion_NONE();
@@ -214,7 +220,7 @@ public:
     template <class TSeqLit, class TSeqWght>
     constraintid unchecked_assumption(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
     template <class TLit> 
-    constraintid unchecked_assumption_unit_clause(const TLit& lit);
+    constraintid unchecked_assumption_unit_clause(const TLit& lit, bool core_constraint=true);
 
     
     // ------------- Reverse Unit Propagation -------------
