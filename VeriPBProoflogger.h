@@ -197,9 +197,9 @@ public:
     template <class TSeqLit>
     wght calculate_objective_value(const TSeqLit &model);
     template <class TSeqLit>
-    constraintid log_solution(const TSeqLit &model, wght objective_value=wght_max, bool only_original_variables_necessary=true);
+    constraintid log_solution(const TSeqLit &model, wght objective_value=wght_max, bool only_original_variables_necessary=true, bool log_as_comment=false);
     template <class TSeqLit>
-    constraintid log_solution_with_check(const TSeqLit &model, bool only_original_variables_necessary=true);
+    constraintid log_solution_with_check(const TSeqLit &model, bool only_original_variables_necessary=true, bool log_nonimproving_solution_as_comment=false);
     constraintid get_model_improving_constraint();
     wght get_best_objective_value();
 

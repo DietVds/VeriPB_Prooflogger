@@ -474,10 +474,10 @@ wght VeriPbProofLogger::calculate_objective_value(const TSeqLit &model)
 
 // TODO - Dieter: Add argument for writing full model.
 template <class TSeqLit>
-constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, wght objective_value, bool only_original_variables_necessary)
+constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, wght objective_value, bool only_original_variables_necessary, bool log_as_comment)
 {
     write_comment("Solution with objective value: " + std::to_string(objective_value));
-    *proof << "soli ";
+    *proof << (log_as_comment ? "* " : "soli ");
     for (int i = 0; i < model.size(); i++){
         if(only_original_variables_necessary && is_aux_var(variable(model[i])))
             continue;
@@ -485,25 +485,27 @@ constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, wght objectiv
     }
     *proof << "\n";
     // Veripb automatically adds an improvement constraint so counter needs to be incremented
-    model_improvement_constraint = ++constraint_counter;
+    if(!log_as_comment){
+        model_improvement_constraint = ++constraint_counter;
 
-    if(objective_value < best_objective_value)
-        best_objective_value = objective_value;
+        if(objective_value < best_objective_value)
+            best_objective_value = objective_value;
 
-    std::vector<VeriPB::Lit> litsMIC;
-    wght RHS = 0;
-    for(uint32_t i = 0; i < objective_lits.size(); i++){
-        litsMIC.push_back(neg(objective_lits[i]));
-        RHS += objective_weights[i];
+        std::vector<VeriPB::Lit> litsMIC;
+        wght RHS = 0;
+        for(uint32_t i = 0; i < objective_lits.size(); i++){
+            litsMIC.push_back(neg(objective_lits[i]));
+            RHS += objective_weights[i];
+        }
+        RHS = RHS + objective_constant_cost - best_objective_value + 1;
+        check_last_constraint(litsMIC, objective_weights, RHS);
     }
-    RHS = RHS + objective_constant_cost - best_objective_value + 1;
-    check_last_constraint(litsMIC, objective_weights, RHS);
 
     return get_model_improving_constraint(); 
 }
 
 template <class TSeqLit>
-constraintid VeriPbProofLogger::log_solution_with_check(const TSeqLit &model, bool only_original_variables_necessary)
+constraintid VeriPbProofLogger::log_solution_with_check(const TSeqLit &model, bool only_original_variables_necessary, bool log_nonimproving_solution_as_comment)
 {
     int current_objective_value = calculate_objective_value(model);
     if (current_objective_value < best_objective_value)
@@ -511,6 +513,11 @@ constraintid VeriPbProofLogger::log_solution_with_check(const TSeqLit &model, bo
         write_comment_objective_function();
         write_comment("Objective update from " + std::to_string(best_objective_value) + " to " + std::to_string(current_objective_value));
         log_solution(model, current_objective_value, only_original_variables_necessary);
+    }
+    else if(log_nonimproving_solution_as_comment){
+        write_comment_objective_function();
+        write_comment("Non-improving solution:");
+        log_solution(model, current_objective_value, only_original_variables_necessary, true);
     }
 
     return get_model_improving_constraint();
