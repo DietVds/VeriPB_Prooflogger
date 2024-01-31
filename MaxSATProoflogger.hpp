@@ -37,6 +37,9 @@ constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_l
     constraintid c_id = PL->redundanceBasedStrengthening(cls, 1, witness);
     
     if(rewrite_objective){
+        bool origf = PL->keep_original_formula;
+        PL->keep_original_formula = false;
+
         PL->move_to_coreset(-1); // Is necessary for the objective update rule.
 
         cls.clear();
@@ -60,6 +63,7 @@ constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_l
         PL->write_objective_update_diff(litsOnewminusold, wghtsOnewminusold);
 
         PL->delete_constraint(cls, 1, witness);
+        PL->keep_original_formula = true; 
     }
 
     

@@ -42,6 +42,9 @@
 //=================================================================================================
 // Prooflogger
 
+// Forward declaration of MaxSATProoflogger as to make it a friend class.
+class MaxSATProoflogger;
+
 typedef int constraintid;
 #define undefcxn -1
 
@@ -50,6 +53,8 @@ typedef std::string cuttingplanes_derivation;
 
 class VeriPbProofLogger
 {
+    friend MaxSATProoflogger;
+    
 private:
     bool keep_original_formula = false; // If true, the proof logging library will never delete any constraint that is an original constraint and will never move a constraint to the core set. 
 
