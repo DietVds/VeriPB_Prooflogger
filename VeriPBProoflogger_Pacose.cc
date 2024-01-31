@@ -32,7 +32,7 @@ template constraintid VeriPbProofLogger::log_solution<std::vector<VeriPB::Lit>>(
 template constraintid VeriPbProofLogger::log_solution_with_check<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &model, bool only_original_variables_necessary, bool log_nonimproving_solution_as_comment);
 template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS);
 template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
-template constraintid VeriPbProofLogger::unchecked_assumption_unit_clause<VeriPB::Lit>(const VeriPB::Lit& lit);
+template constraintid VeriPbProofLogger::unchecked_assumption_unit_clause<VeriPB::Lit>(const VeriPB::Lit& lit, bool core_constraint);
 template constraintid VeriPbProofLogger::rup<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS);
 template constraintid VeriPbProofLogger::rup<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
 template constraintid VeriPbProofLogger::rup_unit_clause<VeriPB::Lit>(const VeriPB::Lit& lit, bool core_constraint);
@@ -109,7 +109,7 @@ template constraintid VeriPbProofLogger::log_solution<std::vector<uint32_t>>(con
 template constraintid VeriPbProofLogger::log_solution_with_check<std::vector<uint32_t>>(const std::vector<uint32_t> &model, bool only_original_variables_necessary, bool log_nonimproving_solution_as_comment);
 template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<uint32_t>>(const std::vector<uint32_t> &lits, const wght RHS);
 template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS);
-template constraintid VeriPbProofLogger::unchecked_assumption_unit_clause<uint32_t>(const uint32_t& lit);
+template constraintid VeriPbProofLogger::unchecked_assumption_unit_clause<uint32_t>(const uint32_t& lit, bool core_constraint);
 template constraintid VeriPbProofLogger::rup<std::vector<uint32_t>>(const std::vector<uint32_t> &lits, const wght RHS);
 template constraintid VeriPbProofLogger::rup<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS);
 template constraintid VeriPbProofLogger::rup_unit_clause<uint32_t>(const uint32_t& lit, bool core_constraint);
@@ -183,7 +183,7 @@ template constraintid VeriPbProofLogger::log_solution<std::vector<int>>(const st
 template constraintid VeriPbProofLogger::log_solution_with_check<std::vector<int>>(const std::vector<int> &model, bool only_original_variables_necessary, bool log_nonimproving_solution_as_comment);
 template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<int>>(const std::vector<int> &lits, const wght RHS);
 template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS);
-template constraintid VeriPbProofLogger::unchecked_assumption_unit_clause<int>(const int& lit);
+template constraintid VeriPbProofLogger::unchecked_assumption_unit_clause<int>(const int& lit, bool core_constraint);
 template constraintid VeriPbProofLogger::rup<std::vector<int>>(const std::vector<int> &lits, const wght RHS);
 template constraintid VeriPbProofLogger::rup<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS);
 template constraintid VeriPbProofLogger::rup_unit_clause<int>(const int& lit, bool core_constraint);
