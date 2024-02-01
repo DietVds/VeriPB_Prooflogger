@@ -230,3 +230,8 @@ template void VeriPbProofLogger::move_to_coreset<std::vector<int>>(std::vector<i
 template void VeriPbProofLogger::move_to_coreset<std::vector<int>, std::vector<wght>>(std::vector<int>& lits, std::vector<wght>& wghts, wght RHS=1);
 
 
+
+template constraintid VeriPbProofLogger::reificationLiteralRightImpl<std::vector<uint32_t>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS, bool store_reified_constraint);
+template constraintid VeriPbProofLogger::reificationLiteralRightImpl<std::vector<uint32_t>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<uint32_t> &lits, const wght RHS, bool store_reified_constraint);
+template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<std::vector<uint32_t>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS, bool store_reified_constraint);
+template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<std::vector<uint32_t>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<uint32_t> &lits, const wght RHS, bool store_reified_constraint);

@@ -270,7 +270,7 @@ VeriPB::Var VeriPbProofLogger::new_variable_only_in_proof(std::string name){
     v.only_known_in_proof = true; 
     v.v = ++n_vars_only_known_in_proof;
     if(name != "")
-        names_vars_only_in_proof[n_vars_only_known_in_proof];
+        meaningful_names_store[varidx(v)] = name;
     return v;
 }
 

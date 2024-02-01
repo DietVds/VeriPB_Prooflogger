@@ -54,7 +54,7 @@ typedef std::string cuttingplanes_derivation;
 class VeriPbProofLogger
 {
     friend MaxSATProoflogger;
-    
+
 private:
     bool keep_original_formula = false; // If true, the proof logging library will never delete any constraint that is an original constraint and will never move a constraint to the core set. 
 
@@ -76,7 +76,6 @@ private:
 
     // Meaningful variable names
     std::map<VeriPB::VarIdx, std::string> meaningful_names_store;
-    std::map<VeriPB::VarIdx, std::string> names_vars_only_in_proof;
     uint32_t n_vars_only_known_in_proof;
     
 
