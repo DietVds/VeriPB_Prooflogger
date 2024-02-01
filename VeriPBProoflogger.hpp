@@ -242,27 +242,19 @@ std::string VeriPbProofLogger::var_name(const TVar &var)
     VeriPB::Var v = toVeriPbVar(var);
     VeriPB::VarIdx v_idx = varidx(v);
 
-    if(v.only_known_in_proof){
-        if(names_vars_only_in_proof.find(v_idx) != names_vars_only_in_proof.end())
-            return names_vars_only_in_proof[v_idx];
-        else
-            return "_p" + std::to_string(v_idx);
-
+    if (meaningful_names_store.find(v_idx) != meaningful_names_store.end())
+    {
+        return  meaningful_names_store[v_idx];
     }
-    else{
-        if (meaningful_names_store.find(v_idx) != meaningful_names_store.end())
-        {
-            return  meaningful_names_store[v_idx];
-        }
-        else if (is_aux_var(var))
-        {
-            return  "y" +  std::to_string(varidx(toVeriPbVar(var)));
-        }
-        else
-        {
-            return "x" + std::to_string(varidx(toVeriPbVar(var)));
-        }
+    else if (is_aux_var(var))
+    {
+        return  "y" +  std::to_string(varidx(toVeriPbVar(var)));
     }
+    else
+    {
+        return "x" + std::to_string(varidx(toVeriPbVar(var)));
+    }
+    
 }
 
 VeriPB::Var VeriPbProofLogger::new_variable_only_in_proof(std::string name){
