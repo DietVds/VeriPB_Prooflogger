@@ -233,7 +233,8 @@ void VeriPbProofLogger::write_comment(const std::string &comment)
 template <class TVar>
 bool VeriPbProofLogger::is_aux_var(const TVar &var)
 {
-    return (varidx(toVeriPbVar(var)) > n_variables);
+    VeriPB::Var v = toVeriPbVar(var);
+    return (v.v > n_variables) || v.only_known_in_proof;
 }
 
 template <class TVar>
@@ -246,15 +247,17 @@ std::string VeriPbProofLogger::var_name(const TVar &var)
     {
         return  meaningful_names_store[v_idx];
     }
+    else if (v.only_known_in_proof){
+        return "_p" + std::to_string(v.v);
+    }
     else if (is_aux_var(var))
     {
-        return  "y" +  std::to_string(varidx(toVeriPbVar(var)));
+        return  "y" +  std::to_string(v.v);
     }
     else
     {
-        return "x" + std::to_string(varidx(toVeriPbVar(var)));
+        return "x" + std::to_string(v.v);
     }
-    
 }
 
 VeriPB::Var VeriPbProofLogger::new_variable_only_in_proof(std::string name){
