@@ -830,8 +830,11 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, cons
         _lits[i] = toVeriPbLit(neg(lits[i]));
     }
     
-
-    wght j = sum_of_weights - RHS + 1 ;
+    wght j; 
+    if(sum_of_weights + 1 >= RHS)
+        j = sum_of_weights - RHS + 1 ;
+    else
+        j = 0;
 
     _lits[i] = _lit;
     _weights[i] = j;
@@ -868,7 +871,11 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, cons
         _lits[i] = toVeriPbLit(neg(lits[i]));
     }
     
-    wght j = lits.size() - RHS + 1 ;
+    wght j; 
+    if(lits.size() + 1 >= RHS)
+        j = lits.size() - RHS + 1 ;
+    else
+        j = 0;
 
     _lits[i] = _lit;
     _weights[i] = j;
