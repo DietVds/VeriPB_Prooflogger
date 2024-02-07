@@ -357,7 +357,7 @@ constraintid VeriPbProofLogger::rewrite_model_improving_constraint(){
     assert(CP_modelimprovingconstraint_rewrite != "" && rewritten_model_improvement_constraint < model_improvement_constraint );
 
     write_comment("Rewrite model improving constraint");
-    if(rewritten_model_improvement_constraint > 0) delete_constraint(rewritten_model_improvement_constraint);
+    if(rewritten_model_improvement_constraint > 0) delete_constraint_by_id(rewritten_model_improvement_constraint);
 
     cuttingplanes_derivation cpder = CP_apply(CP_constraintid(model_improvement_constraint), CP_modelimprovingconstraint_rewrite);
     rewritten_model_improvement_constraint = write_CP_derivation(cpder);
@@ -739,7 +739,7 @@ template <class TVar>
 void VeriPbProofLogger::deleteReifiedConstraintLeftImpl(const TVar& var){
     VeriPB::VarIdx id = varidx(toVeriPbVar(var));
     if(reifiedConstraintLeftImpl.find(id) != reifiedConstraintLeftImpl.end()){
-        delete_constraint(reifiedConstraintLeftImpl[id]);
+        delete_constraint_by_id(reifiedConstraintLeftImpl[id]);
         reifiedConstraintLeftImpl.erase(id);
     }
 }
@@ -748,7 +748,7 @@ template <class TVar>
 void VeriPbProofLogger::deleteReifiedConstraintRightImpl(const TVar& var){
     VeriPB::VarIdx id = varidx(toVeriPbVar(var));
     if(reifiedConstraintRightImpl.find(id) != reifiedConstraintRightImpl.end()){
-        delete_constraint(reifiedConstraintRightImpl[id]);
+        delete_constraint_by_id(reifiedConstraintRightImpl[id]);
         reifiedConstraintRightImpl.erase(id);
     }
 }
@@ -921,12 +921,12 @@ constraintid VeriPbProofLogger::prove_by_casesplitting(TSeqLit& lits, TSeqWght& 
 
 //  ------------- Deleting & Overwriting Constraints -------------
 
-void VeriPbProofLogger::delete_constraint(const constraintid constraint_id)
+void VeriPbProofLogger::delete_constraint_by_id(const constraintid constraint_id)
 {
     *proof << "del id " << constraint_id << "\n";
 }
 
-void VeriPbProofLogger::delete_constraint(const std::vector<constraintid> &constraint_ids)
+void VeriPbProofLogger::delete_constraint_by_id(const std::vector<constraintid> &constraint_ids)
 {
     *proof << "del id";
     for (int i = 0; i < constraint_ids.size(); i++)
@@ -972,7 +972,7 @@ constraintid VeriPbProofLogger::overwrite_constraint(const constraintid constrai
     constraintid newconstraint = rup(lits, RHS);
     if(origclause_in_coreset)
         move_to_coreset(-1);
-    delete_constraint(constraint_id);
+    delete_constraint_by_id(constraint_id);
     return newconstraint;
 }
 
@@ -992,7 +992,7 @@ constraintid VeriPbProofLogger::overwrite_constraint(const constraintid constrai
     constraintid newconstraint = rup(lits, weights, RHS);
     if(origclause_in_coreset)
         move_to_coreset(-1);
-    delete_constraint(constraint_id);
+    delete_constraint_by_id(constraint_id);
     return newconstraint;
 }
 

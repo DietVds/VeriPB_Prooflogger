@@ -328,8 +328,8 @@ public:
     constraintid prove_by_casesplitting(TSeqLit& lits, TSeqWght& weights, wght RHS, constraintid case1, constraintid case2);
 
     // ------------- Deleting & Overwriting Constraints -------------
-    void delete_constraint(const constraintid constraint_id);
-    void delete_constraint(const std::vector<constraintid> &constraint_ids);
+    void delete_constraint_by_id(const constraintid constraint_id);
+    void delete_constraint_by_id(const std::vector<constraintid> &constraint_ids);
     template <class TSeqLit>
     void delete_constraint(const TSeqLit &lits, const wght RHS);
     template <class TSeqLit, class TSeqWght>

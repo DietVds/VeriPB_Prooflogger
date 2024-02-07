@@ -191,7 +191,7 @@ void TotalizerProoflogger::prove_unitclause_constraining_totalizer(const TLit& c
         PL->end_CP_derivation();
 
         // The P2-constraint is not necessary anymore and can therefore be deleted.
-        PL->delete_constraint(pbdef_var);
+        PL->delete_constraint_by_id(pbdef_var);
         PB_invImpl_cxn_store.erase(pbdef_var);
 
         std::vector<VeriPB::Lit> cls; cls.push_back(toVeriPbLit(c));
@@ -262,7 +262,7 @@ void TotalizerProoflogger::delete_P_definition(const TVar& var, std::map<VeriPB:
         }
         else{
             constraintid c_id = pb_cxn_store[varidx(toVeriPbVar(var))];
-            PL->delete_constraint(c_id); 
+            PL->delete_constraint_by_id(c_id); 
 
             pb_cxn_store.erase(varidx(toVeriPbVar(var)));
             pb_nrUsed_store.erase(varidx(toVeriPbVar(var)));
