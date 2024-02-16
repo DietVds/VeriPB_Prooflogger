@@ -664,23 +664,66 @@ void VeriPbProofLogger::strenghten_to_core(){
 }
 
 substitution VeriPbProofLogger::get_new_substitution(){
-    return "";
+    substitution s;
+    return s;
 }
 
 template <class TVar>
 void VeriPbProofLogger::add_boolean_assignment(substitution &s, const TVar& var, const bool value){
-    s += var_name(var) + " -> " + (value ? " 1 " : " 0 ");
+    s.second.push_back(std::make_pair(toVeriPbVar(var), value));
 }
 template <class TVar, class TLit>
 void VeriPbProofLogger::add_literal_assignment(substitution &s, const TVar& var, const TLit& value){
-    s += var_name(var) + " -> " + to_string(value) + " ";
+    s.first.push_back(std::make_pair(toVeriPbVar(var), toVeriPbLit(value)));
 }
 
 void VeriPbProofLogger::write_substitution(const substitution &witness)
 {
-    *proof << witness;    
+    for(auto lit_ass : witness.first){
+        *proof << var_name(lit_ass.first) << " -> " << to_string(lit_ass.second) << " ";
+    }
+    for(auto bool_ass : witness.second){
+        *proof << var_name(bool_ass.first) << " -> " << (bool_ass.second ? " 1 " : " 0 ");
+    }   
 }
 
+template <class TVar>
+bool VeriPbProofLogger::has_boolean_assignment(const substitution &s, const TVar& var){
+    for(auto ass : s.second){
+        if(ass.first == toVeriPbVar(var))
+            return true;
+    }
+    return false;
+}
+
+template <class TVar>
+bool VeriPbProofLogger::has_literal_assignment(const substitution &s, const TVar& var){
+    for(auto ass : s.first){
+        if(ass.first == toVeriPbVar(var))
+            return true;
+    }
+    return false;
+}
+
+template <class TVar>
+bool VeriPbProofLogger::get_boolean_assignment(substitution &s, const TVar& var){
+    for(auto ass : s.second){
+        if(ass.first == toVeriPbVar(var))
+            return ass.second;
+    }
+    std::cout << "ERROR: Proof logging library: Could not find boolean assignment for variable " << var_name(var) << std::endl;
+    assert(false);
+}
+
+template <class TVar>
+VeriPB::Lit VeriPbProofLogger::get_literal_assignment(substitution &s, const TVar& var){
+    for(auto ass : s.first){
+        if(ass.first == toVeriPbVar(var))
+            return ass.second;
+    }
+    std::cout << "ERROR: Proof logging library: Could not find literal assignment for variable " << var_name(var) << std::endl;
+    assert(false);
+}
 
 template <class TSeqLit>
 constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits, const wght RHS, const substitution &witness)

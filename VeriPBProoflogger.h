@@ -8,6 +8,7 @@
 #include <sstream>
 #include <set>
 #include <cassert>
+#include <variant>
 
 #include<iostream>
 
@@ -48,7 +49,9 @@ class MaxSATProoflogger;
 typedef int constraintid;
 #define undefcxn -1
 
-typedef std::string substitution;
+typedef std::pair<std::vector<std::pair<VeriPB::Var, VeriPB::Lit>>, std::vector<std::pair<VeriPB::Var, bool>>> nsub;
+
+typedef std::pair<std::vector<std::pair<VeriPB::Var, VeriPB::Lit>>, std::vector<std::pair<VeriPB::Var, bool>>> substitution;
 typedef std::string cuttingplanes_derivation;
 
 class VeriPbProofLogger
@@ -249,6 +252,14 @@ public:
     void add_boolean_assignment(substitution &s, const TVar& var, const bool value);
     template <class TVar, class TLit>
     void add_literal_assignment(substitution &s, const TVar& var, const TLit& value);
+    template <class TVar>
+    bool has_boolean_assignment(const substitution &s, const TVar& var);
+    template <class TVar>
+    bool has_literal_assignment(const substitution &s, const TVar& var);
+    template <class TVar>
+    bool get_boolean_assignment(substitution &s, const TVar& var);
+    template <class TVar>
+    VeriPB::Lit get_literal_assignment(substitution &s, const TVar& var);
 
     // Assumption here is that these can prove the implication F ^ not C |- F\w ^ C\w trivially,
     // i.e., for every constraint C' in F\w ^ C\w, C' is either in F or that w only assigns literals to true in C'.

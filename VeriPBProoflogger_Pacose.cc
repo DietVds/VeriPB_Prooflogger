@@ -40,6 +40,10 @@ template constraintid VeriPbProofLogger::rup_binary_clause<VeriPB::Lit>(const Ve
 template constraintid VeriPbProofLogger::rup_ternary_clause<VeriPB::Lit>(const VeriPB::Lit& lit1, const VeriPB::Lit& lit2, const VeriPB::Lit& lit3, bool core_constraint);
 template void VeriPbProofLogger::add_boolean_assignment<VeriPB::Var>(substitution &s, const VeriPB::Var& var, const bool value);
 template void VeriPbProofLogger::add_literal_assignment<VeriPB::Var, VeriPB::Lit>(substitution &s, const VeriPB::Var& var, const VeriPB::Lit& value);
+template bool VeriPbProofLogger::has_boolean_assignment<VeriPB::Var>(const substitution &s, const VeriPB::Var& var);
+template bool VeriPbProofLogger::has_literal_assignment<VeriPB::Var>(const substitution &s, const VeriPB::Var& var);
+template bool VeriPbProofLogger::get_boolean_assignment<VeriPB::Var>(substitution &s, const VeriPB::Var& var);
+template VeriPB::Lit VeriPbProofLogger::get_literal_assignment<VeriPB::Var>(substitution &s, const VeriPB::Var& var); 
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS, const substitution &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, const substitution &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
@@ -117,6 +121,10 @@ template constraintid VeriPbProofLogger::rup_binary_clause<uint32_t>(const uint3
 template constraintid VeriPbProofLogger::rup_ternary_clause<uint32_t>(const uint32_t& lit1, const uint32_t& lit2, const uint32_t& lit3, bool core_constraint);
 template void VeriPbProofLogger::add_boolean_assignment<uint32_t>(substitution &s, const uint32_t& var, const bool value);
 template void VeriPbProofLogger::add_literal_assignment<uint32_t, uint32_t>(substitution &s, const uint32_t& var, const uint32_t& value);
+template bool VeriPbProofLogger::has_boolean_assignment<uint32_t>(const substitution &s, const uint32_t& var);
+template bool VeriPbProofLogger::has_literal_assignment<uint32_t>(const substitution &s, const uint32_t& var);
+template bool VeriPbProofLogger::get_boolean_assignment<uint32_t>(substitution &s, const uint32_t& var);
+template VeriPB::Lit VeriPbProofLogger::get_literal_assignment<uint32_t>(substitution &s, const uint32_t& var);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<uint32_t>>(const std::vector<uint32_t> &lits, const wght RHS, const substitution &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS, const substitution &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
@@ -191,6 +199,10 @@ template constraintid VeriPbProofLogger::rup_binary_clause<int>(const int& lit1,
 template constraintid VeriPbProofLogger::rup_ternary_clause<int>(const int& lit1, const int& lit2, const int& lit3, bool core_constraint);
 template void VeriPbProofLogger::add_boolean_assignment<int>(substitution &s, const int& var, const bool value);
 template void VeriPbProofLogger::add_literal_assignment<int, int>(substitution &s, const int& var, const int& value);
+template bool VeriPbProofLogger::has_boolean_assignment<int>(const substitution &s, const int& var);
+template bool VeriPbProofLogger::has_literal_assignment<int>(const substitution &s, const int& var);
+template bool VeriPbProofLogger::get_boolean_assignment<int>(substitution &s, const int& var);
+template VeriPB::Lit VeriPbProofLogger::get_literal_assignment<int>(substitution &s, const int& var);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<int>>(const std::vector<int> &lits, const wght RHS, const substitution &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS, const substitution &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
