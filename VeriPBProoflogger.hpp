@@ -725,6 +725,10 @@ VeriPB::Lit VeriPbProofLogger::get_literal_assignment(substitution &s, const TVa
     assert(false);
 }
 
+size_t VeriPbProofLogger::get_substitution_size(const substitution &s){
+    return s.first.size() + s.second.size();
+}
+
 template <class TSeqLit>
 constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits, const wght RHS, const substitution &witness)
 {

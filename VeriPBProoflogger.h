@@ -260,6 +260,7 @@ public:
     bool get_boolean_assignment(substitution &s, const TVar& var);
     template <class TVar>
     VeriPB::Lit get_literal_assignment(substitution &s, const TVar& var);
+    size_t get_substitution_size(const substitution &s);
 
     // Assumption here is that these can prove the implication F ^ not C |- F\w ^ C\w trivially,
     // i.e., for every constraint C' in F\w ^ C\w, C' is either in F or that w only assigns literals to true in C'.
