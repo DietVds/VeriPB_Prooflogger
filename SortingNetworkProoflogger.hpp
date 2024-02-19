@@ -10,10 +10,10 @@ void SortingNetworkProoflogger::derive_UB_for_recursive_sortingnetwork(Constrain
     
     plcxns_recursive.UB = plcxns.UB;
     
-    PL->start_CP_derivation(plcxns.cxnUBinputs);
+    PL->start_intCP_derivation(plcxns.cxnUBinputs);
     for(int i = 0; i < input_other_network.size(); i++)
-      PL->CP_weaken(variable(input_other_network[i]));
-    plcxns_recursive.cxnUBinputs = PL->end_CP_derivation();
+      PL->intCP_weaken(variable(input_other_network[i]));
+    plcxns_recursive.cxnUBinputs = PL->end_intCP_derivation();
 
     std::vector<VeriPB::Lit> lits_for_check;
     for(int i = 0; i < input_recursive_network.size(); i++){
@@ -34,12 +34,12 @@ void SortingNetworkProoflogger::derive_UB_for_mergenetwork(ConstraintStoreMerge&
     plcxns_merge.UB = plcxns.UB;
     
     PL->write_comment("Derive UB for mergenetwork inputs");
-    PL->start_CP_derivation(plcxns.cxnUBinputs);
+    PL->start_intCP_derivation(plcxns.cxnUBinputs);
     if(left_input.size() > 1)
-        PL->CP_add_constraint(plcxns_left.input_geq_output);
+        PL->intCP_add_constraint(plcxns_left.input_geq_output);
     if(right_input.size() > 1)
-        PL->CP_add_constraint(plcxns_right.input_geq_output);
-    plcxns_merge.cxnUBinputs = PL->end_CP_derivation();
+        PL->intCP_add_constraint(plcxns_right.input_geq_output);
+    plcxns_merge.cxnUBinputs = PL->end_intCP_derivation();
 
     PL->write_comment("UB for merge network = " + std::to_string(plcxns_merge.UB));
     std::vector<VeriPB::Lit> lits_for_check; wght RHS = 0;
@@ -61,12 +61,12 @@ void SortingNetworkProoflogger::derive_input_equals_output_sortingnetwork(Constr
     
 
     // Deriving input geq output
-    PL->start_CP_derivation(plcxns_merge.input_geq_output);
+    PL->start_intCP_derivation(plcxns_merge.input_geq_output);
     if(plcxns_left.input_geq_output != 0) // Can be zero in case the number of elements in the left sorting network is one
-        PL->CP_add_constraint(plcxns_left.input_geq_output);
+        PL->intCP_add_constraint(plcxns_left.input_geq_output);
     if(plcxns_right.input_geq_output != 0) // Can be zero in case the number of elements in the left sorting network is one
-        PL->CP_add_constraint(plcxns_right.input_geq_output);
-    plcxns.input_geq_output = PL->end_CP_derivation();
+        PL->intCP_add_constraint(plcxns_right.input_geq_output);
+    plcxns.input_geq_output = PL->end_intCP_derivation();
 
     std::vector<VeriPB::Lit> lits_for_check;
     for(int j = 0; j < inputliterals.size(); j++)
@@ -76,12 +76,12 @@ void SortingNetworkProoflogger::derive_input_equals_output_sortingnetwork(Constr
     PL->check_last_constraint(lits_for_check, outputliterals.size());
 
     // Deriving input leq output
-    PL->start_CP_derivation(plcxns_merge.input_leq_output);
+    PL->start_intCP_derivation(plcxns_merge.input_leq_output);
     if(plcxns_left.input_leq_output != 0)
-        PL->CP_add_constraint(plcxns_left.input_leq_output);
+        PL->intCP_add_constraint(plcxns_left.input_leq_output);
     if(plcxns_right.input_leq_output != 0)
-        PL->CP_add_constraint(plcxns_right.input_leq_output);
-    plcxns.input_leq_output = PL->end_CP_derivation();
+        PL->intCP_add_constraint(plcxns_right.input_leq_output);
+    plcxns.input_leq_output = PL->end_intCP_derivation();
 
     lits_for_check.clear();
     for(int j = 0; j < inputliterals.size(); j++)
@@ -102,9 +102,9 @@ void SortingNetworkProoflogger::derive_sortedness_odds(TSeqLit& literals, std::v
 
     for(int i = 0; i < literals.size()-2 && i < (int)sortedness_literals.size()-1 && toVeriPbLit(literals[i+2]) != zerolit; i+=2){ 
         //if()
-        PL->start_CP_derivation(sortedness_literals[i]); 
-        PL->CP_add_constraint(sortedness_literals[i+1]);
-        sortedness_odds.push_back(PL->end_CP_derivation());
+        PL->start_intCP_derivation(sortedness_literals[i]); 
+        PL->intCP_add_constraint(sortedness_literals[i+1]);
+        sortedness_odds.push_back(PL->end_intCP_derivation());
 
         std::vector<VeriPB::Lit> lits_for_check;
         lits_for_check.push_back(toVeriPbLit(literals[i])); lits_for_check.push_back(neg(toVeriPbLit(literals[i+2]))); 
@@ -119,9 +119,9 @@ void SortingNetworkProoflogger::derive_sortedness_evens(TSeqLit& literals, std::
     PL->write_comment("Derive sortedness evens for sequence " + sequence_to_string(literals) + " number of sortedness constraints: " + std::to_string(sortedness_literals.size()));
 
     for(int i = 1; i < literals.size()-2 && i < (int)sortedness_literals.size()-1 && toVeriPbLit(literals[i+2]) != zerolit; i+=2){ // Odds of inputA
-        PL->start_CP_derivation(sortedness_literals[i]); 
-        PL->CP_add_constraint(sortedness_literals[i+1]);
-        sortedness_evens.push_back(PL->end_CP_derivation());
+        PL->start_intCP_derivation(sortedness_literals[i]); 
+        PL->intCP_add_constraint(sortedness_literals[i+1]);
+        sortedness_evens.push_back(PL->end_intCP_derivation());
 
         std::vector<VeriPB::Lit> lits_for_check;
         lits_for_check.push_back(toVeriPbLit(literals[i])); lits_for_check.push_back(neg(toVeriPbLit(literals[i+2]))); 
@@ -181,10 +181,10 @@ void SortingNetworkProoflogger::derive_UB_for_recursive_mergenetworks(Constraint
       if(plcxns.cxnUBinputs != 0 && plcxns.inputs_evens_leq_odds != 0){
         PL->write_comment("Derive UB for evens");
 
-        PL->start_CP_derivation(plcxns.cxnUBinputs);
-        PL->CP_add_constraint(plcxns.inputs_evens_leq_odds);
-        PL->CP_divide(2);
-        plcxns_evens.cxnUBinputs = PL->end_CP_derivation();
+        PL->start_intCP_derivation(plcxns.cxnUBinputs);
+        PL->intCP_add_constraint(plcxns.inputs_evens_leq_odds);
+        PL->intCP_divide(2);
+        plcxns_evens.cxnUBinputs = PL->end_intCP_derivation();
         PL->check_last_constraint(lits_for_check, RHS - plcxns_evens.UB);
       }
     }
@@ -220,10 +220,10 @@ void SortingNetworkProoflogger::derive_UB_for_recursive_mergenetworks(Constraint
         if(plcxns.cxnUBinputs != 0 && plcxns.inputs_odds_leq_evens_plus2 != 0){
             PL->write_comment("Derive UB for odds");
 
-            PL->start_CP_derivation(plcxns.cxnUBinputs);
-            PL->CP_add_constraint(plcxns.inputs_odds_leq_evens_plus2);
-            PL->CP_divide(2);
-            plcxns_odds.cxnUBinputs = PL->end_CP_derivation();
+            PL->start_intCP_derivation(plcxns.cxnUBinputs);
+            PL->intCP_add_constraint(plcxns.inputs_odds_leq_evens_plus2);
+            PL->intCP_divide(2);
+            plcxns_odds.cxnUBinputs = PL->end_intCP_derivation();
 
             PL->check_last_constraint(lits_for_check, RHS - plcxns_odds.UB);
         }
@@ -236,11 +236,11 @@ void SortingNetworkProoflogger::derive_input_equals_output_mergenetwork(Constrai
     assert(plcxns_evens.input_geq_output != 0); assert(plcxns_odds.input_geq_output != 0);
     //PROOF: Deriving the input >= output constraint
     PL->write_comment("Deriving the input >= output constraint");
-    PL->start_CP_derivation(plcxns_evens.input_geq_output);
-    PL->CP_add_constraint(plcxns_odds.input_geq_output);
+    PL->start_intCP_derivation(plcxns_evens.input_geq_output);
+    PL->intCP_add_constraint(plcxns_odds.input_geq_output);
     for(int j = 0; j < plcxns.comparatormodules.size(); j++)
-      PL->CP_add_constraint(plcxns.comparatormodules[j].input_geq_output);
-    plcxns.input_geq_output = PL->end_CP_derivation();
+      PL->intCP_add_constraint(plcxns.comparatormodules[j].input_geq_output);
+    plcxns.input_geq_output = PL->end_intCP_derivation();
 
     std::vector<VeriPB::Lit> lits_for_check; wght RHS = 0;
     for(int i = 0; i < inputA.size() && toVeriPbLit(inputA[i]) != zerolit; i++)
@@ -256,11 +256,11 @@ void SortingNetworkProoflogger::derive_input_equals_output_mergenetwork(Constrai
     //PROOF: Deriving the input =< output constraint
     PL->write_comment("Deriving the input =< output constraint");
     
-    PL->start_CP_derivation(plcxns_evens.input_leq_output);
-    PL->CP_add_constraint(plcxns_odds.input_leq_output);
+    PL->start_intCP_derivation(plcxns_evens.input_leq_output);
+    PL->intCP_add_constraint(plcxns_odds.input_leq_output);
     for(int j = 0; j < plcxns.comparatormodules.size(); j++)
-      PL->CP_add_constraint(plcxns.comparatormodules[j].input_leq_output);
-    plcxns.input_leq_output = PL->end_CP_derivation();   
+      PL->intCP_add_constraint(plcxns.comparatormodules[j].input_leq_output);
+    plcxns.input_leq_output = PL->end_intCP_derivation();   
 
     lits_for_check.clear(); RHS = 0;
     for(int i = 0; i < inputA.size() && toVeriPbLit(inputA[i]) != zerolit; i++){
@@ -300,11 +300,11 @@ void SortingNetworkProoflogger::derive_outputs_recursivemergenetworks_evens_leq_
     
     //PROOF: Derive sum of e =< sum of o 
     PL->write_comment("Derive sum of e =< sum of d");
-    PL->start_CP_derivation(plcxns_evens.input_geq_output);
-    PL->CP_add_constraint(plcxns_odds.input_leq_output);
+    PL->start_intCP_derivation(plcxns_evens.input_geq_output);
+    PL->intCP_add_constraint(plcxns_odds.input_leq_output);
     if(plcxns.inputs_evens_leq_odds != 0)
-        PL->CP_add_constraint(plcxns.inputs_evens_leq_odds);
-    plcxns.outputs_recursivenetworks_evens_leq_odds = PL->end_CP_derivation();
+        PL->intCP_add_constraint(plcxns.inputs_evens_leq_odds);
+    plcxns.outputs_recursivenetworks_evens_leq_odds = PL->end_intCP_derivation();
     
     std::vector<VeriPB::Lit> lits_for_check;
     wght RHS = 0;
@@ -343,11 +343,11 @@ void SortingNetworkProoflogger::derive_outputs_recursivemergenetworks_odds_leq_e
     
     //PROOF: Derive sum of d =< sum of e + 2
     PL->write_comment("Derive sum of d =< sum of e + 2");
-    PL->start_CP_derivation(plcxns_evens.input_leq_output);
-    PL->CP_add_constraint(plcxns_odds.input_geq_output);
+    PL->start_intCP_derivation(plcxns_evens.input_leq_output);
+    PL->intCP_add_constraint(plcxns_odds.input_geq_output);
     if(plcxns.inputs_odds_leq_evens_plus2 != 0)
-        PL->CP_add_constraint(plcxns.inputs_odds_leq_evens_plus2);
-    plcxns.outputs_recursivenetworks_odds_leq_evens_plus2 = PL->end_CP_derivation();
+        PL->intCP_add_constraint(plcxns.inputs_odds_leq_evens_plus2);
+    plcxns.outputs_recursivenetworks_odds_leq_evens_plus2 = PL->end_intCP_derivation();
 
     std::vector<VeriPB::Lit> lits_for_check; wght RHS=0;
     for(int j = 0; j < e.size() && toVeriPbLit(e[j]) != zerolit; j++)
@@ -432,9 +432,9 @@ void SortingNetworkProoflogger::derive_UB_mergenetwork_output(ConstraintStoreMer
     // Proving the deletion of this wire is done by RUP with respect to the reified constraint of the fourth wire.
     if(plcxns.cxnUBinputs != 0){ 
         PL->write_comment("Derive UB = " + std::to_string(plcxns.UB) + " on output variables.");
-        PL->start_CP_derivation(plcxns.cxnUBinputs);
-        PL->CP_add_constraint(plcxns.input_geq_output);
-        PL->end_CP_derivation();
+        PL->start_intCP_derivation(plcxns.cxnUBinputs);
+        PL->intCP_add_constraint(plcxns.input_geq_output);
+        PL->end_intCP_derivation();
 
         std::vector<VeriPB::Lit> lits_for_check; wght RHS=0;
         for(int i = 0; i < outputs.size() && toVeriPbLit(outputs[i]) != zerolit; i++){
@@ -471,10 +471,10 @@ void SortingNetworkProoflogger::update_input_equals_output_mergenetwork_after_re
         PL->write_comment("Update the input >= output constraint");
         
         constraintid old_input_geq_output = plcxns.input_geq_output;
-        PL->start_CP_derivation(old_input_geq_output);
+        PL->start_intCP_derivation(old_input_geq_output);
         for(int i = 0; i < plcxns.removed_wires.size(); i++) //weakening because linkingVar[j] is false and at the right hand side of >= (occurs negatively in normalized constraint)
-            PL->CP_weaken(variable(plcxns.removed_wires[i]));
-        plcxns.input_geq_output = PL->end_CP_derivation();
+            PL->intCP_weaken(variable(plcxns.removed_wires[i]));
+        plcxns.input_geq_output = PL->end_intCP_derivation();
 
         std::vector<VeriPB::Lit> lits_for_check; wght RHS=0;
         for(int i = 0; i < inputA.size() && toVeriPbLit(inputA[i]) != zerolit; i++ ){
@@ -494,10 +494,10 @@ void SortingNetworkProoflogger::update_input_equals_output_mergenetwork_after_re
         PL->write_comment("Update the input =< output constraint");
         
         constraintid old_input_leq_output = plcxns.input_leq_output;
-        PL->start_CP_derivation(old_input_leq_output);
+        PL->start_intCP_derivation(old_input_leq_output);
         for(int j = 0; j <  plcxns.constraints_removed_wires.size(); j++)
-            PL->CP_add_constraint(plcxns.constraints_removed_wires[j]);
-        plcxns.input_leq_output = PL->end_CP_derivation();
+            PL->intCP_add_constraint(plcxns.constraints_removed_wires[j]);
+        plcxns.input_leq_output = PL->end_intCP_derivation();
 
         lits_for_check.clear(); RHS=0;
         for(int i = 0; i < inputA.size() && toVeriPbLit(inputA[i]) != zerolit; i++ ){
@@ -539,16 +539,16 @@ constraintid SortingNetworkProoflogger::derive_evens_leq_odds(TSeqLit& seq, TSeq
     constraintid cxn = 0;
 
     if(sequence_size > 1){
-        PL->start_CP_derivation(sortedness_seq[0]);
+        PL->start_intCP_derivation(sortedness_seq[0]);
         for(int j = 2; j < sortedness_seq.size(); j+=2)
-            PL->CP_add_constraint(sortedness_seq[j]);
+            PL->intCP_add_constraint(sortedness_seq[j]);
         if(sequence_size % 2 == 1) // If the size of the sequence is odd, add the last variable as literal axiom
-            PL->CP_add_literal_axiom(seq[sortedness_seq.size()]); 
-        cxn = PL->end_CP_derivation();
+            PL->intCP_add_literal_axiom(seq[sortedness_seq.size()]); 
+        cxn = PL->end_intCP_derivation();
     }
     else{
-        PL->start_CP_derivation_with_lit_axiom(seq[0]);
-        cxn = PL->end_CP_derivation();   
+        PL->start_intCP_derivation_with_lit_axiom(seq[0]);
+        cxn = PL->end_intCP_derivation();   
     }
 
     std::vector<VeriPB::Lit> lits; lits.clear();
@@ -565,12 +565,12 @@ constraintid SortingNetworkProoflogger::derive_odds_leq_evens_plus_1(TSeqLit& se
     
     int sequence_size = sortedness_seq.size() + 1;
 
-    PL->start_CP_derivation_with_lit_axiom(neg(seq[0])); 
+    PL->start_intCP_derivation_with_lit_axiom(neg(seq[0])); 
     for(int j = 1; j < sortedness_seq.size(); j+=2)
-        PL->CP_add_constraint(sortedness_seq[j]);
+        PL->intCP_add_constraint(sortedness_seq[j]);
     if(sequence_size % 2 == 0 && sequence_size > 1) // If seq.size() is even, add the last literal of the list to the equation
-        PL->CP_add_literal_axiom(seq[sequence_size-1]);
-    constraintid cxn = PL->end_CP_derivation();
+        PL->intCP_add_literal_axiom(seq[sequence_size-1]);
+    constraintid cxn = PL->end_intCP_derivation();
 
     std::vector<VeriPB::Lit> lits; lits.clear();
     for(int j = 0; j < sequence_size; j++)
@@ -666,18 +666,18 @@ constraintid SortingNetworkProoflogger::derive_counting_definition_of_outputvars
     comment += " >= " + std::to_string(j);
     PL->write_comment(comment);
     
-    PL->start_CP_derivation(input_geq_output);
+    PL->start_intCP_derivation(input_geq_output);
 
     for(int i = 0; i < j-1; i++){
-        PL->CP_load_constraint(sortedness_outputlits[i]);
-        PL->CP_multiply(i+1);
-        PL->CP_add();
+        PL->intCP_load_constraint(sortedness_outputlits[i]);
+        PL->intCP_multiply(i+1);
+        PL->intCP_add();
     }
 
     for(int i = j; i < outputlits.size(); i++)
-        PL->CP_weaken(variable(outputlits[i]));
+        PL->intCP_weaken(variable(outputlits[i]));
     
-    constraintid cxn = PL->end_CP_derivation();
+    constraintid cxn = PL->end_intCP_derivation();
 
     // Check constraint:
     std::vector<VeriPB::Lit> lits; std::vector<wght> wghts; lits.clear(); wghts.clear();
@@ -702,28 +702,28 @@ constraintid SortingNetworkProoflogger::derive_counting_definition_of_outputvars
     PL->write_comment(comment);
 
     
-    PL->start_CP_derivation(output_geq_input);
+    PL->start_intCP_derivation(output_geq_input);
 
     for(int i = 0; i < j-1; i++) 
-        PL->CP_weaken(variable(outputlits[i])); 
+        PL->intCP_weaken(variable(outputlits[i])); 
 
     for(int i = 1; i <= outputlits.size()-j; i++){
-        PL->CP_load_constraint(sortedness_outputlits[sortedness_outputlits.size()-i]);
-        PL->CP_multiply(i);
-        PL->CP_add();
+        PL->intCP_load_constraint(sortedness_outputlits[sortedness_outputlits.size()-i]);
+        PL->intCP_multiply(i);
+        PL->intCP_add();
     }
 
     if(inputlits.size() > outputlits.size()){
-        PL->CP_write_literal_axiom(outputlits[j-1]);
-        PL->CP_multiply(inputlits.size()-outputlits.size());
-        PL->CP_add();
+        PL->intCP_write_literal_axiom(outputlits[j-1]);
+        PL->intCP_multiply(inputlits.size()-outputlits.size());
+        PL->intCP_add();
     }
 
     if(inputlits.size() < outputlits.size()){
-        PL->CP_saturate();
+        PL->intCP_saturate();
     }
 
-    constraintid cxn = PL->end_CP_derivation();
+    constraintid cxn = PL->end_intCP_derivation();
 
     // Check constraint:
     std::vector<VeriPB::Lit> lits; std::vector<wght> wghts; lits.clear(); wghts.clear(); wght RHS=0;

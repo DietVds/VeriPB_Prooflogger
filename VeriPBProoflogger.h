@@ -204,6 +204,20 @@ public:
     template <class TSeqLit, class TSeqWght>
     void check_constraint_exists(const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  );
 
+    // ------------- Rules for adding implied constraints -------------
+    template <class TSeqLit>
+    constraintid derive_if_implied(const constraintid hint, const TSeqLit &lits, const wght RHS = 1);
+    template <class TSeqLit, class TSeqWght>
+    constraintid derive_if_implied(const constraintid hint, const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
+    template <class TSeqLit, class TSeqWght>
+    constraintid derive_if_implied(const constraintid hint, const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  );    
+
+    template <class TSeqLit>
+    constraintid derive_if_implied(const TSeqLit &lits, const wght RHS = 1);
+    template <class TSeqLit, class TSeqWght>
+    constraintid derive_if_implied(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
+    template <class TSeqLit, class TSeqWght>
+    constraintid derive_if_implied(const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  );    
 
     // ------------- Rules for optimisation -------------
 
@@ -347,22 +361,22 @@ public:
     constraintid write_CP_derivation(const cuttingplanes_derivation& cp);
     
     // OLD:
-    void start_CP_derivation(const constraintid constraint_id);
+    void start_intCP_derivation(const constraintid constraint_id);
     template <class TLit>
-    void start_CP_derivation_with_lit_axiom(const TLit &lit);
-    void CP_load_constraint(const constraintid constraint_id);
-    void CP_add();
-    void CP_add_constraint(const constraintid constraint_id);
+    void start_intCP_derivation_with_lit_axiom(const TLit &lit);
+    void intCP_load_constraint(const constraintid constraint_id);
+    void intCP_add();
+    void intCP_add_constraint(const constraintid constraint_id);
     template <class TLit>
-    void CP_add_literal_axiom(const TLit &lit);
-    void CP_divide(const wght v);
-    void CP_saturate();
-    void CP_multiply(const wght v);
+    void intCP_add_literal_axiom(const TLit &lit);
+    void intCP_divide(const wght v);
+    void intCP_saturate();
+    void intCP_multiply(const wght v);
     template <class TVar>
-    void CP_weaken(const TVar &var);
+    void intCP_weaken(const TVar &var);
     template <class TLit>
-    void CP_write_literal_axiom(const TLit &lit);
-    constraintid end_CP_derivation();
+    void intCP_write_literal_axiom(const TLit &lit);
+    constraintid end_intCP_derivation();
 
     // ------------- Extra Proof Techniques -------------
     /**

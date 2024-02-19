@@ -153,17 +153,17 @@ template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<Glucose::Lit>(
 template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<VeriPB::Lit>(const VeriPB::Lit& lit, const wght& weight);
 template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<Glucose::Lit>(const Glucose::Lit& lit, const wght& weight);
 
-template void VeriPbProofLogger::start_CP_derivation_with_lit_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
-template void VeriPbProofLogger::start_CP_derivation_with_lit_axiom<Glucose::Lit>(const Glucose::Lit &lit);
+template void VeriPbProofLogger::start_intCP_derivation_with_lit_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
+template void VeriPbProofLogger::start_intCP_derivation_with_lit_axiom<Glucose::Lit>(const Glucose::Lit &lit);
 
-template void VeriPbProofLogger::CP_weaken<Glucose::Var>(const Glucose::Var &var);
-template void VeriPbProofLogger::CP_weaken<VeriPB::Var>(const VeriPB::Var &var);
+template void VeriPbProofLogger::intCP_weaken<Glucose::Var>(const Glucose::Var &var);
+template void VeriPbProofLogger::intCP_weaken<VeriPB::Var>(const VeriPB::Var &var);
 
-template void VeriPbProofLogger::CP_add_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
-template void VeriPbProofLogger::CP_add_literal_axiom<Glucose::Lit>(const Glucose::Lit &lit);
+template void VeriPbProofLogger::intCP_add_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
+template void VeriPbProofLogger::intCP_add_literal_axiom<Glucose::Lit>(const Glucose::Lit &lit);
 
-template void VeriPbProofLogger::CP_write_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
-template void VeriPbProofLogger::CP_write_literal_axiom<Glucose::Lit>(const Glucose::Lit &lit);
+template void VeriPbProofLogger::intCP_write_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
+template void VeriPbProofLogger::intCP_write_literal_axiom<Glucose::Lit>(const Glucose::Lit &lit);
 
 template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
 template constraintid VeriPbProofLogger::prove_by_contradiction<Glucose::vec<Glucose::Lit>, Glucose::vec<wght>>(Glucose::vec<Glucose::Lit>& lits, Glucose::vec<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);

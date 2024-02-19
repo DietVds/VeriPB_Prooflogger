@@ -438,6 +438,50 @@ void VeriPbProofLogger::check_constraint_exists(const TSeqLit& lits_greater, con
     write_PB_constraint(lits_greater, weights_greater, const_greater, lits_smaller, weights_smaller, const_smaller);
     *proof << ";\n";
 }
+// ------------- Rules for adding implied constraints -------------
+template <class TSeqLit>
+constraintid VeriPbProofLogger::derive_if_implied(const constraintid hint, const TSeqLit &lits, const wght RHS){
+    *proof << "ia " << hint << " : ";
+    write_cardinality_constraint(lits, RHS);
+    *proof << ";\n";
+    return ++constraint_counter;
+}
+template <class TSeqLit, class TSeqWght>
+constraintid VeriPbProofLogger::derive_if_implied(const constraintid hint, const TSeqLit &lits, const TSeqWght &weights, const wght RHS){
+    *proof << "ia " << hint << " : ";
+    write_PB_constraint(lits, weights, RHS);
+    *proof << ";\n";
+    return ++constraint_counter;
+}
+template <class TSeqLit, class TSeqWght>
+constraintid VeriPbProofLogger::derive_if_implied(const constraintid hint, const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  ){
+    *proof << "ia " << hint << " : " ;
+    write_PB_constraint(lits_greater, weights_greater, const_greater, lits_smaller, weights_smaller, const_smaller);    
+    *proof << ";\n";
+    return ++constraint_counter;
+}
+
+template <class TSeqLit>
+constraintid VeriPbProofLogger::derive_if_implied(const TSeqLit &lits, const wght RHS){
+    *proof << "ia ";
+    write_cardinality_constraint(lits, RHS);
+    *proof << ";\n";
+    return ++constraint_counter;
+}
+template <class TSeqLit, class TSeqWght>
+constraintid VeriPbProofLogger::derive_if_implied(const TSeqLit &lits, const TSeqWght &weights, const wght RHS){
+    *proof << "ia ";
+    write_PB_constraint(lits, weights, RHS);
+    *proof << ";\n";
+    return ++constraint_counter;
+}
+template <class TSeqLit, class TSeqWght>
+constraintid VeriPbProofLogger::derive_if_implied(const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  ){
+    *proof << "ia ";
+    write_PB_constraint(lits_greater, weights_greater, const_greater, lits_smaller, weights_smaller, const_smaller);    
+    *proof << ";\n";
+    return ++constraint_counter;
+}
 
 // ------------- Rules for optimisation -------------
 
@@ -1075,65 +1119,65 @@ constraintid VeriPbProofLogger::write_CP_derivation(const cuttingplanes_derivati
     return ++constraint_counter;
 }
 
-void VeriPbProofLogger::start_CP_derivation(const constraintid constraint_id)
+void VeriPbProofLogger::start_intCP_derivation(const constraintid constraint_id)
 {
     pol_string.clear();
     pol_string << "p " << constraint_id;
 }
 
 template <class TLit>
-void VeriPbProofLogger::start_CP_derivation_with_lit_axiom(const TLit &lit)
+void VeriPbProofLogger::start_intCP_derivation_with_lit_axiom(const TLit &lit)
 {
     pol_string << "p ";
     pol_string << to_string(lit);
 }
 
-void VeriPbProofLogger::CP_load_constraint(const constraintid constraint_id)
+void VeriPbProofLogger::intCP_load_constraint(const constraintid constraint_id)
 {
     pol_string << " " << constraint_id;
 }
 
-void VeriPbProofLogger::CP_add()
+void VeriPbProofLogger::intCP_add()
 {
     pol_string << " +";
 }
 
-void VeriPbProofLogger::CP_add_constraint(const constraintid constraint_id)
+void VeriPbProofLogger::intCP_add_constraint(const constraintid constraint_id)
 {
     pol_string << " " << constraint_id << " +";
 }
 
 template <class TLit>
-void VeriPbProofLogger::CP_add_literal_axiom(const TLit &lit){
+void VeriPbProofLogger::intCP_add_literal_axiom(const TLit &lit){
     pol_string << " " << to_string(lit) << " +";
 }
 
-void VeriPbProofLogger::CP_divide(const wght v)
+void VeriPbProofLogger::intCP_divide(const wght v)
 {
     pol_string << " " << v << " d";
 }
-void VeriPbProofLogger::CP_saturate()
+void VeriPbProofLogger::intCP_saturate()
 {
     pol_string << " s";
 }
-void VeriPbProofLogger::CP_multiply(const wght v)
+void VeriPbProofLogger::intCP_multiply(const wght v)
 {
     pol_string << " " << v << " *";
 }
 
 template <class TVar>
-void VeriPbProofLogger::CP_weaken(const TVar &var)
+void VeriPbProofLogger::intCP_weaken(const TVar &var)
 {
     pol_string << " " << var_name(var) << " w";
 }
 
 template <class TLit>
-void VeriPbProofLogger::CP_write_literal_axiom(const TLit &lit)
+void VeriPbProofLogger::intCP_write_literal_axiom(const TLit &lit)
 {
     pol_string << " " << to_string(lit);
 }
 
-constraintid VeriPbProofLogger::end_CP_derivation()
+constraintid VeriPbProofLogger::end_intCP_derivation()
 {
     *proof << pol_string.rdbuf() << "\n";
     return ++constraint_counter;
