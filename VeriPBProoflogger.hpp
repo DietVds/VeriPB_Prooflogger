@@ -576,6 +576,10 @@ constraintid VeriPbProofLogger::get_model_improving_constraint()
     return model_improvement_constraint;
 }
 
+void VeriPbProofLogger::update_model_improving_constraint(constraintid newmic){
+    model_improvement_constraint = newmic;
+}
+
 wght VeriPbProofLogger::get_best_objective_value(){
     return best_objective_value;
 }

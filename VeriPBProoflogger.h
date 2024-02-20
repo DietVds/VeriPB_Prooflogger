@@ -229,6 +229,7 @@ public:
     constraintid log_solution_with_check(const TSeqLit &model, bool only_original_variables_necessary=true, bool log_nonimproving_solution_as_comment=false);
     constraintid get_model_improving_constraint();
     wght get_best_objective_value();
+    void update_model_improving_constraint(constraintid newmic);
 
     template <class TSeqLBool>
     constraintid log_solution_lbools(TSeqLBool &model, wght objective_value=wght_max);

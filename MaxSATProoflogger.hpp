@@ -62,6 +62,13 @@ constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_l
 
         PL->write_objective_update_diff(litsOnewminusold, wghtsOnewminusold);
 
+        if(PL->get_model_improving_constraints() != 0){ //TODO: Test!
+            cuttingplanes_derivation cpder = PL->CP_constraintid( PL->get_model_improving_constraints());
+            cpder = PL->CP_addition(cpder, 
+                           PL->CP_multiplication(PL->CP_constraintid(-1), weight_softclause));
+            PL->update_model_improving_constraint(PL->write_CP_derivation(cpder));
+        }
+
         PL->delete_constraint(cls, 1, witness);
         PL->keep_original_formula = true; 
     }
