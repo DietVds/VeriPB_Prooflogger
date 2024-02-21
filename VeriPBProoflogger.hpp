@@ -1123,6 +1123,10 @@ constraintid VeriPbProofLogger::write_CP_derivation(const cuttingplanes_derivati
     return ++constraint_counter;
 }
 
+constraintid VeriPbProofLogger::copy_constraint(const constraintid cxn){
+    return write_CP_derivation(CP_constraintid(cxn));
+}
+
 void VeriPbProofLogger::start_intCP_derivation(const constraintid constraint_id)
 {
     pol_string.clear();

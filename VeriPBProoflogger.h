@@ -361,6 +361,7 @@ public:
     cuttingplanes_derivation CP_apply(const cuttingplanes_derivation& cp_start, const cuttingplanes_derivation& cp_to_be_applied);
     constraintid write_CP_derivation(const cuttingplanes_derivation& cp);
     
+    constraintid copy_constraint(const constraintid cxn);
     // OLD:
     void start_intCP_derivation(const constraintid constraint_id);
     template <class TLit>
