@@ -539,14 +539,14 @@ constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, wght objectiv
         if(objective_value < best_objective_value)
             best_objective_value = objective_value;
 
-        std::vector<VeriPB::Lit> litsMIC;
-        wght RHS = 0;
-        for(uint32_t i = 0; i < objective_lits.size(); i++){
-            litsMIC.push_back(neg(objective_lits[i]));
-            RHS += objective_weights[i];
-        }
-        RHS = RHS + objective_constant_cost - best_objective_value + 1;
-        check_last_constraint(litsMIC, objective_weights, RHS);
+        // std::vector<VeriPB::Lit> litsMIC;
+        // wght RHS = 0;
+        // for(uint32_t i = 0; i < objective_lits.size(); i++){
+        //     litsMIC.push_back(neg(objective_lits[i]));
+        //     RHS += objective_weights[i];
+        // }
+        // RHS = RHS + objective_constant_cost - best_objective_value + 1;
+        // check_last_constraint(litsMIC, objective_weights, RHS);
     }
 
     return get_model_improving_constraint(); 
