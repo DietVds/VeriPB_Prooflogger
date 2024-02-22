@@ -22,19 +22,16 @@ namespace VeriPB {
 inline VeriPB::VarIdx varidx(VeriPB::Var var){return var.v << 1 ^ var.only_known_in_proof;}
 
 inline bool operator==(const VeriPB::Var& lhs, const VeriPB::Var& rhs){
-	return lhs.v == rhs.v;
+	return lhs.v == rhs.v && lhs.only_known_in_proof == rhs.only_known_in_proof;
 }
 
 inline bool operator!=(const VeriPB::Var& lhs, const VeriPB::Var& rhs){
-	return lhs.v != rhs.v;
+	return !(lhs == rhs);
 }
 
 inline bool operator< (const VeriPB::Var& lhs, const VeriPB::Var& rhs){
-    return (lhs.v < rhs.v);
-}
-
-inline bool operator< (const VeriPB::Var lhs, const VeriPB::Var rhs){
-    return (lhs.v < rhs.v);
+    return (!lhs.only_known_in_proof && rhs.only_known_in_proof) 
+                || (lhs.only_known_in_proof == rhs.only_known_in_proof && lhs.v < rhs.v);
 }
 
 inline bool operator==(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs){
@@ -42,7 +39,11 @@ inline bool operator==(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs){
 }
 
 inline bool operator!=(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs){
-    return lhs.v != rhs.v || lhs.negated != rhs.negated;
+    return !(lhs == rhs);
+}
+
+inline bool operator< (const VeriPB::Lit& lhs, const VeriPB::Lit& rhs){
+    return lhs.v < rhs.v || (lhs.v == rhs.v && lhs.negated && !rhs.negated);
 }
 
 #endif
