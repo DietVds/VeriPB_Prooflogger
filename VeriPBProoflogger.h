@@ -137,6 +137,7 @@ public:
     void add_objective_constant(wght weight);
     void subtract_objective_constant(wght weight);
     void write_comment_objective_function();
+    void check_model_improving_constraint(const constraintid cxn);
     wght get_best_objective_function();
     void write_objective_update();
     template <class TSeqLit, class TSeqSignedWght>

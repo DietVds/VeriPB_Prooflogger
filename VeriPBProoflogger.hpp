@@ -176,7 +176,18 @@ void VeriPbProofLogger::write_comment_objective_function()
         write_weighted_literal(objective_lits[i], objective_weights[i]);
     if(objective_constant_cost != 0)
         *proof << " + " << std::to_string(objective_constant_cost);
+    *proof << "; Current best solution: " << std::to_string(best_objective_value);
     *proof << "\n";
+}
+
+void VeriPbProofLogger::check_model_improving_constraint(const constraintid cxn){
+    *proof << "e -1 : ";
+    wght sumAllWeights = 0;
+    for(int i = 0; i < objective_lits.size(); i++){
+        write_weighted_literal(neg(objective_lits[i]), objective_weights[i]);
+        sumAllWeights += objective_weights[i];
+    }
+    *proof << " >= " << std::to_string(sumAllWeights + objective_constant_cost - best_objective_value + 1) << ";\n";
 }
 
 void VeriPbProofLogger::write_objective_update(){
@@ -546,7 +557,7 @@ constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, wght objectiv
             RHS += objective_weights[i];
         }
         RHS = RHS + objective_constant_cost - best_objective_value + 1;
-        check_last_constraint(litsMIC, objective_weights, RHS);
+        check_model_improving_constraint(-1);
     }
 
     return get_model_improving_constraint(); 
@@ -578,6 +589,7 @@ constraintid VeriPbProofLogger::get_model_improving_constraint()
 
 void VeriPbProofLogger::update_model_improving_constraint(constraintid newmic){
     model_improvement_constraint = newmic;
+    write_comment("Model improving constraint: " + std::to_string(newmic));
 }
 
 wght VeriPbProofLogger::get_best_objective_value(){
