@@ -1226,27 +1226,27 @@ constraintid VeriPbProofLogger::prove_by_casesplitting(TSeqLit& lits, TSeqWght& 
 
 //  ------------- Deleting & Overwriting Constraints -------------
 
-void VeriPbProofLogger::delete_constraint_by_id(const constraintid constraint_id)
+void VeriPbProofLogger::delete_constraint_by_id(const constraintid constraint_id, bool overrule_keeporiginalformula)
 {
-    if(!(keep_original_formula && is_original_constraint(constraint_id)))
+    if(!(keep_original_formula && is_original_constraint(constraint_id)) || overrule_keeporiginalformula)
         *proof << "del id " << constraint_id << "\n";
 }
 
-void VeriPbProofLogger::delete_constraint_by_id(const std::vector<constraintid> &constraint_ids)
+void VeriPbProofLogger::delete_constraint_by_id(const std::vector<constraintid> &constraint_ids, bool overrule_keeporiginalformula)
 {
     *proof << "del id";
     for (constraintid id : constraint_ids)
     {
-        if(!(keep_original_formula && is_original_constraint(id)))
+        if(!(keep_original_formula && is_original_constraint(id)) || overrule_keeporiginalformula)
             *proof << " " << id;
     }
     *proof << "\n";
 }
 
 template <class TSeqLit>
-void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const wght RHS)
+void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const wght RHS, bool overrule_keeporiginalformula)
 {
-    assert(!keep_original_formula);
+    assert(!keep_original_formula || overrule_keeporiginalformula);
 
     *proof << "del spec ";
     write_cardinality_constraint(lits, RHS);
@@ -1254,8 +1254,8 @@ void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const wght RHS)
 }
 
 template <class TSeqLit>
-void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const wght RHS, const substitution& witness){
-    assert(!keep_original_formula);
+void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const wght RHS, const substitution& witness, bool overrule_keeporiginalformula){
+    assert(!keep_original_formula || overrule_keeporiginalformula);
     *proof << "del spec ";
     write_cardinality_constraint(lits, RHS);
     *proof << "; ";
@@ -1264,17 +1264,17 @@ void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const wght RHS, c
 }
 
 template <class TSeqLit, class TSeqWght>
-void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS)
+void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, bool overrule_keeporiginalformula)
 {
-    assert(!keep_original_formula);
+    assert(!keep_original_formula || overrule_keeporiginalformula);
     *proof << "del spec ";
     write_PB_constraint(lits, weights, RHS);
     *proof << ";\n";
 }
 
 template <class TSeqLit, class TSeqWght>
-void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution& witness){
-    assert(!keep_original_formula);
+void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution& witness, bool overrule_keeporiginalformula){
+    assert(!keep_original_formula || overrule_keeporiginalformula);
     *proof << "del spec ";
     write_PB_constraint(lits, weights, RHS);
     *proof << "; ";
@@ -1285,8 +1285,8 @@ void VeriPbProofLogger::delete_constraint(const TSeqLit &lits, const TSeqWght &w
 // Removal by del find where a literal occuring multiple times in lits is only written once.
 // Note: TSeqLit must be sorted.
 template <class TSeqLit>
-void VeriPbProofLogger::delete_clause(const TSeqLit& lits){
-    assert(!keep_original_formula);
+void VeriPbProofLogger::delete_clause(const TSeqLit& lits, bool overrule_keeporiginalformula){
+    assert(!keep_original_formula || overrule_keeporiginalformula);
     *proof << "del spec ";
     write_weighted_literal(lits[0]);
     for(int i = 1; i < lits.size(); i++){
@@ -1346,18 +1346,18 @@ constraintid VeriPbProofLogger::overwrite_constraint(const TSeqLit&lits_orig, co
     return newconstraint;
 }
 
-void VeriPbProofLogger::move_to_coreset(constraintid cxn){
-    if(!keep_original_formula)
+void VeriPbProofLogger::move_to_coreset(constraintid cxn, bool overrule_keeporiginalformula){
+    if(!keep_original_formula || overrule_keeporiginalformula)
         *proof << "core id " << std::to_string(cxn) << "\n";
 }
 template <class TSeqLit>
-void VeriPbProofLogger::move_to_coreset(TSeqLit& lits, wght RHS){
-    if(!keep_original_formula)
+void VeriPbProofLogger::move_to_coreset(TSeqLit& lits, wght RHS, bool overrule_keeporiginalformula){
+    if(!keep_original_formula || overrule_keeporiginalformula)
         *proof << "core find "; write_cardinality_constraint(lits, RHS); *proof << "\n";
 }
 template <class TSeqLit, class TSeqWght>
-void VeriPbProofLogger::move_to_coreset(TSeqLit& lits, TSeqWght& wghts, wght RHS){
-    if(!keep_original_formula)
+void VeriPbProofLogger::move_to_coreset(TSeqLit& lits, TSeqWght& wghts, wght RHS, bool overrule_keeporiginalformula){
+    if(!keep_original_formula || overrule_keeporiginalformula)
         *proof << "core find "; write_PB_constraint(lits, wghts, RHS); *proof << "\n";
 }
 

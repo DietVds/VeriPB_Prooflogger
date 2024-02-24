@@ -406,28 +406,28 @@ public:
     constraintid prove_by_casesplitting(TSeqLit& lits, TSeqWght& weights, wght RHS, constraintid case1, constraintid case2);
 
     // ------------- Deleting & Overwriting Constraints -------------
-    void delete_constraint_by_id(const constraintid constraint_id);
-    void delete_constraint_by_id(const constraintid constraint_id, const substitution& witness); // TODO-Dieter
-    void delete_constraint_by_id(const std::vector<constraintid> &constraint_ids);
+    void delete_constraint_by_id(const constraintid constraint_id, bool overrule_keeporiginalformula=false);
+    void delete_constraint_by_id(const constraintid constraint_id, const substitution& witness, bool overrule_keeporiginalformula=false); // TODO-Dieter
+    void delete_constraint_by_id(const std::vector<constraintid> &constraint_ids, bool overrule_keeporiginalformula=false);
     template <class TSeqLit>
-    void delete_constraint(const TSeqLit &lits, const wght RHS);
+    void delete_constraint(const TSeqLit &lits, const wght RHS, bool overrule_keeporiginalformula=false);
     template <class TSeqLit>
-    void delete_constraint(const TSeqLit &lits, const wght RHS, const substitution& witness);    
+    void delete_constraint(const TSeqLit &lits, const wght RHS, const substitution& witness, bool overrule_keeporiginalformula=false);    
     template <class TSeqLit, class TSeqWght>
-    void delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
+    void delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, bool overrule_keeporiginalformula=false);
     template <class TSeqLit, class TSeqWght>
-    void delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution& witness);    
+    void delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution& witness, bool overrule_keeporiginalformula=false);    
 
     
 
     //Minisat:
     // void delete_constraint(Glucose::Clause &clause);
     template <template <class T> class TVec, class TLit>
-    void delete_constraint(TVec<TLit> &clause);
+    void delete_constraint(TVec<TLit> &clause, bool overrule_keeporiginalformula=false);
 
     // Removal by del find where a literal occuring multiple times in lits is only written once.
     template <class TSeqLit>
-    void delete_clause(const TSeqLit& lits);
+    void delete_clause(const TSeqLit& lits, bool overrule_keeporiginalformula=false);
 
     template <class TSeqLit>
     constraintid overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const wght RHS = 1, bool origclause_in_coreset=false);
@@ -440,11 +440,11 @@ public:
     template <class TSeqLit>
     constraintid overwrite_constraint(const TSeqLit &lits_orig, const TSeqLit &lits, bool origclause_in_coreset=false);
 
-    void move_to_coreset(constraintid cxn);
+    void move_to_coreset(constraintid cxn, bool overrule_keeporiginalformula=false);
     template <class TSeqLit>
-    void move_to_coreset(TSeqLit& lits, wght RHS=1);
+    void move_to_coreset(TSeqLit& lits, wght RHS=1, bool overrule_keeporiginalformula=false);
     template <class TSeqLit, class TSeqWght>
-    void move_to_coreset(TSeqLit& lits, TSeqWght& wghts, wght RHS=1);
+    void move_to_coreset(TSeqLit& lits, TSeqWght& wghts, wght RHS=1, bool overrule_keeporiginalformula=false);
     // ------------- Handling contradiction -------------
     void write_previous_constraint_contradiction();
     void write_contradiction(constraintid cxnid);

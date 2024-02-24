@@ -76,17 +76,17 @@ template void VeriPbProofLogger::intCP_add_literal_axiom<VeriPB::Lit>(const Veri
 template void VeriPbProofLogger::intCP_write_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
 template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
 template constraintid VeriPbProofLogger::prove_by_casesplitting<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights, wght RHS, constraintid case1, constraintid case2);
-template void VeriPbProofLogger::delete_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS);
-template void VeriPbProofLogger::delete_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS, const substitution& witness);
-template void VeriPbProofLogger::delete_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
-template void VeriPbProofLogger::delete_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, const substitution& witness);
+template void VeriPbProofLogger::delete_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS, bool overrule_keeporiginalformula);
+template void VeriPbProofLogger::delete_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS, const substitution& witness, bool overrule_keeporiginalformula);
+template void VeriPbProofLogger::delete_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, bool overrule_keeporiginalformula);
+template void VeriPbProofLogger::delete_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, const substitution& witness, bool overrule_keeporiginalformula);
 template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<VeriPB::Lit>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const wght RHS, bool origclause_in_coreset);
 template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits_orig, const wght RHS_orig, const std::vector<VeriPB::Lit> &lits, const wght RHS, bool origclause_in_coreset);
 template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, bool origclause_in_coreset);
 template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits_orig, const std::vector<wght> &weights_orig, const wght RHS_orig, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, bool origclause_in_coreset);
 template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits_orig, const std::vector<VeriPB::Lit> &lits, bool origclause_in_coreset);
-template void VeriPbProofLogger::move_to_coreset<std::vector<VeriPB::Lit>>(std::vector<VeriPB::Lit>& lits, wght RHS=1);
-template void VeriPbProofLogger::move_to_coreset<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& wghts, wght RHS=1);
+template void VeriPbProofLogger::move_to_coreset<std::vector<VeriPB::Lit>>(std::vector<VeriPB::Lit>& lits, wght RHS, bool overrule_keeporiginalformula);
+template void VeriPbProofLogger::move_to_coreset<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& wghts, wght RHS, bool overrule_keeporiginalformula);
 
 
 template void VeriPbProofLogger::set_objective<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, wght constant_cost);
@@ -163,17 +163,17 @@ template void VeriPbProofLogger::intCP_add_literal_axiom<uint32_t>(const uint32_
 template void VeriPbProofLogger::intCP_write_literal_axiom<uint32_t>(const uint32_t &lit);
 template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<uint32_t>, std::vector<wght>>(std::vector<uint32_t>& lits, std::vector<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
 template constraintid VeriPbProofLogger::prove_by_casesplitting<std::vector<uint32_t>, std::vector<wght>>(std::vector<uint32_t>& lits, std::vector<wght>& weights, wght RHS, constraintid case1, constraintid case2);
-template void VeriPbProofLogger::delete_constraint<std::vector<uint32_t>>(const std::vector<uint32_t> &lits, const wght RHS);
-template void VeriPbProofLogger::delete_constraint<std::vector<uint32_t>>(const std::vector<uint32_t> &lits, const wght RHS, const substitution& witness);
-template void VeriPbProofLogger::delete_constraint<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS);
-template void VeriPbProofLogger::delete_constraint<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS, const substitution& witness);
+template void VeriPbProofLogger::delete_constraint<std::vector<uint32_t>>(const std::vector<uint32_t> &lits, const wght RHS, bool overrule_keeporiginalformula);
+template void VeriPbProofLogger::delete_constraint<std::vector<uint32_t>>(const std::vector<uint32_t> &lits, const wght RHS, const substitution& witness, bool overrule_keeporiginalformula);
+template void VeriPbProofLogger::delete_constraint<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS, bool overrule_keeporiginalformula);
+template void VeriPbProofLogger::delete_constraint<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS, const substitution& witness, bool overrule_keeporiginalformula);
 template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<uint32_t>>(const constraintid constraint_id, const std::vector<uint32_t> &lits, const wght RHS, bool origclause_in_coreset);
 template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<uint32_t>>(const std::vector<uint32_t> &lits_orig, const wght RHS_orig, const std::vector<uint32_t> &lits, const wght RHS, bool origclause_in_coreset);
 template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<uint32_t>, std::vector<wght>>(const constraintid constraint_id, const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS, bool origclause_in_coreset);
 template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits_orig, const std::vector<wght> &weights_orig, const wght RHS_orig, const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS, bool origclause_in_coreset);
 template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<uint32_t>>(const std::vector<uint32_t> &lits_orig, const std::vector<uint32_t> &lits, bool origclause_in_coreset);
-template void VeriPbProofLogger::move_to_coreset<std::vector<uint32_t>>(std::vector<uint32_t>& lits, wght RHS=1);
-template void VeriPbProofLogger::move_to_coreset<std::vector<uint32_t>, std::vector<wght>>(std::vector<uint32_t>& lits, std::vector<wght>& wghts, wght RHS=1);
+template void VeriPbProofLogger::move_to_coreset<std::vector<uint32_t>>(std::vector<uint32_t>& lits, wght RHS, bool overrule_keeporiginalformula);
+template void VeriPbProofLogger::move_to_coreset<std::vector<uint32_t>, std::vector<wght>>(std::vector<uint32_t>& lits, std::vector<wght>& wghts, wght RHS, bool overrule_keeporiginalformula);
 
 template void VeriPbProofLogger::set_objective<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, wght constant_cost);
 template void VeriPbProofLogger::add_objective_literal<int>(int& lit, wght weight);
@@ -247,17 +247,17 @@ template void VeriPbProofLogger::intCP_add_literal_axiom<int>(const int &lit);
 template void VeriPbProofLogger::intCP_write_literal_axiom<int>(const int &lit);
 template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<int>, std::vector<wght>>(std::vector<int>& lits, std::vector<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
 template constraintid VeriPbProofLogger::prove_by_casesplitting<std::vector<int>, std::vector<wght>>(std::vector<int>& lits, std::vector<wght>& weights, wght RHS, constraintid case1, constraintid case2);
-template void VeriPbProofLogger::delete_constraint<std::vector<int>>(const std::vector<int> &lits, const wght RHS);
-template void VeriPbProofLogger::delete_constraint<std::vector<int>>(const std::vector<int> &lits, const wght RHS, const substitution& witness);
-template void VeriPbProofLogger::delete_constraint<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS);
-template void VeriPbProofLogger::delete_constraint<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS, const substitution& witness);
+template void VeriPbProofLogger::delete_constraint<std::vector<int>>(const std::vector<int> &lits, const wght RHS, bool overrule_keeporiginalformula);
+template void VeriPbProofLogger::delete_constraint<std::vector<int>>(const std::vector<int> &lits, const wght RHS, const substitution& witness, bool overrule_keeporiginalformula);
+template void VeriPbProofLogger::delete_constraint<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS, bool overrule_keeporiginalformula);
+template void VeriPbProofLogger::delete_constraint<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS, const substitution& witness, bool overrule_keeporiginalformula);
 template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<int>>(const constraintid constraint_id, const std::vector<int> &lits, const wght RHS, bool origclause_in_coreset);
 template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<int>>(const std::vector<int> &lits_orig, const wght RHS_orig, const std::vector<int> &lits, const wght RHS, bool origclause_in_coreset);
 template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<int>, std::vector<wght>>(const constraintid constraint_id, const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS, bool origclause_in_coreset);
 template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits_orig, const std::vector<wght> &weights_orig, const wght RHS_orig, const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS, bool origclause_in_coreset);
 template constraintid VeriPbProofLogger::overwrite_constraint<std::vector<int>>(const std::vector<int> &lits_orig, const std::vector<int> &lits, bool origclause_in_coreset);
-template void VeriPbProofLogger::move_to_coreset<std::vector<int>>(std::vector<int>& lits, wght RHS=1);
-template void VeriPbProofLogger::move_to_coreset<std::vector<int>, std::vector<wght>>(std::vector<int>& lits, std::vector<wght>& wghts, wght RHS=1);
+template void VeriPbProofLogger::move_to_coreset<std::vector<int>>(std::vector<int>& lits, wght RHS, bool overrule_keeporiginalformula);
+template void VeriPbProofLogger::move_to_coreset<std::vector<int>, std::vector<wght>>(std::vector<int>& lits, std::vector<wght>& wghts, wght RHS, bool overrule_keeporiginalformula);
 
 
 
