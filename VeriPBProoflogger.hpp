@@ -566,7 +566,7 @@ constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, wght objectiv
 template <class TSeqLit>
 constraintid VeriPbProofLogger::log_solution_with_check(const TSeqLit &model, bool only_original_variables_necessary, bool log_nonimproving_solution_as_comment)
 {
-    int current_objective_value = calculate_objective_value(model);
+    wght current_objective_value = calculate_objective_value(model);
     if (current_objective_value < best_objective_value)
     {
         write_comment_objective_function();
