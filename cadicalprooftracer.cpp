@@ -87,8 +87,19 @@ void CadicalProofTracer::veripb_strengthen (uint64_t id) {
 
 void CadicalProofTracer::add_original_clause (uint64_t id, bool redundant, const vector<int> &clause,
                             bool restored){
+
   constraintid cxnid = next_cxnid == undefcxn ? vPL->constraint_counter : next_cxnid;
   vPL->write_comment("Cadical PT: add original clause with id " + std::to_string(id) + " and veripb id " + std::to_string(cxnid));
+  // vPL->write_comment("next_cxnid = " + std::to_string(next_cxnid));
+  // std::string strcls = "Added clause:";
+  // for(int l : clause){
+  //   strcls += " " + vPL->to_string(l);
+  // }
+  // vPL->write_comment(strcls);
+  // vPL->write_comment("Is redundant? " + std::to_string(redundant) + " Is restored?  "  + std::to_string(restored));
+
+  if(restored) return; // A restored clause keeps its original clause id's. 
+
   clauses_vpb[id] = cxnid;
   next_cxnid = undefcxn;
   added++;
