@@ -54,6 +54,11 @@ typedef std::pair<std::vector<std::pair<VeriPB::Var, VeriPB::Lit>>, std::vector<
 typedef std::pair<std::vector<std::pair<VeriPB::Var, VeriPB::Lit>>, std::vector<std::pair<VeriPB::Var, bool>>> substitution;
 typedef std::string cuttingplanes_derivation;
 
+typedef struct {
+    std::string proofgoal;
+    std::vector<cuttingplanes_derivation> derivations;
+} subproof;
+
 class VeriPbProofLogger
 {
     friend MaxSATProoflogger;
@@ -285,15 +290,12 @@ public:
     template <class TSeqLit, class TSeqWght>
     constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution &witness);
 
-    typedef struct {
-        std::string proofgoal;
-        std::vector<cuttingplanes_derivation> derivations;
-    } subproof;
-
     // In contrast to all other overloads, this overload of redundanceBasedStrenghtening suspects that at least one proof goal is not trivial (and that it should be proven by either RUP or by an explicit cutting planes proof). 
     // This is important for counting the number of constraints, since constraints are created while proving non-trivial proofgoals.
     template <class TSeqLit, class TSeqWght>
     constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
+    template <class TSeqLit>
+    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
 
     // ------------- Reification Variables -------------
     // Proves the constraints encoding the reification constraint l <-> C, with l a literal and C a boolean constraint.

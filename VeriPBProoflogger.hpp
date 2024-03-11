@@ -841,6 +841,36 @@ constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits
 }
 
 
+template <class TSeqLit>
+constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits, const wght RHS, const substitution &witness, std::vector<subproof> subproofs){
+    *proof << "red ";
+    write_cardinality_constraint(lits, RHS);
+    *proof << "; ";
+    write_substitution(witness);
+
+    constraint_counter++; // constraint not C
+
+    if(subproofs.size() > 0){
+        *proof << "; begin \n";
+    
+        for(int i = 0; i < subproofs.size(); i++){
+            subproof p = subproofs[i];
+            constraint_counter++; // constraint C\w
+            *proof << "\tproofgoal " << p.proofgoal << "\n";
+            for(int i = 0; i < p.derivations.size(); i++){
+                *proof << "\t\tp " << p.derivations[i] << "\n";
+                constraint_counter++;
+            }
+            // *proof << "\t\t c -1\n";
+            *proof << "\tend -1\n";
+        }
+        *proof << "end\n";
+    }
+
+    return ++constraint_counter;
+}
+
+
 // ------------- Reification Literals -------------
 // Proves the constraints encoding the reification constraint l <-> C, with l a literal and C a boolean constraint.
 // The right implication is the encoding of l -> C, whereas the left implication means l <- C.
