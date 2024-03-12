@@ -83,12 +83,12 @@ private:
     constraintid model_improvement_constraint = 0; // Last model improvement constraint
 
     // Meaningful variable names
-    std::map<VeriPB::VarIdx, std::string> meaningful_names_store;
+    std::unordered_map<VeriPB::VarIdx, std::string> meaningful_names_store;
     uint32_t n_vars_only_known_in_proof;
     
 
     // Variables to be rewritten by literals.
-    std::map<VeriPB::VarIdx, VeriPB::Lit> map_rewrite_var_by_literal;
+    std::unordered_map<VeriPB::VarIdx, VeriPB::Lit> map_rewrite_var_by_literal;
 
     std::string to_string_rewrite_var_by_literal(VeriPB::Var& variable, VeriPB::Lit& literal); 
 
