@@ -23,8 +23,9 @@
 #include "core/SolverTypes.h"
 
 // the type that is presenting weights in the solver. This should be defined by the solver developer.
-#define wght long long int
+#define wght int64_t
 #define wght_max LLONG_MAX
+#define signedWght int64_t 
 // typedef long long int wght; 
 
 

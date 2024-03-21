@@ -87,6 +87,11 @@ constraintid MaxSATProoflogger::rewrite_model_improvement_constraint_for_unitsof
 constraintid MaxSATProoflogger::get_rewritten_model_improvement_constraint_for_unitsoftclauses(){
     return rewritten_objective_for_unitsoftclauses;
 }
+
+void MaxSATProoflogger::derive_blocking_literal_value_for_satisfied_soft_clause(constraintid wcnflinenumber, bool value){
+    *(PL->proof) << "red _b" << std::to_string(wcnflinenumber) << " >= 1; " << (value ? "" : "~") << "_b" << std::to_string(wcnflinenumber) << "\n";
+    PL->increase_constraint_counter();
+}
 //=================================================================================================
 // Objective reformulation
 

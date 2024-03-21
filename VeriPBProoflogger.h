@@ -421,12 +421,10 @@ public:
     template <class TSeqLit, class TSeqWght>
     void delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution& witness, bool overrule_keeporiginalformula=false);    
 
-    
-
     //Minisat:
     // void delete_constraint(Glucose::Clause &clause);
-    template <template <class T> class TVec, class TLit>
-    void delete_constraint(TVec<TLit> &clause, bool overrule_keeporiginalformula=false);
+    // template <c>
+    // void delete_constraint(TVec<TLit> &clause, bool overrule_keeporiginalformula=false);
 
     // Removal by del find where a literal occuring multiple times in lits is only written once.
     template <class TSeqLit>
