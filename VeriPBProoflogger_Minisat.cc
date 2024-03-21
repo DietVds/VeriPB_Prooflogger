@@ -120,6 +120,8 @@ template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vecto
 
 
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, bool store_reified_constraint);
+template constraintid VeriPbProofLogger::reificationLiteralRightImpl<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &litsC, const std::vector<wght> &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
+
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>, Minisat::Lit>(const Minisat::Lit& lit, const Minisat::vec<Minisat::Lit> &lits, const Minisat::vec<wght> &weights, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const Minisat::vec<Minisat::Lit> &lits, const Minisat::vec<wght> &weights, const wght RHS, bool store_reified_constraint);
 
@@ -127,6 +129,10 @@ template constraintid VeriPbProofLogger::reificationLiteralRightImpl<std::vector
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<Minisat::vec<Minisat::Lit>, Minisat::Lit>(const Minisat::Lit& lit, const Minisat::vec<Minisat::Lit> &lits, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<Minisat::vec<Minisat::Lit>, VeriPB::Lit>(const VeriPB::Lit& lit, const Minisat::vec<Minisat::Lit> &lits, const wght RHS, bool store_reified_constraint);
 
+template constraintid VeriPbProofLogger::reificationLiteralRightImplLeq<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &litsC, const std::vector<wght> &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
+
+
+template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &litsC, const std::vector<wght> &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>, Minisat::Lit>(const Minisat::Lit& lit, const Minisat::vec<Minisat::Lit> &lits, const Minisat::vec<wght> &weights, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const Minisat::vec<Minisat::Lit> &lits, const Minisat::vec<wght> &weights, const wght RHS, bool store_reified_constraint);
@@ -134,6 +140,9 @@ template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<Minisat::vec
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<std::vector<VeriPB::Lit>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &lits, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<Minisat::vec<Minisat::Lit>, Minisat::Lit>(const Minisat::Lit& lit, const Minisat::vec<Minisat::Lit> &lits, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<Minisat::vec<Minisat::Lit>, VeriPB::Lit>(const VeriPB::Lit& lit, const Minisat::vec<Minisat::Lit> &lits, const wght RHS, bool store_reified_constraint);
+
+template constraintid VeriPbProofLogger::reificationLiteralLeftImplLeq<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &litsC, const std::vector<wght> &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
+
 
 template constraintid VeriPbProofLogger::getReifiedConstraintLeftImpl<Minisat::Var>(const Minisat::Var& var);
 template constraintid VeriPbProofLogger::getReifiedConstraintLeftImpl<VeriPB::Var>(const VeriPB::Var& var);

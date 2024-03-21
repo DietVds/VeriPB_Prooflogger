@@ -307,13 +307,27 @@ private:
 public:
     template <class TSeqLit, class TSeqWght, class TLit>
     constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, bool store_reified_constraint);
+    template <class TSeqLit, class TSeqWght, class TLit>
+    constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
     template <class TSeqLit, class TLit>
     constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const wght RHS, bool store_reified_constraint);
 
+    //TODO!
+    template <class TSeqLit, class TSeqWght, class TLit>
+    constraintid reificationLiteralRightImplLeq(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
+    
+
     template <class TSeqLit, class TSeqWght, class TLit>
     constraintid reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, bool store_reified_constraint);
+    template <class TSeqLit, class TSeqWght, class TLit>
+    constraintid reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
     template <class TSeqLit, class TLit>
     constraintid reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const wght RHS, bool store_reified_constraint);
+
+    //TODO!
+    template <class TSeqLit, class TSeqWght, class TLit>
+    constraintid reificationLiteralLeftImplLeq(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
+    
 
     template <class TVar>
     constraintid getReifiedConstraintLeftImpl(const TVar& var);

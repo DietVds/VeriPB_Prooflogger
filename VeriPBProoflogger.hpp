@@ -942,6 +942,83 @@ constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, con
     return cxnid;
 }
 
+template <class TSeqLit, class TSeqWght, class TLit>
+constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint){
+    int i;
+
+    std::string comment = to_string(lit) + " -> " ;
+    for(i = start_constraint; i < end_constraint; i++)
+        comment += std::to_string(weights[i]) + " " + to_string(lits[i]) + " ";
+    comment += ">= " + std::to_string(RHS);
+    write_comment(comment);
+
+    std::vector<VeriPB::Lit> _lits; _lits.resize(end_constraint-start_constraint+1);
+    std::vector<wght> _weights;  _weights.resize(end_constraint-start_constraint+1);
+
+    VeriPB::Lit _neglit = toVeriPbLit(neg(lit));
+
+    wght sum_of_weights = 0;
+
+    for(i = start_constraint; i < end_constraint; i++){
+        sum_of_weights += weights[i];
+
+        _weights[i-start_constraint] = weights[i];
+        _lits[i-start_constraint] = toVeriPbLit(lits[i]);
+    }
+    _lits[i] = _neglit;
+    _weights[i] = RHS;
+
+    substitution witness = get_new_substitution();
+    add_boolean_assignment(witness, variable(_lit), !is_negated(_neglit));
+
+    constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, RHS, witness);
+
+    if(store_reified_constraint)
+        reifiedConstraintRightImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
+
+    return cxnid;
+}
+
+// ------
+template <class TSeqLit, class TSeqWght, class TLit>
+constraintid VeriPbProofLogger::reificationLiteralRightImplLeq(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint){
+    int i;
+
+    std::string comment = to_string(lit) + " -> " ;
+    for(i = start_constraint; i < end_constraint; i++)
+        comment += std::to_string(weights[i]) + " " + to_string(lits[i]) + " ";
+    comment += "=< " + std::to_string(RHS);
+    write_comment(comment);
+
+    std::vector<VeriPB::Lit> _lits; _lits.resize(end_constraint-start_constraint+1);
+    std::vector<wght> _weights;  _weights.resize(end_constraint-start_constraint+1);
+
+    VeriPB::Lit _neglit = toVeriPbLit(neg(lit));
+
+    wght sumofweights=0;
+
+    for(i = start_constraint; i < end_constraint; i++){
+        sumofweights += weights[i] ;
+
+        _weights[i-start_constraint] = weights[i];
+        _lits[i-start_constraint] = toVeriPbLit(neg(lits[i]));
+    }
+
+    _RHS = sumofweights - RHS;
+
+    _lits[i] = _neglit;
+    _weights[i] = _RHS;
+
+    substitution witness = get_new_substitution();
+    add_boolean_assignment(witness, variable(_lit), !is_negated(_neglit));
+
+    constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, _RHS, witness);
+
+    if(store_reified_constraint)
+        reifiedConstraintRightImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
+
+    return cxnid;
+}
 
 template <class TSeqLit, class TSeqWght, class TLit>
 constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, bool store_reified_constraint){
@@ -986,6 +1063,86 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, cons
 
     return cxnid;
 }
+
+template <class TSeqLit, class TSeqWght, class TLit>
+constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint){
+    int i;
+
+    std::string comment = to_string(lit) + " <- " ;
+    for(i = start_constraint; i < end_constraint; i++)
+        comment += std::to_string(weights[i]) + " " + to_string(lits[i]) + " ";
+    comment += ">= " + std::to_string(RHS);
+    write_comment(comment);
+
+    std::vector<VeriPB::Lit> _lits; _lits.resize(end_constraint - start_constraint +1);
+    std::vector<wght> _weights;  _weights.resize(end_constraint - start_constraint +1);
+
+    VeriPB::Lit _lit = toVeriPbLit(lit);
+
+    wght sum_of_weights = 0;
+
+    for(i = start_constraint; i < end_constraint; i++){
+        sum_of_weights += weights[i];
+
+        _weights[i-start_constraint] = weights[i];
+        _lits[i-start_constraint] = toVeriPbLit(neg(lits[i]));
+    }
+    
+    wght j; 
+    if(sum_of_weights + 1 >= RHS)
+        j = sum_of_weights - RHS + 1 ;
+    else
+        j = 0;
+
+    _lits[i] = _lit;
+    _weights[i] = j;
+
+    substitution witness = get_new_substitution();
+    add_boolean_assignment(witness, variable(_lit), !is_negated(_lit));
+
+    constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, j, witness);
+
+    if(store_reified_constraint)
+        reifiedConstraintLeftImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
+
+    return cxnid;
+}
+
+
+template <class TSeqLit, class TSeqWght, class TLit>
+constraintid VeriPbProofLogger::reificationLiteralLeftImplLeq(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint){
+    int i;
+
+    std::string comment = to_string(lit) + " <- " ;
+    for(i = start_constraint; i < end_constraint; i++)
+        comment += std::to_string(weights[i]) + " " + to_string(lits[i]) + " ";
+    comment += "=< " + std::to_string(RHS);
+    write_comment(comment);
+
+    std::vector<VeriPB::Lit> _lits; _lits.resize(end_constraint - start_constraint +1);
+    std::vector<wght> _weights;  _weights.resize(end_constraint - start_constraint +1);
+
+    VeriPB::Lit _lit = toVeriPbLit(lit);
+
+    for(i = start_constraint; i < end_constraint; i++){
+        _weights[i-start_constraint] = weights[i];
+        _lits[i-start_constraint] = toVeriPbLit(lits[i]);
+    }
+    
+    _lits[i] = _lit;
+    _weights[i] = RHS+1;
+
+    substitution witness = get_new_substitution();
+    add_boolean_assignment(witness, variable(_lit), !is_negated(_lit));
+
+    constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, j, witness);
+
+    if(store_reified_constraint)
+        reifiedConstraintLeftImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
+
+    return cxnid;
+}
+
 
 
 template <class TSeqLit, class TLit>
