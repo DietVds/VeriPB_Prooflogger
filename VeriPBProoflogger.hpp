@@ -943,7 +943,7 @@ constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, con
 }
 
 template <class TSeqLit, class TSeqWght, class TLit>
-constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint){
+constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint){
     int i;
 
     std::string comment = to_string(lit) + " -> " ;
@@ -969,7 +969,7 @@ constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, con
     _weights[i] = RHS;
 
     substitution witness = get_new_substitution();
-    add_boolean_assignment(witness, variable(_lit), !is_negated(_neglit));
+    add_boolean_assignment(witness, variable(_neglit), !is_negated(_neglit));
 
     constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, RHS, witness);
 
@@ -981,7 +981,7 @@ constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, con
 
 // ------
 template <class TSeqLit, class TSeqWght, class TLit>
-constraintid VeriPbProofLogger::reificationLiteralRightImplLeq(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint){
+constraintid VeriPbProofLogger::reificationLiteralRightImplLeq(const TLit& lit, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint){
     int i;
 
     std::string comment = to_string(lit) + " -> " ;
@@ -1004,13 +1004,13 @@ constraintid VeriPbProofLogger::reificationLiteralRightImplLeq(const TLit& lit, 
         _lits[i-start_constraint] = toVeriPbLit(neg(lits[i]));
     }
 
-    _RHS = sumofweights - RHS;
+    uint64_t _RHS = sumofweights - RHS;
 
     _lits[i] = _neglit;
     _weights[i] = _RHS;
 
     substitution witness = get_new_substitution();
-    add_boolean_assignment(witness, variable(_lit), !is_negated(_neglit));
+    add_boolean_assignment(witness, variable(_neglit), !is_negated(_neglit));
 
     constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, _RHS, witness);
 
@@ -1070,7 +1070,7 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, cons
 
     std::string comment = to_string(lit) + " <- " ;
     for(i = start_constraint; i < end_constraint; i++)
-        comment += std::to_string(weights[i]) + " " + to_string(lits[i]) + " ";
+        comment += std::to_string(weights[i]) + " " + to_string(litsC[i]) + " ";
     comment += ">= " + std::to_string(RHS);
     write_comment(comment);
 
@@ -1085,7 +1085,7 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, cons
         sum_of_weights += weights[i];
 
         _weights[i-start_constraint] = weights[i];
-        _lits[i-start_constraint] = toVeriPbLit(neg(lits[i]));
+        _lits[i-start_constraint] = toVeriPbLit(neg(litsC[i]));
     }
     
     wght j; 
@@ -1100,7 +1100,7 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, cons
     substitution witness = get_new_substitution();
     add_boolean_assignment(witness, variable(_lit), !is_negated(_lit));
 
-    constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, j, witness);
+    constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, RHS, witness);
 
     if(store_reified_constraint)
         reifiedConstraintLeftImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
@@ -1115,7 +1115,7 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImplLeq(const TLit& lit, c
 
     std::string comment = to_string(lit) + " <- " ;
     for(i = start_constraint; i < end_constraint; i++)
-        comment += std::to_string(weights[i]) + " " + to_string(lits[i]) + " ";
+        comment += std::to_string(weights[i]) + " " + to_string(litsC[i]) + " ";
     comment += "=< " + std::to_string(RHS);
     write_comment(comment);
 
@@ -1126,16 +1126,16 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImplLeq(const TLit& lit, c
 
     for(i = start_constraint; i < end_constraint; i++){
         _weights[i-start_constraint] = weights[i];
-        _lits[i-start_constraint] = toVeriPbLit(lits[i]);
+        _lits[i-start_constraint] = toVeriPbLit(litsC[i]);
     }
     
     _lits[i] = _lit;
-    _weights[i] = RHS+1;
+    _weights[i] = RHS = RHS+1;
 
     substitution witness = get_new_substitution();
     add_boolean_assignment(witness, variable(_lit), !is_negated(_lit));
 
-    constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, j, witness);
+    constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, RHS, witness);
 
     if(store_reified_constraint)
         reifiedConstraintLeftImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
