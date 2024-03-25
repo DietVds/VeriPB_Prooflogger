@@ -41,6 +41,7 @@ template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<VeriPB
 template constraintid VeriPbProofLogger::unchecked_assumption_unit_clause<VeriPB::Lit>(const VeriPB::Lit& lit, bool core_constraint);
 template constraintid VeriPbProofLogger::rup<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS);
 template constraintid VeriPbProofLogger::rup<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
+template constraintid VeriPbProofLogger::rup_clause<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit>& lits);
 template constraintid VeriPbProofLogger::rup_unit_clause<VeriPB::Lit>(const VeriPB::Lit& lit, bool core_constraint);
 template constraintid VeriPbProofLogger::rup_binary_clause<VeriPB::Lit>(const VeriPB::Lit& lit1, const VeriPB::Lit& lit2, bool core_constraint);
 template constraintid VeriPbProofLogger::rup_ternary_clause<VeriPB::Lit>(const VeriPB::Lit& lit1, const VeriPB::Lit& lit2, const VeriPB::Lit& lit3, bool core_constraint);
@@ -54,10 +55,13 @@ template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vecto
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, const substitution &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
+template constraintid VeriPbProofLogger::redundanceBasedStrengtheningUnitClause<VeriPB::Lit>(const VeriPB::Lit& lit);
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<std::vector<VeriPB::Lit>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &lits, const wght RHS, bool store_reified_constraint);
+template constraintid VeriPbProofLogger::reificationLiteralRightImplLeq<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &litsC, const std::vector<wght> &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<std::vector<VeriPB::Lit>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &lits, const wght RHS, bool store_reified_constraint);
+template constraintid VeriPbProofLogger::reificationLiteralLeftImplLeq<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &litsC, const std::vector<wght> &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::getReifiedConstraintLeftImpl<VeriPB::Var>(const VeriPB::Var& var);
 template constraintid VeriPbProofLogger::getReifiedConstraintRightImpl<VeriPB::Var>(const VeriPB::Var& var);
 template void VeriPbProofLogger::setReifiedConstraintLeftImpl<VeriPB::Var>(const VeriPB::Var& var, constraintid cxnId);
@@ -129,6 +133,7 @@ template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<uint32
 template constraintid VeriPbProofLogger::unchecked_assumption_unit_clause<uint32_t>(const uint32_t& lit, bool core_constraint);
 template constraintid VeriPbProofLogger::rup<std::vector<uint32_t>>(const std::vector<uint32_t> &lits, const wght RHS);
 template constraintid VeriPbProofLogger::rup<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS);
+template constraintid VeriPbProofLogger::rup_clause<std::vector<uint32_t>>(const std::vector<uint32_t>& lits);
 template constraintid VeriPbProofLogger::rup_unit_clause<uint32_t>(const uint32_t& lit, bool core_constraint);
 template constraintid VeriPbProofLogger::rup_binary_clause<uint32_t>(const uint32_t& lit1, const uint32_t& lit2, bool core_constraint);
 template constraintid VeriPbProofLogger::rup_ternary_clause<uint32_t>(const uint32_t& lit1, const uint32_t& lit2, const uint32_t& lit3, bool core_constraint);
@@ -142,10 +147,13 @@ template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vecto
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS, const substitution &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<uint32_t>>(const std::vector<uint32_t> &lits, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
+template constraintid VeriPbProofLogger::redundanceBasedStrengtheningUnitClause<uint32_t>(const uint32_t& lit);
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<std::vector<uint32_t>, std::vector<wght>, uint32_t>(const uint32_t& lit, const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<std::vector<uint32_t>, uint32_t>(const uint32_t& lit, const std::vector<uint32_t> &lits, const wght RHS, bool store_reified_constraint);
+template constraintid VeriPbProofLogger::reificationLiteralRightImplLeq<std::vector<uint32_t>, std::vector<wght>, uint32_t>(const uint32_t& lit, const std::vector<uint32_t> &litsC, const std::vector<wght> &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<std::vector<uint32_t>, std::vector<wght>, uint32_t>(const uint32_t& lit, const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<std::vector<uint32_t>, uint32_t>(const uint32_t& lit, const std::vector<uint32_t> &lits, const wght RHS, bool store_reified_constraint);
+template constraintid VeriPbProofLogger::reificationLiteralLeftImplLeq<std::vector<uint32_t>, std::vector<wght>, uint32_t>(const uint32_t& lit, const std::vector<uint32_t> &litsC, const std::vector<wght> &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::getReifiedConstraintLeftImpl<uint32_t>(const uint32_t& var);
 template constraintid VeriPbProofLogger::getReifiedConstraintRightImpl<uint32_t>(const uint32_t& var);
 template void VeriPbProofLogger::setReifiedConstraintLeftImpl<uint32_t>(const uint32_t& var, constraintid cxnId);
@@ -214,6 +222,7 @@ template constraintid VeriPbProofLogger::unchecked_assumption<std::vector<int>, 
 template constraintid VeriPbProofLogger::unchecked_assumption_unit_clause<int>(const int& lit, bool core_constraint);
 template constraintid VeriPbProofLogger::rup<std::vector<int>>(const std::vector<int> &lits, const wght RHS);
 template constraintid VeriPbProofLogger::rup<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS);
+template constraintid VeriPbProofLogger::rup_clause<std::vector<int>>(const std::vector<int>& lits);
 template constraintid VeriPbProofLogger::rup_unit_clause<int>(const int& lit, bool core_constraint);
 template constraintid VeriPbProofLogger::rup_binary_clause<int>(const int& lit1, const int& lit2, bool core_constraint);
 template constraintid VeriPbProofLogger::rup_ternary_clause<int>(const int& lit1, const int& lit2, const int& lit3, bool core_constraint);
@@ -227,10 +236,13 @@ template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vecto
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS, const substitution &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<int>>(const std::vector<int> &lits, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
+template constraintid VeriPbProofLogger::redundanceBasedStrengtheningUnitClause<int>(const int& lit);
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<std::vector<int>, std::vector<wght>, int>(const int& lit, const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<std::vector<int>, int>(const int& lit, const std::vector<int> &lits, const wght RHS, bool store_reified_constraint);
+template constraintid VeriPbProofLogger::reificationLiteralRightImplLeq<std::vector<int>, std::vector<wght>, int>(const int& lit, const std::vector<int> &litsC, const std::vector<wght> &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<std::vector<int>, std::vector<wght>, int>(const int& lit, const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralLeftImpl<std::vector<int>, int>(const int& lit, const std::vector<int> &lits, const wght RHS, bool store_reified_constraint);
+template constraintid VeriPbProofLogger::reificationLiteralLeftImplLeq<std::vector<int>, std::vector<wght>, int>(const int& lit, const std::vector<int> &litsC, const std::vector<wght> &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::getReifiedConstraintLeftImpl<int>(const int& var);
 template constraintid VeriPbProofLogger::getReifiedConstraintRightImpl<int>(const int& var);
 template void VeriPbProofLogger::setReifiedConstraintLeftImpl<int>(const int& var, constraintid cxnId);

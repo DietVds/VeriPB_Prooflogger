@@ -258,6 +258,8 @@ public:
     constraintid rup(const TSeqLit &lits, const wght RHS = 1);
     template <class TSeqLit, class TSeqWght>
     constraintid rup(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
+    template <class TSeqLit>
+    constraintid  rup_clause(const TSeqLit& lits);
     template <class TLit>
     constraintid rup_unit_clause(const TLit& lit, bool core_constraint=true);
     template <class TLit>
@@ -297,6 +299,9 @@ public:
     constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
     template <class TSeqLit>
     constraintid redundanceBasedStrengthening(const TSeqLit &lits, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
+
+    template <class TLit>
+    constraintid redundanceBasedStrengtheningUnitClause(const TLit& lit);
 
     // ------------- Reification Variables -------------
     // Proves the constraints encoding the reification constraint l <-> C, with l a literal and C a boolean constraint.

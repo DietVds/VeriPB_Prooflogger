@@ -672,6 +672,18 @@ constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const TSeqWght &weights
     return ++constraint_counter;
 }
 
+template <class TSeqLit>
+constraintid VeriPbProofLogger::rup_clause(const TSeqLit& lits){
+    *proof << "u ";
+    write_weighted_literal(lits[0]);
+    for(int i = 1; i < lits.size(); i++){
+        if(lits[i] != lits[i-1])
+            write_weighted_literal(lits[i]);
+    }
+    *proof << " >= 1 ;\n";
+    return ++constraint_counter;
+}
+
 template <class TLit>
 constraintid VeriPbProofLogger::rup_unit_clause(const TLit& lit, bool core_constraint){
     *proof << "u ";
@@ -867,6 +879,14 @@ constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits
         *proof << "end\n";
     }
 
+    return ++constraint_counter;
+}
+
+template <class TLit>
+constraintid VeriPbProofLogger::redundanceBasedStrengtheningUnitClause(const TLit& lit){
+    *proof << "red ";
+    write_weighted_literal(lit);
+    *proof << ">= 1 ; " << var_name(variable(lit)) << " -> " << std::to_string(!is_negated(lit)) << "\n";
     return ++constraint_counter;
 }
 
@@ -1130,12 +1150,13 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImplLeq(const TLit& lit, c
     }
     
     _lits[i] = _lit;
-    _weights[i] = RHS = RHS+1;
+    wght _RHS = RHS + 1;
+    _weights[i] = _RHS;
 
     substitution witness = get_new_substitution();
     add_boolean_assignment(witness, variable(_lit), !is_negated(_lit));
 
-    constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, RHS, witness);
+    constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, _RHS, witness);
 
     if(store_reified_constraint)
         reifiedConstraintLeftImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
