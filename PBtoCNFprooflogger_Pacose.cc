@@ -9,6 +9,9 @@ template void PBtoCNFprooflogger::reifyCarryBA<VeriPB::Lit>(VeriPB::Lit& a, Veri
 template void PBtoCNFprooflogger::reifySumBA<VeriPB::Lit>(VeriPB::Lit& a, VeriPB::Lit& b, VeriPB::Lit& c, VeriPB::Lit& carry, VeriPB::Lit& sum );
 template void PBtoCNFprooflogger::define_zerolit<uint32_t>(uint32_t &zerolit);
 
+template constraintid PBtoCNFprooflogger::deriveInputLeqOutputBA<VeriPB::Lit>(VeriPB::Lit& a, VeriPB::Lit& b, VeriPB::Lit& c, VeriPB::Lit& carry, VeriPB::Lit& sum);
+template constraintid PBtoCNFprooflogger::deriveInputLeqOutputBA<uint32_t>(uint32_t& a, uint32_t& b, uint32_t& c, uint32_t& carry, uint32_t& sum);
+
 // Printing help
 
 template std::string PBtoCNFprooflogger::sequence_to_string<std::vector<VeriPB::Lit>>(std::vector<VeriPB::Lit>& lits); 
