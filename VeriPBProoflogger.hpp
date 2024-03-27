@@ -41,6 +41,8 @@ void VeriPbProofLogger::write_proof_header()
 void VeriPbProofLogger::set_n_variables(int nbvars){
 
     assert(n_variables == 0);
+    if(nbvars >= nameSolverVars.size())
+        nameSolverVars.resize(2*nbvars);
     n_variables = nbvars;
 }
 
@@ -379,7 +381,7 @@ void VeriPbProofLogger::store_meaningful_name(const TVar &var, const std::string
         nameStorage->resize(INIT_NAMESTORAGE);
 
     if(_var.v >= nameStorage->size()) // Increase storage if necessary.
-        nameStorage->resize((_var.v + 1) + _var.v/INCREASE_NAMESTORAGE);
+        nameStorage->resize(2 * (_var.v + 1));
     
     (*nameStorage)[_var.v] = name;
 }

@@ -50,8 +50,7 @@ class MaxSATProoflogger;
 typedef int constraintid;
 #define undefcxn -1
 
-#define INCREASE_NAMESTORAGE 10 // When the vector containing the name storage is extended, it is increased by max variable known at that time + 1/INCREASE_NAME_STORAGE elements.
-#define INIT_NAMESTORAGE 100
+#define INIT_NAMESTORAGE 500
 
 typedef std::pair<std::vector<std::pair<VeriPB::Var, VeriPB::Lit>>, std::vector<std::pair<VeriPB::Var, bool>>> nsub;
 
