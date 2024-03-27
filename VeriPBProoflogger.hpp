@@ -173,6 +173,8 @@ void VeriPbProofLogger::add_objective_constant(wght weight){
 
 void VeriPbProofLogger::write_comment_objective_function()
 {
+    if(!comments) return;
+
     *proof << "* f = ";
     for (int i = 0; i < objective_lits.size(); i++)
         write_weighted_literal(objective_lits[i], objective_weights[i]);
@@ -536,6 +538,8 @@ wght VeriPbProofLogger::calculate_objective_value(const TSeqLit &model)
 template <class TSeqLit>
 constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, wght objective_value, bool only_original_variables_necessary, bool log_as_comment)
 {
+    if(log_as_comment && !comments) return;
+
     write_comment("Solution with objective value: " + std::to_string(objective_value));
     *proof << (log_as_comment ? "* " : "soli ");
     for (int i = 0; i < model.size(); i++){
@@ -574,7 +578,7 @@ constraintid VeriPbProofLogger::log_solution_with_check(const TSeqLit &model, bo
         write_comment("Objective update from " + std::to_string(best_objective_value) + " to " + std::to_string(current_objective_value));
         log_solution(model, current_objective_value, only_original_variables_necessary);
     }
-    else if(log_nonimproving_solution_as_comment){
+    else if(comments && log_nonimproving_solution_as_comment){
         write_comment_objective_function();
         write_comment("Non-improving solution:");
         log_solution(model, current_objective_value, only_original_variables_necessary, true);

@@ -52,8 +52,6 @@ typedef int constraintid;
 
 #define INIT_NAMESTORAGE 500
 
-typedef std::pair<std::vector<std::pair<VeriPB::Var, VeriPB::Lit>>, std::vector<std::pair<VeriPB::Var, bool>>> nsub;
-
 typedef std::pair<std::vector<std::pair<VeriPB::Var, VeriPB::Lit>>, std::vector<std::pair<VeriPB::Var, bool>>> substitution;
 typedef std::string cuttingplanes_derivation;
 
