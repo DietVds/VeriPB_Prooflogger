@@ -295,11 +295,14 @@ void VeriPbProofLogger::write_weighted_literal(const TLit &literal, wght weight)
 std::string VeriPbProofLogger::to_string_rewrite_var_by_literal(VeriPB::Var& var, VeriPB::Lit& lit){
     VeriPB::Var litvar = variable(lit);
 
-    if(map_rewrite_var_by_literal.find(varidx(litvar)) == map_rewrite_var_by_literal.end()){
+    auto itRewriteToLit = litvar.only_known_in_proof ? map_rewrite_proofonlyvar_by_literal.find(litvar.v) : map_rewrite_solvervar_by_literal.find(litvar.v);
+    auto unfoundloc = litvar.only_known_in_proof ? map_rewrite_proofonlyvar_by_literal.end() : map_rewrite_solvervar_by_literal.end();
+    
+    if(itRewriteToLit == unfoundloc){
         return (is_negated(lit) ? "~" : "") + var_name(litvar);
     }
     else{
-        VeriPB::Lit lit_to_rewrite_to = map_rewrite_var_by_literal[varidx(litvar)];
+        VeriPB::Lit lit_to_rewrite_to = itRewriteToLit->second;
 
         if(is_negated(lit))
             lit_to_rewrite_to = neg(lit_to_rewrite_to);
@@ -368,7 +371,15 @@ void VeriPbProofLogger::write_PB_constraint(const TSeqLit& lits_greater, const T
 template <class TVar, class TLit>
 void VeriPbProofLogger::rewrite_variable_by_literal(const TVar& var, const TLit& lit)
 {
-    map_rewrite_var_by_literal[varidx(toVeriPbVar(var))] = toVeriPbLit(lit);
+    VeriPB::Lit l = toVeriPbLit(lit);
+    VeriPB::Var v = toVeriPbVar(var);
+
+    if(v.only_known_in_proof){
+        map_rewrite_proofonlyvar_by_literal[v.v] = l;
+    }
+    else{
+        map_rewrite_solvervar_by_literal[v.v] = l;
+    }
 }
 
 // ------------- Meaningful names -------------

@@ -92,7 +92,9 @@ private:
     
 
     // Variables to be rewritten by literals.
-    std::unordered_map<VeriPB::VarIdx, VeriPB::Lit> map_rewrite_var_by_literal;
+    // std::map<VeriPB::VarIdx, VeriPB::Lit> map_rewrite_var_by_literal;
+    std::map<VeriPB::VarIdx, VeriPB::Lit> map_rewrite_solvervar_by_literal;
+    std::map<VeriPB::VarIdx, VeriPB::Lit> map_rewrite_proofonlyvar_by_literal;
 
     std::string to_string_rewrite_var_by_literal(VeriPB::Var& variable, VeriPB::Lit& literal); 
 
