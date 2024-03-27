@@ -10,14 +10,18 @@ namespace VeriPB {
     typedef uint32_t VarIdx; // The VarIdx type is used as an identifier for a variable that will be used as index in maps and vectors.
 
     struct Var{
-        uint32_t v;
+        VarIdx v;
         bool only_known_in_proof = false;
     };
     struct Lit{
         Var v;
-        bool negated;
+        bool negated=false;
     };
+    
+    static Var var_undef {.v=0, .only_known_in_proof=false};
+    static Lit lit_undef {.v=var_undef, .negated=false};
 }
+
 
 inline VeriPB::VarIdx varidx(VeriPB::Var var){return var.v << 1 ^ var.only_known_in_proof;}
 

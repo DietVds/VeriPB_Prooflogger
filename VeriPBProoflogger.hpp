@@ -41,8 +41,11 @@ void VeriPbProofLogger::write_proof_header()
 void VeriPbProofLogger::set_n_variables(int nbvars){
 
     assert(n_variables == 0);
-    if(nbvars >= nameSolverVars.size())
+    if(nbvars >= nameSolverVars.size()){
+        std::cout << "resize in set_n_variables" << std::endl;
         nameSolverVars.resize(2*nbvars);
+        vec_rewrite_solvervar_by_literal.resize(2*nbvars);
+    }
     n_variables = nbvars;
 }
 
@@ -257,6 +260,7 @@ std::string VeriPbProofLogger::var_name(const TVar &var)
 {
     VeriPB::Var v = toVeriPbVar(var);
 
+    // Note: name for variables only known in proof is always stored at creation time.
     if(!v.only_known_in_proof && (v.v >= nameSolverVars.size() || nameSolverVars[v.v] == "")){
         std::string name = (is_aux_var(v) ? "y" : "x") +std::to_string(v.v);
         store_meaningful_name(v, name);
@@ -295,14 +299,15 @@ void VeriPbProofLogger::write_weighted_literal(const TLit &literal, wght weight)
 std::string VeriPbProofLogger::to_string_rewrite_var_by_literal(VeriPB::Var& var, VeriPB::Lit& lit){
     VeriPB::Var litvar = variable(lit);
 
-    auto itRewriteToLit = litvar.only_known_in_proof ? map_rewrite_proofonlyvar_by_literal.find(litvar.v) : map_rewrite_solvervar_by_literal.find(litvar.v);
-    auto unfoundloc = litvar.only_known_in_proof ? map_rewrite_proofonlyvar_by_literal.end() : map_rewrite_solvervar_by_literal.end();
-    
-    if(itRewriteToLit == unfoundloc){
+    // TODO: Check if var is not greater than size, otherwise, should not search for it.
+
+    std::vector<VeriPB::Lit>* rewriteStorage = litvar.only_known_in_proof ? &vec_rewrite_proofonlyvar_by_literal : &vec_rewrite_solvervar_by_literal;
+
+    if(litvar.v >= rewriteStorage->size() || (*rewriteStorage)[litvar.v] == VeriPB::lit_undef){
         return (is_negated(lit) ? "~" : "") + var_name(litvar);
     }
     else{
-        VeriPB::Lit lit_to_rewrite_to = itRewriteToLit->second;
+        VeriPB::Lit lit_to_rewrite_to = (*rewriteStorage)[litvar.v];
 
         if(is_negated(lit))
             lit_to_rewrite_to = neg(lit_to_rewrite_to);
@@ -371,15 +376,21 @@ void VeriPbProofLogger::write_PB_constraint(const TSeqLit& lits_greater, const T
 template <class TVar, class TLit>
 void VeriPbProofLogger::rewrite_variable_by_literal(const TVar& var, const TLit& lit)
 {
-    VeriPB::Lit l = toVeriPbLit(lit);
-    VeriPB::Var v = toVeriPbVar(var);
+    VeriPB::Lit _lit = toVeriPbLit(lit);
+    VeriPB::Var _var = toVeriPbVar(var);
+    VeriPB::VarIdx _idx = _var.v;
 
-    if(v.only_known_in_proof){
-        map_rewrite_proofonlyvar_by_literal[v.v] = l;
+    std::vector<VeriPB::Lit>* rewriteStorage = _var.only_known_in_proof ? &vec_rewrite_proofonlyvar_by_literal : &vec_rewrite_solvervar_by_literal;
+
+    if(_idx >=  rewriteStorage->size() && INIT_NAMESTORAGE > _idx){
+        rewriteStorage->resize(INIT_NAMESTORAGE, VeriPB::lit_undef);
     }
-    else{
-        map_rewrite_solvervar_by_literal[v.v] = l;
+    else if(_var.v >= rewriteStorage->size()){
+        rewriteStorage->resize(2 * _var.v, VeriPB::lit_undef);
     }
+
+    
+    (*rewriteStorage)[_idx] = _lit;
 }
 
 // ------------- Meaningful names -------------
@@ -390,12 +401,13 @@ void VeriPbProofLogger::store_meaningful_name(const TVar &var, const std::string
     VeriPB::Var _var = toVeriPbVar(var);
     std::vector<std::string>* nameStorage = _var.only_known_in_proof ? &nameOnlyProofVars : &nameSolverVars;
     
-    if(_var.v >= nameStorage->size() && INIT_NAMESTORAGE >= nameStorage->size())
+    // Increase storage if necessary.
+    if(_var.v >= nameStorage->size() && INIT_NAMESTORAGE > _var.v ){
         nameStorage->resize(INIT_NAMESTORAGE);
-
-    if(_var.v >= nameStorage->size()) // Increase storage if necessary.
-        nameStorage->resize(2 * (_var.v + 1));
-    
+    }
+    else if(_var.v >= nameStorage->size()) {
+        nameStorage->resize(2 * _var.v);
+    }
     (*nameStorage)[_var.v] = name;
 }
 
