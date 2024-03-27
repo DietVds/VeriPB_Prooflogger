@@ -19,7 +19,6 @@ template void VeriPbProofLogger::write_clause<std::vector<VeriPB::Lit>>(const st
 template void VeriPbProofLogger::write_PB_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
 template void VeriPbProofLogger::rewrite_variable_by_literal<VeriPB::Var, VeriPB::Lit>(const VeriPB::Var& var, const VeriPB::Lit& lit);
 template void VeriPbProofLogger::store_meaningful_name<VeriPB::Var>(const VeriPB::Var &var, const std::string &name);
-template void VeriPbProofLogger::delete_meaningful_name<VeriPB::Var>(const VeriPB::Var &var);
 template void VeriPbProofLogger::equals_rule<std::vector<VeriPB::Lit>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const wght RHS);
 template void VeriPbProofLogger::write_PB_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit>& lits_greater, const std::vector<wght>& weights_greater, const wght const_greater, const std::vector<VeriPB::Lit>& lits_smaller, const std::vector<wght>& weights_smaller, const wght const_smaller );
 template void VeriPbProofLogger::equals_rule<std::vector<VeriPB::Lit>, std::vector<wght>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
@@ -111,7 +110,6 @@ template void VeriPbProofLogger::write_clause<std::vector<uint32_t>>(const std::
 template void VeriPbProofLogger::write_PB_constraint<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS);
 template void VeriPbProofLogger::rewrite_variable_by_literal<uint32_t, uint32_t>(const uint32_t& var, const uint32_t& lit);
 template void VeriPbProofLogger::store_meaningful_name<uint32_t>(const uint32_t &var, const std::string &name);
-template void VeriPbProofLogger::delete_meaningful_name<uint32_t>(const uint32_t &var);
 template void VeriPbProofLogger::equals_rule<std::vector<uint32_t>>(const constraintid constraint_id, const std::vector<uint32_t> &lits, const wght RHS);
 template void VeriPbProofLogger::write_PB_constraint<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t>& lits_greater, const std::vector<wght>& weights_greater, const wght const_greater, const std::vector<uint32_t>& lits_smaller, const std::vector<wght>& weights_smaller, const wght const_smaller );
 template void VeriPbProofLogger::equals_rule<std::vector<uint32_t>, std::vector<wght>>(const constraintid constraint_id, const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS);
@@ -200,7 +198,6 @@ template void VeriPbProofLogger::write_clause<std::vector<int>>(const std::vecto
 template void VeriPbProofLogger::write_PB_constraint<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS);
 template void VeriPbProofLogger::rewrite_variable_by_literal<int, int>(const int& var, const int& lit);
 template void VeriPbProofLogger::store_meaningful_name<int>(const int &var, const std::string &name);
-template void VeriPbProofLogger::delete_meaningful_name<int>(const int &var);
 template void VeriPbProofLogger::equals_rule<std::vector<int>>(const constraintid constraint_id, const std::vector<int> &lits, const wght RHS);
 template void VeriPbProofLogger::write_PB_constraint<std::vector<int>, std::vector<wght>>(const std::vector<int>& lits_greater, const std::vector<wght>& weights_greater, const wght const_greater, const std::vector<int>& lits_smaller, const std::vector<wght>& weights_smaller, const wght const_smaller );
 template void VeriPbProofLogger::equals_rule<std::vector<int>, std::vector<wght>>(const constraintid constraint_id, const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS);

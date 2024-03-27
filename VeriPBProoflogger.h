@@ -50,6 +50,9 @@ class MaxSATProoflogger;
 typedef int constraintid;
 #define undefcxn -1
 
+#define INCREASE_NAMESTORAGE 10 // When the vector containing the name storage is extended, it is increased by max variable known at that time + 1/INCREASE_NAME_STORAGE elements.
+#define INIT_NAMESTORAGE 100
+
 typedef std::pair<std::vector<std::pair<VeriPB::Var, VeriPB::Lit>>, std::vector<std::pair<VeriPB::Var, bool>>> nsub;
 
 typedef std::pair<std::vector<std::pair<VeriPB::Var, VeriPB::Lit>>, std::vector<std::pair<VeriPB::Var, bool>>> substitution;
@@ -84,7 +87,10 @@ private:
     constraintid model_improvement_constraint = 0; // Last model improvement constraint
 
     // Meaningful variable names
-    std::unordered_map<VeriPB::VarIdx, std::string> meaningful_names_store;
+    std::vector<std::string> nameSolverVars;
+    std::vector<std::string> nameOnlyProofVars;
+    // std::unordered_map<VeriPB::VarIdx, std::string> meaningful_names_store;
+    
     uint32_t n_vars_only_known_in_proof;
     
 
@@ -182,8 +188,6 @@ public:
     // ------------- Meaningful names -------------
     template <class TVar>
     void store_meaningful_name(const TVar &var, const std::string &name);
-    template <class TVar>
-    void delete_meaningful_name(const TVar &var);
 
     // ------------- Rewrite variables by literals -------------
     template <class TVar, class TLit>

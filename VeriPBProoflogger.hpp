@@ -252,22 +252,17 @@ template <class TVar>
 std::string VeriPbProofLogger::var_name(const TVar &var)
 {
     VeriPB::Var v = toVeriPbVar(var);
-    VeriPB::VarIdx v_idx = varidx(v);
 
-    if (meaningful_names_store.find(v_idx) != meaningful_names_store.end())
-    {
-        return  meaningful_names_store[v_idx];
+    if(!v.only_known_in_proof && (v.v >= nameSolverVars.size() || nameSolverVars[v.v] == "")){
+        std::string name = (is_aux_var(v) ? "y" : "x") +std::to_string(v.v);
+        store_meaningful_name(v, name);
+        return name;
     }
-    else if (v.only_known_in_proof){
-        return "_p" + std::to_string(v.v);
+    else if(!v.only_known_in_proof){
+        return nameSolverVars[v.v];
     }
-    else if (is_aux_var(var))
-    {
-        return  "y" +  std::to_string(v.v);
-    }
-    else
-    {
-        return "x" + std::to_string(v.v);
+    else{ // Names for variables only known in the proof are created upon variable creation.
+        return nameOnlyProofVars[v.v];
     }
 }
 
@@ -275,8 +270,9 @@ VeriPB::Var VeriPbProofLogger::new_variable_only_in_proof(std::string name){
     VeriPB::Var v; 
     v.only_known_in_proof = true; 
     v.v = ++n_vars_only_known_in_proof;
-    if(name != "")
-        meaningful_names_store[varidx(v)] = name;
+    if(name == "")
+        name = "_p" + std::to_string(v.v);
+    store_meaningful_name(v, name);
     return v;
 }
 
@@ -376,13 +372,20 @@ void VeriPbProofLogger::rewrite_variable_by_literal(const TVar& var, const TLit&
 template <class TVar>
 void VeriPbProofLogger::store_meaningful_name(const TVar &var, const std::string &name)
 {
-    meaningful_names_store[varidx(toVeriPbVar(var))] = name;
-}
+    VeriPB::Var _var = toVeriPbVar(var);
+    std::vector<std::string>* nameStorage = _var.only_known_in_proof ? &nameOnlyProofVars : &nameSolverVars;
+    std::cout << "_var.only_known_in_proof " << std::to_string(_var.only_known_in_proof) << std::endl;
+    std::cout << "nameStorage->size() " << std::to_string(nameStorage->size()) << " _var.v = " << std::to_string(_var.v) << std::endl;
+    
+    if(_var.v >= nameStorage->size() && INIT_NAMESTORAGE >= nameStorage->size())
+        nameStorage->resize(INIT_NAMESTORAGE);
+        
+    if(_var.v >= nameStorage->size()) // Increase storage if necessary.
+        nameStorage->resize((_var.v + 1) + _var.v/INCREASE_NAMESTORAGE);
+    
+    std::cout << "Created space in namestorage. Current space: " << std::to_string(nameStorage->size()) << std::endl;
 
-template <class TVar>
-void VeriPbProofLogger::delete_meaningful_name(const TVar &var)
-{
-    meaningful_names_store.erase(varidx(toVeriPbVar(var)));
+    (*nameStorage)[_var.v] = name;
 }
 
 // ------------- Rules for checking constraints -------------
