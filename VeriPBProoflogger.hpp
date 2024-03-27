@@ -538,7 +538,7 @@ wght VeriPbProofLogger::calculate_objective_value(const TSeqLit &model)
 template <class TSeqLit>
 constraintid VeriPbProofLogger::log_solution(const TSeqLit &model, wght objective_value, bool only_original_variables_necessary, bool log_as_comment)
 {
-    if(log_as_comment && !comments) return;
+    if(log_as_comment && !comments) return get_model_improving_constraint();
 
     write_comment("Solution with objective value: " + std::to_string(objective_value));
     *proof << (log_as_comment ? "* " : "soli ");
