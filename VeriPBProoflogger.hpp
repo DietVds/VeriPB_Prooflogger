@@ -288,7 +288,7 @@ template <class TLit>
 void VeriPbProofLogger::write_weighted_literal(const TLit &literal, wght weight)
 {   
     if(weight != 0){
-        *proof << std::to_string(weight) << " ";
+        *proof << " " << weight << " ";
         write_literal<TLit>(literal);
     }
 }
@@ -319,6 +319,74 @@ std::string VeriPbProofLogger::to_string_rewrite_var_by_literal(VeriPB::Var& var
     }
 }
 
+void VeriPbProofLogger::write_var_name(const VeriPB::Var& v){
+    // Note: name for variables only known in proof is always stored at creation time.
+    if(!v.only_known_in_proof && (v.v >= nameSolverVars.size() || nameSolverVars[v.v] == "")){
+        std::string name = (is_aux_var(v) ? "y" : "x") + std::to_string(v.v);
+        store_meaningful_name(v, name);
+        *proof << name;
+    }
+    else if(!v.only_known_in_proof){
+        *proof << nameSolverVars[v.v];
+    }
+    else{ // Names for variables only known in the proof are created upon variable creation.
+        *proof <<  nameOnlyProofVars[v.v];
+    }
+}
+
+void VeriPbProofLogger::write_literal_after_possible_rewrite(VeriPB::Var& var, VeriPB::Lit& lit){
+    VeriPB::Var litvar = variable(lit);
+
+    std::vector<VeriPB::Lit>* rewriteStorage = litvar.only_known_in_proof ? &vec_rewrite_proofonlyvar_by_literal : &vec_rewrite_solvervar_by_literal;
+
+    if(litvar.v >= rewriteStorage->size() || (*rewriteStorage)[litvar.v] == VeriPB::lit_undef){
+        if(is_negated(lit))
+            *proof << "~";
+        write_var_name(litvar);
+        *proof << " ";
+    }
+    else{
+        VeriPB::Lit lit_to_rewrite_to = (*rewriteStorage)[litvar.v];
+
+        if(is_negated(lit))
+            lit_to_rewrite_to = neg(lit_to_rewrite_to);
+
+        if(variable(lit_to_rewrite_to) == var){
+            if(is_negated(lit_to_rewrite_to))
+                *proof << "~";
+            write_var_name(var);
+            *proof << " ";
+        }
+        else{
+            write_literal_after_possible_rewrite(var, lit_to_rewrite_to);
+        }
+    }
+}
+    
+bool VeriPbProofLogger::write_variable_after_possible_rewrite(VeriPB::Var& var, bool negated){
+    std::vector<VeriPB::Lit>* rewriteStorage = var.only_known_in_proof ? &vec_rewrite_proofonlyvar_by_literal : &vec_rewrite_solvervar_by_literal;
+
+    if(var.v >= rewriteStorage->size() || (*rewriteStorage)[var.v] == VeriPB::lit_undef){
+        write_var_name(var);
+        return negated;
+    }
+    else{
+        VeriPB::Lit lit_to_rewrite_to = (*rewriteStorage)[var.v];
+        VeriPB::Var var_to_rewrite_to = variable(lit_to_rewrite_to);
+
+        negated = negated ^ is_negated(lit_to_rewrite_to);
+
+        if(var_to_rewrite_to == var){
+            write_var_name(var);
+            return negated;
+        }
+        else{
+            write_variable_after_possible_rewrite(var_to_rewrite_to, negated);
+            return false;
+        }
+    }
+}   
+
 template <class TLit>
 std::string VeriPbProofLogger::to_string(const TLit &lit)
 {
@@ -332,7 +400,10 @@ std::string VeriPbProofLogger::to_string(const TLit &lit)
 template <class TLit>
 void VeriPbProofLogger::write_literal(const TLit &lit)
 {
-    *proof << to_string(lit) << " ";
+    VeriPB::Lit l = toVeriPbLit(lit);
+    VeriPB::Var varl = variable(l);
+
+    write_literal_after_possible_rewrite(varl, l);
 }
 
 template <class TSeqLit>
@@ -779,11 +850,30 @@ void VeriPbProofLogger::add_literal_assignment(substitution &s, const TVar& var,
 
 void VeriPbProofLogger::write_substitution(const substitution &witness)
 {
+    VeriPB::Var varfrom, varto;
+    VeriPB::Lit lit_to;
+    bool rewritten_to_negated_literal, boolto;
+
     for(auto lit_ass : witness.first){
-        *proof << var_name(lit_ass.first) << " -> " << to_string(lit_ass.second) << " ";
+        varfrom = lit_ass.first;
+        lit_to = lit_ass.second;
+        varto = variable(lit_to);
+
+        rewritten_to_negated_literal = write_variable_after_possible_rewrite(varfrom);
+        *proof << " -> ";
+
+        lit_to.negated ^= rewritten_to_negated_literal;
+        write_literal_after_possible_rewrite(varto, lit_to);
     }
     for(auto bool_ass : witness.second){
-        *proof << var_name(bool_ass.first) << " -> " << (bool_ass.second ? " 1 " : " 0 ");
+        varfrom = bool_ass.first;
+        boolto = bool_ass.second;
+
+        rewritten_to_negated_literal = write_variable_after_possible_rewrite(varfrom);
+        *proof << " -> ";
+
+        boolto ^= rewritten_to_negated_literal;
+        *proof << boolto;
     }   
 }
 
@@ -914,7 +1004,13 @@ template <class TLit>
 constraintid VeriPbProofLogger::redundanceBasedStrengtheningUnitClause(const TLit& lit){
     *proof << "red ";
     write_weighted_literal(lit);
-    *proof << ">= 1 ; " << var_name(variable(lit)) << " -> " << std::to_string(!is_negated(lit)) << "\n";
+    *proof << ">= 1; "; 
+    
+    VeriPB::Var var = toVeriPbVar(variable(lit));
+    bool rewritten_to_negated_literal = write_variable_after_possible_rewrite(var);
+    *proof << " -> ";
+    *proof << (rewritten_to_negated_literal ^ is_negated(lit)) << "\n";
+    
     return ++constraint_counter;
 }
 

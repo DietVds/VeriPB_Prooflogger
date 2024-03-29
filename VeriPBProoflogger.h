@@ -98,6 +98,9 @@ private:
     std::vector<VeriPB::Lit> vec_rewrite_proofonlyvar_by_literal;
     std::vector<VeriPB::Lit> vec_rewrite_solvervar_by_literal;
 
+    void write_literal_after_possible_rewrite(VeriPB::Var& variable, VeriPB::Lit& literal);
+    // Returns true if the literal to which the variable should be rewritten is negated and writes the variable of the literal to which the original variable should be rewritten to the proof.
+    bool write_variable_after_possible_rewrite(VeriPB::Var& variable, bool negated=false);
     std::string to_string_rewrite_var_by_literal(VeriPB::Var& variable, VeriPB::Lit& literal); 
 
     // Constraint counter
@@ -167,6 +170,7 @@ public:
     bool is_aux_var(const TVar &var);
     template <class TVar>
     std::string var_name(const TVar &var);
+    void write_var_name(const VeriPB::Var& var);
 
     VeriPB::Var new_variable_only_in_proof(std::string name="");
 
