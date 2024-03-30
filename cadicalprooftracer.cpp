@@ -28,12 +28,9 @@ void CadicalProofTracer::veripb_add_derived_clause(
     if(first){
       first = false;
       *vPL->proof << " " << clauses_vpb[cid];
-      // vPL->start_intCP_derivation(clauses_vpb[cid]);
     }
     else{
       *vPL->proof << " " << clauses_vpb[cid] << " + s";
-      // vPL->intCP_add_constraint(clauses_vpb[cid]);
-      // vPL->intCP_saturate();
     }
   }
 
