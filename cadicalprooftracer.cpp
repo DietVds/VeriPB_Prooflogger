@@ -21,21 +21,26 @@ void CadicalProofTracer::veripb_add_derived_clause(
 
   vPL->write_comment("Cadical PT: add derived clause with id " + std::to_string(id) + " and veripb id " + std::to_string(vPL->constraint_counter+1));
   
-  cuttingplanes_derivation cpder;
+  // cuttingplanes_derivation cpder;
   bool first = true;
   for (auto p = chain.rbegin (); p != chain.rend (); p++) {
     auto cid = *p;
     if(first){
       first = false;
-      cpder = vPL->CP_constraintid(clauses_vpb[cid]);
+      // cpder = vPL->CP_constraintid(clauses_vpb[cid]);
+      vPL->start_intCP_derivation(clauses_vpb[cid]);
     }
     else{
-      cpder = vPL->CP_addition(cpder, vPL->CP_constraintid(clauses_vpb[cid]));
-      cpder = vPL->CP_saturation(cpder);
+      vPL->intCP_add_constraint(clauses_vpb[cid]);
+      vPL->intCP_saturate();
+      // cpder = vPL->CP_addition(cpder, vPL->CP_constraintid(clauses_vpb[cid]));
+      // cpder = vPL->CP_saturation(cpder);
     }
   }
 
-  constraintid cxn = vPL->write_CP_derivation(cpder);
+
+  constraintid cxn = vPL->end_intCP_derivation();
+  // constraintid cxn = vPL->write_CP_derivation(cpder);
 
   clauses_vpb[id] = cxn;
 
