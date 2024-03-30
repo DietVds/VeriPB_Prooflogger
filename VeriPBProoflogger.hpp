@@ -339,11 +339,27 @@ void VeriPbProofLogger::write_literal_after_possible_rewrite(VeriPB::Var& var, V
 
     std::vector<VeriPB::Lit>* rewriteStorage = litvar.only_known_in_proof ? &vec_rewrite_proofonlyvar_by_literal : &vec_rewrite_solvervar_by_literal;
 
-    if(check_no_rewrite(litvar, rewriteStorage)){
-        write_rewritten_literal(lit, litvar);
+    if(litvar.v >= rewriteStorage->size() || (*rewriteStorage)[litvar.v] == VeriPB::lit_undef){
+        if(is_negated(lit))
+            *proof << "~";
+        write_var_name(litvar);
+        *proof << " ";
     }
     else{
-        write_rewritten_literal_rec(lit, litvar, var, rewriteStorage);
+        VeriPB::Lit lit_to_rewrite_to = (*rewriteStorage)[litvar.v];
+
+        if(is_negated(lit))
+            lit_to_rewrite_to = neg(lit_to_rewrite_to);
+
+        if(variable(lit_to_rewrite_to) == var){
+            if(is_negated(lit_to_rewrite_to))
+                *proof << "~";
+            write_var_name(var);
+            *proof << " ";
+        }
+        else{
+            write_literal_after_possible_rewrite(var, lit_to_rewrite_to);
+        }
     }
 }
     

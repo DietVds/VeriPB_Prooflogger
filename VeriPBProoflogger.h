@@ -98,29 +98,6 @@ private:
     std::vector<VeriPB::Lit> vec_rewrite_proofonlyvar_by_literal;
     std::vector<VeriPB::Lit> vec_rewrite_solvervar_by_literal;
 
-    inline bool check_no_rewrite(VeriPB::Var& litvar, std::vector<VeriPB::Lit>* rewriteStorage){
-        return litvar.v >= rewriteStorage->size() || (*rewriteStorage)[litvar.v] == VeriPB::lit_undef;
-    }
-    inline void write_rewritten_literal(VeriPB::Lit& lit, VeriPB::Var& litvar){
-        if(is_negated(lit))
-            *proof << "~";
-        write_var_name(litvar);
-        *proof << " ";
-    }
-    inline void write_rewritten_literal_rec(VeriPB::Lit& lit, VeriPB::Var& litvar, VeriPB::Var& var, std::vector<VeriPB::Lit>* rewriteStorage){
-        VeriPB::Lit lit_to_rewrite_to = (*rewriteStorage)[litvar.v];
-
-        if(is_negated(lit))
-            lit_to_rewrite_to = neg(lit_to_rewrite_to);
-
-        if(variable(lit_to_rewrite_to) == var){
-            write_rewritten_literal(lit_to_rewrite_to, var);
-        }
-        else{
-            write_literal_after_possible_rewrite(var, lit_to_rewrite_to);
-        }
-    }
-
     void write_literal_after_possible_rewrite(VeriPB::Var& variable, VeriPB::Lit& literal);
     // Returns true if the literal to which the variable should be rewritten is negated and writes the variable of the literal to which the original variable should be rewritten to the proof.
     bool write_variable_after_possible_rewrite(VeriPB::Var& variable, bool negated=false);
