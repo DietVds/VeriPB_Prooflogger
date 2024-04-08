@@ -1011,10 +1011,12 @@ constraintid VeriPbProofLogger::redundanceBasedStrengtheningUnitClause(const TLi
     *proof << ">= 1; "; 
     
     VeriPB::Var var = toVeriPbVar(variable(lit));
-    bool rewritten_to_negated_literal = write_variable_after_possible_rewrite(var);
+    bool rewritten_to_negated_literal = write_variable_after_possible_rewrite(var, is_negated(lit));
     *proof << " -> ";
-    *proof << (rewritten_to_negated_literal ^ is_negated(lit)) << "\n";
+    *proof << !rewritten_to_negated_literal << "\n";
     
+    write_comment("variable: " + var_name(var) + " negated literal = " + std::to_string(is_negated(lit)) + " rewritten_to_negated_lit = " + std::to_string(rewritten_to_negated_literal));
+
     return ++constraint_counter;
 }
 
