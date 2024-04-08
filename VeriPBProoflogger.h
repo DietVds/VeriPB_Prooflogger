@@ -110,6 +110,7 @@ public:
 private:
     // Temporary string for reverse polish derivation
     //
+public:
     std::stringstream pol_string;
 
        
@@ -153,7 +154,7 @@ public:
     void add_objective_constant(wght weight);
     void subtract_objective_constant(wght weight);
     void write_comment_objective_function();
-    void check_model_improving_constraint(const constraintid cxn);
+    void check_model_improving_constraint(constraintid cxn=0);
     wght get_best_objective_function();
     void write_objective_update();
     template <class TSeqLit, class TSeqSignedWght>
@@ -401,8 +402,11 @@ public:
     void intCP_load_constraint(const constraintid constraint_id);
     void intCP_add();
     void intCP_add_constraint(const constraintid constraint_id);
+    void intCP_add_constraint(const constraintid constraint_id, wght mult);
     template <class TLit>
     void intCP_add_literal_axiom(const TLit &lit);
+    template <class TLit>
+    void intCP_add_literal_axiom(const TLit &lit, wght mult);
     void intCP_divide(const wght v);
     void intCP_saturate();
     void intCP_multiply(const wght v);
@@ -411,6 +415,26 @@ public:
     template <class TLit>
     void intCP_write_literal_axiom(const TLit &lit);
     constraintid end_intCP_derivation();
+
+    void start_intCP_derivation(std::stringstream* cp, const constraintid constraint_id);
+    template <class TLit>
+    void start_intCP_derivation_with_lit_axiom(std::stringstream* cp, const TLit &lit);
+    void intCP_load_constraint(std::stringstream* cp, const constraintid constraint_id);
+    void intCP_add(std::stringstream* cp);
+    void intCP_add_constraint(std::stringstream* cp, const constraintid constraint_id);
+    void intCP_add_constraint(std::stringstream* cp, const constraintid constraint_id, wght mult);
+    template <class TLit>
+    void intCP_add_literal_axiom(std::stringstream* cp, const TLit &lit);
+    template <class TLit>
+    void intCP_add_literal_axiom(std::stringstream* cp, const TLit &lit, wght mult);
+    void intCP_divide(std::stringstream* cp, const wght v);
+    void intCP_saturate(std::stringstream* cp);
+    void intCP_multiply(std::stringstream* cp, const wght v);
+    template <class TVar>
+    void intCP_weaken(std::stringstream* cp, const TVar &var);
+    template <class TLit>
+    void intCP_write_literal_axiom(std::stringstream* cp, const TLit &lit);
+    constraintid end_intCP_derivation(std::stringstream* cp);
 
     // ------------- Extra Proof Techniques -------------
     /**

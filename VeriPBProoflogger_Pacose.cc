@@ -77,6 +77,7 @@ template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<VeriPB::Lit>(c
 template void VeriPbProofLogger::start_intCP_derivation_with_lit_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
 template void VeriPbProofLogger::intCP_weaken<VeriPB::Var>(const VeriPB::Var &var);
 template void VeriPbProofLogger::intCP_add_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
+template void VeriPbProofLogger::intCP_add_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit, wght mult);
 template void VeriPbProofLogger::intCP_write_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
 template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
 template constraintid VeriPbProofLogger::prove_by_casesplitting<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights, wght RHS, constraintid case1, constraintid case2);
@@ -168,6 +169,7 @@ template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<uint32_t>(cons
 template void VeriPbProofLogger::start_intCP_derivation_with_lit_axiom<uint32_t>(const uint32_t &lit);
 template void VeriPbProofLogger::intCP_weaken<uint32_t>(const uint32_t &var);
 template void VeriPbProofLogger::intCP_add_literal_axiom<uint32_t>(const uint32_t &lit);
+template void VeriPbProofLogger::intCP_add_literal_axiom<uint32_t>(const uint32_t &lit, wght mult);
 template void VeriPbProofLogger::intCP_write_literal_axiom<uint32_t>(const uint32_t &lit);
 template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<uint32_t>, std::vector<wght>>(std::vector<uint32_t>& lits, std::vector<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
 template constraintid VeriPbProofLogger::prove_by_casesplitting<std::vector<uint32_t>, std::vector<wght>>(std::vector<uint32_t>& lits, std::vector<wght>& weights, wght RHS, constraintid case1, constraintid case2);
@@ -256,6 +258,7 @@ template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<int>(const int
 template void VeriPbProofLogger::start_intCP_derivation_with_lit_axiom<int>(const int &lit);
 template void VeriPbProofLogger::intCP_weaken<int>(const int &var);
 template void VeriPbProofLogger::intCP_add_literal_axiom<int>(const int &lit);
+template void VeriPbProofLogger::intCP_add_literal_axiom<int>(const int &lit, wght mult);
 template void VeriPbProofLogger::intCP_write_literal_axiom<int>(const int &lit);
 template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<int>, std::vector<wght>>(std::vector<int>& lits, std::vector<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
 template constraintid VeriPbProofLogger::prove_by_casesplitting<std::vector<int>, std::vector<wght>>(std::vector<int>& lits, std::vector<wght>& weights, wght RHS, constraintid case1, constraintid case2);
