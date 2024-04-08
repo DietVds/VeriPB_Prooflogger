@@ -414,6 +414,7 @@ public:
     void intCP_weaken(const TVar &var);
     template <class TLit>
     void intCP_write_literal_axiom(const TLit &lit);
+    void intCP_apply(const cuttingplanes_derivation& cpder);
     constraintid end_intCP_derivation();
 
     void start_intCP_derivation(std::stringstream* cp, const constraintid constraint_id);
@@ -434,6 +435,7 @@ public:
     void intCP_weaken(std::stringstream* cp, const TVar &var);
     template <class TLit>
     void intCP_write_literal_axiom(std::stringstream* cp, const TLit &lit);
+    void intCP_apply(std::stringstream* cp, const cuttingplanes_derivation& cpder);
     constraintid end_intCP_derivation(std::stringstream* cp);
 
     // ------------- Extra Proof Techniques -------------

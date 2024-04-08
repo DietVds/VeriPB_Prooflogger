@@ -11,6 +11,7 @@ class MaxSATProoflogger
     std::vector<constraintid> core_lower_bounds;
     std::vector<wght> core_weights;
     std::map<VeriPB::VarIdx, int> counting_var_to_core_idx;
+    std::stringstream cp;
 
     cuttingplanes_derivation rewrite_for_unitsoftclauses = "";
     constraintid rewritten_objective_for_unitsoftclauses = 0;

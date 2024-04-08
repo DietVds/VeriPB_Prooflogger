@@ -1543,6 +1543,10 @@ void VeriPbProofLogger::intCP_write_literal_axiom(const TLit &lit)
     pol_string << " " << to_string(lit);
 }
 
+void VeriPbProofLogger::intCP_apply(const cuttingplanes_derivation& cpder){
+    pol_string << " " << cpder;
+}
+
 constraintid VeriPbProofLogger::end_intCP_derivation()
 {
     *proof << pol_string.rdbuf() << "\n";
@@ -1613,10 +1617,14 @@ void VeriPbProofLogger::intCP_weaken(std::stringstream* cp, const TVar &var)
 }
 
 template <class TLit>
-void VeriPbProofLogger::intCP_write_literal_axiom(std::stringstream* cp, const TLit &lit)
-{
+void VeriPbProofLogger::intCP_write_literal_axiom(std::stringstream* cp, const TLit &lit){
     *cp << " " << to_string(lit);
 }
+
+void VeriPbProofLogger::intCP_apply(std::stringstream* cp, const cuttingplanes_derivation& cpder){
+    *cp << " " << cpder;
+}
+    
 
 constraintid VeriPbProofLogger::end_intCP_derivation(std::stringstream* cp)
 {
