@@ -9,10 +9,16 @@ template void PBtoCNFprooflogger::reifyCarryBA<VeriPB::Lit>(VeriPB::Lit& a, Veri
 template void PBtoCNFprooflogger::reifySumBA<VeriPB::Lit>(VeriPB::Lit& a, VeriPB::Lit& b, VeriPB::Lit& c, VeriPB::Lit& carry, VeriPB::Lit& sum );
 template void PBtoCNFprooflogger::define_zerolit<uint32_t>(uint32_t &zerolit);
 
-template constraintid PBtoCNFprooflogger::deriveInputLeqOutputBA<VeriPB::Lit>(VeriPB::Lit& a, VeriPB::Lit& b, VeriPB::Lit& c, VeriPB::Lit& carry, VeriPB::Lit& sum);
-template constraintid PBtoCNFprooflogger::deriveInputLeqOutputBA<uint32_t>(uint32_t& a, uint32_t& b, uint32_t& c, uint32_t& carry, uint32_t& sum);
+template constraintid PBtoCNFprooflogger::deriveInputGeqOutputBA<VeriPB::Lit>(VeriPB::Lit& a, VeriPB::Lit& b, VeriPB::Lit& c, VeriPB::Lit& carry, VeriPB::Lit& sum);
+template constraintid PBtoCNFprooflogger::deriveInputGeqOutputBA<uint32_t>(uint32_t& a, uint32_t& b, uint32_t& c, uint32_t& carry, uint32_t& sum);
+
+template constraintid PBtoCNFprooflogger::deriveBASeqInputGeqOutput<std::vector<uint32_t>>(std::vector<constraintid>& singleAdders_inputGeqOutput, std::vector<uint32_t>& litsleft, std::vector<uint32_t>& litsright, std::vector<uint32_t>& outputs );
+template constraintid PBtoCNFprooflogger::derive_leaves_geq_outputvars_after_binary_recursion<std::vector<uint32_t>, std::vector<long long>>(constraintid& leaves_geq_outputs_leftrecursion, constraintid& leaves_geq_outputs_rightrecursion, constraintid& outputs_recursion_geq_outputs, std::vector<uint32_t>& leaves, std::vector<long long>& weightsleaves, std::vector<uint32_t>& output, std::vector<long long>& weightsOutput);
+    
 
 // Printing help
 
 template std::string PBtoCNFprooflogger::sequence_to_string<std::vector<VeriPB::Lit>>(std::vector<VeriPB::Lit>& lits); 
 template std::string PBtoCNFprooflogger::sequence_to_string<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights); 
+template std::string PBtoCNFprooflogger::sequence_to_string<std::vector<uint32_t>>(std::vector<uint32_t>& lits); 
+template std::string PBtoCNFprooflogger::sequence_to_string<std::vector<uint32_t>, std::vector<long long>>(std::vector<uint32_t>& lits, std::vector<long long>& weights); 
