@@ -14,8 +14,11 @@ template constraintid PBtoCNFprooflogger::deriveInputGeqOutputBA<uint32_t>(uint3
 
 template constraintid PBtoCNFprooflogger::deriveBASeqInputGeqOutput<std::vector<uint32_t>>(std::vector<constraintid>& singleAdders_inputGeqOutput, std::vector<uint32_t>& litsleft, std::vector<uint32_t>& litsright, std::vector<uint32_t>& outputs );
 template constraintid PBtoCNFprooflogger::derive_leaves_geq_outputvars_after_binary_recursion<std::vector<uint32_t>, std::vector<long long>>(constraintid& leaves_geq_outputs_leftrecursion, constraintid& leaves_geq_outputs_rightrecursion, constraintid& outputs_recursion_geq_outputs, std::vector<uint32_t>& leaves, std::vector<long long>& weightsleaves, std::vector<uint32_t>& output, std::vector<long long>& weightsOutput);
-    
-
+template void PBtoCNFprooflogger::derive_UB_on_recursion_inputs<std::vector<uint32_t>, std::vector<long long>>(constraintid& UB_left_node, constraintid& UB_right_node,
+                                    constraintid& UB_current_node, 
+                                     std::vector<uint32_t>& leavesLeft, std::vector<long long>& wghtLeavesL, std::vector<uint32_t>& leavesRight, std::vector<long long>& wghtLeavesR, wght UB);
+template constraintid PBtoCNFprooflogger::derive_UB_on_outputliterals<std::vector<uint32_t>, std::vector<long long>>(constraintid& UB_leaves, constraintid& leaves_geq_outputs,
+                                    std::vector<uint32_t>& outputs, std::vector<long long>& weights, wght UB );
 // Printing help
 
 template std::string PBtoCNFprooflogger::sequence_to_string<std::vector<VeriPB::Lit>>(std::vector<VeriPB::Lit>& lits); 
