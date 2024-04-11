@@ -907,6 +907,7 @@ bool VeriPbProofLogger::get_boolean_assignment(substitution &s, const TVar& var)
     }
     std::cout << "ERROR: Proof logging library: Could not find boolean assignment for variable " << var_name(var) << std::endl;
     assert(false);
+    return false;
 }
 
 template <class TVar>
@@ -917,6 +918,7 @@ VeriPB::Lit VeriPbProofLogger::get_literal_assignment(substitution &s, const TVa
     }
     std::cout << "ERROR: Proof logging library: Could not find literal assignment for variable " << var_name(var) << std::endl;
     assert(false);
+    return VeriPB::lit_undef;
 }
 
 size_t VeriPbProofLogger::get_substitution_size(const substitution &s){
