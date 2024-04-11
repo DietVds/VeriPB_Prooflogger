@@ -19,7 +19,8 @@ void CadicalProofTracer::veripb_add_derived_clause(
     uint64_t id, bool redundant, const vector<int> &clause,
     const vector<uint64_t> &chain) {
 
-  vPL->write_comment("Cadical PT: add derived clause with id " + std::to_string(id) + " and veripb id " + std::to_string(vPL->constraint_counter+1));
+  if(vPL->comments)
+    vPL->write_comment("Cadical PT: add derived clause with id " + std::to_string(id) + " and veripb id " + std::to_string(vPL->constraint_counter+1));
   
   *vPL->proof << "p";
   bool first = true;
@@ -48,8 +49,8 @@ void CadicalProofTracer::veripb_add_derived_clause(
 
 void CadicalProofTracer::veripb_add_derived_clause (uint64_t id, bool redundant,
                                               const vector<int> &clause) {
-
-  vPL->write_comment("Cadical PT: add derived clause with id " + std::to_string(id) + " and veripb id " + std::to_string(vPL->constraint_counter+1));
+  if(vPL->comments)
+    vPL->write_comment("Cadical PT: add derived clause with id " + std::to_string(id) + " and veripb id " + std::to_string(vPL->constraint_counter+1));
   constraintid cxn = vPL->rup(clause);
 
   // assert(checked_deletions);
@@ -61,8 +62,8 @@ void CadicalProofTracer::veripb_add_derived_clause (uint64_t id, bool redundant,
 }
 
 void CadicalProofTracer::veripb_delete_clause (uint64_t id, bool redundant) {
-
-  vPL->write_comment("Cadical PT: delete clause with id " + std::to_string(id) + " and veripb id " + std::to_string(clauses_vpb[id]));
+  if(vPL->comments)
+    vPL->write_comment("Cadical PT: delete clause with id " + std::to_string(id) + " and veripb id " + std::to_string(clauses_vpb[id]));
   
   bool marked = weakened_clauses.find(id) != weakened_clauses.end();
 
@@ -89,7 +90,8 @@ void CadicalProofTracer::add_original_clause (uint64_t id, bool redundant, const
                             bool restored){
 
   constraintid cxnid = next_cxnid == undefcxn ? vPL->constraint_counter : next_cxnid;
-  vPL->write_comment("Cadical PT: add original clause with id " + std::to_string(id) + " and veripb id " + std::to_string(cxnid));
+  if(vPL->comments)  
+    vPL->write_comment("Cadical PT: add original clause with id " + std::to_string(id) + " and veripb id " + std::to_string(cxnid));
   // vPL->write_comment("next_cxnid = " + std::to_string(next_cxnid));
   // std::string strcls = "Added clause:";
   // for(int l : clause){
