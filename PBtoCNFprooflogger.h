@@ -7,6 +7,8 @@
 
 class PBtoCNFprooflogger
 {
+private: 
+    std::stringstream cp;
 public:
     // Constructor
     PBtoCNFprooflogger(VeriPbProofLogger *PL) : PL(PL) {};
