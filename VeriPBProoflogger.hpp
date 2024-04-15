@@ -1055,7 +1055,7 @@ constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, con
     constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, RHS, witness);
 
     if(store_reified_constraint)
-        reifiedConstraintRightImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
+        setReifiedConstraintRightImpl(variable(lit), cxnid);
 
     return cxnid;
 }
@@ -1089,7 +1089,7 @@ constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, con
     constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, RHS, witness);
 
     if(store_reified_constraint)
-        reifiedConstraintRightImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
+        setReifiedConstraintRightImpl(variable(lit), cxnid);
 
     return cxnid;
 }
@@ -1126,7 +1126,7 @@ constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, con
     constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, RHS, witness);
 
     if(store_reified_constraint)
-        reifiedConstraintRightImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
+        setReifiedConstraintRightImpl(variable(lit), cxnid);
 
     return cxnid;
 }
@@ -1167,7 +1167,7 @@ constraintid VeriPbProofLogger::reificationLiteralRightImplLeq(const TLit& lit, 
     constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, _RHS, witness);
 
     if(store_reified_constraint)
-        reifiedConstraintRightImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
+        setReifiedConstraintRightImpl(variable(lit), cxnid);
 
     return cxnid;
 }
@@ -1211,7 +1211,7 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, cons
     constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, j, witness);
 
     if(store_reified_constraint)
-        reifiedConstraintLeftImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
+        setReifiedConstraintLeftImpl(variable(lit), cxnid);
 
     return cxnid;
 }
@@ -1255,7 +1255,7 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, cons
     constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, RHS, witness);
 
     if(store_reified_constraint)
-        reifiedConstraintLeftImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
+        setReifiedConstraintLeftImpl(variable(lit), cxnid);
 
     return cxnid;
 }
@@ -1291,7 +1291,7 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImplLeq(const TLit& lit, c
     constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, _RHS, witness);
 
     if(store_reified_constraint)
-        reifiedConstraintLeftImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
+        setReifiedConstraintLeftImpl(variable(lit), cxnid);
 
     return cxnid;
 }
@@ -1334,63 +1334,95 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, cons
     constraintid cxnid = redundanceBasedStrengthening(_lits, _weights, j, witness);
 
     if(store_reified_constraint)
-        reifiedConstraintLeftImpl[varidx(toVeriPbVar(variable(lit)))] = cxnid;
+        setReifiedConstraintLeftImpl(variable(lit), cxnid);
 
     return cxnid;
 }
 
 template <class TVar>
 constraintid VeriPbProofLogger::getReifiedConstraintLeftImpl(const TVar& var){
-    VeriPB::VarIdx id = varidx(toVeriPbVar(var));
-
-    if(reifiedConstraintLeftImpl.find(id) == reifiedConstraintLeftImpl.end())
+    VeriPB::Var _var = toVeriPbVar(var);
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &reifiedConstraintLeftImplOnlyProofVars : &reifiedConstraintLeftImpl;
+    constraintid cxn = undefcxn;
+    if(_var.v < storage->size())
+        cxn = (*storage)[_var.v];
+    
+    if(cxn == undefcxn)
         std::cout << "ERROR: Cannot find left reification constraint for variable " << var_name(var) << std::endl;
 
-    assert(reifiedConstraintLeftImpl.find(id) != reifiedConstraintLeftImpl.end());
+    assert(cxn != undefcxn);
 
-    return reifiedConstraintLeftImpl[id];
+    return cxn;
 }
 
 template <class TVar>
 constraintid VeriPbProofLogger::getReifiedConstraintRightImpl(const TVar& var){
-    VeriPB::VarIdx id = varidx(toVeriPbVar(var));
-
-    if(reifiedConstraintRightImpl.find(id) == reifiedConstraintRightImpl.end())
+    VeriPB::Var _var = toVeriPbVar(var);
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &reifiedConstraintRightImplOnlyProofVars : &reifiedConstraintRightImpl;
+    constraintid cxn = undefcxn;
+    if(_var.v < storage->size())
+        cxn = (*storage)[_var.v];
+    
+    if(cxn == undefcxn)
         std::cout << "ERROR: Cannot find right reification constraint for variable " << var_name(var) << std::endl;
     
 
-    assert(reifiedConstraintRightImpl.find(id) != reifiedConstraintRightImpl.end());
+    assert(cxn != undefcxn);
 
-    return reifiedConstraintRightImpl[id];
+    return cxn;
 }
 
 template <class TVar>
 void VeriPbProofLogger::setReifiedConstraintLeftImpl(const TVar& var, constraintid cxnId){
-    VeriPB::VarIdx id = varidx(toVeriPbVar(var));
-    reifiedConstraintLeftImpl[id] = cxnId;
+    VeriPB::Var _var = toVeriPbVar(var);
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &reifiedConstraintLeftImplOnlyProofVars : &reifiedConstraintLeftImpl;
+    
+    // Increase storage if necessary.
+    if(_var.v >= storage->size() && INIT_NAMESTORAGE > _var.v ){
+        storage->resize(INIT_NAMESTORAGE, undefcxn);
+    }
+    else if(_var.v >= storage->size()) {
+        storage->resize(2 * _var.v, undefcxn);
+    }
+    (*storage)[_var.v] = cxnId;
 }
 
 template <class TVar>
 void VeriPbProofLogger::setReifiedConstraintRightImpl(const TVar& var, constraintid cxnId){
-    VeriPB::VarIdx id = varidx(toVeriPbVar(var));
-    reifiedConstraintRightImpl[id] = cxnId;
+    VeriPB::Var _var = toVeriPbVar(var);
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &reifiedConstraintRightImplOnlyProofVars : &reifiedConstraintRightImpl;
+    
+    // Increase storage if necessary.
+    if(_var.v >= storage->size() && INIT_NAMESTORAGE > _var.v ){
+        storage->resize(INIT_NAMESTORAGE, undefcxn);
+    }
+    else if(_var.v >= storage->size()) {
+        storage->resize(2 * _var.v, undefcxn);
+    }
+    (*storage)[_var.v] = cxnId;
 }
 
 template <class TVar>
 void VeriPbProofLogger::deleteReifiedConstraintLeftImpl(const TVar& var){
-    VeriPB::VarIdx id = varidx(toVeriPbVar(var));
-    if(reifiedConstraintLeftImpl.find(id) != reifiedConstraintLeftImpl.end()){
-        delete_constraint_by_id(reifiedConstraintLeftImpl[id]);
-        reifiedConstraintLeftImpl.erase(id);
+    VeriPB::Var _var = toVeriPbVar(var);
+
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &reifiedConstraintLeftImplOnlyProofVars : &reifiedConstraintLeftImpl;
+
+    if(_var.v <= storage->size()){
+        delete_constraint_by_id((*storage)[_var.v]);
+        (*storage)[_var.v] = undefcxn;
     }
 }
 
 template <class TVar>
 void VeriPbProofLogger::deleteReifiedConstraintRightImpl(const TVar& var){
-    VeriPB::VarIdx id = varidx(toVeriPbVar(var));
-    if(reifiedConstraintRightImpl.find(id) != reifiedConstraintRightImpl.end()){
-        delete_constraint_by_id(reifiedConstraintRightImpl[id]);
-        reifiedConstraintRightImpl.erase(id);
+    VeriPB::Var _var = toVeriPbVar(var);
+
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &reifiedConstraintRightImplOnlyProofVars : &reifiedConstraintRightImpl;
+
+    if(_var.v <= storage->size()){
+        delete_constraint_by_id((*storage)[_var.v]);
+        (*storage)[_var.v] = undefcxn;
     }
 }
 
@@ -1400,9 +1432,12 @@ void VeriPbProofLogger::deleteReifiedConstraintRightImpl(const TVar& var){
 */
 template <class TVar>
 void VeriPbProofLogger::removeReifiedConstraintRightImplFromConstraintStore(const TVar& var){
-    VeriPB::VarIdx id = varidx(toVeriPbVar(var));
-    if(reifiedConstraintRightImpl.find(id) != reifiedConstraintRightImpl.end()){
-        reifiedConstraintRightImpl.erase(id);
+    VeriPB::Var _var = toVeriPbVar(var);
+
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &reifiedConstraintRightImplOnlyProofVars : &reifiedConstraintRightImpl;
+
+    if(_var.v <= storage->size()){
+        (*storage)[_var.v] = undefcxn;
     }
 }
 
@@ -1412,9 +1447,13 @@ void VeriPbProofLogger::removeReifiedConstraintRightImplFromConstraintStore(cons
 */
 template <class TVar>
 void VeriPbProofLogger::removeReifiedConstraintLeftImplFromConstraintStore(const TVar& var){
-    VeriPB::VarIdx id = varidx(toVeriPbVar(var));
-    if(reifiedConstraintLeftImpl.find(id) != reifiedConstraintLeftImpl.end()){
-        reifiedConstraintLeftImpl.erase(id);
+    VeriPB::Var _var = toVeriPbVar(var);
+
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &reifiedConstraintLeftImplOnlyProofVars : &reifiedConstraintLeftImpl;
+
+    if(_var.v <= storage->size()){
+        delete_constraint_by_id((*storage)[_var.v]);
+        (*storage)[_var.v] = undefcxn;
     }
 }
 
