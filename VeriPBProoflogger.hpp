@@ -321,18 +321,18 @@ std::string VeriPbProofLogger::to_string_rewrite_var_by_literal(VeriPB::Var& var
     }
 }
 
-void VeriPbProofLogger::write_var_name(const VeriPB::Var& v){
+void VeriPbProofLogger::write_var_name(std::ostream* out, const VeriPB::Var& v){
     // Note: name for variables only known in proof is always stored at creation time.
     if(!v.only_known_in_proof && (v.v >= nameSolverVars.size() || nameSolverVars[v.v] == "")){
         std::string name = (is_aux_var(v) ? "y" : "x") + std::to_string(v.v);
         store_meaningful_name(v, name);
-        *proof << name;
+        *out << name;
     }
     else if(!v.only_known_in_proof){
-        *proof << nameSolverVars[v.v];
+        *out << nameSolverVars[v.v];
     }
     else{ // Names for variables only known in the proof are created upon variable creation.
-        *proof <<  nameOnlyProofVars[v.v];
+        *out <<  nameOnlyProofVars[v.v];
     }
 }
 
@@ -344,7 +344,7 @@ void VeriPbProofLogger::write_literal_after_possible_rewrite(std::ostream* out, 
     if(litvar.v >= rewriteStorage->size() || (*rewriteStorage)[litvar.v] == VeriPB::lit_undef){
         if(is_negated(lit))
             *out << "~";
-        write_var_name(litvar);
+        write_var_name(out, litvar);
         *out << " ";
     }
     else{
@@ -356,7 +356,7 @@ void VeriPbProofLogger::write_literal_after_possible_rewrite(std::ostream* out, 
         if(variable(lit_to_rewrite_to) == var){
             if(is_negated(lit_to_rewrite_to))
                 *out << "~";
-            write_var_name(var);
+            write_var_name(out, var);
             *out << " ";
         }
         else{
@@ -365,11 +365,11 @@ void VeriPbProofLogger::write_literal_after_possible_rewrite(std::ostream* out, 
     }
 }
     
-bool VeriPbProofLogger::write_variable_after_possible_rewrite(VeriPB::Var& var, bool negated){
+bool VeriPbProofLogger::write_variable_after_possible_rewrite(std::ostream* out, VeriPB::Var& var, bool negated){
     std::vector<VeriPB::Lit>* rewriteStorage = var.only_known_in_proof ? &vec_rewrite_proofonlyvar_by_literal : &vec_rewrite_solvervar_by_literal;
 
     if(var.v >= rewriteStorage->size() || (*rewriteStorage)[var.v] == VeriPB::lit_undef){
-        write_var_name(var);
+        write_var_name(out, var);
         return negated;
     }
     else{
@@ -379,11 +379,11 @@ bool VeriPbProofLogger::write_variable_after_possible_rewrite(VeriPB::Var& var, 
         negated = negated ^ is_negated(lit_to_rewrite_to);
 
         if(var_to_rewrite_to == var){
-            write_var_name(var);
+            write_var_name(out, var);
             return negated;
         }
         else{
-            write_variable_after_possible_rewrite(var_to_rewrite_to, negated);
+            write_variable_after_possible_rewrite(out, var_to_rewrite_to, negated);
             return false;
         }
     }
@@ -872,7 +872,7 @@ void VeriPbProofLogger::write_substitution(const substitution &witness)
         lit_to = lit_ass.second;
         varto = variable(lit_to);
 
-        rewritten_to_negated_literal = write_variable_after_possible_rewrite(varfrom);
+        rewritten_to_negated_literal = write_variable_after_possible_rewrite(proof, varfrom);
         *proof << " -> ";
 
         lit_to.negated ^= rewritten_to_negated_literal;
@@ -882,7 +882,7 @@ void VeriPbProofLogger::write_substitution(const substitution &witness)
         varfrom = bool_ass.first;
         boolto = bool_ass.second;
 
-        rewritten_to_negated_literal = write_variable_after_possible_rewrite(varfrom);
+        rewritten_to_negated_literal = write_variable_after_possible_rewrite(proof, varfrom);
         *proof << " -> ";
 
         boolto ^= rewritten_to_negated_literal;
@@ -1022,7 +1022,7 @@ constraintid VeriPbProofLogger::redundanceBasedStrengtheningUnitClause(const TLi
     *proof << ">= 1; "; 
     
     VeriPB::Var var = toVeriPbVar(variable(lit));
-    bool rewritten_to_negated_literal = write_variable_after_possible_rewrite(var, is_negated(lit));
+    bool rewritten_to_negated_literal = write_variable_after_possible_rewrite(proof, var, is_negated(lit));
     *proof << " -> ";
     *proof << !rewritten_to_negated_literal << "\n";
     
@@ -1539,7 +1539,6 @@ void VeriPbProofLogger::start_intCP_derivation_with_lit_axiom(const TLit &lit)
 {
     pol_string << "p ";
     write_literal(&pol_string, lit);
-    // pol_string << to_string(lit);
 }
 
 void VeriPbProofLogger::intCP_load_constraint(const constraintid constraint_id)
@@ -1652,7 +1651,10 @@ void VeriPbProofLogger::intCP_add_literal_axiom(std::stringstream* cp, const TLi
 
 template <class TLit>
 void VeriPbProofLogger::intCP_add_literal_axiom(std::stringstream* cp, const TLit &lit, wght mult){
-    *cp << " "; write_literal(cp, lit); *cp << " " << mult <<  " * +";
+    write_comment("intCP_add_literal_axiom: literal = " + to_string(lit) + " multiplier " + std::to_string(mult));
+    *cp << " "; 
+    write_literal(cp, lit); 
+    *cp << " " << mult <<  " * +";
 }
 
 void VeriPbProofLogger::intCP_divide(std::stringstream* cp, const wght v)
