@@ -336,16 +336,16 @@ void VeriPbProofLogger::write_var_name(const VeriPB::Var& v){
     }
 }
 
-void VeriPbProofLogger::write_literal_after_possible_rewrite(VeriPB::Var& var, VeriPB::Lit& lit){
+void VeriPbProofLogger::write_literal_after_possible_rewrite(std::ostream* out, VeriPB::Var& var, VeriPB::Lit& lit){
     VeriPB::Var litvar = variable(lit);
 
     std::vector<VeriPB::Lit>* rewriteStorage = litvar.only_known_in_proof ? &vec_rewrite_proofonlyvar_by_literal : &vec_rewrite_solvervar_by_literal;
 
     if(litvar.v >= rewriteStorage->size() || (*rewriteStorage)[litvar.v] == VeriPB::lit_undef){
         if(is_negated(lit))
-            *proof << "~";
+            *out << "~";
         write_var_name(litvar);
-        *proof << " ";
+        *out << " ";
     }
     else{
         VeriPB::Lit lit_to_rewrite_to = (*rewriteStorage)[litvar.v];
@@ -355,12 +355,12 @@ void VeriPbProofLogger::write_literal_after_possible_rewrite(VeriPB::Var& var, V
 
         if(variable(lit_to_rewrite_to) == var){
             if(is_negated(lit_to_rewrite_to))
-                *proof << "~";
+                *out << "~";
             write_var_name(var);
-            *proof << " ";
+            *out << " ";
         }
         else{
-            write_literal_after_possible_rewrite(var, lit_to_rewrite_to);
+            write_literal_after_possible_rewrite(out, var, lit_to_rewrite_to);
         }
     }
 }
@@ -405,8 +405,17 @@ void VeriPbProofLogger::write_literal(const TLit &lit)
     VeriPB::Lit l = toVeriPbLit(lit);
     VeriPB::Var varl = variable(l);
 
-    write_literal_after_possible_rewrite(varl, l);
+    write_literal_after_possible_rewrite(proof, varl, l);
 }
+
+template <class TLit>
+void VeriPbProofLogger::write_literal(std::ostream* out, const TLit &lit){
+    VeriPB::Lit l = toVeriPbLit(lit);
+    VeriPB::Var varl = variable(l);
+
+    write_literal_after_possible_rewrite(out, varl, l);
+}
+
 
 template <class TSeqLit>
 void VeriPbProofLogger::write_cardinality_constraint(const TSeqLit &lits, const wght RHS)
@@ -867,7 +876,7 @@ void VeriPbProofLogger::write_substitution(const substitution &witness)
         *proof << " -> ";
 
         lit_to.negated ^= rewritten_to_negated_literal;
-        write_literal_after_possible_rewrite(varto, lit_to);
+        write_literal_after_possible_rewrite(proof, varto, lit_to);
     }
     for(auto bool_ass : witness.second){
         varfrom = bool_ass.first;
@@ -1529,7 +1538,8 @@ template <class TLit>
 void VeriPbProofLogger::start_intCP_derivation_with_lit_axiom(const TLit &lit)
 {
     pol_string << "p ";
-    pol_string << to_string(lit);
+    write_literal(&pol_string, lit);
+    // pol_string << to_string(lit);
 }
 
 void VeriPbProofLogger::intCP_load_constraint(const constraintid constraint_id)
@@ -1553,12 +1563,16 @@ void VeriPbProofLogger::intCP_add_constraint(const constraintid constraint_id, w
 
 template <class TLit>
 void VeriPbProofLogger::intCP_add_literal_axiom(const TLit &lit){
-    pol_string << " " << to_string(lit) << " +";
+    pol_string << " "; 
+    write_literal(&pol_string, lit);
+    pol_string << " +";
 }
 
 template <class TLit>
 void VeriPbProofLogger::intCP_add_literal_axiom(const TLit &lit, wght mult){
-    pol_string << " " << to_string(lit) << " " << mult <<  " * +";
+    pol_string << " "; 
+    write_literal(&pol_string, lit); 
+    pol_string << " " << mult <<  " * +";
 }
 
 void VeriPbProofLogger::intCP_divide(const wght v)
@@ -1583,7 +1597,8 @@ void VeriPbProofLogger::intCP_weaken(const TVar &var)
 template <class TLit>
 void VeriPbProofLogger::intCP_write_literal_axiom(const TLit &lit)
 {
-    pol_string << " " << to_string(lit);
+    pol_string << " "; 
+    write_literal(&pol_string, lit);
 }
 
 void VeriPbProofLogger::intCP_apply(const cuttingplanes_derivation& cpder){
@@ -1632,12 +1647,12 @@ void VeriPbProofLogger::intCP_add_constraint(std::stringstream* cp, const constr
 
 template <class TLit>
 void VeriPbProofLogger::intCP_add_literal_axiom(std::stringstream* cp, const TLit &lit){
-    *cp << " " << to_string(lit) << " +";
+    *cp << " "; write_literal(cp, lit); *cp << " +";
 }
 
 template <class TLit>
 void VeriPbProofLogger::intCP_add_literal_axiom(std::stringstream* cp, const TLit &lit, wght mult){
-    *cp << " " << to_string(lit) << " " << mult <<  " * +";
+    *cp << " "; write_literal(cp, lit); *cp << " " << mult <<  " * +";
 }
 
 void VeriPbProofLogger::intCP_divide(std::stringstream* cp, const wght v)

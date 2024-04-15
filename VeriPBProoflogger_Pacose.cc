@@ -13,6 +13,7 @@ template std::string VeriPbProofLogger::var_name<VeriPB::Var>(const VeriPB::Var 
 template void VeriPbProofLogger::write_weighted_literal<VeriPB::Lit>(const VeriPB::Lit &literal, wght weight);
 template std::string VeriPbProofLogger::to_string<VeriPB::Lit>(const VeriPB::Lit &lit);
 template void VeriPbProofLogger::write_literal<VeriPB::Lit>(const VeriPB::Lit &lit);
+template void VeriPbProofLogger::write_literal<VeriPB::Lit>(std::ostream* out, const VeriPB::Lit &lit);
 template void VeriPbProofLogger::write_cardinality_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS);
 
 template void VeriPbProofLogger::write_clause<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &clause);
@@ -105,6 +106,7 @@ template std::string VeriPbProofLogger::var_name<uint32_t>(const uint32_t &var);
 template void VeriPbProofLogger::write_weighted_literal<uint32_t>(const uint32_t &literal, wght weight);
 template std::string VeriPbProofLogger::to_string<uint32_t>(const uint32_t &lit);
 template void VeriPbProofLogger::write_literal<uint32_t>(const uint32_t &lit);
+template void VeriPbProofLogger::write_literal<uint32_t>(std::ostream* out, const uint32_t &lit);
 template void VeriPbProofLogger::write_cardinality_constraint<std::vector<uint32_t>>(const std::vector<uint32_t> &lits, const wght RHS);
 
 template void VeriPbProofLogger::write_clause<std::vector<uint32_t>>(const std::vector<uint32_t> &clause);
@@ -195,6 +197,7 @@ template std::string VeriPbProofLogger::var_name<int>(const int &var);
 template void VeriPbProofLogger::write_weighted_literal<int>(const int &literal, wght weight);
 template std::string VeriPbProofLogger::to_string<int>(const int &lit);
 template void VeriPbProofLogger::write_literal<int>(const int &lit);
+template void VeriPbProofLogger::write_literal<int>(std::ostream* out, const int &lit);
 template void VeriPbProofLogger::write_cardinality_constraint<std::vector<int>>(const std::vector<int> &lits, const wght RHS);
 
 template void VeriPbProofLogger::write_clause<std::vector<int>>(const std::vector<int> &clause);

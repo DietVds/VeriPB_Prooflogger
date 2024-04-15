@@ -98,7 +98,7 @@ private:
     std::vector<VeriPB::Lit> vec_rewrite_proofonlyvar_by_literal;
     std::vector<VeriPB::Lit> vec_rewrite_solvervar_by_literal;
 
-    void write_literal_after_possible_rewrite(VeriPB::Var& variable, VeriPB::Lit& literal);
+    void write_literal_after_possible_rewrite(std::ostream* str, VeriPB::Var& variable, VeriPB::Lit& literal);
     // Returns true if the literal to which the variable should be rewritten is negated and writes the variable of the literal to which the original variable should be rewritten to the proof.
     bool write_variable_after_possible_rewrite(VeriPB::Var& variable, bool negated=false);
     std::string to_string_rewrite_var_by_literal(VeriPB::Var& variable, VeriPB::Lit& literal); 
@@ -181,6 +181,8 @@ public:
     std::string to_string(const TLit &lit);
     template <class TLit>
     void write_literal(const TLit &lit);
+    template <class TLit>
+    void write_literal(std::ostream* out, const TLit &lit);
     template <class TSeqLit, class TSeqWght>
     void write_PB_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
     template <class TSeqLit, class TSeqWght>
