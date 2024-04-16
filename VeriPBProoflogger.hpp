@@ -42,7 +42,7 @@ void VeriPbProofLogger::set_n_variables(int nbvars){
 
     assert(n_variables == 0);
     if(nbvars >= nameSolverVars.size()){
-        std::cout << "resize in set_n_variables" << std::endl;
+        // std::cout << "resize in set_n_variables" << std::endl;
         nameSolverVars.resize(2*nbvars);
         vec_rewrite_solvervar_by_literal.resize(2*nbvars);
     }
