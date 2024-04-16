@@ -1651,7 +1651,6 @@ void VeriPbProofLogger::intCP_add_literal_axiom(std::stringstream* cp, const TLi
 
 template <class TLit>
 void VeriPbProofLogger::intCP_add_literal_axiom(std::stringstream* cp, const TLit &lit, wght mult){
-    write_comment("intCP_add_literal_axiom: literal = " + to_string(lit) + " multiplier " + std::to_string(mult));
     *cp << " "; 
     write_literal(cp, lit); 
     *cp << " " << mult <<  " * +";
