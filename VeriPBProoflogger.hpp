@@ -963,9 +963,8 @@ constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits
     *proof << "; ";
     write_substitution(witness);
 
-    constraint_counter++; // constraint not C
-
     if(subproofs.size() > 0){
+        constraint_counter++; // constraint not C
         *proof << " ; begin \n";
     
         for(int i = 0; i < subproofs.size(); i++){
@@ -979,8 +978,9 @@ constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits
             // *proof << "\t\t c -1\n";
             *proof << "\tend -1\n";
         }
-        *proof << "end\n";
+        *proof << "end";
     }
+    *proof << "\n";
 
     return ++constraint_counter;
 }
@@ -993,9 +993,8 @@ constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits
     *proof << "; ";
     write_substitution(witness);
 
-    constraint_counter++; // constraint not C
-
     if(subproofs.size() > 0){
+        constraint_counter++; // constraint not C
         *proof << " ; begin \n";
     
         for(int i = 0; i < subproofs.size(); i++){
@@ -1009,8 +1008,9 @@ constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits
             // *proof << "\t\t c -1\n";
             *proof << "\tend -1\n";
         }
-        *proof << "end\n";
+        *proof << "end";
     }
+    *proof << "\n";
 
     return ++constraint_counter;
 }
