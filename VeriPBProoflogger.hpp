@@ -1610,6 +1610,13 @@ constraintid VeriPbProofLogger::end_intCP_derivation()
     return ++constraint_counter;
 }
 
+void VeriPbProofLogger::clear_intCP_derivation(){
+    pol_string.clear();
+}
+cuttingplanes_derivation VeriPbProofLogger::get_CPder_from_intCP(){
+    return pol_string.str();
+}
+
 // ---------------------------------
 
 void VeriPbProofLogger::start_intCP_derivation(std::stringstream* cp, const constraintid constraint_id)
@@ -1689,6 +1696,13 @@ constraintid VeriPbProofLogger::end_intCP_derivation(std::stringstream* cp)
 {
     *proof << cp->rdbuf() << "\n";
     return ++constraint_counter;
+}
+
+void VeriPbProofLogger::clear_intCP_derivation(std::stringstream* cp){
+    cp->clear();
+}
+cuttingplanes_derivation VeriPbProofLogger::get_CPder_from_intCP(std::stringstream* cp){
+    return cp->str();
 }
 
 // ------------- Extra Proof Techniques -------------

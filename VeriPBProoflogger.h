@@ -422,6 +422,8 @@ public:
     void intCP_write_literal_axiom(const TLit &lit);
     void intCP_apply(const cuttingplanes_derivation& cpder);
     constraintid end_intCP_derivation();
+    void clear_intCP_derivation();
+    cuttingplanes_derivation get_CPder_from_intCP();
 
     void start_intCP_derivation(std::stringstream* cp, const constraintid constraint_id);
     template <class TLit>
@@ -443,6 +445,8 @@ public:
     void intCP_write_literal_axiom(std::stringstream* cp, const TLit &lit);
     void intCP_apply(std::stringstream* cp, const cuttingplanes_derivation& cpder);
     constraintid end_intCP_derivation(std::stringstream* cp);
+    void clear_intCP_derivation(std::stringstream* cp);
+    cuttingplanes_derivation get_CPder_from_intCP(std::stringstream* cp);
 
     // ------------- Extra Proof Techniques -------------
     /**
