@@ -7,6 +7,8 @@
 
 class PBtoCNFprooflogger
 {
+private: 
+    std::stringstream cp;
 public:
     // Constructor
     PBtoCNFprooflogger(VeriPbProofLogger *PL) : PL(PL) {};
@@ -70,16 +72,16 @@ public:
     template <class TSeqLit, class TSeqWght>
     void derive_UB_on_recursion_inputs(constraintid& UB_left_node, constraintid& UB_right_node,
                                         constraintid& UB_current_node, 
-                                        TSeqLit& leavesLeft, TSeqWght& weightsLeft, TSeqLit& leavesRight, TSeqWght& weightsRight);
+                                        TSeqLit& leavesLeft, TSeqWght& weightsLeft, TSeqLit& leavesRight, TSeqWght& weightsRight, wght UB);
 
     template <class TSeqLit>
     void derive_UB_on_recursion_inputs(constraintid& UB_left_node, constraintid& UB_right_node,
                                         constraintid& UB_current_node, 
-                                        TSeqLit& leavesLeft, TSeqLit& leavesRight);
+                                        TSeqLit& leavesLeft, TSeqLit& leavesRight, wght UB);
 
     // Given a binary tree encoding and an UB on the leaves of the current node, a
     template <class TSeqLit, class TSeqWght>
-    constraintid derive_UB_on_outputliterals(constraintid& UB_leaves, constraintid& leaves_geq_outputs, TSeqLit& outputs, TSeqWght& weights );
+    constraintid derive_UB_on_outputliterals(constraintid& UB_leaves, constraintid& leaves_geq_outputs, TSeqLit& outputs, TSeqWght& weights, wght UB );
 
     // Functions to use when the encoding has as output variables a unary representation of the sum of the leaves. 
 

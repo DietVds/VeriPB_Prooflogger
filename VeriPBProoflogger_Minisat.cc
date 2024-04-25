@@ -48,9 +48,6 @@ template void VeriPbProofLogger::rewrite_variable_by_literal<Minisat::Var, Minis
 template void VeriPbProofLogger::store_meaningful_name<VeriPB::Var>(const VeriPB::Var &var, const std::string &name);
 template void VeriPbProofLogger::store_meaningful_name<Minisat::Var>(const Minisat::Var &var, const std::string &name);
 
-template void VeriPbProofLogger::delete_meaningful_name<VeriPB::Var>(const VeriPB::Var &var);
-template void VeriPbProofLogger::delete_meaningful_name<Minisat::Var>(const Minisat::Var &var);
-
 template void VeriPbProofLogger::equals_rule<std::vector<VeriPB::Lit>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const wght RHS);
 template void VeriPbProofLogger::equals_rule<Minisat::vec<Minisat::Lit>>(const constraintid constraint_id, const Minisat::vec<Minisat::Lit> &lits, const wght RHS);
 

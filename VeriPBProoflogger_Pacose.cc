@@ -13,13 +13,13 @@ template std::string VeriPbProofLogger::var_name<VeriPB::Var>(const VeriPB::Var 
 template void VeriPbProofLogger::write_weighted_literal<VeriPB::Lit>(const VeriPB::Lit &literal, wght weight);
 template std::string VeriPbProofLogger::to_string<VeriPB::Lit>(const VeriPB::Lit &lit);
 template void VeriPbProofLogger::write_literal<VeriPB::Lit>(const VeriPB::Lit &lit);
+template void VeriPbProofLogger::write_literal<VeriPB::Lit>(std::ostream* out, const VeriPB::Lit &lit);
 template void VeriPbProofLogger::write_cardinality_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS);
 
 template void VeriPbProofLogger::write_clause<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &clause);
 template void VeriPbProofLogger::write_PB_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
 template void VeriPbProofLogger::rewrite_variable_by_literal<VeriPB::Var, VeriPB::Lit>(const VeriPB::Var& var, const VeriPB::Lit& lit);
 template void VeriPbProofLogger::store_meaningful_name<VeriPB::Var>(const VeriPB::Var &var, const std::string &name);
-template void VeriPbProofLogger::delete_meaningful_name<VeriPB::Var>(const VeriPB::Var &var);
 template void VeriPbProofLogger::equals_rule<std::vector<VeriPB::Lit>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const wght RHS);
 template void VeriPbProofLogger::write_PB_constraint<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit>& lits_greater, const std::vector<wght>& weights_greater, const wght const_greater, const std::vector<VeriPB::Lit>& lits_smaller, const std::vector<wght>& weights_smaller, const wght const_smaller );
 template void VeriPbProofLogger::equals_rule<std::vector<VeriPB::Lit>, std::vector<wght>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
@@ -78,6 +78,7 @@ template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<VeriPB::Lit>(c
 template void VeriPbProofLogger::start_intCP_derivation_with_lit_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
 template void VeriPbProofLogger::intCP_weaken<VeriPB::Var>(const VeriPB::Var &var);
 template void VeriPbProofLogger::intCP_add_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
+template void VeriPbProofLogger::intCP_add_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit, wght mult);
 template void VeriPbProofLogger::intCP_write_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
 template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
 template constraintid VeriPbProofLogger::prove_by_casesplitting<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights, wght RHS, constraintid case1, constraintid case2);
@@ -105,13 +106,13 @@ template std::string VeriPbProofLogger::var_name<uint32_t>(const uint32_t &var);
 template void VeriPbProofLogger::write_weighted_literal<uint32_t>(const uint32_t &literal, wght weight);
 template std::string VeriPbProofLogger::to_string<uint32_t>(const uint32_t &lit);
 template void VeriPbProofLogger::write_literal<uint32_t>(const uint32_t &lit);
+template void VeriPbProofLogger::write_literal<uint32_t>(std::ostream* out, const uint32_t &lit);
 template void VeriPbProofLogger::write_cardinality_constraint<std::vector<uint32_t>>(const std::vector<uint32_t> &lits, const wght RHS);
 
 template void VeriPbProofLogger::write_clause<std::vector<uint32_t>>(const std::vector<uint32_t> &clause);
 template void VeriPbProofLogger::write_PB_constraint<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS);
 template void VeriPbProofLogger::rewrite_variable_by_literal<uint32_t, uint32_t>(const uint32_t& var, const uint32_t& lit);
 template void VeriPbProofLogger::store_meaningful_name<uint32_t>(const uint32_t &var, const std::string &name);
-template void VeriPbProofLogger::delete_meaningful_name<uint32_t>(const uint32_t &var);
 template void VeriPbProofLogger::equals_rule<std::vector<uint32_t>>(const constraintid constraint_id, const std::vector<uint32_t> &lits, const wght RHS);
 template void VeriPbProofLogger::write_PB_constraint<std::vector<uint32_t>, std::vector<wght>>(const std::vector<uint32_t>& lits_greater, const std::vector<wght>& weights_greater, const wght const_greater, const std::vector<uint32_t>& lits_smaller, const std::vector<wght>& weights_smaller, const wght const_smaller );
 template void VeriPbProofLogger::equals_rule<std::vector<uint32_t>, std::vector<wght>>(const constraintid constraint_id, const std::vector<uint32_t> &lits, const std::vector<wght> &weights, const wght RHS);
@@ -170,6 +171,8 @@ template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<uint32_t>(cons
 template void VeriPbProofLogger::start_intCP_derivation_with_lit_axiom<uint32_t>(const uint32_t &lit);
 template void VeriPbProofLogger::intCP_weaken<uint32_t>(const uint32_t &var);
 template void VeriPbProofLogger::intCP_add_literal_axiom<uint32_t>(const uint32_t &lit);
+template void VeriPbProofLogger::intCP_add_literal_axiom<uint32_t>(const uint32_t &lit, wght mult);
+template void VeriPbProofLogger::intCP_add_literal_axiom<uint32_t>(std::stringstream* cp, const uint32_t &lit, wght mult);
 template void VeriPbProofLogger::intCP_write_literal_axiom<uint32_t>(const uint32_t &lit);
 template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<uint32_t>, std::vector<wght>>(std::vector<uint32_t>& lits, std::vector<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
 template constraintid VeriPbProofLogger::prove_by_casesplitting<std::vector<uint32_t>, std::vector<wght>>(std::vector<uint32_t>& lits, std::vector<wght>& weights, wght RHS, constraintid case1, constraintid case2);
@@ -194,13 +197,13 @@ template std::string VeriPbProofLogger::var_name<int>(const int &var);
 template void VeriPbProofLogger::write_weighted_literal<int>(const int &literal, wght weight);
 template std::string VeriPbProofLogger::to_string<int>(const int &lit);
 template void VeriPbProofLogger::write_literal<int>(const int &lit);
+template void VeriPbProofLogger::write_literal<int>(std::ostream* out, const int &lit);
 template void VeriPbProofLogger::write_cardinality_constraint<std::vector<int>>(const std::vector<int> &lits, const wght RHS);
 
 template void VeriPbProofLogger::write_clause<std::vector<int>>(const std::vector<int> &clause);
 template void VeriPbProofLogger::write_PB_constraint<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS);
 template void VeriPbProofLogger::rewrite_variable_by_literal<int, int>(const int& var, const int& lit);
 template void VeriPbProofLogger::store_meaningful_name<int>(const int &var, const std::string &name);
-template void VeriPbProofLogger::delete_meaningful_name<int>(const int &var);
 template void VeriPbProofLogger::equals_rule<std::vector<int>>(const constraintid constraint_id, const std::vector<int> &lits, const wght RHS);
 template void VeriPbProofLogger::write_PB_constraint<std::vector<int>, std::vector<wght>>(const std::vector<int>& lits_greater, const std::vector<wght>& weights_greater, const wght const_greater, const std::vector<int>& lits_smaller, const std::vector<wght>& weights_smaller, const wght const_smaller );
 template void VeriPbProofLogger::equals_rule<std::vector<int>, std::vector<wght>>(const constraintid constraint_id, const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS);
@@ -259,6 +262,7 @@ template cuttingplanes_derivation VeriPbProofLogger::CP_weakening<int>(const int
 template void VeriPbProofLogger::start_intCP_derivation_with_lit_axiom<int>(const int &lit);
 template void VeriPbProofLogger::intCP_weaken<int>(const int &var);
 template void VeriPbProofLogger::intCP_add_literal_axiom<int>(const int &lit);
+template void VeriPbProofLogger::intCP_add_literal_axiom<int>(const int &lit, wght mult);
 template void VeriPbProofLogger::intCP_write_literal_axiom<int>(const int &lit);
 template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<int>, std::vector<wght>>(std::vector<int>& lits, std::vector<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
 template constraintid VeriPbProofLogger::prove_by_casesplitting<std::vector<int>, std::vector<wght>>(std::vector<int>& lits, std::vector<wght>& weights, wght RHS, constraintid case1, constraintid case2);

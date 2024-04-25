@@ -50,7 +50,7 @@ class MaxSATProoflogger;
 typedef int constraintid;
 #define undefcxn -1
 
-typedef std::pair<std::vector<std::pair<VeriPB::Var, VeriPB::Lit>>, std::vector<std::pair<VeriPB::Var, bool>>> nsub;
+#define INIT_NAMESTORAGE 500
 
 typedef std::pair<std::vector<std::pair<VeriPB::Var, VeriPB::Lit>>, std::vector<std::pair<VeriPB::Var, bool>>> substitution;
 typedef std::string cuttingplanes_derivation;
@@ -84,13 +84,23 @@ private:
     constraintid model_improvement_constraint = 0; // Last model improvement constraint
 
     // Meaningful variable names
-    std::unordered_map<VeriPB::VarIdx, std::string> meaningful_names_store;
+    std::vector<std::string> nameSolverVars;
+    std::vector<std::string> nameOnlyProofVars;
+    // std::unordered_map<VeriPB::VarIdx, std::string> meaningful_names_store;
+    
     uint32_t n_vars_only_known_in_proof;
     
 
     // Variables to be rewritten by literals.
-    std::unordered_map<VeriPB::VarIdx, VeriPB::Lit> map_rewrite_var_by_literal;
+    // std::map<VeriPB::VarIdx, VeriPB::Lit> map_rewrite_solvervar_by_literal;
+    // std::map<VeriPB::VarIdx, VeriPB::Lit> map_rewrite_proofonlyvar_by_literal;
 
+    std::vector<VeriPB::Lit> vec_rewrite_proofonlyvar_by_literal;
+    std::vector<VeriPB::Lit> vec_rewrite_solvervar_by_literal;
+
+    void write_literal_after_possible_rewrite(std::ostream* out, VeriPB::Var& variable, VeriPB::Lit& literal);
+    // Returns true if the literal to which the variable should be rewritten is negated and writes the variable of the literal to which the original variable should be rewritten to the proof.
+    bool write_variable_after_possible_rewrite(std::ostream* out, VeriPB::Var& variable, bool negated=false);
     std::string to_string_rewrite_var_by_literal(VeriPB::Var& variable, VeriPB::Lit& literal); 
 
     // Constraint counter
@@ -100,6 +110,7 @@ public:
 private:
     // Temporary string for reverse polish derivation
     //
+public:
     std::stringstream pol_string;
 
        
@@ -143,7 +154,7 @@ public:
     void add_objective_constant(wght weight);
     void subtract_objective_constant(wght weight);
     void write_comment_objective_function();
-    void check_model_improving_constraint(const constraintid cxn);
+    void check_model_improving_constraint(constraintid cxn=0);
     wght get_best_objective_function();
     void write_objective_update();
     template <class TSeqLit, class TSeqSignedWght>
@@ -160,6 +171,7 @@ public:
     bool is_aux_var(const TVar &var);
     template <class TVar>
     std::string var_name(const TVar &var);
+    void write_var_name(std::ostream* out, const VeriPB::Var& var);
 
     VeriPB::Var new_variable_only_in_proof(std::string name="");
 
@@ -169,6 +181,8 @@ public:
     std::string to_string(const TLit &lit);
     template <class TLit>
     void write_literal(const TLit &lit);
+    template <class TLit>
+    void write_literal(std::ostream* out, const TLit &lit);
     template <class TSeqLit, class TSeqWght>
     void write_PB_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
     template <class TSeqLit, class TSeqWght>
@@ -182,8 +196,6 @@ public:
     // ------------- Meaningful names -------------
     template <class TVar>
     void store_meaningful_name(const TVar &var, const std::string &name);
-    template <class TVar>
-    void delete_meaningful_name(const TVar &var);
 
     // ------------- Rewrite variables by literals -------------
     template <class TVar, class TLit>
@@ -307,8 +319,12 @@ public:
     // Proves the constraints encoding the reification constraint l <-> C, with l a literal and C a boolean constraint.
     // The right implication is the encoding of l -> C, whereas the left implication means l <- C.
 private:
-    std::map<VeriPB::VarIdx, constraintid> reifiedConstraintLeftImpl;
-    std::map<VeriPB::VarIdx, constraintid> reifiedConstraintRightImpl;
+    std::vector<constraintid> reifiedConstraintLeftImpl;
+    std::vector<constraintid> reifiedConstraintRightImpl;
+    std::vector<constraintid> reifiedConstraintLeftImplOnlyProofVars;
+    std::vector<constraintid> reifiedConstraintRightImplOnlyProofVars;
+    // std::unordered_map<VeriPB::VarIdx, constraintid> reifiedConstraintLeftImpl;
+    // std::unordered_map<VeriPB::VarIdx, constraintid> reifiedConstraintRightImpl;
 public:
     template <class TSeqLit, class TSeqWght, class TLit>
     constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, bool store_reified_constraint);
@@ -392,8 +408,11 @@ public:
     void intCP_load_constraint(const constraintid constraint_id);
     void intCP_add();
     void intCP_add_constraint(const constraintid constraint_id);
+    void intCP_add_constraint(const constraintid constraint_id, wght mult);
     template <class TLit>
     void intCP_add_literal_axiom(const TLit &lit);
+    template <class TLit>
+    void intCP_add_literal_axiom(const TLit &lit, wght mult);
     void intCP_divide(const wght v);
     void intCP_saturate();
     void intCP_multiply(const wght v);
@@ -401,7 +420,33 @@ public:
     void intCP_weaken(const TVar &var);
     template <class TLit>
     void intCP_write_literal_axiom(const TLit &lit);
+    void intCP_apply(const cuttingplanes_derivation& cpder);
     constraintid end_intCP_derivation();
+    void clear_intCP_derivation();
+    cuttingplanes_derivation get_CPder_from_intCP();
+
+    void start_intCP_derivation(std::stringstream* cp, const constraintid constraint_id);
+    template <class TLit>
+    void start_intCP_derivation_with_lit_axiom(std::stringstream* cp, const TLit &lit);
+    void intCP_load_constraint(std::stringstream* cp, const constraintid constraint_id);
+    void intCP_add(std::stringstream* cp);
+    void intCP_add_constraint(std::stringstream* cp, const constraintid constraint_id);
+    void intCP_add_constraint(std::stringstream* cp, const constraintid constraint_id, wght mult);
+    template <class TLit>
+    void intCP_add_literal_axiom(std::stringstream* cp, const TLit &lit);
+    template <class TLit>
+    void intCP_add_literal_axiom(std::stringstream* cp, const TLit &lit, wght mult);
+    void intCP_divide(std::stringstream* cp, const wght v);
+    void intCP_saturate(std::stringstream* cp);
+    void intCP_multiply(std::stringstream* cp, const wght v);
+    template <class TVar>
+    void intCP_weaken(std::stringstream* cp, const TVar &var);
+    template <class TLit>
+    void intCP_write_literal_axiom(std::stringstream* cp, const TLit &lit);
+    void intCP_apply(std::stringstream* cp, const cuttingplanes_derivation& cpder);
+    constraintid end_intCP_derivation(std::stringstream* cp);
+    void clear_intCP_derivation(std::stringstream* cp);
+    cuttingplanes_derivation get_CPder_from_intCP(std::stringstream* cp);
 
     // ------------- Extra Proof Techniques -------------
     /**

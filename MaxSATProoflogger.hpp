@@ -63,10 +63,13 @@ constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_l
         PL->write_objective_update_diff(litsOnewminusold, wghtsOnewminusold);
 
         if(PL->get_model_improving_constraint() != 0){ //TODO: Test!
-            cuttingplanes_derivation cpder = PL->CP_constraintid( PL->get_model_improving_constraint());
-            cpder = PL->CP_addition(cpder, 
-                           PL->CP_multiplication(PL->CP_constraintid(-1), weight_softclause));
-            PL->update_model_improving_constraint(PL->write_CP_derivation(cpder));
+            PL->start_intCP_derivation(&cp, PL->get_model_improving_constraint());
+            PL->intCP_add_constraint(&cp, -1, weight_softclause);
+            PL->update_model_improving_constraint(PL->end_intCP_derivation(&cp));
+            // cuttingplanes_derivation cpder = PL->CP_constraintid( PL->get_model_improving_constraint());
+            // cpder = PL->CP_addition(cpder, 
+            //                PL->CP_multiplication(PL->CP_constraintid(-1), weight_softclause));
+            // PL->update_model_improving_constraint(PL->write_CP_derivation(cpder));
         }
 
         PL->delete_constraint(cls, 1, witness);
@@ -79,8 +82,11 @@ constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_l
 }
 
 constraintid MaxSATProoflogger::rewrite_model_improvement_constraint_for_unitsoftclauses(){
-    cuttingplanes_derivation cpder = PL->CP_apply(PL->CP_constraintid(PL->get_model_improving_constraint()), rewrite_for_unitsoftclauses);
-    rewritten_objective_for_unitsoftclauses = PL->write_CP_derivation(cpder);
+    PL->start_intCP_derivation(&cp, PL->get_model_improving_constraint());
+    PL->intCP_apply(&cp, rewrite_for_unitsoftclauses);
+    rewritten_objective_for_unitsoftclauses = PL->end_intCP_derivation(&cp);
+    // cuttingplanes_derivation cpder = PL->CP_apply(PL->CP_constraintid(PL->get_model_improving_constraint()), rewrite_for_unitsoftclauses);
+    // rewritten_objective_for_unitsoftclauses = PL->write_CP_derivation(cpder);
     return rewritten_objective_for_unitsoftclauses;
 }
 
