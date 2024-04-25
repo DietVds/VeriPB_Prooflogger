@@ -135,6 +135,7 @@ public:
     void write_conclusion_NONE();
     void write_conclusion_UNSAT();
     void write_conclusion_UNSAT_optimization();
+    void write_conclusion_UNSAT_optimization(constraintid hint);
     void write_conclusion_SAT();
     void write_conclusion_OPTIMAL();
     void write_conclusion_OPTIMAL(constraintid hint);
@@ -514,6 +515,7 @@ public:
     void write_previous_constraint_contradiction();
     void write_contradiction(constraintid cxnid);
     void rup_empty_clause();  
+    void rup_lower_bound_constraint();
     
 
 };

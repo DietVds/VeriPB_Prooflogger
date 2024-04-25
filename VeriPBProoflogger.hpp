@@ -71,21 +71,36 @@ void VeriPbProofLogger::write_conclusion_UNSAT_optimization(){
         << "conclusion BOUNDS INF INF\n"
         << "end pseudo-Boolean proof\n";
 }
+void VeriPbProofLogger::write_conclusion_UNSAT_optimization(constraintid hint){
+    *proof << "output NONE\n"
+        << "conclusion BOUNDS INF : " << hint << " INF\n"
+        << "end pseudo-Boolean proof\n";
+}
 void VeriPbProofLogger::write_conclusion_SAT(){
     *proof << "output NONE\n"
         << "conclusion SAT\n"
         << "end pseudo-Boolean proof\n";
 }
 void VeriPbProofLogger::write_conclusion_OPTIMAL(){
-    *proof << "output NONE\n"
-        << "conclusion BOUNDS " << std::to_string(best_objective_value) << " " << std::to_string(best_objective_value) << "\n"
-        << "end pseudo-Boolean proof\n";
+    if(best_objective_value == wght_max){
+        write_conclusion_UNSAT_optimization();
+    }
+    else{
+        *proof << "output NONE\n"
+            << "conclusion BOUNDS " << std::to_string(best_objective_value) << " " << std::to_string(best_objective_value) << "\n"
+            << "end pseudo-Boolean proof\n";
+    }
 }
 
 void VeriPbProofLogger::write_conclusion_OPTIMAL(constraintid hint){
-    *proof << "output NONE\n"
-        << "conclusion BOUNDS " << std::to_string(best_objective_value) << " : " << std::to_string(hint) << " " << std::to_string(best_objective_value) << "\n"
-        << "end pseudo-Boolean proof\n";
+    if(best_objective_value == wght_max){
+        write_conclusion_UNSAT_optimization();
+    }
+    else{
+        *proof << "output NONE\n"
+            << "conclusion BOUNDS " << std::to_string(best_objective_value) << " : " << std::to_string(hint) << " " << std::to_string(best_objective_value) << "\n"
+            << "end pseudo-Boolean proof\n";
+    }    
 }
 
 
@@ -1877,5 +1892,9 @@ void VeriPbProofLogger::rup_empty_clause()
 {
     *proof << "u >= 1;\n";
     constraint_counter++;
+}
+
+void VeriPbProofLogger::rup_lower_bound_constraint(){
+    rup(objective_lits,objective_weights, best_objective_value);
 }
 //=================================================================================================
