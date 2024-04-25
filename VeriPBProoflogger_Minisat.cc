@@ -100,6 +100,7 @@ template constraintid VeriPbProofLogger::unchecked_assumption<Minisat::vec<Minis
 
 template constraintid VeriPbProofLogger::rup<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS);
 template constraintid VeriPbProofLogger::rup<Minisat::vec<Minisat::Lit>>(const Minisat::vec<Minisat::Lit> &lits, const wght RHS);
+template constraintid VeriPbProofLogger::rup<std::vector<Minisat::Lit>>(const std::vector<Minisat::Lit> &lits, const wght RHS);
 template constraintid VeriPbProofLogger::rup<Minisat::Clause>(const Minisat::Clause &lits, const wght RHS);
 
 template constraintid VeriPbProofLogger::rup<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
