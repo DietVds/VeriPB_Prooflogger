@@ -12,7 +12,7 @@ template bool VeriPbProofLogger::remove_objective_literal<Minisat::Lit>(Minisat:
 template bool VeriPbProofLogger::remove_objective_literal<VeriPB::Lit>(VeriPB::Lit& lit);
 
 template void VeriPbProofLogger::write_objective_update_diff<std::vector<VeriPB::Lit>, std::vector<signedWght>>(std::vector<VeriPB::Lit>& litsOnewminusold, std::vector<signedWght>& wghtsOnewminusold, signedWght constantOnewminusold = 0);
-    
+template void VeriPbProofLogger::write_objective_update_diff_for_literal<VeriPB::Lit>(VeriPB::Lit& literal_to_remove, wght weight, wght constant_for_lit);
 
 template bool VeriPbProofLogger::is_aux_var<VeriPB::Var>(const VeriPB::Var &var);
 template bool VeriPbProofLogger::is_aux_var<Minisat::Var>(const Minisat::Var &var);
@@ -116,6 +116,7 @@ template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Minisat::v
 // template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(const Minisat::vec<Minisat::Lit> &lits, const Minisat::vec<wght> &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
 
+template constraintid VeriPbProofLogger::redundanceBasedStrengtheningUnitClause<VeriPB::Lit>(const VeriPB::Lit& lit);
 
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &litsC, const std::vector<wght> &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);

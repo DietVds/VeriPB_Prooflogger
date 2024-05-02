@@ -233,6 +233,15 @@ void VeriPbProofLogger::write_objective_update_diff(TSeqLit& litsOnewminusold, T
     *proof << (constantOnewminusold == 0 ? "" : std::to_string(constantOnewminusold)) << ";\n";
 }
 
+template <class TLit>
+void VeriPbProofLogger::write_objective_update_diff_for_literal(TLit& literal_to_remove, wght weight, wght constant_for_lit){
+    *proof << "obju diff -" << weight << " ";
+    write_literal(literal_to_remove);
+    if(constant_for_lit > 0) 
+        *proof << " " << constant_for_lit;
+    *proof << ";\n";
+}
+
 wght VeriPbProofLogger::get_best_objective_function(){
     return best_objective_value;
 }
