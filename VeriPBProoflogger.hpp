@@ -884,6 +884,15 @@ template <class TVar, class TLit>
 void VeriPbProofLogger::add_literal_assignment(substitution &s, const TVar& var, const TLit& value){
     s.first.push_back(std::make_pair(toVeriPbVar(var), toVeriPbLit(value)));
 }
+void VeriPbProofLogger::add_substitution(substitution &sub, const substitution &sub_to_add){
+    sub.first.reserve(sub.first.size() + sub_to_add.first.size());
+    for(auto lit_ass : sub_to_add.first)
+        add_literal_assignment(sub, lit_ass.first, lit_ass.second);
+    
+    sub.second.reserve(sub.second.size() + sub_to_add.second.size());
+    for(auto bool_ass : sub_to_add.second)
+        add_boolean_assignment(sub, bool_ass.first, bool_ass.second);
+}
 
 void VeriPbProofLogger::write_substitution(const substitution &witness)
 {

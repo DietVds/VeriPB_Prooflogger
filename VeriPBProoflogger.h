@@ -291,6 +291,7 @@ public:
     void add_boolean_assignment(substitution &s, const TVar& var, const bool value);
     template <class TVar, class TLit>
     void add_literal_assignment(substitution &s, const TVar& var, const TLit& value);
+    void add_substitution(substitution &sub, const substitution &sub_to_add);
     template <class TVar>
     bool has_boolean_assignment(const substitution &s, const TVar& var);
     template <class TVar>
