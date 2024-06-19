@@ -45,6 +45,12 @@ template constraintid VeriPbProofLogger::rup_clause<std::vector<VeriPB::Lit>>(co
 template constraintid VeriPbProofLogger::rup_unit_clause<VeriPB::Lit>(const VeriPB::Lit& lit, bool core_constraint);
 template constraintid VeriPbProofLogger::rup_binary_clause<VeriPB::Lit>(const VeriPB::Lit& lit1, const VeriPB::Lit& lit2, bool core_constraint);
 template constraintid VeriPbProofLogger::rup_ternary_clause<VeriPB::Lit>(const VeriPB::Lit& lit1, const VeriPB::Lit& lit2, const VeriPB::Lit& lit3, bool core_constraint);
+template constraintid VeriPbProofLogger::rup<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS, std::vector<constraintid>& hints);
+template constraintid VeriPbProofLogger::rup<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, std::vector<constraintid>& hints);
+template constraintid VeriPbProofLogger::rup_clause<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit>& lits, std::vector<constraintid>& hints);
+template constraintid VeriPbProofLogger::rup_unit_clause<VeriPB::Lit>(const VeriPB::Lit& lit, std::vector<constraintid>& hints, bool core_constraint=true);
+template constraintid VeriPbProofLogger::rup_binary_clause<VeriPB::Lit>(const VeriPB::Lit& lit1, const VeriPB::Lit& lit2, std::vector<constraintid>& hints,  bool core_constraint=false);
+template constraintid VeriPbProofLogger::rup_ternary_clause<VeriPB::Lit>(const VeriPB::Lit& lit1, const VeriPB::Lit& lit2, const VeriPB::Lit& lit3, std::vector<constraintid>& hints, bool core_constraint=false);
 template void VeriPbProofLogger::add_boolean_assignment<VeriPB::Var>(substitution &s, const VeriPB::Var& var, const bool value);
 template void VeriPbProofLogger::add_literal_assignment<VeriPB::Var, VeriPB::Lit>(substitution &s, const VeriPB::Var& var, const VeriPB::Lit& value);
 template bool VeriPbProofLogger::has_boolean_assignment<VeriPB::Var>(const substitution &s, const VeriPB::Var& var);
@@ -138,6 +144,12 @@ template constraintid VeriPbProofLogger::rup_clause<std::vector<uint32_t>>(const
 template constraintid VeriPbProofLogger::rup_unit_clause<uint32_t>(const uint32_t& lit, bool core_constraint);
 template constraintid VeriPbProofLogger::rup_binary_clause<uint32_t>(const uint32_t& lit1, const uint32_t& lit2, bool core_constraint);
 template constraintid VeriPbProofLogger::rup_ternary_clause<uint32_t>(const uint32_t& lit1, const uint32_t& lit2, const uint32_t& lit3, bool core_constraint);
+template constraintid VeriPbProofLogger::rup<std::vector<uint32_t>>(const std::vector<uint32_t> &lits, const wght RHS, std::vector<constraintid>& hints);
+template constraintid VeriPbProofLogger::rup<std::vector<uint32_t>, std::vector<uint64_t>>(const std::vector<uint32_t> &lits, const std::vector<uint64_t> &weights, const wght RHS, std::vector<constraintid>& hints);
+template constraintid VeriPbProofLogger::rup_clause<std::vector<uint32_t>>(const std::vector<uint32_t>& lits, std::vector<constraintid>& hints);
+template constraintid VeriPbProofLogger::rup_unit_clause<uint32_t>(const uint32_t& lit, std::vector<constraintid>& hints, bool core_constraint=true);
+template constraintid VeriPbProofLogger::rup_binary_clause<uint32_t>(const uint32_t& lit1, const uint32_t& lit2, std::vector<constraintid>& hints,  bool core_constraint=false);
+template constraintid VeriPbProofLogger::rup_ternary_clause<uint32_t>(const uint32_t& lit1, const uint32_t& lit2, const uint32_t& lit3, std::vector<constraintid>& hints, bool core_constraint=false);
 template void VeriPbProofLogger::add_boolean_assignment<uint32_t>(substitution &s, const uint32_t& var, const bool value);
 template void VeriPbProofLogger::add_literal_assignment<uint32_t, uint32_t>(substitution &s, const uint32_t& var, const uint32_t& value);
 template bool VeriPbProofLogger::has_boolean_assignment<uint32_t>(const substitution &s, const uint32_t& var);
@@ -229,6 +241,12 @@ template constraintid VeriPbProofLogger::rup_clause<std::vector<int>>(const std:
 template constraintid VeriPbProofLogger::rup_unit_clause<int>(const int& lit, bool core_constraint);
 template constraintid VeriPbProofLogger::rup_binary_clause<int>(const int& lit1, const int& lit2, bool core_constraint);
 template constraintid VeriPbProofLogger::rup_ternary_clause<int>(const int& lit1, const int& lit2, const int& lit3, bool core_constraint);
+template constraintid VeriPbProofLogger::rup<std::vector<int>>(const std::vector<int> &lits, const wght RHS, std::vector<constraintid>& hints);
+template constraintid VeriPbProofLogger::rup<std::vector<int>, std::vector<wght>>(const std::vector<int> &lits, const std::vector<wght> &weights, const wght RHS, std::vector<constraintid>& hints);
+template constraintid VeriPbProofLogger::rup_clause<std::vector<int>>(const std::vector<int>& lits, std::vector<constraintid>& hints);
+template constraintid VeriPbProofLogger::rup_unit_clause<int>(const int& lit, std::vector<constraintid>& hints, bool core_constraint=true);
+template constraintid VeriPbProofLogger::rup_binary_clause<int>(const int& lit1, const int& lit2, std::vector<constraintid>& hints,  bool core_constraint=false);
+template constraintid VeriPbProofLogger::rup_ternary_clause<int>(const int& lit1, const int& lit2, const int& lit3, std::vector<constraintid>& hints, bool core_constraint=false);
 template void VeriPbProofLogger::add_boolean_assignment<int>(substitution &s, const int& var, const bool value);
 template void VeriPbProofLogger::add_literal_assignment<int, int>(substitution &s, const int& var, const int& value);
 template bool VeriPbProofLogger::has_boolean_assignment<int>(const substitution &s, const int& var);

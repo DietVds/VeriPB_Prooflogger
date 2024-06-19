@@ -22,17 +22,16 @@ void CadicalProofTracer::veripb_add_derived_clause(
   if(vPL->comments)
     vPL->write_comment("Cadical PT: add derived clause with id " + std::to_string(id) + " and veripb id " + std::to_string(vPL->constraint_counter+1));
   
-  *vPL->proof << "p";
-  bool first = true;
+  *vPL->proof << "rup ";
+  for(auto lit : clause) 
+    vPL->write_weighted_literal(lit);
+  
+  *vPL->proof << " >= 1 ; ";
+  
   for (auto p = chain.rbegin (); p != chain.rend (); p++) {
     auto cid = *p;
-    if(first){
-      first = false;
-      *vPL->proof << " " << clauses_vpb[cid];
-    }
-    else{
-      *vPL->proof << " " << clauses_vpb[cid] << " + s";
-    }
+
+    *vPL->proof << clauses_vpb[cid] << " ";
   }
 
   *vPL->proof << "\n";
@@ -40,7 +39,25 @@ void CadicalProofTracer::veripb_add_derived_clause(
 
   clauses_vpb[id] = cxn;
 
-  vPL->check_last_constraint(clause);
+  // *vPL->proof << "p";
+  // bool first = true;
+  // for (auto p = chain.rbegin (); p != chain.rend (); p++) {
+  //   auto cid = *p;
+  //   if(first){
+  //     first = false;
+  //     *vPL->proof << " " << clauses_vpb[cid];
+  //   }
+  //   else{
+  //     *vPL->proof << " " << clauses_vpb[cid] << " + s";
+  //   }
+  // }
+
+  // *vPL->proof << "\n";
+  // constraintid cxn = ++vPL->constraint_counter;
+
+  // clauses_vpb[id] = cxn;
+
+  // vPL->check_last_constraint(clause);
 
   if (!redundant && checked_deletions) {
     vPL->move_to_coreset(cxn);

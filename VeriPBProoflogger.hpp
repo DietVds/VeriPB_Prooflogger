@@ -859,6 +859,96 @@ constraintid VeriPbProofLogger::rup_ternary_clause(const TLit& lit1, const TLit&
     return ++constraint_counter;
 }
 
+// **********************
+
+template <class TSeqLit>
+constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const wght RHS, std::vector<constraintid>& hints)
+{
+    *proof << "u ";
+    write_cardinality_constraint(lits, RHS);
+    *proof << "; ";
+    for(constraintid hint : hints) 
+        *proof << hint << " ";
+    *proof << "\n";
+    return ++constraint_counter;
+}
+
+template <class TSeqLit, class TSeqWght>
+constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, std::vector<constraintid>& hints)
+{
+    *proof << "u ";
+    write_PB_constraint(lits, weights, RHS);
+    *proof << " ; ";
+    for(constraintid hint : hints) 
+        *proof << hint << " ";
+    *proof << "\n";
+    return ++constraint_counter;
+}
+
+template <class TSeqLit>
+constraintid VeriPbProofLogger::rup_clause(const TSeqLit& lits, std::vector<constraintid>& hints){
+    *proof << "u ";
+    write_weighted_literal(lits[0]);
+    for(int i = 1; i < lits.size(); i++){
+        if(lits[i] != lits[i-1])
+            write_weighted_literal(lits[i]);
+    }
+    *proof << " >= 1 ;";
+    for(constraintid hint : hints) 
+        *proof << hint << " ";
+    *proof << "\n";
+    return ++constraint_counter;
+}
+
+template <class TLit>
+constraintid VeriPbProofLogger::rup_unit_clause(const TLit& lit, std::vector<constraintid>& hints, bool core_constraint){
+    *proof << "u ";
+    write_weighted_literal(lit);
+    *proof << " >= 1; ";
+    for(constraintid hint : hints) 
+        *proof << hint << " ";
+    *proof << "\n";
+
+    if(core_constraint)
+        move_to_coreset(-1);
+
+    return ++constraint_counter;
+}
+
+template <class TLit>
+constraintid VeriPbProofLogger::rup_binary_clause(const TLit& lit1, const TLit& lit2, std::vector<constraintid>& hints, bool core_constraint){
+    *proof << "u ";
+    write_weighted_literal(lit1);
+    write_weighted_literal(lit2);
+    *proof << " >= 1; ";
+    for(constraintid hint : hints) 
+        *proof << hint << " ";
+    *proof << "\n";
+
+    if(core_constraint)
+        move_to_coreset(-1);
+
+    return ++constraint_counter;
+}
+
+template <class TLit> 
+constraintid VeriPbProofLogger::rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, std::vector<constraintid>& hints,  bool core_constraint){
+    *proof << "u ";
+    write_weighted_literal(lit1);
+    write_weighted_literal(lit2);
+    write_weighted_literal(lit3);
+    *proof << " >= 1; ";
+    for(constraintid hint : hints) 
+        *proof << hint << " ";
+    *proof << "\n";
+
+    if(core_constraint)
+        move_to_coreset(-1);
+
+    return ++constraint_counter;
+}
+
+
 //  ------------- Dominance Rule -------------
 
 // TODO

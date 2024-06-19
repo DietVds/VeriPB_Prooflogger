@@ -20,6 +20,7 @@ using namespace CaDiCaL;
 class CadicalProofTracer : public Tracer {
 
   VeriPbProofLogger *vPL;
+  std::vector<constraintid> hints;
 
   bool with_antecedents;
   bool checked_deletions;
