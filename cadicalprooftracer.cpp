@@ -39,26 +39,6 @@ void CadicalProofTracer::veripb_add_derived_clause(
 
   clauses_vpb[id] = cxn;
 
-  // *vPL->proof << "p";
-  // bool first = true;
-  // for (auto p = chain.rbegin (); p != chain.rend (); p++) {
-  //   auto cid = *p;
-  //   if(first){
-  //     first = false;
-  //     *vPL->proof << " " << clauses_vpb[cid];
-  //   }
-  //   else{
-  //     *vPL->proof << " " << clauses_vpb[cid] << " + s";
-  //   }
-  // }
-
-  // *vPL->proof << "\n";
-  // constraintid cxn = ++vPL->constraint_counter;
-
-  // clauses_vpb[id] = cxn;
-
-  // vPL->check_last_constraint(clause);
-
   if (!redundant && checked_deletions) {
     vPL->move_to_coreset(cxn);
   }
