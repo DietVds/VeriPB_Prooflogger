@@ -103,6 +103,8 @@ template constraintid VeriPbProofLogger::rup<Minisat::Clause>(const Minisat::Cla
 template constraintid VeriPbProofLogger::rup<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
 template constraintid VeriPbProofLogger::rup<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(const Minisat::vec<Minisat::Lit> &lits, const Minisat::vec<wght> &weights, const wght RHS);
 
+template constraintid VeriPbProofLogger::rup_binary_clause<VeriPB::Lit>(const VeriPB::Lit& lit1, const VeriPB::Lit& lit2, bool core_constraint=false);
+
 template void VeriPbProofLogger::add_boolean_assignment<Minisat::Var>(substitution &s, const Minisat::Var& var, const bool value);
 template void VeriPbProofLogger::add_boolean_assignment<VeriPB::Var>(substitution &s, const VeriPB::Var& var, const bool value);
 
