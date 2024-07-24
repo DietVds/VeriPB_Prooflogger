@@ -32,7 +32,7 @@ public:
     constraintid rewrite_model_improvement_constraint_for_unitsoftclauses();
     constraintid get_rewritten_model_improvement_constraint_for_unitsoftclauses();
     
-    void derive_blocking_literal_value_for_satisfied_soft_clause(constraintid wcnflinenumber, bool value);
+    void derive_blocking_literal_value_by_redundance(constraintid wcnflinenumber, bool value);
 
     // Functions to help with objective reformulation
 

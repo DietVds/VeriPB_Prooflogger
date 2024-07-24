@@ -94,8 +94,9 @@ constraintid MaxSATProoflogger::get_rewritten_model_improvement_constraint_for_u
     return rewritten_objective_for_unitsoftclauses;
 }
 
-void MaxSATProoflogger::derive_blocking_literal_value_for_satisfied_soft_clause(constraintid wcnflinenumber, bool value){
-    *(PL->proof) << "red 1 _b" << std::to_string(wcnflinenumber) << " >= 1; "  << "_b" << std::to_string(wcnflinenumber) << " -> " << (value ? 0 : 1) << "\n";
+void MaxSATProoflogger::derive_blocking_literal_value_by_redundance(constraintid wcnflinenumber, bool value){
+    // VeriPB adds blocking literal 1 ~_b2 to a soft clause. Hence, if value == 1, we prove the clause 1 ~_b2 >= 1, otherwise, we prove the clause 1 _b2 >= 1. 
+    *(PL->proof) << "red 1 " << (value ? "~" : "") << "_b" << std::to_string(wcnflinenumber) << " >= 1; "  << "_b" << std::to_string(wcnflinenumber) << " -> " << (value ? 0 : 1) << "\n";
     PL->increase_constraint_counter();
     PL->move_to_coreset(-1);
 }
