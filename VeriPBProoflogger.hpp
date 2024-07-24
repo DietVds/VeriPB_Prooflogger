@@ -242,6 +242,15 @@ void VeriPbProofLogger::write_objective_update_diff_for_literal(TLit& literal_to
     *proof << ";\n";
 }
 
+template <class TLit> 
+void VeriPbProofLogger::write_objective_update_diff_literal_replacement(TLit& literal_to_remove, TLit& literal_to_add, wght weight){
+    *proof << "obju diff -" << weight << " "; 
+    write_literal(literal_to_remove);
+    *proof << " " << weight << " ";
+    write_literal(literal_to_add);
+    *proof << ";\n";
+}
+
 wght VeriPbProofLogger::get_best_objective_function(){
     return best_objective_value;
 }

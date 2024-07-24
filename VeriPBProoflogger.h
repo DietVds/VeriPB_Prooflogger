@@ -162,6 +162,8 @@ public:
     void write_objective_update_diff(TSeqLit& litsOnewminusold, TSeqSignedWght& wghtsOnewminusold, signedWght constantOnewminusold = 0);
     template <class TLit>
     void write_objective_update_diff_for_literal(TLit& literal_to_remove, wght weight = 1, wght constant_for_lit = 0);
+    template <class TLit> 
+    void write_objective_update_diff_literal_replacement(TLit& literal_to_remove, TLit& literal_to_add, wght weight=1);
     // TODO: 
     // void write_objective_update(subproof& new_geq_old, subproof& new_leq_old);
 
