@@ -226,3 +226,5 @@ template void VeriPbProofLogger::move_to_coreset<std::vector<VeriPB::Lit>>(std::
 template void VeriPbProofLogger::move_to_coreset<Minisat::vec<Minisat::Lit>>(Minisat::vec<Minisat::Lit>& lits, wght RHS, bool overrule_keeporiginalformula);
 template void VeriPbProofLogger::move_to_coreset<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& wghts, wght RHS, bool overrule_keeporiginalformula);
 template void VeriPbProofLogger::move_to_coreset<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(Minisat::vec<Minisat::Lit>& lits, Minisat::vec<wght>& wghts, wght RHS, bool overrule_keeporiginalformula);
+
+template constraintid VeriPbProofLogger::derive_if_implied<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(const constraintid hint, const Minisat::vec<Minisat::Lit> &lits, const Minisat::vec<wght> &weights, const wght RHS);
