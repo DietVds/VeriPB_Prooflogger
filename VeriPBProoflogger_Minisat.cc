@@ -14,6 +14,8 @@ template bool VeriPbProofLogger::remove_objective_literal<VeriPB::Lit>(VeriPB::L
 template void VeriPbProofLogger::write_objective_update_diff<std::vector<VeriPB::Lit>, std::vector<signedWght>>(std::vector<VeriPB::Lit>& litsOnewminusold, std::vector<signedWght>& wghtsOnewminusold, signedWght constantOnewminusold = 0);
 template void VeriPbProofLogger::write_objective_update_diff_for_literal<VeriPB::Lit>(VeriPB::Lit& literal_to_remove, wght weight, wght constant_for_lit);
 template void VeriPbProofLogger::write_objective_update_diff_literal_replacement<VeriPB::Lit>(VeriPB::Lit& literal_to_remove, VeriPB::Lit& literal_to_add, wght weight);
+template void VeriPbProofLogger::write_objective_update_diff_for_literal<Minisat::Lit>(Minisat::Lit& literal_to_remove, wght weight, wght constant_for_lit);
+
 
 template bool VeriPbProofLogger::is_aux_var<VeriPB::Var>(const VeriPB::Var &var);
 template bool VeriPbProofLogger::is_aux_var<Minisat::Var>(const Minisat::Var &var);
