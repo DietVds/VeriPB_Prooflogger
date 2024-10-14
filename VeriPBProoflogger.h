@@ -88,7 +88,7 @@ private:
     std::vector<std::string> nameOnlyProofVars;
     // std::unordered_map<VeriPB::VarIdx, std::string> meaningful_names_store;
     
-    uint32_t n_vars_only_known_in_proof;
+    uint32_t n_vars_only_known_in_proof=0;
     
 
     // Variables to be rewritten by literals.

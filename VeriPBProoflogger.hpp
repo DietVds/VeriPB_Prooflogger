@@ -1258,8 +1258,8 @@ constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, con
         _weights[i-start_constraint] = weights[i];
         _lits[i-start_constraint] = toVeriPbLit(lits[i]);
     }
-    _lits[i] = _neglit;
-    _weights[i] = RHS;
+    _lits[i-start_constraint] = _neglit;
+    _weights[i-start_constraint] = RHS;
 
     substitution witness = get_new_substitution();
     add_boolean_assignment(witness, variable(_neglit), !is_negated(_neglit));
@@ -1299,8 +1299,8 @@ constraintid VeriPbProofLogger::reificationLiteralRightImplLeq(const TLit& lit, 
 
     uint64_t _RHS = sumofweights - RHS;
 
-    _lits[i] = _neglit;
-    _weights[i] = _RHS;
+    _lits[i-start_constraint] = _neglit;
+    _weights[i-start_constraint] = _RHS;
 
     substitution witness = get_new_substitution();
     add_boolean_assignment(witness, variable(_neglit), !is_negated(_neglit));
@@ -1387,8 +1387,8 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, cons
     else
         j = 0;
 
-    _lits[i] = _lit;
-    _weights[i] = j;
+    _lits[i-start_constraint] = _lit;
+    _weights[i-start_constraint] = j;
 
     substitution witness = get_new_substitution();
     add_boolean_assignment(witness, variable(_lit), !is_negated(_lit));
@@ -1422,9 +1422,9 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImplLeq(const TLit& lit, c
         _lits[i-start_constraint] = toVeriPbLit(litsC[i]);
     }
     
-    _lits[i] = _lit;
+    _lits[i-start_constraint] = _lit;
     wght _RHS = RHS + 1;
-    _weights[i] = _RHS;
+    _weights[i-start_constraint] = _RHS;
 
     substitution witness = get_new_substitution();
     add_boolean_assignment(witness, variable(_lit), !is_negated(_lit));
