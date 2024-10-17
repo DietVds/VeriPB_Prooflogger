@@ -215,6 +215,11 @@ public:
     void equals_rule(const constraintid constraint_id, const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  );
 
     template <class TSeqLit>
+    void equals_rule_LEQ(const constraintid constraint_id, const TSeqLit &lits, const wght RHS = 1);
+    template <class TSeqLit, class TSeqWght>
+    void equals_rule_LEQ(const constraintid constraint_id, const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
+
+    template <class TSeqLit>
     void check_last_constraint(const TSeqLit &lits, const wght RHS = 1);
     template <class TSeqLit, class TSeqWght>
     void check_last_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);

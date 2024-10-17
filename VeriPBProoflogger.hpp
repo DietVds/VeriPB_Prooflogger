@@ -551,6 +551,26 @@ void VeriPbProofLogger::equals_rule(const constraintid constraint_id, const TSeq
     write_PB_constraint(lits_greater, weights_greater, const_greater, lits_smaller, weights_smaller, const_smaller);    
    *proof << "; " << constraint_id << "\n";
 }
+template <class TSeqLit>
+void VeriPbProofLogger::equals_rule_LEQ(const constraintid constraint_id, const TSeqLit &lits, const wght RHS){
+    *proof << "e ";
+    for(int i = 0; i < lits.size(); i++){
+        write_weighted_literal(neg(lits[i]), 1);
+    }
+    *proof << " >= " << (lits.size() - RHS) <<  "; " << constraint_id << "\n";
+}
+
+template <class TSeqLit, class TSeqWght>
+void VeriPbProofLogger::equals_rule_LEQ(const constraintid constraint_id, const TSeqLit &lits, const TSeqWght &weights, const wght RHS){
+    assert(lits.size() == weights.size());
+    wght max = 0;
+    *proof << "e ";
+    for(int i = 0; i < lits.size(); i++){
+        max += weights[i];
+        write_weighted_literal(neg(lits[i]), 1);
+    }
+    *proof << " >= " << (max - RHS) <<  "; " << constraint_id << "\n";
+}
 
 template <class TSeqLit>
 void VeriPbProofLogger::check_last_constraint(const TSeqLit &lits, const wght RHS)

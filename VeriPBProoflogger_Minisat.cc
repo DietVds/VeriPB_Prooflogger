@@ -63,6 +63,13 @@ template void VeriPbProofLogger::equals_rule<Minisat::vec<Minisat::Lit>, Minisat
 template void VeriPbProofLogger::equals_rule<std::vector<VeriPB::Lit>, std::vector<wght>>(const constraintid constraint_id, const std::vector<VeriPB::Lit>& lits_greater, const std::vector<wght>& weights_greater, const wght const_greater, const std::vector<VeriPB::Lit>& lits_smaller, const std::vector<wght>& weights_smaller, const wght const_smaller  );
 template void VeriPbProofLogger::equals_rule<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(const constraintid constraint_id, const Minisat::vec<Minisat::Lit>& lits_greater, const Minisat::vec<wght>& weights_greater, const wght const_greater, const Minisat::vec<Minisat::Lit>& lits_smaller, const Minisat::vec<wght>& weights_smaller, const wght const_smaller  );
 
+template void VeriPbProofLogger::equals_rule_LEQ<std::vector<VeriPB::Lit>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const wght RHS);
+template void VeriPbProofLogger::equals_rule_LEQ<Minisat::vec<Minisat::Lit>>(const constraintid constraint_id, const Minisat::vec<Minisat::Lit> &lits, const wght RHS);
+
+template void VeriPbProofLogger::equals_rule_LEQ<std::vector<VeriPB::Lit>, std::vector<wght>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
+template void VeriPbProofLogger::equals_rule_LEQ<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(const constraintid constraint_id, const Minisat::vec<Minisat::Lit> &lits, const Minisat::vec<wght> &weights, const wght RHS);
+
+
 
 template void VeriPbProofLogger::check_last_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &lits, const wght RHS);
 template void VeriPbProofLogger::check_last_constraint<Minisat::vec<Minisat::Lit>>(const Minisat::vec<Minisat::Lit> &lits, const wght RHS);
