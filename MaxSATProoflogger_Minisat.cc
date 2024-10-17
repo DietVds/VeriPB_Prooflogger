@@ -15,7 +15,7 @@ template constraintid MaxSATProoflogger::add_core_lower_bound<Minisat::Var>(cons
 template constraintid MaxSATProoflogger::update_core_lower_bound<VeriPB::Var>(const VeriPB::Var &old_lazy_var, const VeriPB::Var &new_lazy_var, constraintid pb_definition_id, wght bound);
 template constraintid MaxSATProoflogger::update_core_lower_bound<Minisat::Var>(const Minisat::Var &old_lazy_var, const Minisat::Var &new_lazy_var, constraintid pb_definition_id, wght bound);
 
-template constraintid MaxSATProoflogger::derive_at_most_one_constraint<Minisat::vec<Minisat::Lit>>(const Minisat::vec<Minisat::Lit> &am1_lits);
+template constraintid MaxSATProoflogger::derive_at_most_one_constraint<Minisat::vec<Minisat::Lit>>(const Minisat::vec<Minisat::Lit> &am1_lits, const bool am1_sign);
 
 
 // template constraintid MaxSATProoflogger::derive_at_most_one_constraint<std::vector<VeriPB::Lit>>(const std::vector<VeriPB::Lit> &am1_lits);

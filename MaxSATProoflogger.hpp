@@ -192,8 +192,9 @@ constraintid MaxSATProoflogger::reformulate_with_unprocessed_cores(constraintid 
 // At-most-one constraints
 
 template <class TSeqLit>
-constraintid MaxSATProoflogger::derive_at_most_one_constraint(const TSeqLit &am1_lits)
+constraintid MaxSATProoflogger::derive_at_most_one_constraint(const TSeqLit &am1_lits, const bool am1_sign)
 {
+    assert(am1_lits.size() > 1);
     std::vector<constraintid> binary_clauses;
 
     for (int new_lit_idx = 1; new_lit_idx < am1_lits.size(); new_lit_idx++)
@@ -202,9 +203,15 @@ constraintid MaxSATProoflogger::derive_at_most_one_constraint(const TSeqLit &am1
         {
             PL->intCP_multiply(new_lit_idx - 1);
         }
+
         for (int lit_idx = 0; lit_idx < new_lit_idx; lit_idx++)
         {
-            constraintid binary_clause_id = PL->rup(std::vector<VeriPB::Lit>{toVeriPbLit(am1_lits[new_lit_idx]), toVeriPbLit(am1_lits[lit_idx])});
+            constraintid binary_clause_id; 
+            if(am1_sign)
+                binary_clause_id = PL->rup(std::vector<VeriPB::Lit>{neg(toVeriPbLit(am1_lits[new_lit_idx])), neg(toVeriPbLit(am1_lits[lit_idx]))});
+            else
+                binary_clause_id = PL->rup(std::vector<VeriPB::Lit>{toVeriPbLit(am1_lits[new_lit_idx]), toVeriPbLit(am1_lits[lit_idx])});
+            
             binary_clauses.push_back(binary_clause_id);
 
             // the first binary constraint to start the derivation
@@ -219,7 +226,6 @@ constraintid MaxSATProoflogger::derive_at_most_one_constraint(const TSeqLit &am1
         }
         PL->intCP_divide(new_lit_idx);
     }
-
     constraintid am1_constraint_id = PL->end_intCP_derivation();
     PL->delete_constraint_by_id(binary_clauses);
     return am1_constraint_id;

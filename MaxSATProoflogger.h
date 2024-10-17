@@ -96,9 +96,10 @@ public:
     /// @brief Derive the at-most-one constraint as a pseudo-Boolean constraint, which is that the sum of the literals is at least the number of literals - 1.
     /// @tparam TLit Type of the boolean literal.
     /// @param am1_lits Literals of the at-most-one constraint.
+    /// @param am1_sign There can be at most one literal in am1_lits have the sign of am1_sign. Default false for intrinsic at most one constraints in MaxSAT.
     /// @return Constraint ID of the at-most-one constraint.
     template <class TSeqLit>
-    constraintid derive_at_most_one_constraint(const TSeqLit &am1_lits);
+    constraintid derive_at_most_one_constraint(const TSeqLit &am1_lits, const bool am1_sign=false);
     /// @brief Introduce a new variable that represents all variables in the at-most-one constraint being true.
     /// @tparam TLit Type of the boolean literal.
     /// @param am1_lits Literals of the at-most-one constraint.
