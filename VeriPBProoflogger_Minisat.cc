@@ -115,6 +115,8 @@ template constraintid VeriPbProofLogger::rup<Minisat::vec<Minisat::Lit>, Minisat
 
 template constraintid VeriPbProofLogger::rup_binary_clause<VeriPB::Lit>(const VeriPB::Lit& lit1, const VeriPB::Lit& lit2, bool core_constraint=false);
 
+template constraintid VeriPbProofLogger::rup_unit_clause<VeriPB::Lit>(const VeriPB::Lit& lit, bool core_constraint=true);
+
 template void VeriPbProofLogger::add_boolean_assignment<Minisat::Var>(substitution &s, const Minisat::Var& var, const bool value);
 template void VeriPbProofLogger::add_boolean_assignment<VeriPB::Var>(substitution &s, const VeriPB::Var& var, const bool value);
 
