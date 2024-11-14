@@ -202,6 +202,9 @@ template void VeriPbProofLogger::intCP_write_literal_axiom<Minisat::Lit>(const M
 template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
 template constraintid VeriPbProofLogger::prove_by_contradiction<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(Minisat::vec<Minisat::Lit>& lits, Minisat::vec<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
 
+template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<VeriPB::Lit>>(std::vector<VeriPB::Lit>& lits, wght RHS, std::vector<cuttingplanes_derivation> cpder);
+template constraintid VeriPbProofLogger::prove_by_contradiction<Minisat::vec<Minisat::Lit>>(Minisat::vec<Minisat::Lit>& lits, wght RHS, std::vector<cuttingplanes_derivation> cpder);
+
 template constraintid VeriPbProofLogger::prove_by_casesplitting<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights, wght RHS, constraintid case1, constraintid case2);
 template constraintid VeriPbProofLogger::prove_by_casesplitting<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(Minisat::vec<Minisat::Lit>& lits, Minisat::vec<wght>& weights, wght RHS, constraintid case1, constraintid case2);
 

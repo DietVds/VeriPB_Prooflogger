@@ -484,6 +484,8 @@ public:
     */
     template <class TSeqLit, class TSeqWght>
     constraintid prove_by_contradiction(TSeqLit& lits, TSeqWght& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
+    template <class TSeqLit>
+    constraintid prove_by_contradiction(TSeqLit& lits, wght RHS, std::vector<cuttingplanes_derivation> cpder);
     
     /**
      * If it is possible to derive the following two constraints:

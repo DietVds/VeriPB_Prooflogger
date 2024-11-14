@@ -1867,6 +1867,15 @@ constraintid VeriPbProofLogger::prove_by_contradiction(TSeqLit& lits, TSeqWght& 
     return redundanceBasedStrengthening(lits, weights, RHS, witness, subproofs );
 }
 
+template <class TSeqLit>
+constraintid VeriPbProofLogger::prove_by_contradiction(TSeqLit& lits, wght RHS, std::vector<cuttingplanes_derivation> cpder){
+    std::vector<subproof> subproofs;
+    subproofs.push_back({"#1", cpder});
+    substitution witness = get_new_substitution();
+    return redundanceBasedStrengthening(lits, RHS, witness, subproofs );
+}
+    
+
 template <class TSeqLit, class TSeqWght>
 constraintid VeriPbProofLogger::prove_by_casesplitting(TSeqLit& lits, TSeqWght& weights, wght RHS, constraintid case1, constraintid case2){
     std::vector<cuttingplanes_derivation> p;
