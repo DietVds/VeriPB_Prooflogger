@@ -242,3 +242,6 @@ template void VeriPbProofLogger::move_to_coreset<Minisat::vec<Minisat::Lit>, Min
 
 template constraintid VeriPbProofLogger::derive_if_implied<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(const constraintid hint, const Minisat::vec<Minisat::Lit> &lits, const Minisat::vec<wght> &weights, const wght RHS);
 template constraintid VeriPbProofLogger::derive_if_implied<std::vector<VeriPB::Lit>, std::vector<wght>>(const constraintid hint, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
+
+template void VeriPbProofLogger::write_objective_update_diff_literal_replacement<Minisat::Lit>(Minisat::Lit& literal_to_remove, Minisat::Lit& literal_to_add, wght weight);
+    
