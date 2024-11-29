@@ -158,12 +158,12 @@ public:
     void check_model_improving_constraint(constraintid cxn=0);
     wght get_best_objective_function();
     void write_objective_update();
-    template <class TSeqLit, class TSeqSignedWght>
+    template <class TSeqLit, class TSeqSignedWght> // TODO: Add possibility to update the model improving constraint.
     void write_objective_update_diff(TSeqLit& litsOnewminusold, TSeqSignedWght& wghtsOnewminusold, signedWght constantOnewminusold = 0);
     template <class TLit>
-    void write_objective_update_diff_for_literal(TLit& literal_to_remove, wght weight = 1, wght constant_for_lit = 0);
+    void write_objective_update_diff_for_literal(TLit& literal_to_remove, wght weight = 1, wght constant_for_lit = 0, bool update_model_improving_constraint=false);
     template <class TLit> 
-    void write_objective_update_diff_literal_replacement(TLit& literal_to_remove, TLit& literal_to_add, wght weight=1);
+    void write_objective_update_diff_literal_replacement(TLit& literal_to_remove, TLit& literal_to_add, wght weight=1, bool update_model_improving_constraint=false);
     // TODO: 
     // void write_objective_update(subproof& new_geq_old, subproof& new_leq_old);
 
@@ -450,28 +450,27 @@ public:
     void clear_intCP_derivation();
     cuttingplanes_derivation get_CPder_from_intCP();
 
-    void start_intCP_derivation(std::stringstream* cp, const constraintid constraint_id);
+    void start_intCP_derivation(std::ostream* cp, const constraintid constraint_id);
     template <class TLit>
-    void start_intCP_derivation_with_lit_axiom(std::stringstream* cp, const TLit &lit);
-    void intCP_load_constraint(std::stringstream* cp, const constraintid constraint_id);
-    void intCP_add(std::stringstream* cp);
-    void intCP_add_constraint(std::stringstream* cp, const constraintid constraint_id);
-    void intCP_add_constraint(std::stringstream* cp, const constraintid constraint_id, wght mult);
+    void start_intCP_derivation_with_lit_axiom(std::ostream* cp, const TLit &lit);
+    void intCP_load_constraint(std::ostream* cp, const constraintid constraint_id);
+    void intCP_add(std::ostream* cp);
+    void intCP_add_constraint(std::ostream* cp, const constraintid constraint_id);
+    void intCP_add_constraint(std::ostream* cp, const constraintid constraint_id, wght mult);
     template <class TLit>
-    void intCP_add_literal_axiom(std::stringstream* cp, const TLit &lit);
+    void intCP_add_literal_axiom(std::ostream* cp, const TLit &lit);
     template <class TLit>
-    void intCP_add_literal_axiom(std::stringstream* cp, const TLit &lit, wght mult);
-    void intCP_divide(std::stringstream* cp, const wght v);
-    void intCP_saturate(std::stringstream* cp);
-    void intCP_multiply(std::stringstream* cp, const wght v);
+    void intCP_add_literal_axiom(std::ostream* cp, const TLit &lit, wght mult);
+    void intCP_divide(std::ostream* cp, const wght v);
+    void intCP_saturate(std::ostream* cp);
+    void intCP_multiply(std::ostream* cp, const wght v);
     template <class TVar>
-    void intCP_weaken(std::stringstream* cp, const TVar &var);
+    void intCP_weaken(std::ostream* cp, const TVar &var);
     template <class TLit>
-    void intCP_write_literal_axiom(std::stringstream* cp, const TLit &lit);
-    void intCP_apply(std::stringstream* cp, const cuttingplanes_derivation& cpder);
-    constraintid end_intCP_derivation(std::stringstream* cp);
-    void clear_intCP_derivation(std::stringstream* cp);
-    cuttingplanes_derivation get_CPder_from_intCP(std::stringstream* cp);
+    void intCP_write_literal_axiom(std::ostream* cp, const TLit &lit);
+    void intCP_apply(std::ostream* cp, const cuttingplanes_derivation& cpder);
+    constraintid end_intCP_derivation(std::ostream* cp);
+    void clear_intCP_derivation(std::ostream* cp);
 
     // ------------- Extra Proof Techniques -------------
     /**

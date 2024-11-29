@@ -12,10 +12,10 @@ template bool VeriPbProofLogger::remove_objective_literal<Minisat::Lit>(Minisat:
 template bool VeriPbProofLogger::remove_objective_literal<VeriPB::Lit>(VeriPB::Lit& lit);
 
 template void VeriPbProofLogger::write_objective_update_diff<std::vector<VeriPB::Lit>, std::vector<signedWght>>(std::vector<VeriPB::Lit>& litsOnewminusold, std::vector<signedWght>& wghtsOnewminusold, signedWght constantOnewminusold = 0);
-template void VeriPbProofLogger::write_objective_update_diff_for_literal<VeriPB::Lit>(VeriPB::Lit& literal_to_remove, wght weight, wght constant_for_lit);
-template void VeriPbProofLogger::write_objective_update_diff_literal_replacement<VeriPB::Lit>(VeriPB::Lit& literal_to_remove, VeriPB::Lit& literal_to_add, wght weight);
-template void VeriPbProofLogger::write_objective_update_diff_for_literal<Minisat::Lit>(Minisat::Lit& literal_to_remove, wght weight, wght constant_for_lit);
-
+template void VeriPbProofLogger::write_objective_update_diff_for_literal<VeriPB::Lit>(VeriPB::Lit&, wght, wght, bool);
+template void VeriPbProofLogger::write_objective_update_diff_literal_replacement<VeriPB::Lit>(VeriPB::Lit&, VeriPB::Lit&, wght, bool);
+template void VeriPbProofLogger::write_objective_update_diff_for_literal<Minisat::Lit>(Minisat::Lit&, wght, wght, bool);
+template void VeriPbProofLogger::write_objective_update_diff_literal_replacement<Minisat::Lit>(Minisat::Lit&, Minisat::Lit&, wght, bool);
 
 template bool VeriPbProofLogger::is_aux_var<VeriPB::Var>(const VeriPB::Var &var);
 template bool VeriPbProofLogger::is_aux_var<Minisat::Var>(const Minisat::Var &var);
@@ -245,5 +245,3 @@ template void VeriPbProofLogger::move_to_coreset<Minisat::vec<Minisat::Lit>, Min
 
 template constraintid VeriPbProofLogger::derive_if_implied<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(const constraintid hint, const Minisat::vec<Minisat::Lit> &lits, const Minisat::vec<wght> &weights, const wght RHS);
 template constraintid VeriPbProofLogger::derive_if_implied<std::vector<VeriPB::Lit>, std::vector<wght>>(const constraintid hint, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
-
-template void VeriPbProofLogger::write_objective_update_diff_literal_replacement<Minisat::Lit>(Minisat::Lit& literal_to_remove, Minisat::Lit& literal_to_add, wght weight);

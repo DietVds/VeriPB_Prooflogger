@@ -234,22 +234,58 @@ void VeriPbProofLogger::write_objective_update_diff(TSeqLit& litsOnewminusold, T
 }
 
 template <class TLit>
-void VeriPbProofLogger::write_objective_update_diff_for_literal(TLit& literal_to_remove, wght weight, wght constant_for_lit){
+void VeriPbProofLogger::write_objective_update_diff_for_literal(TLit& literal_to_remove, wght weight, wght constant_for_lit, bool write_update_model_improving_constraint){
+    write_comment("write_objective_update_diff_for_literal. Weight = " + std::to_string(weight));
     *proof << "obju diff -" << weight << " ";
     write_literal(literal_to_remove);
     if(constant_for_lit > 0) 
         *proof << " " << constant_for_lit;
     *proof << ";\n";
+
+    if(write_update_model_improving_constraint && get_model_improving_constraint() != 0){
+        write_comment("Update model-improving constraint:");
+        if(constant_for_lit > 0)
+            rup_unit_clause(literal_to_remove, false);
+            
+        start_intCP_derivation(proof, get_model_improving_constraint());
+        if(constant_for_lit > 0){
+            if(weight == 1)
+                intCP_add_constraint(proof, -1);
+            else 
+                intCP_add_constraint(proof, -1, weight);
+        }
+        else{
+            if(weight == 1)
+                intCP_add_literal_axiom(proof, literal_to_remove);
+            else
+                intCP_add_literal_axiom(proof, literal_to_remove, weight);
+        }
+        constraintid cxn = end_intCP_derivation(proof);
+        update_model_improving_constraint(cxn);
+    }
 }
 
 template <class TLit> 
-void VeriPbProofLogger::write_objective_update_diff_literal_replacement(TLit& literal_to_remove, TLit& literal_to_add, wght weight){
+void VeriPbProofLogger::write_objective_update_diff_literal_replacement(TLit& literal_to_remove, TLit& literal_to_add, wght weight, bool write_update_model_improving_constraint){
     *proof << "obju diff -" << weight << " "; 
     write_literal(literal_to_remove);
     *proof << " " << weight << " ";
     write_literal(literal_to_add);
     *proof << ";\n";
+
+    if(write_update_model_improving_constraint && get_model_improving_constraint() != 0){
+        write_comment("Update model-improving constraint:");
+        constraintid cxn_newlit_leq_oldlit = rup_binary_clause(neg(literal_to_add), literal_to_remove);
+        start_intCP_derivation(proof, get_model_improving_constraint());
+        if(weight == 1)
+            intCP_add_constraint(proof, cxn_newlit_leq_oldlit);
+        else
+            intCP_add_constraint(proof, cxn_newlit_leq_oldlit, weight);
+        constraintid cxn = end_intCP_derivation(proof);
+        update_model_improving_constraint(cxn);
+    }
 }
+
 
 wght VeriPbProofLogger::get_best_objective_function(){
     return best_objective_value;
@@ -1771,91 +1807,94 @@ cuttingplanes_derivation VeriPbProofLogger::get_CPder_from_intCP(){
 
 // ---------------------------------
 
-void VeriPbProofLogger::start_intCP_derivation(std::stringstream* cp, const constraintid constraint_id)
+void VeriPbProofLogger::start_intCP_derivation(std::ostream* cp, const constraintid constraint_id)
 {
     cp->clear();
     *cp << "p " << constraint_id;
 }
 
 template <class TLit>
-void VeriPbProofLogger::start_intCP_derivation_with_lit_axiom(std::stringstream* cp, const TLit &lit)
+void VeriPbProofLogger::start_intCP_derivation_with_lit_axiom(std::ostream* cp, const TLit &lit)
 {
     *cp << "p ";
     *cp << to_string(lit);
 }
 
-void VeriPbProofLogger::intCP_load_constraint(std::stringstream* cp, const constraintid constraint_id)
+void VeriPbProofLogger::intCP_load_constraint(std::ostream* cp, const constraintid constraint_id)
 {
     *cp << " " << constraint_id;
 }
 
-void VeriPbProofLogger::intCP_add(std::stringstream* cp)
+void VeriPbProofLogger::intCP_add(std::ostream* cp)
 {
     *cp << " +";
 }
 
-void VeriPbProofLogger::intCP_add_constraint(std::stringstream* cp, const constraintid constraint_id)
+void VeriPbProofLogger::intCP_add_constraint(std::ostream* cp, const constraintid constraint_id)
 {
     *cp << " " << constraint_id << " +";
 }
 
-void VeriPbProofLogger::intCP_add_constraint(std::stringstream* cp, const constraintid constraint_id, wght mult){
+void VeriPbProofLogger::intCP_add_constraint(std::ostream* cp, const constraintid constraint_id, wght mult){
     *cp << " " << constraint_id << " " << mult << " * +";
 }
 
 template <class TLit>
-void VeriPbProofLogger::intCP_add_literal_axiom(std::stringstream* cp, const TLit &lit){
+void VeriPbProofLogger::intCP_add_literal_axiom(std::ostream* cp, const TLit &lit){
     *cp << " "; write_literal(cp, lit); *cp << " +";
 }
 
 template <class TLit>
-void VeriPbProofLogger::intCP_add_literal_axiom(std::stringstream* cp, const TLit &lit, wght mult){
+void VeriPbProofLogger::intCP_add_literal_axiom(std::ostream* cp, const TLit &lit, wght mult){
     *cp << " "; 
     write_literal(cp, lit); 
     *cp << " " << mult <<  " * +";
 }
 
-void VeriPbProofLogger::intCP_divide(std::stringstream* cp, const wght v)
+void VeriPbProofLogger::intCP_divide(std::ostream* cp, const wght v)
 {
     *cp << " " << v << " d";
 }
-void VeriPbProofLogger::intCP_saturate(std::stringstream* cp)
+void VeriPbProofLogger::intCP_saturate(std::ostream* cp)
 {
     *cp << " s";
 }
-void VeriPbProofLogger::intCP_multiply(std::stringstream* cp, const wght v)
+void VeriPbProofLogger::intCP_multiply(std::ostream* cp, const wght v)
 {
     *cp << " " << v << " *";
 }
 
 template <class TVar>
-void VeriPbProofLogger::intCP_weaken(std::stringstream* cp, const TVar &var)
+void VeriPbProofLogger::intCP_weaken(std::ostream* cp, const TVar &var)
 {
     *cp << " " << var_name(var) << " w";
 }
 
 template <class TLit>
-void VeriPbProofLogger::intCP_write_literal_axiom(std::stringstream* cp, const TLit &lit){
+void VeriPbProofLogger::intCP_write_literal_axiom(std::ostream* cp, const TLit &lit){
     *cp << " " << to_string(lit);
 }
 
-void VeriPbProofLogger::intCP_apply(std::stringstream* cp, const cuttingplanes_derivation& cpder){
+void VeriPbProofLogger::intCP_apply(std::ostream* cp, const cuttingplanes_derivation& cpder){
     *cp << " " << cpder;
 }
     
 
-constraintid VeriPbProofLogger::end_intCP_derivation(std::stringstream* cp)
+constraintid VeriPbProofLogger::end_intCP_derivation(std::ostream* cp)
 {
-    *proof << cp->rdbuf() << "\n";
+    if(cp == proof)
+        *proof << "\n";
+    else
+        *proof << cp->rdbuf() << "\n";
     return ++constraint_counter;
 }
 
-void VeriPbProofLogger::clear_intCP_derivation(std::stringstream* cp){
+
+
+void VeriPbProofLogger::clear_intCP_derivation(std::ostream* cp){
     cp->clear();
 }
-cuttingplanes_derivation VeriPbProofLogger::get_CPder_from_intCP(std::stringstream* cp){
-    return cp->str();
-}
+
 
 // ------------- Extra Proof Techniques -------------
 
