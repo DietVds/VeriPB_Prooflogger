@@ -130,9 +130,9 @@ template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Minisat::v
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, const substitution &witness);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(const Minisat::vec<Minisat::Lit> &lits, const Minisat::vec<wght> &weights, const wght RHS, const substitution &witness);
 
-template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(const Minisat::vec<Minisat::Lit> &lits, const Minisat::vec<wght> &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
+template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(const Minisat::vec<Minisat::Lit> &lits, const Minisat::vec<wght> &weights, const wght RHS, const substitution &witness, std::vector<subproof>& subproofs);
 // template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(const Minisat::vec<Minisat::Lit> &lits, const Minisat::vec<wght> &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
-template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
+template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, const substitution &witness, std::vector<subproof>& subproofs);
 
 template constraintid VeriPbProofLogger::redundanceBasedStrengtheningUnitClause<VeriPB::Lit>(const VeriPB::Lit& lit);
 
@@ -202,11 +202,11 @@ template void VeriPbProofLogger::intCP_add_literal_axiom<Minisat::Lit>(const Min
 template void VeriPbProofLogger::intCP_write_literal_axiom<VeriPB::Lit>(const VeriPB::Lit &lit);
 template void VeriPbProofLogger::intCP_write_literal_axiom<Minisat::Lit>(const Minisat::Lit &lit);
 
-template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
-template constraintid VeriPbProofLogger::prove_by_contradiction<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(Minisat::vec<Minisat::Lit>& lits, Minisat::vec<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
+template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation>& cpder);
+template constraintid VeriPbProofLogger::prove_by_contradiction<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(Minisat::vec<Minisat::Lit>& lits, Minisat::vec<wght>& weights, wght RHS, std::vector<cuttingplanes_derivation>& cpder);
 
-template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<VeriPB::Lit>>(std::vector<VeriPB::Lit>& lits, wght RHS, std::vector<cuttingplanes_derivation> cpder);
-template constraintid VeriPbProofLogger::prove_by_contradiction<Minisat::vec<Minisat::Lit>>(Minisat::vec<Minisat::Lit>& lits, wght RHS, std::vector<cuttingplanes_derivation> cpder);
+template constraintid VeriPbProofLogger::prove_by_contradiction<std::vector<VeriPB::Lit>>(std::vector<VeriPB::Lit>& lits, wght RHS, std::vector<cuttingplanes_derivation>& cpder);
+template constraintid VeriPbProofLogger::prove_by_contradiction<Minisat::vec<Minisat::Lit>>(Minisat::vec<Minisat::Lit>& lits, wght RHS, std::vector<cuttingplanes_derivation>& cpder);
 
 template constraintid VeriPbProofLogger::prove_by_casesplitting<std::vector<VeriPB::Lit>, std::vector<wght>>(std::vector<VeriPB::Lit>& lits, std::vector<wght>& weights, wght RHS, constraintid case1, constraintid case2);
 template constraintid VeriPbProofLogger::prove_by_casesplitting<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(Minisat::vec<Minisat::Lit>& lits, Minisat::vec<wght>& weights, wght RHS, constraintid case1, constraintid case2);

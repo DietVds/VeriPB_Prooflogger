@@ -10,6 +10,7 @@
 #include <set>
 #include <cassert>
 #include <variant>
+#include <charconv>
 
 #include<iostream>
 
@@ -67,6 +68,9 @@ class VeriPbProofLogger
 private:
     bool keep_original_formula = false; // If true, the proof logging library will never delete any constraint that is an original constraint and will never move a constraint to the core set. 
 
+    // Buffer for the proof.
+    char write_buffer_size = 32 * 1024 * 1024;
+    char* write_buffer = new char[write_buffer_size]; 
 
     // Formula information
     // Only used for the variable naming scheme.
@@ -84,7 +88,9 @@ private:
     constraintid model_improvement_constraint = 0; // Last model improvement constraint
 
     // Meaningful variable names
-    std::vector<std::string> nameSolverVars;
+    std::vector<bool> solverVarsSpecialNameFlag;
+    std::vector<bool> onlyproofVarsSpecialNameFlag;
+    std::vector<std::string> nameSolverVars; // TODO: ask Marcus if this should be a map or a vector still.
     std::vector<std::string> nameOnlyProofVars;
     // std::unordered_map<VeriPB::VarIdx, std::string> meaningful_names_store;
     
@@ -101,6 +107,7 @@ private:
     void write_literal_after_possible_rewrite(std::ostream* out, VeriPB::Var& variable, VeriPB::Lit& literal);
     // Returns true if the literal to which the variable should be rewritten is negated and writes the variable of the literal to which the original variable should be rewritten to the proof.
     bool write_variable_after_possible_rewrite(std::ostream* out, VeriPB::Var& variable, bool negated=false);
+    void write_varIdx(const VeriPB::VarIdx& varidx);
     std::string to_string_rewrite_var_by_literal(VeriPB::Var& variable, VeriPB::Lit& literal); 
 
     // Constraint counter
@@ -188,6 +195,7 @@ public:
     void write_literal(const TLit &lit);
     template <class TLit>
     void write_literal(std::ostream* out, const TLit &lit);
+    void write_weight(const wght weight);
     template <class TSeqLit, class TSeqWght>
     void write_PB_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
     template <class TSeqLit, class TSeqWght>
@@ -199,6 +207,7 @@ public:
 
 
     // ------------- Meaningful names -------------
+    bool has_meaningful_name(const VeriPB::Var& var);
     template <class TVar>
     void store_meaningful_name(const TVar &var, const std::string &name);
 
@@ -333,9 +342,9 @@ public:
     // In contrast to all other overloads, this overload of redundanceBasedStrenghtening suspects that at least one proof goal is not trivial (and that it should be proven by either RUP or by an explicit cutting planes proof). 
     // This is important for counting the number of constraints, since constraints are created while proving non-trivial proofgoals.
     template <class TSeqLit, class TSeqWght>
-    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
+    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution &witness, std::vector<subproof>& subproofs);
     template <class TSeqLit>
-    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
+    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const wght RHS, const substitution &witness, std::vector<subproof>& subproofs);
 
     template <class TLit>
     constraintid redundanceBasedStrengtheningUnitClause(const TLit& lit);
@@ -482,9 +491,9 @@ public:
      * 
     */
     template <class TSeqLit, class TSeqWght>
-    constraintid prove_by_contradiction(TSeqLit& lits, TSeqWght& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder);
+    constraintid prove_by_contradiction(TSeqLit& lits, TSeqWght& weights, wght RHS, std::vector<cuttingplanes_derivation>& cpder);
     template <class TSeqLit>
-    constraintid prove_by_contradiction(TSeqLit& lits, wght RHS, std::vector<cuttingplanes_derivation> cpder);
+    constraintid prove_by_contradiction(TSeqLit& lits, wght RHS, std::vector<cuttingplanes_derivation>& cpder);
     
     /**
      * If it is possible to derive the following two constraints:

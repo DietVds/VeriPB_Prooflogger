@@ -10,6 +10,7 @@
 
 void VeriPbProofLogger::set_proof_stream(std::ostream* proof){
     this->proof = proof;
+    proof->rdbuf()->pubsetbuf(write_buffer, write_buffer_size); 
 }
 
 void VeriPbProofLogger::set_keep_original_formula(){
@@ -331,17 +332,21 @@ std::string VeriPbProofLogger::var_name(const TVar &var)
 {
     VeriPB::Var v = toVeriPbVar(var);
 
-    // Note: name for variables only known in proof is always stored at creation time.
-    if(!v.only_known_in_proof && (v.v >= nameSolverVars.size() || nameSolverVars[v.v] == "")){
-        std::string name = (is_aux_var(v) ? "y" : "x") +std::to_string(v.v);
-        store_meaningful_name(v, name);
-        return name;
+    if(has_meaningful_name(v)){
+        if(v.only_known_in_proof){
+            return nameOnlyProofVars[v.v];
+        }
+        else{
+            return nameSolverVars[v.v];
+        }
     }
-    else if(!v.only_known_in_proof){
-        return nameSolverVars[v.v];
-    }
-    else{ // Names for variables only known in the proof are created upon variable creation.
-        return nameOnlyProofVars[v.v];
+    else{
+        if(v.only_known_in_proof){
+            return "_p" + std::to_string(v.v);
+        }
+        else{
+            return (is_aux_var(v) ? "y" : "x") + std::to_string(v.v);
+        }
     }
 }
 
@@ -349,19 +354,26 @@ VeriPB::Var VeriPbProofLogger::new_variable_only_in_proof(std::string name){
     VeriPB::Var v; 
     v.only_known_in_proof = true; 
     v.v = ++n_vars_only_known_in_proof;
-    if(name == "")
-        name = "_p" + std::to_string(v.v);
-    store_meaningful_name(v, name);
     return v;
 }
 
 template <class TLit>
 void VeriPbProofLogger::write_weighted_literal(const TLit &literal, wght weight)
-{   
+{
     if(weight != 0){
-        *proof << " " << weight << " ";
+        write_weight(weight);
         write_literal<TLit>(literal);
     }
+}
+
+void VeriPbProofLogger::write_weight(const wght weight){
+    static constexpr size_t buffer_size = 8*sizeof(wght);
+    static char             buffer[buffer_size]{}; 
+
+    buffer[0] = ' ';
+    std::to_chars_result result = std::to_chars(buffer + 1, buffer + buffer_size, weight);
+    buffer[result.ptr - buffer + 1] = ' ';
+    proof->write(buffer, result.ptr - buffer + 1);
 }
 
 // The variable is the original variable of which we look to rewrite. In the first call, the literal is over the original variable.
@@ -390,73 +402,86 @@ std::string VeriPbProofLogger::to_string_rewrite_var_by_literal(VeriPB::Var& var
     }
 }
 
-void VeriPbProofLogger::write_var_name(std::ostream* out, const VeriPB::Var& v){
-    // Note: name for variables only known in proof is always stored at creation time.
-    if(!v.only_known_in_proof && (v.v >= nameSolverVars.size() || nameSolverVars[v.v] == "")){
-        std::string name = (is_aux_var(v) ? "y" : "x") + std::to_string(v.v);
-        store_meaningful_name(v, name);
-        *out << name;
-    }
-    else if(!v.only_known_in_proof){
-        *out << nameSolverVars[v.v];
-    }
-    else{ // Names for variables only known in the proof are created upon variable creation.
-        *out <<  nameOnlyProofVars[v.v];
-    }
+void VeriPbProofLogger::write_varIdx(const VeriPB::VarIdx& varidx){
+    static constexpr size_t buffer_size = 8*sizeof(VeriPB::VarIdx);
+    static char             buffer[buffer_size]{}; 
+
+    std::to_chars_result result = std::to_chars(buffer, buffer + buffer_size, varidx);
+    proof->write(buffer, result.ptr - buffer);
 }
 
-void VeriPbProofLogger::write_literal_after_possible_rewrite(std::ostream* out, VeriPB::Var& var, VeriPB::Lit& lit){
-    VeriPB::Var litvar = variable(lit);
-
-    std::vector<VeriPB::Lit>* rewriteStorage = litvar.only_known_in_proof ? &vec_rewrite_proofonlyvar_by_literal : &vec_rewrite_solvervar_by_literal;
-
-    if(litvar.v >= rewriteStorage->size() || (*rewriteStorage)[litvar.v] == VeriPB::lit_undef){
-        if(is_negated(lit))
-            *out << "~";
-        write_var_name(out, litvar);
-        *out << " ";
-    }
-    else{
-        VeriPB::Lit lit_to_rewrite_to = (*rewriteStorage)[litvar.v];
-
-        if(is_negated(lit))
-            lit_to_rewrite_to = neg(lit_to_rewrite_to);
-
-        if(variable(lit_to_rewrite_to) == var){
-            if(is_negated(lit_to_rewrite_to))
-                *out << "~";
-            write_var_name(out, var);
-            *out << " ";
+void VeriPbProofLogger::write_var_name(std::ostream* out, const VeriPB::Var& v){
+    // TODO: Add buffer as we do for writing weights in write_weighted_literal.
+    if(has_meaningful_name(v)){
+        if(v.only_known_in_proof){
+            *out <<  nameOnlyProofVars[v.v];
         }
         else{
-            write_literal_after_possible_rewrite(out, var, lit_to_rewrite_to);
+            *out << nameSolverVars[v.v];
         }
     }
+    else{
+        if(v.only_known_in_proof){
+            *out << "_p";
+        }
+        else{
+          *out << (is_aux_var(v) ? 'y' : 'x');
+        }
+        write_varIdx(v.v);
+    }
 }
-    
-bool VeriPbProofLogger::write_variable_after_possible_rewrite(std::ostream* out, VeriPB::Var& var, bool negated){
-    std::vector<VeriPB::Lit>* rewriteStorage = var.only_known_in_proof ? &vec_rewrite_proofonlyvar_by_literal : &vec_rewrite_solvervar_by_literal;
 
+void VeriPbProofLogger::write_literal_after_possible_rewrite(std::ostream* out, VeriPB::Var& _var, VeriPB::Lit& _lit){
+    VeriPB::Var var = _var;
+    VeriPB::Lit lit = _lit;
+    while(true) {
+        const VeriPB::Var litvar = variable(lit);
+        const std::vector<VeriPB::Lit>* rewriteStorage = litvar.only_known_in_proof ? &vec_rewrite_proofonlyvar_by_literal : &vec_rewrite_solvervar_by_literal;
+
+        if(litvar.v >= rewriteStorage->size() || (*rewriteStorage)[litvar.v] == VeriPB::lit_undef) {
+            if(is_negated(lit)) out->put('~');
+            write_var_name(out, litvar);
+            out->put(' ');
+            return;
+        }
+
+        const VeriPB::Lit lit_to_rewrite_to = is_negated(lit)?neg((*rewriteStorage)[litvar.v]):(*rewriteStorage)[litvar.v];
+
+        if(variable(lit_to_rewrite_to) == var) {
+            if(is_negated(lit_to_rewrite_to)) out->put('~');
+            write_var_name(out, var);
+            out->put(' ');
+            return;
+        }
+        lit = lit_to_rewrite_to;
+    }
+} 
+
+bool VeriPbProofLogger::write_variable_after_possible_rewrite(std::ostream* out, VeriPB::Var& _var, bool negated){
+    const std::vector<VeriPB::Lit>* rewriteStorage = _var.only_known_in_proof ? &vec_rewrite_proofonlyvar_by_literal : &vec_rewrite_solvervar_by_literal;
+
+    VeriPB::Var var = _var;
+
+    while(true) {
     if(var.v >= rewriteStorage->size() || (*rewriteStorage)[var.v] == VeriPB::lit_undef){
         write_var_name(out, var);
         return negated;
     }
-    else{
-        VeriPB::Lit lit_to_rewrite_to = (*rewriteStorage)[var.v];
-        VeriPB::Var var_to_rewrite_to = variable(lit_to_rewrite_to);
 
-        negated = negated ^ is_negated(lit_to_rewrite_to);
+    const VeriPB::Lit lit_to_rewrite_to = (*rewriteStorage)[var.v];
+    const VeriPB::Var var_to_rewrite_to = variable(lit_to_rewrite_to);
 
-        if(var_to_rewrite_to == var){
-            write_var_name(out, var);
-            return negated;
-        }
-        else{
-            write_variable_after_possible_rewrite(out, var_to_rewrite_to, negated);
-            return false;
-        }
+    negated = negated ^ is_negated(lit_to_rewrite_to);
+
+    if(var_to_rewrite_to == var){
+        write_var_name(out, var);
+        return negated;
     }
-}   
+
+    var = var_to_rewrite_to;
+    }
+    return false;
+} 
 
 template <class TLit>
 std::string VeriPbProofLogger::to_string(const TLit &lit)
@@ -491,7 +516,8 @@ void VeriPbProofLogger::write_cardinality_constraint(const TSeqLit &lits, const 
 {
     for (int i = 0; i < lits.size(); i++)
         write_weighted_literal(lits[i], 1);
-    *proof << ">= " << RHS;
+    *proof << ">= ";
+    write_weight(RHS);
 }
 
 template <class TSeqLit>
@@ -504,7 +530,8 @@ void VeriPbProofLogger::write_PB_constraint(const TSeqLit &lits, const TSeqWght 
 {
     for (int i = 0; i < lits.size(); i++)
         write_weighted_literal(lits[i], weights[i]);
-    *proof << ">= " << RHS;
+    *proof << ">= ";
+    write_weight(RHS);
 }
 
 template <class TSeqLit, class TSeqWght>
@@ -520,7 +547,8 @@ void VeriPbProofLogger::write_PB_constraint(const TSeqLit& lits_greater, const T
         write_weighted_literal(neg(lits_smaller[i]), weights_smaller[i]);
         RHS+= weights_smaller[i];
     }
-    *proof << " >= " << std::to_string(RHS + const_smaller - const_greater);
+    *proof << " >= ";
+    write_weight(RHS + const_smaller - const_greater);
 }
 
 // ------------- Rewrite variables by literals -------------
@@ -546,12 +574,19 @@ void VeriPbProofLogger::rewrite_variable_by_literal(const TVar& var, const TLit&
 
 // ------------- Meaningful names -------------
 
+bool VeriPbProofLogger::has_meaningful_name(const VeriPB::Var& var){
+    std::vector<bool>* meaningfulnameFlag = var.only_known_in_proof ? &onlyproofVarsSpecialNameFlag : &solverVarsSpecialNameFlag;
+
+    return var.v < meaningfulnameFlag->size() && meaningfulnameFlag->at(var.v);
+}
+
 template <class TVar>
 void VeriPbProofLogger::store_meaningful_name(const TVar &var, const std::string &name)
 {
     VeriPB::Var _var = toVeriPbVar(var);
     std::vector<std::string>* nameStorage = _var.only_known_in_proof ? &nameOnlyProofVars : &nameSolverVars;
-    
+    std::vector<bool>* meaningfulnameFlag = _var.only_known_in_proof ? &onlyproofVarsSpecialNameFlag : &solverVarsSpecialNameFlag;
+
     // Increase storage if necessary.
     if(_var.v >= nameStorage->size() && INIT_NAMESTORAGE > _var.v ){
         nameStorage->resize(INIT_NAMESTORAGE);
@@ -559,6 +594,14 @@ void VeriPbProofLogger::store_meaningful_name(const TVar &var, const std::string
     else if(_var.v >= nameStorage->size()) {
         nameStorage->resize(2 * _var.v);
     }
+    if(_var.v >= meaningfulnameFlag->size() && INIT_NAMESTORAGE > _var.v ){
+        meaningfulnameFlag->resize(INIT_NAMESTORAGE);
+    }
+    else if(_var.v >= meaningfulnameFlag->size()) {
+        meaningfulnameFlag->resize(2 * _var.v);
+    }
+
+    (*meaningfulnameFlag)[_var.v] = true;
     (*nameStorage)[_var.v] = name;
 }
 
@@ -1145,7 +1188,7 @@ constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits
 }
 
 template <class TSeqLit, class TSeqWght>
-constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs){
+constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution &witness, std::vector<subproof>& subproofs){
     *proof << "red ";
     write_PB_constraint(lits, weights, RHS);
     *proof << "; ";
@@ -1175,7 +1218,7 @@ constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits
 
 
 template <class TSeqLit>
-constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits, const wght RHS, const substitution &witness, std::vector<subproof> subproofs){
+constraintid VeriPbProofLogger::redundanceBasedStrengthening(const TSeqLit &lits, const wght RHS, const substitution &witness, std::vector<subproof>& subproofs){
     *proof << "red ";
     write_cardinality_constraint(lits, RHS);
     *proof << "; ";
@@ -1227,11 +1270,13 @@ template <class TSeqLit, class TSeqWght, class TLit>
 constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, bool store_reified_constraint){
     int i;
 
-    std::string comment = to_string(lit) + " -> " ;
-    for(i = 0; i < lits.size(); i++)
-        comment += std::to_string(weights[i]) + " " + to_string(lits[i]) + " ";
-    comment += ">= " + std::to_string(RHS);
-    write_comment(comment);
+    if(comments){
+        std::string comment = to_string(lit) + " -> " ;
+        for(i = 0; i < lits.size(); i++)
+            comment += std::to_string(weights[i]) + " " + to_string(lits[i]) + " ";
+        comment += ">= " + std::to_string(RHS);
+        write_comment(comment);
+    }
     
     std::vector<VeriPB::Lit> _lits; _lits.resize(lits.size()+1);
     std::vector<wght> _weights;  _weights.resize(weights.size()+1);
@@ -1261,11 +1306,13 @@ template <class TSeqLit, class TLit>
 constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, const TSeqLit &lits, const wght RHS, bool store_reified_constraint){
     int i;
 
-    std::string comment = to_string(lit) + " -> " ;
-    for(i = 0; i < lits.size(); i++)
-        comment +=  "1 " + to_string(lits[i]) + " ";
-    comment += ">= " + std::to_string(RHS);
-    write_comment(comment);
+    if(comments){
+        std::string comment = to_string(lit) + " -> " ;
+        for(i = 0; i < lits.size(); i++)
+            comment +=  "1 " + to_string(lits[i]) + " ";
+        comment += ">= " + std::to_string(RHS);
+        write_comment(comment);
+    }
     
     std::vector<VeriPB::Lit> _lits; _lits.resize(lits.size()+1);
     std::vector<wght> _weights;  _weights.resize(lits.size()+1);
@@ -1295,11 +1342,13 @@ template <class TSeqLit, class TSeqWght, class TLit>
 constraintid VeriPbProofLogger::reificationLiteralRightImpl(const TLit& lit, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint){
     int i;
 
-    std::string comment = to_string(lit) + " -> " ;
-    for(i = start_constraint; i < end_constraint; i++)
-        comment += std::to_string(weights[i]) + " " + to_string(lits[i]) + " ";
-    comment += ">= " + std::to_string(RHS);
-    write_comment(comment);
+    if(comments){
+        std::string comment = to_string(lit) + " -> " ;
+        for(i = start_constraint; i < end_constraint; i++)
+            comment += std::to_string(weights[i]) + " " + to_string(lits[i]) + " ";
+        comment += ">= " + std::to_string(RHS);
+        write_comment(comment);
+    }
 
     std::vector<VeriPB::Lit> _lits; _lits.resize(end_constraint-start_constraint+1);
     std::vector<wght> _weights;  _weights.resize(end_constraint-start_constraint+1);
@@ -1333,11 +1382,13 @@ template <class TSeqLit, class TSeqWght, class TLit>
 constraintid VeriPbProofLogger::reificationLiteralRightImplLeq(const TLit& lit, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint){
     int i;
 
-    std::string comment = to_string(lit) + " -> " ;
-    for(i = start_constraint; i < end_constraint; i++)
-        comment += std::to_string(weights[i]) + " " + to_string(lits[i]) + " ";
-    comment += "=< " + std::to_string(RHS);
-    write_comment(comment);
+    if(comments){
+        std::string comment = to_string(lit) + " -> " ;
+        for(i = start_constraint; i < end_constraint; i++)
+            comment += std::to_string(weights[i]) + " " + to_string(lits[i]) + " ";
+        comment += "=< " + std::to_string(RHS);
+        write_comment(comment);
+    }
 
     std::vector<VeriPB::Lit> _lits; _lits.resize(end_constraint-start_constraint+1);
     std::vector<wght> _weights;  _weights.resize(end_constraint-start_constraint+1);
@@ -1373,11 +1424,13 @@ template <class TSeqLit, class TSeqWght, class TLit>
 constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, bool store_reified_constraint){
     int i;
 
-    std::string comment = to_string(lit) + " <- " ;
-    for(i = 0; i < lits.size(); i++)
-        comment += std::to_string(weights[i]) + " " + to_string(lits[i]) + " ";
-    comment += ">= " + std::to_string(RHS);
-    write_comment(comment);
+    if(comments){
+        std::string comment = to_string(lit) + " <- " ;
+        for(i = 0; i < lits.size(); i++)
+            comment += std::to_string(weights[i]) + " " + to_string(lits[i]) + " ";
+        comment += ">= " + std::to_string(RHS);
+        write_comment(comment);
+    }
 
     std::vector<VeriPB::Lit> _lits; _lits.resize(lits.size()+1);
     std::vector<wght> _weights;  _weights.resize(weights.size()+1);
@@ -1417,12 +1470,13 @@ template <class TSeqLit, class TSeqWght, class TLit>
 constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint){
     int i;
 
-    std::string comment = to_string(lit) + " <- " ;
-    for(i = start_constraint; i < end_constraint; i++)
-        comment += std::to_string(weights[i]) + " " + to_string(litsC[i]) + " ";
-    comment += ">= " + std::to_string(RHS);
-    write_comment(comment);
-
+    if(comments){
+        std::string comment = to_string(lit) + " <- " ;
+        for(i = start_constraint; i < end_constraint; i++)
+            comment += std::to_string(weights[i]) + " " + to_string(litsC[i]) + " ";
+        comment += ">= " + std::to_string(RHS);
+        write_comment(comment);
+    }
     std::vector<VeriPB::Lit> _lits; _lits.resize(end_constraint - start_constraint +1);
     std::vector<wght> _weights;  _weights.resize(end_constraint - start_constraint +1);
 
@@ -1462,11 +1516,13 @@ template <class TSeqLit, class TSeqWght, class TLit>
 constraintid VeriPbProofLogger::reificationLiteralLeftImplLeq(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint){
     int i;
 
-    std::string comment = to_string(lit) + " <- " ;
-    for(i = start_constraint; i < end_constraint; i++)
-        comment += std::to_string(weights[i]) + " " + to_string(litsC[i]) + " ";
-    comment += "=< " + std::to_string(RHS);
-    write_comment(comment);
+    if(comments){
+        std::string comment = to_string(lit) + " <- " ;
+        for(i = start_constraint; i < end_constraint; i++)
+            comment += std::to_string(weights[i]) + " " + to_string(litsC[i]) + " ";
+        comment += "=< " + std::to_string(RHS);
+        write_comment(comment);
+    }
 
     std::vector<VeriPB::Lit> _lits; _lits.resize(end_constraint - start_constraint +1);
     std::vector<wght> _weights;  _weights.resize(end_constraint - start_constraint +1);
@@ -1498,12 +1554,14 @@ constraintid VeriPbProofLogger::reificationLiteralLeftImplLeq(const TLit& lit, c
 template <class TSeqLit, class TLit>
 constraintid VeriPbProofLogger::reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &lits, const wght RHS, bool store_reified_constraint){
     int i;
-    
-    std::string comment = to_string(lit) + " <- " ;
-    for(i = 0; i < lits.size(); i++)
-        comment += "1 " + to_string(lits[i]) + " ";
-    comment += ">= " + std::to_string(RHS);
-    write_comment(comment);
+
+    if(comments){
+        std::string comment = to_string(lit) + " <- " ;
+        for(i = 0; i < lits.size(); i++)
+            comment += "1 " + to_string(lits[i]) + " ";
+        comment += ">= " + std::to_string(RHS);
+        write_comment(comment);
+    }
     
     std::vector<VeriPB::Lit> _lits; _lits.resize(lits.size()+1);
     std::vector<wght> _weights;  _weights.resize(lits.size()+1);
@@ -1778,7 +1836,9 @@ void VeriPbProofLogger::intCP_multiply(const wght v)
 template <class TVar>
 void VeriPbProofLogger::intCP_weaken(const TVar &var)
 {
-    pol_string << " " << var_name(var) << " w";
+    pol_string.put(' ');
+    write_var_name(&pol_string, toVeriPbVar(var));
+    pol_string << " w"; 
 }
 
 template <class TLit>
@@ -1867,7 +1927,9 @@ void VeriPbProofLogger::intCP_multiply(std::ostream* cp, const wght v)
 template <class TVar>
 void VeriPbProofLogger::intCP_weaken(std::ostream* cp, const TVar &var)
 {
-    *cp << " " << var_name(var) << " w";
+    cp->put(' ');
+    write_var_name(cp, toVeriPbVar(var));
+    *cp << " w"; 
 }
 
 template <class TLit>
@@ -1899,7 +1961,7 @@ void VeriPbProofLogger::clear_intCP_derivation(std::ostream* cp){
 // ------------- Extra Proof Techniques -------------
 
 template <class TSeqLit, class TSeqWght>
-constraintid VeriPbProofLogger::prove_by_contradiction(TSeqLit& lits, TSeqWght& weights, wght RHS, std::vector<cuttingplanes_derivation> cpder){
+constraintid VeriPbProofLogger::prove_by_contradiction(TSeqLit& lits, TSeqWght& weights, wght RHS, std::vector<cuttingplanes_derivation>& cpder){
     std::vector<subproof> subproofs;
     subproofs.push_back({"#1", cpder});
     substitution witness = get_new_substitution();
@@ -1907,7 +1969,7 @@ constraintid VeriPbProofLogger::prove_by_contradiction(TSeqLit& lits, TSeqWght& 
 }
 
 template <class TSeqLit>
-constraintid VeriPbProofLogger::prove_by_contradiction(TSeqLit& lits, wght RHS, std::vector<cuttingplanes_derivation> cpder){
+constraintid VeriPbProofLogger::prove_by_contradiction(TSeqLit& lits, wght RHS, std::vector<cuttingplanes_derivation>& cpder){
     std::vector<subproof> subproofs;
     subproofs.push_back({"#1", cpder});
     substitution witness = get_new_substitution();

@@ -22,7 +22,6 @@ namespace VeriPB {
     static Lit lit_undef {.v=var_undef, .negated=false};
 }
 
-
 inline VeriPB::VarIdx varidx(VeriPB::Var var){return var.v << 1 ^ var.only_known_in_proof;}
 
 inline bool operator==(const VeriPB::Var& lhs, const VeriPB::Var& rhs){
