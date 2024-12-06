@@ -26,7 +26,6 @@
 #define wght int64_t
 #define wght_max LLONG_MAX
 #define signedWght int64_t 
-// typedef long long int wght; 
 
 
 inline Minisat::Var variable(Minisat::Lit l){return (Minisat::var(l));}
