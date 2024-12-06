@@ -197,6 +197,13 @@ constraintid MaxSATProoflogger::derive_at_most_one_constraint(const TSeqLit &am1
     assert(am1_lits.size() > 1);
     std::vector<constraintid> binary_clauses;
 
+    if(am1_lits.size() == 2){
+        std::vector<VeriPB::Lit> lits; 
+        lits.push_back(neg(toVeriPbLit(am1_lits[0])));
+        lits.push_back(neg(toVeriPbLit(am1_lits[1])));
+        return PL->rup(lits, 1);
+    }
+
     for (int new_lit_idx = 1; new_lit_idx < am1_lits.size(); new_lit_idx++)
     {
         if (new_lit_idx != 1) // first constraint is not multiplied
