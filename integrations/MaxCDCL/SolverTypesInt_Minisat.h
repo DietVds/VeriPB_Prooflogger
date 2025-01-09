@@ -19,8 +19,8 @@
 #ifndef SolverTypes_Int_h
 #define SolverTypes_Int_h
 
-#include "VeriPbSolverTypes.h"
 #include "core/SolverTypes.h"
+#include "core/VeriPbSolverTypes.h"
 
 // the type that is presenting weights in the solver. This should be defined by the solver developer.
 #define wght int64_t
@@ -41,39 +41,6 @@ inline VeriPB::Lit toVeriPbLit(Minisat::Lit l){VeriPB::Lit pbl; pbl.negated = is
 // Glucose uses the LBool datatype. This should be able to be converted to boolean.
 inline bool toBool(Minisat::lbool v){return (Minisat::toInt(v) == 0);}
 
-/*******************
- * Functions for the VeriPB types. 
-*/
-inline VeriPB::Var variable(VeriPB::Lit l){return l.v;}
-inline bool is_negated(VeriPB::Lit l){return l.negated;}
-inline VeriPB::Lit neg(VeriPB::Lit l){VeriPB::Lit newl; newl.v = l.v; newl.negated = !l.negated; return newl;}
-inline VeriPB::Lit create_literal(VeriPB::Var var, bool negated){VeriPB::Lit l; l.v = var; l.negated = negated; return l; }
-
-inline VeriPB::Var toVeriPbVar(VeriPB::Var v){return v;}
-inline VeriPB::Lit toVeriPbLit(VeriPB::Lit l){return l;}
-
-// The function varidx takes a VeriPB variable and gets the integer that can be used as an index to all the internal data structures like maps and vectors.
-// inline int varidx(VeriPB::Var var){return var.v;}
-
-/*
-* Other examples of the SolverTypesInt. 
-* TODO: rewrite with new VeriPB Solvertypes.
-*/
-
-// inline int variable(int l){return ((l < 0) ? -l : l);}
-// inline bool is_negated(int l){return (l < 0);}
-// inline int neg(int l){return -l;}
-// inline VeriPB::Var toVeriPbVar(int v){return v;}
-// inline VeriPB::Lit toVeriPbLit(int l){return l;}
-
-// inline Glucose30::Var variable(Glucose30::Lit l){return Glucose30::var(l);}
-// inline bool is_negated(Glucose30::Lit l){return sign(l);}
-// inline Glucose30::Lit neg(Glucose30::Lit l){return ~l;};
-// inline VeriPB::Lit toVeriPbLit(Glucose30::Lit l){return (is_negated(l) ? -(variable(l)) : variable(l));}
-
-// inline Minisat::Var variable(Minisat::Lit l){return Minisat::var(l);}
-// inline bool is_negated(Minisat::Lit l){return sign(l);}
-// inline Minisat::Lit neg(Minisat::Lit l){return ~l;};
-// inline VeriPB::Lit toVeriPbLit(Minisat::Lit l){return (is_negated(l) ? -(variable(l)) : variable(l));}
+// TODO: varidx function.
 
 #endif

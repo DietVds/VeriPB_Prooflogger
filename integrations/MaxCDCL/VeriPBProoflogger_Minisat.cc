@@ -1,5 +1,5 @@
-#include "VeriPBProoflogger.hpp"
-
+#include "integrations/MaxCDCL/MaxCDCLProoflogger.h"
+#include "core/VeriPBProoflogger.hpp"
 //=================================================================================================
 
 template void VeriPbProofLogger::set_objective<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, wght constant_cost);

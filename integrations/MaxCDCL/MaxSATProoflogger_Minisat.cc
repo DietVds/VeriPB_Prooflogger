@@ -1,4 +1,5 @@
-#include "MaxSATProoflogger.hpp"
+#include "integrations/MaxCDCL/MaxCDCLProoflogger.h"
+#include "core/MaxSATProoflogger.hpp"
 
 template void MaxSATProoflogger::add_blocking_literal<VeriPB::Lit>(VeriPB::Lit lit, constraintid cxn_id);
 template void MaxSATProoflogger::add_blocking_literal<Minisat::Lit>(Minisat::Lit lit, constraintid cxn_id);

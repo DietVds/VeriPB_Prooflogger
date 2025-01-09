@@ -11,14 +11,21 @@
 #include <cassert>
 #include <variant>
 #include <charconv>
+#include <climits>
 
 #include<iostream>
 
 // NOTE! Should include definition for types Var, Lit and Clause
-#ifdef SOLVERTYPES_MAXCDCL
-    #include "SolverTypesInt_Minisat.h"
-#else
-    #include "SolverTypesInt_Pacose.h"
+#include "core/VeriPbSolverTypes.h"
+
+#ifndef wght 
+#define wght int64_t 
+#endif
+#ifndef wght_max 
+#define wght_max LLONG_MAX
+#endif
+#ifndef signedWght
+#define signedWght int64_t 
 #endif
 
 /******************
