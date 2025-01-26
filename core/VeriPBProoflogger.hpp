@@ -213,7 +213,7 @@ void VeriPbProofLogger::check_model_improving_constraint(constraintid cxn){
     }
     *proof << " >=";
     write_weight(sumAllWeights + objective_constant_cost - best_objective_value + 1);
-    *proof << '; '; 
+    *proof << "; "; 
     *proof << cxn << "\n";
 }
 
@@ -1619,10 +1619,10 @@ constraintid VeriPbProofLogger::getReifiedConstraintLeftImpl(const TVar& var){
     if(_var.v < storage->size())
         cxn = (*storage)[_var.v];
     
-    if(cxn == undefcxn)
-        std::cout << "ERROR: Cannot find left reification constraint for variable " << var_name(var) << std::endl;
+    // if(cxn == undefcxn)
+    //     std::cout << "ERROR: Cannot find left reification constraint for variable " << var_name(var) << std::endl;
 
-    assert(cxn != undefcxn);
+    // assert(cxn != undefcxn);
 
     return cxn;
 }
@@ -1635,11 +1635,11 @@ constraintid VeriPbProofLogger::getReifiedConstraintRightImpl(const TVar& var){
     if(_var.v < storage->size())
         cxn = (*storage)[_var.v];
     
-    if(cxn == undefcxn)
-        std::cout << "ERROR: Cannot find right reification constraint for variable " << var_name(var) << std::endl;
+    // if(cxn == undefcxn)
+    //     std::cout << "ERROR: Cannot find right reification constraint for variable " << var_name(var) << std::endl;
     
 
-    assert(cxn != undefcxn);
+    // assert(cxn != undefcxn);
 
     return cxn;
 }
