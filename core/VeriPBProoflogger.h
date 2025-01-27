@@ -16,7 +16,7 @@
 #include<iostream>
 
 // NOTE! Should include definition for types Var, Lit and Clause
-#include "core/VeriPbSolverTypes.h"
+#include "VeriPbSolverTypes.h"
 
 #ifndef wght 
 #define wght int64_t 
@@ -56,7 +56,7 @@
 class MaxSATProoflogger;
 
 typedef int constraintid;
-#define undefcxn -1
+#define undefcxn 0
 
 #define INIT_NAMESTORAGE 500
 
@@ -76,7 +76,7 @@ private:
     bool keep_original_formula = false; // If true, the proof logging library will never delete any constraint that is an original constraint and will never move a constraint to the core set. 
 
     // Buffer for the proof.
-    char write_buffer_size = 32 * 1024 * 1024;
+    int write_buffer_size = 32 * 1024 * 1024;
     char* write_buffer = new char[write_buffer_size]; 
 
     // Formula information
