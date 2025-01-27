@@ -223,6 +223,8 @@ void VeriPbProofLogger::write_objective_update(){
         write_weighted_literal(objective_lits[i], objective_weights[i]);
     if(objective_constant_cost != 0)
         *proof << std::to_string(objective_constant_cost);
+    if(objective_lits.size() == 0 && objective_constant_cost == 0)
+        *proof << ' ';
     *proof << ";\n";
 }
 
