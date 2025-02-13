@@ -4,14 +4,14 @@ template <class TLit>
 void PBtoCNFprooflogger::define_zerolit(TLit& zero){
     zerolit = toVeriPbLit(zero);
 
-    PL->write_comment("one = " + PL->to_string(neg(zerolit)));
+    PL->write_comment("one = " + PL->literal_to_string(neg(zerolit)));
     
     std::vector<VeriPB::Lit> lits; 
     lits.push_back(neg(zerolit));
     substitution witness = PL->get_new_substitution();
     PL->add_boolean_assignment(witness, variable(zerolit), is_negated(zerolit));
 
-    PL->store_meaningful_name(variable(zerolit), is_negated(zerolit) ? "true": "false");
+    PL->store_variable_name(variable(zerolit), is_negated(zerolit) ? "true": "false");
 
     def_one = PL->redundanceBasedStrengthening(lits, 1, witness );
 }
@@ -338,7 +338,7 @@ constraintid PBtoCNFprooflogger::derive_leaves_leq_unary_k_from_reification(TSeq
 
 template <class TLit>
 void PBtoCNFprooflogger::reifyCarryBA(TLit& a, TLit& b, TLit& c, TLit& carry ){
-    PL->write_comment("Reification of " + PL->to_string(carry) + " <-> " + PL->to_string(a) + " + " + PL->to_string(b) + " + " + PL->to_string(c) + " >= 2");
+    PL->write_comment("Reification of " + PL->literal_to_string(carry) + " <-> " + PL->literal_to_string(a) + " + " + PL->literal_to_string(b) + " + " + PL->literal_to_string(c) + " >= 2");
 
     std::vector<VeriPB::Lit> lits; 
 
@@ -352,7 +352,7 @@ void PBtoCNFprooflogger::reifyCarryBA(TLit& a, TLit& b, TLit& c, TLit& carry ){
 
 template <class TLit>
 void PBtoCNFprooflogger::reifySumBA(TLit& a, TLit& b, TLit& c, TLit& carry, TLit& sum ){
-    PL->write_comment("Reification of " + PL->to_string(sum) + " <-> " + PL->to_string(a) + " + " + PL->to_string(b) + " + " + PL->to_string(c) + " 2 "  + PL->to_string(neg(carry)) + " >= 3");
+    PL->write_comment("Reification of " + PL->literal_to_string(sum) + " <-> " + PL->literal_to_string(a) + " + " + PL->literal_to_string(b) + " + " + PL->literal_to_string(c) + " 2 "  + PL->literal_to_string(neg(carry)) + " >= 3");
 
     std::vector<VeriPB::Lit> lits; std::vector<wght> weights;
 
@@ -373,7 +373,7 @@ constraintid PBtoCNFprooflogger::deriveInputLeqOutputBA(TLit& a, TLit& b, TLit& 
     VeriPB::Lit vsum = toVeriPbLit(sum);
 
     // Derive a + b + c =< s + 2c
-    PL->write_comment("Derive " + (l1 != zerolit ? PL->to_string(l1) : "") + (l2 != zerolit? (l1 != zerolit ? " + " : "") + PL->to_string(l2) : "") + (l3 != zerolit ? (l1 != zerolit || l2 != zerolit ? " + " : "") + PL->to_string(l3) : "") + " =< " + PL->to_string(vsum) + " +  2 " + PL->to_string(vcarry));
+    PL->write_comment("Derive " + (l1 != zerolit ? PL->literal_to_string(l1) : "") + (l2 != zerolit? (l1 != zerolit ? " + " : "") + PL->literal_to_string(l2) : "") + (l3 != zerolit ? (l1 != zerolit || l2 != zerolit ? " + " : "") + PL->literal_to_string(l3) : "") + " =< " + PL->literal_to_string(vsum) + " +  2 " + PL->literal_to_string(vcarry));
 
     cuttingplanes_derivation cp_inputLEQoutput;
     cp_inputLEQoutput = PL->CP_constraintid(PL->getReifiedConstraintLeftImpl(variable(vcarry))); 
@@ -414,7 +414,7 @@ constraintid PBtoCNFprooflogger::deriveInputGeqOutputBA(TLit& a, TLit& b, TLit& 
     VeriPB::Lit vcarry = toVeriPbLit(carry);
     VeriPB::Lit vsum = toVeriPbLit(sum);
 
-    PL->write_comment("Derive " + (l1 != zerolit ? PL->to_string(l1) : "") + (l2 != zerolit? (l1 != zerolit ? " + " : "") + PL->to_string(l2) : "") + (l3 != zerolit ? (l1 != zerolit || l2 != zerolit ? " + " : "") + PL->to_string(l3) : "") + " >= " + PL->to_string(vsum) + " +  2 " + PL->to_string(vcarry));
+    PL->write_comment("Derive " + (l1 != zerolit ? PL->literal_to_string(l1) : "") + (l2 != zerolit? (l1 != zerolit ? " + " : "") + PL->literal_to_string(l2) : "") + (l3 != zerolit ? (l1 != zerolit || l2 != zerolit ? " + " : "") + PL->literal_to_string(l3) : "") + " >= " + PL->literal_to_string(vsum) + " +  2 " + PL->literal_to_string(vcarry));
 
     PL->start_intCP_derivation(&cp,PL->getReifiedConstraintRightImpl(variable(vcarry)) );
     PL->intCP_multiply(&cp, 2);
@@ -834,7 +834,7 @@ void PBtoCNFprooflogger::derive_modulo_sum_constraints(constraintid& out_modulo_
 
     // Derive H' + H'' + c >= H
     PL->write_comment("Derive H' + H'' + c >= H");
-    PL->write_comment("H' = " + sequence_to_string(countingLitsL) + " H'' = " + sequence_to_string(countingLitsR) + " H = " + sequence_to_string(countingLits) + " carry = " + PL->to_string(carry));
+    PL->write_comment("H' = " + sequence_to_string(countingLitsL) + " H'' = " + sequence_to_string(countingLitsR) + " H = " + sequence_to_string(countingLits) + " carry = " + PL->literal_to_string(carry));
     cpder.clear();
 
     wght remainder_size_left = 0; 
@@ -1148,9 +1148,9 @@ constraintid PBtoCNFprooflogger::derive_input_leq_unary_output_from_output_defin
 // Helper functions for commenting
 template<class TSeqLit>
 std::string PBtoCNFprooflogger::sequence_to_string(TSeqLit& lits){
-    std::string res = "< " + (lits.size() > 0 ? PL->to_string(lits[0]) : "");
+    std::string res = "< " + (lits.size() > 0 ? PL->literal_to_string(lits[0]) : "");
     for(int i = 1; i < lits.size(); i++)
-        res += ", " + PL->to_string(lits[i]);
+        res += ", " + PL->literal_to_string(lits[i]);
     return res + ">"; 
 }
 
@@ -1158,8 +1158,8 @@ template<class TSeqLit, class TSeqWght>
 std::string PBtoCNFprooflogger::sequence_to_string(TSeqLit& lits, TSeqWght& weights){
     assert(lits.size() == weights.size());
 
-    std::string res = "< " + (lits.size() > 0 ? ("(" + PL->to_string(lits[0]) + ", " +  std::to_string(weights[0]) + ")") : "");
+    std::string res = "< " + (lits.size() > 0 ? ("(" + PL->literal_to_string(lits[0]) + ", " +  std::literal_to_string(weights[0]) + ")") : "");
     for(int i = 1; i < lits.size(); i++)
-        res += ", (" + PL->to_string(lits[i]) + ", " + std::to_string(weights[i]) + ")";
+        res += ", (" + PL->literal_to_string(lits[i]) + ", " + std::literal_to_string(weights[i]) + ")";
     return res + ">"; 
 }

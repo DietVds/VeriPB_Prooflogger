@@ -26,8 +26,8 @@ template std::string VeriPbProofLogger::var_name<Minisat::Var>(const Minisat::Va
 template void VeriPbProofLogger::write_weighted_literal<VeriPB::Lit>(const VeriPB::Lit &literal, wght weight);
 template void VeriPbProofLogger::write_weighted_literal<Minisat::Lit>(const Minisat::Lit &literal, wght weight);
 
-template std::string VeriPbProofLogger::to_string<VeriPB::Lit>(const VeriPB::Lit &lit);
-template std::string VeriPbProofLogger::to_string<Minisat::Lit>(const Minisat::Lit &lit);
+template std::string VeriPbProofLogger::literal_to_string<VeriPB::Lit>(const VeriPB::Lit &lit);
+template std::string VeriPbProofLogger::literal_to_string<Minisat::Lit>(const Minisat::Lit &lit);
 
 template void VeriPbProofLogger::write_literal<VeriPB::Lit>(const VeriPB::Lit &lit);
 template void VeriPbProofLogger::write_literal<Minisat::Lit>(const Minisat::Lit &lit);
@@ -48,8 +48,8 @@ template void VeriPbProofLogger::write_PB_constraint<Minisat::vec<Minisat::Lit>,
 template void VeriPbProofLogger::rewrite_variable_by_literal<VeriPB::Var, VeriPB::Lit>(const VeriPB::Var& var, const VeriPB::Lit& lit);
 template void VeriPbProofLogger::rewrite_variable_by_literal<Minisat::Var, Minisat::Lit>(const Minisat::Var& var, const Minisat::Lit& lit);
 
-template void VeriPbProofLogger::store_meaningful_name<VeriPB::Var>(const VeriPB::Var &var, const std::string &name);
-template void VeriPbProofLogger::store_meaningful_name<Minisat::Var>(const Minisat::Var &var, const std::string &name);
+template void VeriPbProofLogger::store_variable_name<VeriPB::Var>(const VeriPB::Var &var, const std::string &name);
+template void VeriPbProofLogger::store_variable_name<Minisat::Var>(const Minisat::Var &var, const std::string &name);
 
 template void VeriPbProofLogger::equals_rule<std::vector<VeriPB::Lit>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const wght RHS);
 template void VeriPbProofLogger::equals_rule<Minisat::vec<Minisat::Lit>>(const constraintid constraint_id, const Minisat::vec<Minisat::Lit> &lits, const wght RHS);
@@ -134,7 +134,7 @@ template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Minisat::v
 // template constraintid VeriPbProofLogger::redundanceBasedStrengthening<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(const Minisat::vec<Minisat::Lit> &lits, const Minisat::vec<wght> &weights, const wght RHS, const substitution &witness, std::vector<subproof> subproofs);
 template constraintid VeriPbProofLogger::redundanceBasedStrengthening<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, const substitution &witness, std::vector<subproof>& subproofs);
 
-template constraintid VeriPbProofLogger::redundanceBasedStrengtheningUnitClause<VeriPB::Lit>(const VeriPB::Lit& lit);
+template constraintid VeriPbProofLogger::redundance_based_strengthening_unit_clause<VeriPB::Lit>(const VeriPB::Lit& lit);
 
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS, bool store_reified_constraint);
 template constraintid VeriPbProofLogger::reificationLiteralRightImpl<std::vector<VeriPB::Lit>, std::vector<wght>, VeriPB::Lit>(const VeriPB::Lit& lit, const std::vector<VeriPB::Lit> &litsC, const std::vector<wght> &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);

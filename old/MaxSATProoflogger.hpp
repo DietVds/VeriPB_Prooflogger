@@ -12,7 +12,7 @@ MaxSATProoflogger::MaxSATProoflogger(VeriPbProofLogger *PL) : PL(PL) {}
 
 template <class TLit>
 void MaxSATProoflogger::add_blocking_literal(TLit lit, constraintid cxn_id){
-    PL->store_meaningful_name(variable(lit), "_b" + std::to_string(cxn_id));
+    PL->store_variable_name(variable(lit), "_b" + std::to_string(cxn_id));
 
     // VeriPB expects the blocking literal added to the clauses to be a negated blocking variable. 
     // If the solver adds a non-negated blocking literal to clauses, all literals over this variable have to be negated throughout the proof.
@@ -22,7 +22,7 @@ void MaxSATProoflogger::add_blocking_literal(TLit lit, constraintid cxn_id){
 
 template <class TLit>
 constraintid MaxSATProoflogger::add_unit_clause_blocking_literal(TLit blocking_lit, constraintid cxn_id, TLit unitclause, wght weight_softclause, bool rewrite_objective){
-    PL->store_meaningful_name(variable(blocking_lit), "_bu" + std::to_string(cxn_id));
+    PL->store_variable_name(variable(blocking_lit), "_bu" + std::to_string(cxn_id));
 
     VeriPB::Lit _blocking_lit = toVeriPbLit(blocking_lit);
     VeriPB::Lit _unitclause = toVeriPbLit(unitclause);

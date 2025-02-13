@@ -3,308 +3,235 @@
 
 #include <cinttypes>
 #include <vector>
+#include <string>
 
-// The veripb data structures are defined as a struct instead of a typedef to have a clear type that is relied to the VeriPB datatypes.
-typedef int litindex ;
+#ifndef PL_VarIdx
+#define PL_VarIdx uint32_t
+#endif
 
+#ifndef PL_litindex
+#define PL_litindex size_t
+#endif
 
+#ifndef PL_constraintid
+#define PL_constraintid int64_t
+#endif
 
 namespace VeriPB {
-    typedef uint32_t VarIdx; // The VarIdx type is used as an identifier for a variable that will be used as index in maps and vectors.
 
-    struct Var{
-        VarIdx v;
-        bool only_known_in_proof = false;
-    };
-    struct Lit{
-        Var v;
-        bool negated=false;
-    };
+typedef PL_VarIdx VarIdx;
+typedef PL_litindex litindex;
+typedef PL_constraintid constraintid;
 
-    template <typename TLit, typename TCoeff, typename TConst>
-    class LinTermBoolVars {
-        public:
-            TLit get_literal(const litindex& idx);
-            TCoeff get_coefficient(const litindex& idx);
-            TConst get_constant();
-            size_t size();
+struct Var{
+    VarIdx v;
+    bool only_known_in_proof = false;
+};
+static Var var_undef {.v=0, .only_known_in_proof=false};
 
-            void add_literal(const TLit& lit, const TCoeff& coeff=1);
-            void add_constant(const TConst& constant);
-            void subtract_constant(const TConst& constant);
+struct Lit{
+    Var v;
+    bool negated=false;
+};
+static Lit lit_undef {.v=var_undef, .negated=false};
 
-            LinTermBoolVars(const bool all_coeff_one = false);
-            LinTermBoolVars(std::vector<TLit>* lits, std::vector<TCoeff>* coeff, TConst& constant = 0);
-            LinTermBoolVars(std::vector<TLit>* lits, TConst& constant = 0);
+template <typename TLit, typename TCoeff, typename TConst>
+class LinTermBoolVars {
+    public:
+        TLit literal(const litindex& idx);
+        TCoeff coefficient(const litindex& idx);
+        TConst constant();
+        TConst sum_of_coefficients();
+        size_t size();
 
-            ~LinTermBoolVars();
-        
-        private: 
-            std::vector<TLit>* _literals;
-            std::vector<TCoeff>* _coefficients;
-            TConst _constant;
+        void add_literal(const TLit& lit, const TCoeff& coeff=1);
+        bool delete_literal(const TLit& lit);
+        bool delete_literal(const litindex& index);
+        void add_constant(const TConst& constant);
+        void subtract_constant(const TConst& constant);
 
-            bool _all_coeff_one;
-            bool _owned;
-    };
+        LinTermBoolVars(const bool all_coeff_one = false);
+        LinTermBoolVars(std::vector<TLit>* lits, std::vector<TCoeff>* coeff, TConst& constant = 0);
+        LinTermBoolVars(std::vector<TLit>* lits, TConst& constant = 0);
 
-    enum Comparison {GEQ, LEQ};
-
-    template <typename TLit, typename TCoeff, typename TRhs>
-    class Constraint {
-        public:
-            TLit get_literal(const litindex& idx);
-            TCoeff get_coefficient(const litindex& idx);
-            TRhs get_RHS();
-            Comparison get_comparison();
-            size_t size();
-
-            void add_literal(const TLit& lit, const TCoeff& coeff=1);
-            void add_RHS(const TRhs& rhs_to_add);
-            void subtract_RHS(const TRhs& rhs_to_subtract);
-
-            Constraint(const bool cardinality_constraint=false, enum Comparison comp = Comparison::GEQ);
-            Constraint(LinTermBoolVars<TLit, TCoeff, TRhs>* term, TRhs rhs, enum Comparison comp = Comparison::GEQ);
-            Constraint(std::vector<TLit>* lits, std::vector<TCoeff>* coeff, TRhs rhs, enum Comparison comp = Comparison::GEQ);
-            Constraint(std::vector<TLit>* lits, TRhs rhs=1, enum Comparison comp = Comparison::GEQ);
-
-            ~Constraint();
-        private:
-            LinTermBoolVars<TLit, TCoeff, TRhs>* _linterm;
-            TRhs _rhs;
-            enum Comparison _comp;
-            bool _owned;
-    };
+        ~LinTermBoolVars();
     
-    static Var var_undef {.v=0, .only_known_in_proof=false};
-    static Lit lit_undef {.v=var_undef, .negated=false};
-}
+    private: 
+        std::vector<TLit>* _literals;
+        std::vector<TCoeff>* _coefficients;
+        TConst _constant;
+        TConst _sum_coeffs;
 
-inline bool operator==(const VeriPB::Var& lhs, const VeriPB::Var& rhs){
-	return lhs.v == rhs.v && lhs.only_known_in_proof == rhs.only_known_in_proof;
-}
+        bool _all_coeff_one;
+        bool _owned;
+};
 
-inline bool operator!=(const VeriPB::Var& lhs, const VeriPB::Var& rhs){
-	return !(lhs == rhs);
-}
+enum Comparison {GEQ, LEQ};
 
-inline bool operator< (const VeriPB::Var& lhs, const VeriPB::Var& rhs){
-    return (!lhs.only_known_in_proof && rhs.only_known_in_proof) 
-                || (lhs.only_known_in_proof == rhs.only_known_in_proof && lhs.v < rhs.v);
-}
+template <typename TLit, typename TCoeff, typename TRhs>
+class Constraint {
+    public:
+        TLit literal(const litindex& idx);
+        TCoeff coefficient(const litindex& idx);
+        TRhs rhs();
+        TRhs sum_of_coefficients();
+        Comparison comparison();
+        size_t size();
 
-inline bool operator==(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs){
-    return lhs.v == rhs.v && lhs.negated == rhs.negated;
-}
+        void add_literal(const TLit& lit, const TCoeff& coeff=1);
+        void add_RHS(const TRhs& rhs_to_add);
+        void subtract_RHS(const TRhs& rhs_to_subtract);
 
-inline bool operator!=(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs){
-    return !(lhs == rhs);
-}
 
-inline bool operator< (const VeriPB::Lit& lhs, const VeriPB::Lit& rhs){
-    return lhs.v < rhs.v || (lhs.v == rhs.v && lhs.negated && !rhs.negated);
-}
+        Constraint(const bool cardinality_constraint=false, enum Comparison comp = Comparison::GEQ);
+        Constraint(LinTermBoolVars<TLit, TCoeff, TRhs>* term, TRhs rhs, enum Comparison comp = Comparison::GEQ);
+        Constraint(std::vector<TLit>* lits, std::vector<TCoeff>* coeff, TRhs rhs, enum Comparison comp = Comparison::GEQ);
+        Constraint(std::vector<TLit>* lits, TRhs rhs=1, enum Comparison comp = Comparison::GEQ);
+
+        ~Constraint();
+    private:
+        LinTermBoolVars<TLit, TCoeff, TRhs>* _linterm;
+        TRhs _rhs;
+        enum Comparison _comp;
+        bool _owned;
+};
 
 /*******************
- * Functions for the VeriPB types. 
+ * Functions for variables and literals 
+ * - need to be specialized. Already specialized for VeriPB::Var and VeriPB::Lit.
 */
+template <class TVar, class TLit>
+TVar variable(const TLit&);
 
-inline VeriPB::Var variable(VeriPB::Lit l){return l.v;}
-inline bool is_negated(VeriPB::Lit l){return l.negated;}
-inline VeriPB::Lit neg(VeriPB::Lit l){VeriPB::Lit newl; newl.v = l.v; newl.negated = !l.negated; return newl;}
-inline VeriPB::Lit create_literal(VeriPB::Var var, bool negated){VeriPB::Lit l; l.v = var; l.negated = negated; return l; }
+template <typename TLit>
+bool is_negated(const TLit&);
 
-inline VeriPB::Var toVeriPbVar(VeriPB::Var v){return v;}
-inline VeriPB::Lit toVeriPbLit(VeriPB::Lit l){return l;}
+template <typename TLit>
+TLit neg(const TLit&);
 
-inline VeriPB::VarIdx varidx(VeriPB::Var var){return var.v << 1 ^ var.only_known_in_proof;}
+template <typename TLit, typename TVar>
+TLit create_literal(const TVar&, bool);
 
-// Functions necessary for all types of constraints:
-template <typename TLit, typename TCoeff, typename TRhs> 
-inline TLit get_literal(const VeriPB::Constraint<TLit, TCoeff, TRhs>& cxn, const litindex& index){ 
-    return cxn.get_literal(index);
-}
+template <typename TVar>
+VeriPB::Var toVeriPbVar(const TVar&);
 
-template <typename TLit, typename TCoeff, typename TRhs> 
-inline TCoeff get_coefficient(const VeriPB::Constraint<TLit, TCoeff, TRhs>& cxn, const litindex& index){ 
-    return cxn.get_coefficient(index);
-}
+template <typename TLit>
+VeriPB::Lit toVeriPbLit(const TLit&);
 
-template <typename TLit, typename TCoeff, typename TRhs> 
-inline VeriPB::Comparison get_comparison(const VeriPB::Constraint<TLit, TCoeff, TRhs>& cxn){
-    return cxn.get_comparison();
-}
+template <typename TVar>
+VeriPB::VarIdx varidx(const TVar&);
 
-template <typename TLit, typename TCoeff, typename TRhs> 
-inline TRhs rhs(const VeriPB::Constraint<TLit, TCoeff, TRhs>& cxn){
-    return cxn.get_RHS(cxn);
-}
-
-template <typename TLit, typename TCoeff, typename TRhs>
-inline size_t size(const VeriPB::Constraint<TLit, TCoeff, TRhs>& cxn){
-    return cxn.size();
-}
-
-
-/**
- * Implementation for Linear Terms
+/********************
+ * Functions for linear terms
+ * - need to be specialized
  */
 
+template <typename TLinTerm, typename TLit>
+TLit literal(const TLinTerm&, const litindex&);
+
+template <typename TLinTerm, typename TCoeff>
+TCoeff coefficient(const TLinTerm&, const VeriPB::litindex&);
+
+template <typename TLinTerm, typename TCoeff>
+TCoeff get_constant(const TLinTerm&);
+
+template <typename TLinTerm, typename TConst>
+TConst sum_of_coefficients(const TLinTerm&);
+
+/********************
+ * Functions for VeriPB linear terms
+ * - can be immediately instantiated
+ */
 template <typename TLit, typename TCoeff, typename TConst>
-inline TLit VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::get_literal(const litindex& idx){
-    return _literals->at(idx);
-}
+TLit literal(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&, const VeriPB::litindex&);
 
 template <typename TLit, typename TCoeff, typename TConst>
-inline TCoeff VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::get_coefficient(const litindex& idx){
-    if(_all_coeff_one)
-        return 1;
-    else
-        return _coefficients->at(idx);
-}
+TCoeff coefficient(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&, const VeriPB::litindex&);
 
 template <typename TLit, typename TCoeff, typename TConst>
-inline TConst VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::get_constant(){
-    return _constant;
-}
+TCoeff get_constant(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&);
 
 template <typename TLit, typename TCoeff, typename TConst>
-inline size_t VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::size(){
-    return _literals->size();
-}
+TConst sum_of_coefficients(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&);
 
-template <typename TLit, typename TCoeff, typename TConst>
-inline void VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::add_literal(const TLit& lit, const TCoeff& coeff){
-    assert(!(_all_coeff_one && coeff > 1));
 
-    _literals->push_back(lit);
-    if(!_all_coeff_one)
-        _coefficients->push_back(coeff);
-}
-template <typename TLit, typename TCoeff, typename TConst>
-inline void VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::add_constant(const TConst& constant){
-    _constant += constant;
-}
-template <typename TLit, typename TCoeff, typename TConst>
-inline void VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::subtract_constant(const TConst& constant){
-    _constant -= constant;
-}
+/*******************
+ * Functions for constraints:
+ * - need to be specialized
+*/
+template <typename TLit, typename TConstraint> 
+TLit literal(const TConstraint&, const litindex&);
 
-template <typename TLit, typename TCoeff, typename TConst>
-inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(const bool all_coeff_one) : 
-    _literals(new std::vector<TLit>),
-    _all_coeff_one(all_coeff_one),
-    _constant(0),
-    _owned(true)
-{
-    if(!all_coeff_one)
-        _coefficients = new std::vector<TCoeff>;
-}
+template <typename TCoeff, typename TConstraint> 
+TCoeff coefficient(const TConstraint&, const litindex&);
 
-template <typename TLit, typename TCoeff, typename TConst>
-inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(std::vector<TLit>* lits, std::vector<TCoeff>* coeff, TConst& constant) :
-    _literals(lits),
-    _coefficients(coeff),
-    _constant(constant),
-    _all_coeff_one(false),
-    _owned(false)
-{ }
+template <typename TConstraint> 
+Comparison comparison(const TConstraint&);
 
-template <typename TLit, typename TCoeff, typename TConst>
-inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(std::vector<TLit>* lits, TConst& constant) :
-    _literals(lits),
-    _coefficients(nullptr),
-    _constant(constant),
-    _all_coeff_one(true),
-    _owned(false)
-{ }
+template <typename TConstraint, typename TRhs> 
+TRhs rhs(const TConstraint&);
 
-template <typename TLit, typename TCoeff, typename TConst>
-inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::~LinTermBoolVars(){
-    if(_owned)
-        delete _coefficients;
-        delete _literals;
-}
+template <typename TConstraint>
+size_t size(const TConstraint& cxn);
 
-/**
- * Implementation for Constraint
+template <typename TConstraint, typename TRhs>
+TRhs sum_of_coefficients(const TConstraint& cxn);
+
+/*******************
+ * Functions for VeriPB constraints:
+ * - can be immediately instantiated
+*/
+template <typename TLit, typename TCoeff, typename TRhs> 
+TLit VeriPB::literal(const VeriPB::Constraint<TLit, TCoeff, TRhs>&, const VeriPB::litindex&);
+
+template <typename TLit, typename TCoeff, typename TRhs> 
+TCoeff VeriPB::coefficient(const VeriPB::Constraint<TLit, TCoeff, TRhs>&, const VeriPB::litindex&);
+
+template <typename TLit, typename TCoeff, typename TRhs> 
+VeriPB::Comparison comparison(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
+
+template <typename TLit, typename TCoeff, typename TRhs> 
+TRhs rhs(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
+
+template <typename TLit, typename TCoeff, typename TRhs>
+size_t size(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
+
+template <typename TLit, typename TCoeff, typename TRhs>
+TRhs sum_of_coefficients(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
+
+/*******************
+ * Functions to deal with numbers
+ * - These functions can be immediately instantiated for standard C++ datatypes (except for numbers represented with the boost library). 
+ */
+template <typename TNumber>
+void write_number(const TNumber&, const bool add_prefix_space=true);
+
+template <typename TNumber>
+std::string number_to_string(const TNumber&);
+
+/*******************
+ * Functions for models. 
+ * - model_literal and model_size can be immediately instantiated for representations of models as a sequence of literals (i.e., where it works to write model[i] and model.size())
+ * - model_value can be immediately instantiated for using the optimistic assumption that model_value will be called multiple times for variables that are placed in an increasing index. 
  */
 
+enum ModelValue {False, True, Undef};
 
-template <typename TLit, typename TCoeff, typename TRhs>
-inline TLit VeriPB::Constraint<TLit, TCoeff, TRhs>::get_literal(const litindex& idx){
-    return _linterm->get_literal(idx);
+template <typename TModel>
+Lit model_literal(const litindex&, const TModel&);
+
+template <typename TModel>
+size_t model_size(const TModel& model);
+
+template <typename TVar, typename TModel>
+ModelValue model_value(const TVar& var, const TModel& model, bool first_call=false);
+
 }
 
-template <typename TLit, typename TCoeff, typename TRhs>
-inline TCoeff VeriPB::Constraint<TLit, TCoeff, TRhs>::get_coefficient(const litindex& idx){
-    return _linterm->get_coefficient(idx);
-}
-template <typename TLit, typename TCoeff, typename TRhs>
-inline TRhs VeriPB::Constraint<TLit, TCoeff, TRhs>::get_RHS(){
-    assert(_linterm->get_constant() < RHS);
-
-    return _rhs - _linterm->get_constant();
-}
-template <typename TLit, typename TCoeff, typename TRhs>
-inline VeriPB::Comparison VeriPB::Constraint<TLit, TCoeff, TRhs>::get_comparison(){
-    return _comp;
-}
-
-template <typename TLit, typename TCoeff, typename TRhs>
-inline size_t VeriPB::Constraint<TLit, TCoeff, TRhs>::size(){
-    return _linterm->size();
-}
-
-template <typename TLit, typename TCoeff, typename TRhs>
-inline void VeriPB::Constraint<TLit, TCoeff, TRhs>::add_literal(const TLit& lit, const TCoeff& coeff){
-    _linterm->add_literal(lit, coeff);
-}
-template <typename TLit, typename TCoeff, typename TRhs>
-inline void VeriPB::Constraint<TLit, TCoeff, TRhs>::add_RHS(const TRhs& rhs_to_add){
-    _rhs += rhs;
-}
-template <typename TLit, typename TCoeff, typename TRhs>
-inline void VeriPB::Constraint<TLit, TCoeff, TRhs>::subtract_RHS(const TRhs& rhs_to_subtract){
-    _rhs -= rhs;
-}
-
-template <typename TLit, typename TCoeff, typename TRhs>
-inline VeriPB::Constraint<TLit, TCoeff, TRhs>::Constraint(const bool cardinality_constraint, enum Comparison comp) : 
-    _linterm(new VeriPB::LinTermBoolVars<TLit, TCoeff, TRhs>(cardinality_constraint)),
-    _rhs(0),
-    _comp(comp),
-    _owned(true)
-{ }
-
-template <typename TLit, typename TCoeff, typename TRhs>
-inline VeriPB::Constraint<TLit, TCoeff, TRhs>::Constraint(LinTermBoolVars<TLit, TCoeff, TRhs>* term, TRhs rhs, enum Comparison comp) :
-    _linterm(term),
-    _rhs(rhs),
-    _comp(comp),
-    _owned(false)
-
-{ }
-template <typename TLit, typename TCoeff, typename TRhs>
-inline VeriPB::Constraint<TLit, TCoeff, TRhs>::Constraint(std::vector<TLit>* lits, std::vector<TCoeff>* coeff, TRhs rhs, enum Comparison comp) :
-    _linterm(new VeriPB::LinTermBoolVars<TLit, TCoeff, TRhs>(lits, coeff)),
-    _rhs(rhs),
-    _comp(comp),
-    _owned(false)
-{ }
-template <typename TLit, typename TCoeff, typename TRhs>
-inline VeriPB::Constraint<TLit, TCoeff, TRhs>::Constraint(std::vector<TLit>* lits, TRhs rhs, enum Comparison comp) :
-    _linterm(new VeriPB::LinTermBoolVars<TLit, TCoeff, TRhs>(lits)),
-    _rhs(rhs),
-    _comp(comp),
-    _owned(false)
-{ }
-
-template <typename TLit, typename TCoeff, typename TRhs>
-inline VeriPB::Constraint<TLit, TCoeff, TRhs>::~Constraint(){
-    if(_owned)
-        delete _linterm;
-}
-
+bool operator==(const VeriPB::Var& lhs, const VeriPB::Var& rhs);
+bool operator!=(const VeriPB::Var& lhs, const VeriPB::Var& rhs);
+bool operator< (const VeriPB::Var& lhs, const VeriPB::Var& rhs);
+bool operator==(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
+bool operator< (const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
 
 #endif

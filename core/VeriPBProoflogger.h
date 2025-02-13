@@ -12,21 +12,17 @@
 #include <variant>
 #include <charconv>
 #include <climits>
+#include <stdexcept>
 
 #include<iostream>
 
 // NOTE! Should include definition for types Var, Lit and Clause
 #include "VeriPbSolverTypes.h"
+#include "VariableManager.h"
 
-#ifndef wght 
-#define wght int64_t 
-#endif
-#ifndef wght_max 
-#define wght_max LLONG_MAX
-#endif
-#ifndef signedWght
-#define signedWght int64_t 
-#endif
+
+// Idea: pb_coeff can be a smaller type than TConst. However, pb_coeff need to be implicitly convertable to TConst. 
+// TODO: Check if this works with Roundingsat.
 
 /******************
  * Posssible template classes:
@@ -55,513 +51,359 @@
 // Forward declaration of MaxSATProoflogger as to make it a friend class.
 class MaxSATProoflogger;
 
-typedef int constraintid;
-#define undefcxn 0
-
-#define INIT_NAMESTORAGE 500
-
-typedef std::pair<std::vector<std::pair<VeriPB::Var, VeriPB::Lit>>, std::vector<std::pair<VeriPB::Var, bool>>> substitution;
-typedef std::string cuttingplanes_derivation;
-
-typedef struct {
-    std::string proofgoal;
-    std::vector<cuttingplanes_derivation> derivations;
-} subproof;
-
-class VeriPbProofLogger
-{
-    friend MaxSATProoflogger;
-
-private:
-    bool keep_original_formula = false; // If true, the proof logging library will never delete any constraint that is an original constraint and will never move a constraint to the core set. 
-
-    // Buffer for the proof.
-    int write_buffer_size = 32 * 1024 * 1024;
-    char* write_buffer = new char[write_buffer_size]; 
-
-    // Formula information
-    // Only used for the variable naming scheme.
-    // Variables in the input starts with x,
-    // variables created after parsing input starts with y (except for variables having a meaningful name).
-    int n_variables = 0;
-    int n_original_constraints = 0;
-
-    // Objective function
-    //
-    std::vector<VeriPB::Lit> objective_lits;
-    std::vector<wght> objective_weights;
-    wght objective_constant_cost = 0;
-    wght best_objective_value = wght_max;
-    constraintid model_improvement_constraint = 0; // Last model improvement constraint
-
-    // Meaningful variable names
-    std::vector<bool> solverVarsSpecialNameFlag;
-    std::vector<bool> onlyproofVarsSpecialNameFlag;
-    std::vector<std::string> nameSolverVars; // TODO: ask Marcus if this should be a map or a vector still.
-    std::vector<std::string> nameOnlyProofVars;
-    // std::unordered_map<VeriPB::VarIdx, std::string> meaningful_names_store;
+namespace VeriPB {
     
-    uint32_t n_vars_only_known_in_proof=0;
+    #define undefcxn 0
+    typedef std::string cuttingplanes_derivation;
+    typedef std::pair<std::vector<std::pair<VeriPB::Var, VeriPB::Lit>>, std::vector<std::pair<VeriPB::Var, bool>>> substitution;
+
+    struct subproof {
+        std::string proofgoal;
+        std::vector<cuttingplanes_derivation> derivations;
+    };
+
+    template <typename ObjLit, typename ObjCoeff, typename ObjConst>
+    class VeriPbProofLogger
+    {
+        friend MaxSATProoflogger;
+
+    public:
+        // ------------- Proof file manipulation -------------
+        void set_proof_stream(std::ostream* proof);
+        void set_keep_original_formula_on();
+        void set_keep_original_formula_off();
+        void write_proof_header();
+        void set_n_orig_constraints(int nbconstraints);
+        bool is_original_constraint(const constraintid& cxn);
+        constraintid get_constraint_counter();
+        void set_variable_manager(const VarManager* varMgr);
+
+        // ------------- Conclusion -------------
+        void write_conclusion_NONE();
+        void write_conclusion_UNSAT();
+        void write_conclusion_UNSAT_optimization();
+        void write_conclusion_UNSAT_optimization(const constraintid& hint);
+        void write_conclusion_SAT();
+        void write_conclusion_OPTIMAL();
+        void write_conclusion_OPTIMAL(const constraintid& hint);
+        void write_conclusion_BOUNDS(const ObjConst& LB, const ObjConst& UB);
+        void write_conclusion_BOUNDS(const ObjConst& LB, const constraintid& hint, const ObjConst& UB);
+        void write_fail();
+
+        // ------------- Objective function manipulation -------------
+        void set_objective(const LinTermBoolVars<ObjLit, ObjCoeff, ObjConst>* new_objective);
+        void add_objective_literal(const ObjLit& lit, const ObjCoeff weight);
+        bool remove_objective_literal(const ObjLit& lit);
+        ObjCoeff get_objective_weight(const ObjLit& lit);
+        void add_objective_constant(const ObjConst& weight);
+        void subtract_objective_constant(const ObjConst& weight);
+        void write_comment_objective_function();
+        void check_model_improving_constraint(const constraintid& cxnid=undefcxn);
+        bool logged_solution();
+        ObjConst get_best_objective_value();
+
+        // ------------- Solution improving -------------
+        template <typename TModel>
+        ObjConst calculate_objective_value(const TModel& model);
+        template <typename TModel>
+        constraintid log_solution(const TModel& model, const ObjConst objective_value, const bool only_original_variables_necessary=true, const bool log_as_comment=false);
+        template <class TModel>
+        constraintid log_solution(const TModel& model, bool only_original_variables_necessary=true, bool log_as_comment=false); // TODO-Dieter: if no objective is set, we need to use this one.
+        template <class TModel>
+        constraintid log_solution_with_check(const TModel &model, bool only_original_variables_necessary=true, bool log_nonimproving_solution_as_comment=false);
+        constraintid get_model_improving_constraint();
+        void update_model_improving_constraint(const constraintid& newmic);
+        
+        // ------------- Objective update -------------
+        void write_objective_update();
+        //TODO-Dieter: Also create objective update with subproofs/hints.
+        template <class TLinTerm>
+        void write_objective_update_diff(TLinTerm& oldObj, TLinTerm& newObj);
+        template <class TLit>
+        void write_objective_update_diff_for_literal(TLit& literal_to_remove, ObjCoeff weight = 1, ObjConst constant_for_lit = 0, bool update_model_improving_constraint=false);
+        template <class TLit> 
+        void write_objective_update_diff_literal_replacement(TLit& literal_to_remove, TLit& literal_to_add, ObjCoeff weight=1, bool update_model_improving_constraint=false);
+
+        // ------------- Cutting Planes derivations -------------
+
+        constraintid copy_constraint(const constraintid cxn);
+        
+        cuttingplanes_derivation start_CP_derivation();
+        cuttingplanes_derivation start_CP_derivation_cxn(const constraintid& cxn_id); 
+        template <class TLit>
+        cuttingplanes_derivation start_CP_derivation_lit_axiom(const TLit& lit_axiom);
+        void CP_add(cuttingplanes_derivation& cpder1, const cuttingplanes_derivation& cpder2);
+        void CP_start_subderivation_cxn_id(cuttingplanes_derivation& cpder, const constraintid& cxn_id);
+        template <class TLit>
+        void CP_start_subderivation_lit_axiom(cuttingplanes_derivation& cpder, const TLit& lit_axiom);
+        void CP_add_subderivation(cuttingplanes_derivation& cpder);
+        template <class TNumber>
+        void CP_add_cxn(cuttingplanes_derivation& cpder, const constraintid& cxn_id, const TNumber& mult=1);
+        template <class TLit, class TNumber>
+        void CP_add_litaxiom(cuttingplanes_derivation& cpder, const TLit& lit_axiom, const TNumber& mult=1);
+        template <class TNumber>
+        void CP_divide(cuttingplanes_derivation& cp, const TNumber& n);
+        void CP_saturate(cuttingplanes_derivation& cp);
+        template <class TNumber>
+        void CP_multiply(cuttingplanes_derivation& cp, const TNumber& n);
+        template <class TVar>
+        void CP_weaken(cuttingplanes_derivation& cp, const TVar& var);
+        constraintid write_CP_derivation(const cuttingplanes_derivation& cp);
+
+        // internal CP derivation
+        void start_internal_CP_derivation(bool write_directly_to_proof=false);
+        void start_internal_CP_derivation_cxn(const constraintid& cxn_id,bool write_directly_to_proof=false);
+        template <class TLit>
+        void start_internal_CP_derivation_lit_axiom(const TLit& lit_axiom, bool write_directly_to_proof=false);
+        void CP_add(const cuttingplanes_derivation& cpder2);
+        void CP_start_subderivation_cxn_id(const constraintid& cxn_id);
+        template <class TLit>
+        void CP_start_subderivation_lit_axiom(const TLit& lit_axiom);
+        void CP_add_subderivation();
+        template <class TNumber>
+        void CP_add_cxn(const constraintid& cxn_id, const TNumber& mult=1);
+        template <class TLit, class TNumber>
+        void CP_add_litaxiom(const TLit& lit_axiom, const TNumber& mult=1);
+        template <class TNumber>
+        void CP_divide(const TNumber& n);
+        void CP_saturate();
+        template <class TNumber>
+        void CP_multiply(const TNumber& n);
+        template <class TVar>
+        void CP_weaken(const TVar& var);
+        constraintid write_internal_CP_derivation();
+
+        // ------------- Comments -------------
+        void write_comment(const char *comment);
+        void write_comment(const std::string &comment);
+
+        // ------------- Rules for checking constraints -------------
+        template <class TConstraint>
+        void equals_rule(const TConstraint& cxn, const constraintid cxn_id);
+        template <class TConstraint>
+        void check_last_constraint(const TConstraint& cxn);
+        template <class TConstraint>
+        void check_constraint_exists(const TConstraint& cxn);
+        template <class TConstraint>
+        void check_implied(const TConstraint& cxn);
+        template <class TConstraint>
+        void check_implied(const TConstraint& cxn, constraintid cxn_id);
+
+        // ------------- Rules for adding syntactically implied constraints -------------
+        template <class TConstraint>
+        constraintid derive_if_implied(const TConstraint& cxn);
+        template <class TConstraint>
+        constraintid derive_if_implied(const TConstraint& cxn, const constraintid& cxn_id);
+
+        // ------------- Unchecked Assumptions -------------
+        template <class TConstraint>
+        constraintid unchecked_assumption(const TConstraint& cxn);
+
+        // ------------- Reverse Unit Propagation -------------
+        template <class TConstraint>
+        constraintid rup(const TConstraint& cxn, bool core_constraint=false);
+        template <class TConstraint>
+        constraintid rup(const TConstraint& cxn, const std::vector<constraintid>& hints, const bool core_constraint=false);
+
+        template <class TConstraint>
+        constraintid rup_clause(const TConstraint& lits);
+        template <class TConstraint>
+        constraintid rup_clause(const TConstraint& lits, std::vector<constraintid>& hints);
+        
+        template <class TLit>
+        constraintid rup_unit_clause(const TLit& lit, bool core_constraint=true);
+        template <class TLit>
+        constraintid rup_unit_clause(const TLit& lit, std::vector<constraintid>& hints, bool core_constraint=true);
+        
+        template <class TLit>
+        constraintid rup_binary_clause(const TLit& lit1, const TLit& lit2, bool core_constraint=false);
+        template <class TLit>
+        constraintid rup_binary_clause(const TLit& lit1, const TLit& lit2, std::vector<constraintid>& hints,  bool core_constraint=false);
+        
+        template <class TLit> 
+        constraintid rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, bool core_constraint=false);
+        template <class TLit> 
+        constraintid rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, std::vector<constraintid>& hints, bool core_constraint=false);
+
+        // ------------- Redundance Based Strenghtening -------------
+        void strenghten_to_core_on();
+        void strenghten_to_core_off();
+
+        substitution get_new_substitution();
+        template <class TVar>
+        void add_boolean_assignment(substitution &s, const TVar& var, const bool value);
+        template <class TVar, class TLit>
+        void add_literal_assignment(substitution &s, const TVar& var, const TLit& value);
+        void add_substitution(substitution &sub, const substitution &sub_to_add);
+        template <class TVar>
+        bool has_boolean_assignment(const substitution &s, const TVar& var);
+        template <class TVar>
+        bool has_literal_assignment(const substitution &s, const TVar& var);
+        template <class TVar>
+        bool get_boolean_assignment(substitution &s, const TVar& var);
+        template <class TVar>
+        VeriPB::Lit get_literal_assignment(substitution &s, const TVar& var);
+        size_t get_substitution_size(const substitution &s);
+
+        // Assumption here is that these can prove the implication F ^ not C |- F\w ^ C\w trivially,
+        // i.e., for every constraint C' in F\w ^ C\w, C' is either in F or that w only assigns literals to true in C'.
+        template <class TConstraint>
+        constraintid redundance_based_strengthening(const TConstraint& cxn, const substitution& witness);
+        template <class TLit>
+        constraintid redundance_based_strengthening_unit_clause(const TLit& lit);
+        
+        template <class TConstraint>
+        constraintid redundance_based_strengthening(const TConstraint& cxn, const substitution& witness, const std::vector<subproof>& subproofs);
+        
+
+        template <class TConstraint>
+        constraintid start_redundance_based_strengthening_with_subproofs(const TConstraint& cxn, const substitution& witness);
+        constraintid start_new_subproof(const std::string& proofgoal);
+        void end_subproof();
+        constraintid end_redundance_based_strengthening_with_subproofs();
+
+        // ------------- Reification -------------
+        template <class TLit, class TConstraint>
+        constraintid reification_literal_right_implication(const TLit& lit, const TConstraint& cxn, const bool store_reified_constraint=false);
+        template <class TLit, class TConstraint>
+        constraintid reification_literal_left_implication(const TLit& lit, const TConstraint& cxn, const bool store_reified_constraint=false);
+        
+        template <class TVar>
+        void delete_reified_constraint_left_implication(const TVar& var);
+        template <class TVar>
+        void delete_reified_constraint_right_implication(const TVar& var);
+
+        template <class TVar>
+        constraintid get_reified_constraint_left_implication(const TVar& var);
+        template <class TVar>
+        constraintid get_reified_constraint_right_implication(const TVar& var);
+        template <class TVar>
+        void store_reified_constraint_left_implication(const TVar& var, const constraintid& cxnId);
+        template <class TVar>
+        void store_reified_constraint_right_implication(const TVar& var, const constraintid& cxnId);
+
+        /**
+         * Remove the right reification constraint from the reification constraint store without deleting it in the proof. 
+         * Only needed for not maintaining a constraint id in memory that will not be used in the proof anymore.
+        */
+        template <class TVar>
+        void remove_reified_constraint_right_implication_from_constraintstore(const TVar& var);
+        /**
+         * Remove the left reification constraint from the reification constraint store without deleting it in the proof. 
+         * Only needed for not maintaining a constraint id in memory that will not be used in the proof anymore.
+        */
+        template <class TVar>
+        void remove_reified_constraint_left_implication_from_constraintstore(const TVar& var);
+
+        // ------------- Proof by contradiction -------------
+        /**
+         * Derives a constraint C by assuming the negation of C and showing by means of a cutting planes derivation that a 
+         * conflict is derived if the negation of C is derived.
+         * This is done by proving C using substitution redundancy with an empty witness. 
+         * If C is proven by substitution redundancy using any witness w, it should be proven that for a formula F : F ^ ~C |= F\w  ^ C\w.
+         * Hence, if w is empty, then it has to be proven that F ^ ~C |= C, which is indeed a contradiction. 
+         * 
+        */
+        template <class TConstraint>
+        constraintid start_proof_by_contradiction(const TConstraint& cxn);
+        constraintid end_proof_by_contradiction();
+        
+        // ------------- Proof by case splitting -------------
+        /**
+         * If it is possible to derive the following two constraints:
+         *      k x + t >= k
+         *      k ~x + t >= k
+         * then it is possible to derive t >= k. 
+         * 
+         * Lits and weights are then the literals and weights in t, whereas the RHS coincides with k.   
+         * case1 and case2 are the constraintid's for the constraints depicted above.
+        */
+        template <class TConstraint>
+        constraintid prove_by_casesplitting(const TConstraint& cxn, const constraintid& case1, const constraintid& case2);
+
+        // ------------- Deleting & Overwriting Constraints -------------
+        void delete_constraint_by_id(const constraintid constraint_id, bool overrule_keeporiginalformula=false);
+        void delete_constraint_by_id(const constraintid constraint_id, const substitution& witness, bool overrule_keeporiginalformula=false); // TODO-Dieter
+        void delete_constraint_by_id(const constraintid constraint_id, const substitution& witness, const subproof& subproof, bool overrule_keeporiginalformula=false); // TODO-Dieter
+        void delete_constraint_by_id(const constraintid constraint_id, const substitution& witness, const std::vector<subproof>& subproofs, bool overrule_keeporiginalformula=false); // TODO-Dieter
+        void delete_constraint_by_id(const std::vector<constraintid> &constraint_ids, bool overrule_keeporiginalformula=false);
+        
+        template <class TConstraint> 
+        void delete_constraint(const TConstraint& cxn, const bool overrule_keeporiginalformula=false);
+        template <class TConstraint>
+        void delete_constraint(const TConstraint& cxn, const substitution& witness, bool overrule_keeporiginalformula=false);
+        template <class TConstraint> 
+        void delete_constraint(const TConstraint& cxn, const substitution& witness, const subproof& subproof, bool overrule_keeporiginalformula=false); // TODO-Dieter
+        template <class TConstraint> 
+        void delete_constraint(const TConstraint& cxn, const substitution& witness, const std::vector<subproof>& subproofs, bool overrule_keeporiginalformula=false); // TODO-Dieter
+        
+        // Removal by del find where a literal occuring multiple times in lits is only written once.
+        template <class TConstraint>
+        void delete_clause(const TConstraint& cxn, bool overrule_keeporiginalformula=false);
+
+        template <class TConstraint>
+        constraintid overwrite_constraint(const constraintid& orig_cxn_id, const TConstraint& new_cxn, bool origclause_in_coreset=false);
+        template <class TConstraint>
+        constraintid overwrite_constraint(const TConstraint& orig_cxn, const TConstraint& new_cxn, bool origclause_in_coreset=false);
+
+        void move_to_coreset(const constraintid& cxn, bool overrule_keeporiginalformula=false);
+        template <class TConstraint>
+        void move_to_coreset(const TConstraint& cxn, bool overrule_keeporiginalformula=false);
     
+        // ------------- Constructor -------------
+        
 
-    // Variables to be rewritten by literals.
-    // std::map<VeriPB::VarIdx, VeriPB::Lit> map_rewrite_solvervar_by_literal;
-    // std::map<VeriPB::VarIdx, VeriPB::Lit> map_rewrite_proofonlyvar_by_literal;
+    // -----------------------------------    
+    private:
+        // ------------- Variable Manager -------------
+        VarManager* _varMgr;        
 
-    std::vector<VeriPB::Lit> vec_rewrite_proofonlyvar_by_literal;
-    std::vector<VeriPB::Lit> vec_rewrite_solvervar_by_literal;
+        // ------------- Formula information -------------
+        bool _keep_original_formula = false; // If true, the proof logging library will never delete any constraint that is an original constraint and will never move a constraint to the core set. 
+        int _n_orig_constraints = 0;
+        constraintid _constraint_counter = 0;
 
-    void write_literal_after_possible_rewrite(std::ostream* out, VeriPB::Var& variable, VeriPB::Lit& literal);
-    // Returns true if the literal to which the variable should be rewritten is negated and writes the variable of the literal to which the original variable should be rewritten to the proof.
-    bool write_variable_after_possible_rewrite(std::ostream* out, VeriPB::Var& variable, bool negated=false);
-    void write_varIdx(std::ostream* out, const VeriPB::VarIdx& varidx);
-    std::string to_string_rewrite_var_by_literal(VeriPB::Var& variable, VeriPB::Lit& literal); 
+        // ------------- Formula stream -------------
+        std::ostream* proof;
+        int _write_buffer_size = 32 * 1024 * 1024;
+        char* _write_buffer = new char[write_buffer_size]; // Buffer for the proof.
 
-    // Constraint counter
-    //
-public:
-    constraintid constraint_counter = 0;
-private:
-    // Temporary string for reverse polish derivation
-    //
-public:
-    std::stringstream pol_string;
+        
+        // ------------- Objective function -------------
+        // Objective function
+        LinTermBoolVars<ObjLit, ObjCoeff, ObjConst> _objective;
+        ObjConst _best_objective_value;
+        bool _found_solution=false; // TODO-Dieter: Keep track of bookkeeping of already found solution.
+        constraintid _model_improvement_constraint = 0; // Last model improvement constraint
+ 
+        // ------------- Cutting plane derivations -------------
+        std::string _internal_cuttingplanes_buffer;
+        bool _writing_CP_to_proof=false;
 
+        // ------------- Commenting -------------
+        bool _comments=true;  //TODO-Dieter: add compile definition instead
        
-public:
-    // Option to write comments. If false, all comments will be discarded
-    bool comments=true; 
 
-    // Proof file
-    std::ostream* proof;
-    void set_proof_stream(std::ostream* proof);
-    void set_keep_original_formula();
-    void write_proof_header(int nbclause, int nbvars);
-    void write_proof_header(int nbclause);
-    void write_proof_header();
-    void set_n_variables(int nbvars);
-    void set_n_constraints(int nbconstraints);
-    void increase_n_variables();
-    void increase_constraint_counter();
-    bool is_original_constraint(constraintid cxn);
-
-    // Conclusion
-    void write_conclusion_NONE();
-    void write_conclusion_UNSAT();
-    void write_conclusion_UNSAT_optimization();
-    void write_conclusion_UNSAT_optimization(constraintid hint);
-    void write_conclusion_SAT();
-    void write_conclusion_OPTIMAL();
-    void write_conclusion_OPTIMAL(constraintid hint);
-    void write_conclusion_BOUNDS(wght LB, wght UB);
-    void write_conclusion_BOUNDS(wght LB, constraintid hint, wght UB);
-    void write_fail();
-
-    // Objective Function 
-    template<class TSeqLit, class TSeqWght>
-    void set_objective(const TSeqLit &lits, const TSeqWght &weights, wght constant_cost);
-    template <class TLit> 
-    void add_objective_literal(TLit& lit, wght weight);
-    template <class TLit>
-    bool remove_objective_literal(TLit& lit);
-    template <class TLit>
-    wght get_objective_weight(TLit& lit);
-    void add_objective_constant(wght weight);
-    void subtract_objective_constant(wght weight);
-    void write_comment_objective_function();
-    void check_model_improving_constraint(constraintid cxn=0);
-    wght get_best_objective_function();
-    void write_objective_update();
-    template <class TSeqLit, class TSeqSignedWght> // TODO: Add possibility to update the model improving constraint.
-    void write_objective_update_diff(TSeqLit& litsOnewminusold, TSeqSignedWght& wghtsOnewminusold, signedWght constantOnewminusold = 0);
-    template <class TLit>
-    void write_objective_update_diff_for_literal(TLit& literal_to_remove, wght weight = 1, wght constant_for_lit = 0, bool update_model_improving_constraint=false);
-    template <class TLit> 
-    void write_objective_update_diff_literal_replacement(TLit& literal_to_remove, TLit& literal_to_add, wght weight=1, bool update_model_improving_constraint=false);
-    // TODO: 
-    // void write_objective_update(subproof& new_geq_old, subproof& new_leq_old);
-
-
-
-    // ------------- Helping functions -------------
-    void write_comment(const char *comment);
-    void write_comment(const std::string &comment);
-    template <class TVar>
-    bool is_aux_var(const TVar &var);
-    template <class TVar>
-    std::string var_name(const TVar &var);
-    void write_var_name(std::ostream* out, const VeriPB::Var& var);
-
-    VeriPB::Var new_variable_only_in_proof(std::string name="");
-
-    template <class TLit>
-    void write_weighted_literal(const TLit &literal, wght weight = 1);
-    template <class TLit>
-    std::string to_string(const TLit &lit);
-    template <class TLit>
-    void write_literal(const TLit &lit);
-    template <class TLit>
-    void write_literal(std::ostream* out, const TLit &lit);
-    void write_signedWeight(const signedWght weight);
-    void write_weight(const wght weight);
-    template <class TSeqLit, class TSeqWght>
-    void write_PB_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
-    template <class TSeqLit, class TSeqWght>
-    void write_PB_constraint(const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller );
-    template <class TSeqLit>
-    void write_cardinality_constraint(const TSeqLit &lits, const wght RHS);
-    template <class TSeqLit>
-    void write_clause(const TSeqLit& clause);
-
-
-    // ------------- Meaningful names -------------
-    bool has_meaningful_name(const VeriPB::Var& var);
-    template <class TVar>
-    void store_meaningful_name(const TVar &var, const std::string &name);
-
-    // ------------- Rewrite variables by literals -------------
-    template <class TVar, class TLit>
-    void rewrite_variable_by_literal(const TVar& var, const TLit& lit);
-
-    // ------------- Rules for checking constraints -------------
-    template <class TSeqLit>
-    void equals_rule(const constraintid constraint_id, const TSeqLit &lits, const wght RHS = 1);
-    template <class TSeqLit, class TSeqWght>
-    void equals_rule(const constraintid constraint_id, const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
-    template <class TSeqLit, class TSeqWght>
-    void equals_rule(const constraintid constraint_id, const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  );
-
-    template <class TSeqLit>
-    void equals_rule_LEQ(const constraintid constraint_id, const TSeqLit &lits, const wght RHS = 1);
-    template <class TSeqLit, class TSeqWght>
-    void equals_rule_LEQ(const constraintid constraint_id, const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
-
-    template <class TSeqLit>
-    void check_last_constraint(const TSeqLit &lits, const wght RHS = 1);
-    template <class TSeqLit, class TSeqWght>
-    void check_last_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
-    template <class TSeqLit, class TSeqWght>
-    void check_last_constraint(const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  );
-
-    template <class TSeqLit>
-    void check_constraint_exists(const TSeqLit &lits, const wght RHS = 1);
-    template <class TSeqLit, class TSeqWght>
-    void check_constraint_exists(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
-    template <class TSeqLit, class TSeqWght>
-    void check_constraint_exists(const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  );
-
-    // ------------- Rules for adding implied constraints -------------
-    template <class TSeqLit>
-    constraintid derive_if_implied(const constraintid hint, const TSeqLit &lits, const wght RHS = 1);
-    template <class TSeqLit, class TSeqWght>
-    constraintid derive_if_implied(const constraintid hint, const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
-    template <class TSeqLit, class TSeqWght>
-    constraintid derive_if_implied(const constraintid hint, const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  );    
-
-    template <class TSeqLit>
-    constraintid derive_if_implied(const TSeqLit &lits, const wght RHS = 1);
-    template <class TSeqLit, class TSeqWght>
-    constraintid derive_if_implied(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
-    template <class TSeqLit, class TSeqWght>
-    constraintid derive_if_implied(const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  );    
-
-    // ------------- Rules for optimisation -------------
-
-    template <class TSeqLit>
-    wght calculate_objective_value(const TSeqLit &model);
-    template <class TSeqLit>
-    constraintid log_solution(const TSeqLit &model, wght objective_value=wght_max, bool only_original_variables_necessary=true, bool log_as_comment=false);
-    template <class TSeqLit>
-    constraintid log_solution_with_check(const TSeqLit &model, bool only_original_variables_necessary=true, bool log_nonimproving_solution_as_comment=false);
-    constraintid get_model_improving_constraint();
-    wght get_best_objective_value();
-    void update_model_improving_constraint(constraintid newmic);
-
-    template <class TSeqLBool>
-    constraintid log_solution_lbools(TSeqLBool &model, wght objective_value=wght_max);
-
-    // TODO: write calculate_objective_value and log_solution_with_check for TSeqLBool 
-
-    // ------------- Unchecked Assumptions -------------
-    template <class TSeqLit>
-    constraintid unchecked_assumption(const TSeqLit &lits, const wght RHS = 1);
-    template <class TSeqLit, class TSeqWght>
-    constraintid unchecked_assumption(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
-    template <class TLit> 
-    constraintid unchecked_assumption_unit_clause(const TLit& lit, bool core_constraint=true);
-
-    
-    // ------------- Reverse Unit Propagation -------------
-
-    template <class TSeqLit>
-    constraintid rup(const TSeqLit &lits, const wght RHS = 1);
-    template <class TSeqLit, class TSeqWght>
-    constraintid rup(const TSeqLit &lits, const TSeqWght &weights, const wght RHS);
-    template <class TSeqLit>
-    constraintid  rup_clause(const TSeqLit& lits);
-    template <class TLit>
-    constraintid rup_unit_clause(const TLit& lit, bool core_constraint=true);
-    template <class TLit>
-    constraintid rup_binary_clause(const TLit& lit1, const TLit& lit2, bool core_constraint=false);
-    template <class TLit> 
-    constraintid rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, bool core_constraint=false);
-
-
-    template <class TSeqLit>
-    constraintid rup(const TSeqLit &lits, const wght RHS, std::vector<constraintid>& hints);
-    template <class TSeqLit, class TSeqWght>
-    constraintid rup(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, std::vector<constraintid>& hints);
-    template <class TSeqLit>
-    constraintid  rup_clause(const TSeqLit& lits, std::vector<constraintid>& hints);
-    template <class TLit>
-    constraintid rup_unit_clause(const TLit& lit, std::vector<constraintid>& hints, bool core_constraint=true);
-    template <class TLit>
-    constraintid rup_binary_clause(const TLit& lit1, const TLit& lit2, std::vector<constraintid>& hints,  bool core_constraint=false);
-    template <class TLit> 
-    constraintid rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, std::vector<constraintid>& hints, bool core_constraint=false);
-
-    // ------------- Redundance Based Strenghtening -------------
-    void strenghten_to_core();
-
-    void write_substitution(const substitution &witness);
-    substitution get_new_substitution();
-    template <class TVar>
-    void add_boolean_assignment(substitution &s, const TVar& var, const bool value);
-    template <class TVar, class TLit>
-    void add_literal_assignment(substitution &s, const TVar& var, const TLit& value);
-    void add_substitution(substitution &sub, const substitution &sub_to_add);
-    template <class TVar>
-    bool has_boolean_assignment(const substitution &s, const TVar& var);
-    template <class TVar>
-    bool has_literal_assignment(const substitution &s, const TVar& var);
-    template <class TVar>
-    bool get_boolean_assignment(substitution &s, const TVar& var);
-    template <class TVar>
-    VeriPB::Lit get_literal_assignment(substitution &s, const TVar& var);
-    size_t get_substitution_size(const substitution &s);
-
-    // Assumption here is that these can prove the implication F ^ not C |- F\w ^ C\w trivially,
-    // i.e., for every constraint C' in F\w ^ C\w, C' is either in F or that w only assigns literals to true in C'.
-    template <class TSeqLit>
-    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const wght RHS, const substitution &witness);
-    template <class TSeqLit, class TSeqWght>
-    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution &witness);
-
-    // In contrast to all other overloads, this overload of redundanceBasedStrenghtening suspects that at least one proof goal is not trivial (and that it should be proven by either RUP or by an explicit cutting planes proof). 
-    // This is important for counting the number of constraints, since constraints are created while proving non-trivial proofgoals.
-    template <class TSeqLit, class TSeqWght>
-    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution &witness, std::vector<subproof>& subproofs);
-    template <class TSeqLit>
-    constraintid redundanceBasedStrengthening(const TSeqLit &lits, const wght RHS, const substitution &witness, std::vector<subproof>& subproofs);
-
-    template <class TLit>
-    constraintid redundanceBasedStrengtheningUnitClause(const TLit& lit);
-
-    // ------------- Reification Variables -------------
-    // Proves the constraints encoding the reification constraint l <-> C, with l a literal and C a boolean constraint.
-    // The right implication is the encoding of l -> C, whereas the left implication means l <- C.
-private:
-    std::vector<constraintid> reifiedConstraintLeftImpl;
-    std::vector<constraintid> reifiedConstraintRightImpl;
-    std::vector<constraintid> reifiedConstraintLeftImplOnlyProofVars;
-    std::vector<constraintid> reifiedConstraintRightImplOnlyProofVars;
-    // std::unordered_map<VeriPB::VarIdx, constraintid> reifiedConstraintLeftImpl;
-    // std::unordered_map<VeriPB::VarIdx, constraintid> reifiedConstraintRightImpl;
-public:
-    template <class TSeqLit, class TSeqWght, class TLit>
-    constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, bool store_reified_constraint);
-    template <class TSeqLit, class TSeqWght, class TLit>
-    constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
-    template <class TSeqLit, class TLit>
-    constraintid reificationLiteralRightImpl(const TLit& lit, const TSeqLit &litsC, const wght RHS, bool store_reified_constraint);
-
-    //TODO!
-    template <class TSeqLit, class TSeqWght, class TLit>
-    constraintid reificationLiteralRightImplLeq(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
-    
-
-    template <class TSeqLit, class TSeqWght, class TLit>
-    constraintid reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, bool store_reified_constraint);
-    template <class TSeqLit, class TSeqWght, class TLit>
-    constraintid reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
-    template <class TSeqLit, class TLit>
-    constraintid reificationLiteralLeftImpl(const TLit& lit, const TSeqLit &litsC, const wght RHS, bool store_reified_constraint);
-
-    //TODO!
-    template <class TSeqLit, class TSeqWght, class TLit>
-    constraintid reificationLiteralLeftImplLeq(const TLit& lit, const TSeqLit &litsC, const TSeqWght &weights, const wght RHS, int start_constraint, int end_constraint, bool store_reified_constraint);
-    
-
-    template <class TVar>
-    constraintid getReifiedConstraintLeftImpl(const TVar& var);
-    template <class TVar>
-    constraintid getReifiedConstraintRightImpl(const TVar& var);
-    template <class TVar>
-    void setReifiedConstraintLeftImpl(const TVar& var, constraintid cxnId);
-    template <class TVar>
-    void setReifiedConstraintRightImpl(const TVar& var, constraintid cxnId);
-    template <class TVar>
-    void deleteReifiedConstraintLeftImpl(const TVar& var);
-    template <class TVar>
-    void deleteReifiedConstraintRightImpl(const TVar& var);
-
-    /**
-     * Remove the right reification constraint from the reification constraint store without deleting it in the proof. 
-     * Only needed for not maintaining a constraint id in memory that will not be used in the proof anymore.
-    */
-    template <class TVar>
-    void removeReifiedConstraintRightImplFromConstraintStore(const TVar& var);
-    /**
-     * Remove the left reification constraint from the reification constraint store without deleting it in the proof. 
-     * Only needed for not maintaining a constraint id in memory that will not be used in the proof anymore.
-    */
-    template <class TVar>
-    void removeReifiedConstraintLeftImplFromConstraintStore(const TVar& var);
-
-    // ------------- Cutting Planes derivations -------------
-
-    cuttingplanes_derivation CP_constraintid(const constraintid& constraint_id);
-    template <class TLit>
-    cuttingplanes_derivation CP_literal_axiom(const TLit& lit);
-    cuttingplanes_derivation CP_addition(const cuttingplanes_derivation& left, const cuttingplanes_derivation& right);
-    cuttingplanes_derivation CP_addition(const cuttingplanes_derivation& cp);
-    cuttingplanes_derivation CP_division(const cuttingplanes_derivation& cp, const wght& n);
-    cuttingplanes_derivation CP_division(const wght& n);
-    cuttingplanes_derivation CP_saturation(const cuttingplanes_derivation& cp);
-    cuttingplanes_derivation CP_saturation();
-    cuttingplanes_derivation CP_multiplication(const cuttingplanes_derivation& cp, const wght& n);
-    cuttingplanes_derivation CP_multiplication(const wght& n);
-    template <class TVar>
-    cuttingplanes_derivation CP_weakening(const cuttingplanes_derivation& cp, const TVar& var);
-    template <class TVar>
-    cuttingplanes_derivation CP_weakening(const TVar& var);
-    template <class TLit>
-    cuttingplanes_derivation CP_weakening(const cuttingplanes_derivation& cp, const TLit& lit, const wght& weight);
-    template <class TLit>
-    cuttingplanes_derivation CP_weakening(const TLit& lit, const wght& weight);
-    cuttingplanes_derivation CP_apply(const cuttingplanes_derivation& cp_start, const cuttingplanes_derivation& cp_to_be_applied);
-    constraintid write_CP_derivation(const cuttingplanes_derivation& cp);
-    
-    constraintid copy_constraint(const constraintid cxn);
-    // OLD:
-    void start_intCP_derivation(const constraintid constraint_id);
-    template <class TLit>
-    void start_intCP_derivation_with_lit_axiom(const TLit &lit);
-    void intCP_load_constraint(const constraintid constraint_id);
-    void intCP_add();
-    void intCP_add_constraint(const constraintid constraint_id);
-    void intCP_add_constraint(const constraintid constraint_id, wght mult);
-    template <class TLit>
-    void intCP_add_literal_axiom(const TLit &lit);
-    template <class TLit>
-    void intCP_add_literal_axiom(const TLit &lit, wght mult);
-    void intCP_divide(const wght v);
-    void intCP_saturate();
-    void intCP_multiply(const wght v);
-    template <class TVar>
-    void intCP_weaken(const TVar &var);
-    template <class TLit>
-    void intCP_write_literal_axiom(const TLit &lit);
-    void intCP_apply(const cuttingplanes_derivation& cpder);
-    constraintid end_intCP_derivation();
-    void clear_intCP_derivation();
-    cuttingplanes_derivation get_CPder_from_intCP();
-
-    void start_intCP_derivation(std::ostream* cp, const constraintid constraint_id);
-    template <class TLit>
-    void start_intCP_derivation_with_lit_axiom(std::ostream* cp, const TLit &lit);
-    void intCP_load_constraint(std::ostream* cp, const constraintid constraint_id);
-    void intCP_add(std::ostream* cp);
-    void intCP_add_constraint(std::ostream* cp, const constraintid constraint_id);
-    void intCP_add_constraint(std::ostream* cp, const constraintid constraint_id, wght mult);
-    template <class TLit>
-    void intCP_add_literal_axiom(std::ostream* cp, const TLit &lit);
-    template <class TLit>
-    void intCP_add_literal_axiom(std::ostream* cp, const TLit &lit, wght mult);
-    void intCP_divide(std::ostream* cp, const wght v);
-    void intCP_saturate(std::ostream* cp);
-    void intCP_multiply(std::ostream* cp, const wght v);
-    template <class TVar>
-    void intCP_weaken(std::ostream* cp, const TVar &var);
-    template <class TLit>
-    void intCP_write_literal_axiom(std::ostream* cp, const TLit &lit);
-    void intCP_apply(std::ostream* cp, const cuttingplanes_derivation& cpder);
-    constraintid end_intCP_derivation(std::ostream* cp);
-    void clear_intCP_derivation(std::ostream* cp);
-
-    // ------------- Extra Proof Techniques -------------
-    /**
-     * Derives a constraint C by assuming the negation of C and showing by means of a cutting planes derivation that a 
-     * conflict is derived if the negation of C is derived.
-     * This is done by proving C using substitution redundancy with an empty witness. 
-     * If C is proven by substitution redundancy using any witness w, it should be proven that for a formula F : F ^ ~C |= F\w  ^ C\w.
-     * Hence, if w is empty, then it has to be proven that F ^ ~C |= C, which is indeed a contradiction. 
-     * 
-    */
-    template <class TSeqLit, class TSeqWght>
-    constraintid prove_by_contradiction(TSeqLit& lits, TSeqWght& weights, wght RHS, std::vector<cuttingplanes_derivation>& cpder);
-    template <class TSeqLit>
-    constraintid prove_by_contradiction(TSeqLit& lits, wght RHS, std::vector<cuttingplanes_derivation>& cpder);
-    
-    /**
-     * If it is possible to derive the following two constraints:
-     *      k x + t >= k
-     *      k ~x + t >= k
-     * then it is possible to derive t >= k. 
-     * 
-     * Lits and weights are then the literals and weights in t, whereas the RHS coincides with k.   
-     * case1 and case2 are the constraintid's for the constraints depicted above.
-    */
-    template <class TSeqLit, class TSeqWght>
-    constraintid prove_by_casesplitting(TSeqLit& lits, TSeqWght& weights, wght RHS, constraintid case1, constraintid case2);
-
-    // ------------- Deleting & Overwriting Constraints -------------
-    void delete_constraint_by_id(const constraintid constraint_id, bool overrule_keeporiginalformula=false);
-    void delete_constraint_by_id(const constraintid constraint_id, const substitution& witness, bool overrule_keeporiginalformula=false); // TODO-Dieter
-    void delete_constraint_by_id(const std::vector<constraintid> &constraint_ids, bool overrule_keeporiginalformula=false);
-    template <class TSeqLit>
-    void delete_constraint(const TSeqLit &lits, const wght RHS, bool overrule_keeporiginalformula=false);
-    template <class TSeqLit>
-    void delete_constraint(const TSeqLit &lits, const wght RHS, const substitution& witness, bool overrule_keeporiginalformula=false);    
-    template <class TSeqLit, class TSeqWght>
-    void delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, bool overrule_keeporiginalformula=false);
-    template <class TSeqLit, class TSeqWght>
-    void delete_constraint(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const substitution& witness, bool overrule_keeporiginalformula=false);    
-
-    //Minisat:
-    // void delete_constraint(Glucose::Clause &clause);
-    // template <c>
-    // void delete_constraint(TVec<TLit> &clause, bool overrule_keeporiginalformula=false);
-
-    // Removal by del find where a literal occuring multiple times in lits is only written once.
-    template <class TSeqLit>
-    void delete_clause(const TSeqLit& lits, bool overrule_keeporiginalformula=false);
-
-    template <class TSeqLit>
-    constraintid overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const wght RHS = 1, bool origclause_in_coreset=false);
-    template <class TSeqLit>
-    constraintid overwrite_constraint(const TSeqLit &lits_orig, const wght RHS_orig, const TSeqLit &lits, const wght RHS, bool origclause_in_coreset=false);
-    template <class TSeqLit, class TSeqWght>
-    constraintid overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, bool origclause_in_coreset);
-    template <class TSeqLit, class TSeqWght>
-    constraintid overwrite_constraint(const TSeqLit &lits_orig, const TSeqWght &weights_orig, const wght RHS_orig, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, bool origclause_in_coreset);
-    template <class TSeqLit>
-    constraintid overwrite_constraint(const TSeqLit &lits_orig, const TSeqLit &lits, bool origclause_in_coreset=false);
-
-    void move_to_coreset(constraintid cxn, bool overrule_keeporiginalformula=false);
-    template <class TSeqLit>
-    void move_to_coreset(TSeqLit& lits, wght RHS=1, bool overrule_keeporiginalformula=false);
-    template <class TSeqLit, class TSeqWght>
-    void move_to_coreset(TSeqLit& lits, TSeqWght& wghts, wght RHS=1, bool overrule_keeporiginalformula=false);
-    // ------------- Handling contradiction -------------
-    void write_previous_constraint_contradiction();
-    void write_contradiction(constraintid cxnid);
-    void rup_empty_clause();  
-    void rup_lower_bound_constraint();
-    
-
-};
+        // ------------- Writing -------------
+        template <class TLit>
+        void write_weighted_literal(const TLit &literal, const ObjCoeff& weight = 1, const bool& add_prefix_space=true);
+        template <typename TModel>
+        void write_model(const TModel& model, const bool log_as_comment);
+        template <typename TConstraint>
+        void write_constraint(const TConstraint& cxn);
+        template <typename TClause>
+        void write_clause(const TClause& cxn);
+ 
+        void write_hints(std::vector<constraintid>& hints);
+        void write_substitution(const substitution &witness);
+        
+        // ------------- Reification Variables -------------
+        std::vector<constraintid> _reifiedConstraintLeftImpl;
+        std::vector<constraintid> _reifiedConstraintRightImpl;
+        std::vector<constraintid> _reifiedConstraintLeftImplOnlyProofVars;
+        std::vector<constraintid> _reifiedConstraintRightImplOnlyProofVars;
+    };
+}
 
 //=================================================================================================
-
 #endif

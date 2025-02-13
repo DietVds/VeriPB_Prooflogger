@@ -23,8 +23,8 @@ template std::string VeriPbProofLogger::var_name<Glucose::Var>(const Glucose::Va
 template void VeriPbProofLogger::write_weighted_literal<VeriPB::Lit>(const VeriPB::Lit &literal, wght weight);
 template void VeriPbProofLogger::write_weighted_literal<Glucose::Lit>(const Glucose::Lit &literal, wght weight);
 
-template std::string VeriPbProofLogger::to_string<VeriPB::Lit>(const VeriPB::Lit &lit);
-template std::string VeriPbProofLogger::to_string<Glucose::Lit>(const Glucose::Lit &lit);
+template std::string VeriPbProofLogger::literal_to_string<VeriPB::Lit>(const VeriPB::Lit &lit);
+template std::string VeriPbProofLogger::literal_to_string<Glucose::Lit>(const Glucose::Lit &lit);
 
 template void VeriPbProofLogger::write_literal<VeriPB::Lit>(const VeriPB::Lit &lit);
 template void VeriPbProofLogger::write_literal<Glucose::Lit>(const Glucose::Lit &lit);
@@ -45,8 +45,8 @@ template void VeriPbProofLogger::write_PB_constraint<Glucose::vec<Glucose::Lit>,
 template void VeriPbProofLogger::rewrite_variable_by_literal<VeriPB::Var, VeriPB::Lit>(const VeriPB::Var& var, const VeriPB::Lit& lit);
 template void VeriPbProofLogger::rewrite_variable_by_literal<Glucose::Var, Glucose::Lit>(const Glucose::Var& var, const Glucose::Lit& lit);
 
-template void VeriPbProofLogger::store_meaningful_name<VeriPB::Var>(const VeriPB::Var &var, const std::string &name);
-template void VeriPbProofLogger::store_meaningful_name<Glucose::Var>(const Glucose::Var &var, const std::string &name);
+template void VeriPbProofLogger::store_variable_name<VeriPB::Var>(const VeriPB::Var &var, const std::string &name);
+template void VeriPbProofLogger::store_variable_name<Glucose::Var>(const Glucose::Var &var, const std::string &name);
 
 template void VeriPbProofLogger::equals_rule<std::vector<VeriPB::Lit>>(const constraintid constraint_id, const std::vector<VeriPB::Lit> &lits, const wght RHS);
 template void VeriPbProofLogger::equals_rule<Glucose::vec<Glucose::Lit>>(const constraintid constraint_id, const Glucose::vec<Glucose::Lit> &lits, const wght RHS);

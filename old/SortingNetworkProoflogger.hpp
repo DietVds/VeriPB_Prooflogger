@@ -529,7 +529,7 @@ constraintid SortingNetworkProoflogger::derive_evens_leq_odds(TSeqLit& seq, TSeq
 
     std::string comment = "seq = " ;
     for(int i = 0; i < seq.size(); i++)
-        comment += PL->to_string(seq[i]) + " ";
+        comment += PL->literal_to_string(seq[i]) + " ";
     comment += " sortedness_seq.size() = " + std::to_string(sortedness_seq.size());
     PL->write_comment(comment);
 
@@ -600,10 +600,10 @@ constraintid SortingNetworkProoflogger::derive_evens_leq_odds_merge_input(constr
 
     std::string comment = "leftlits = ";
     for(int i = 0; i < leftlits.size(); i++)
-        comment += PL->to_string(leftlits[i]) + " ";
+        comment += PL->literal_to_string(leftlits[i]) + " ";
     comment += "; rightlits = ";
     for(int i = 0; i < rightlits.size(); i++)
-        comment += PL->to_string(rightlits[i]) + " ";
+        comment += PL->literal_to_string(rightlits[i]) + " ";
     PL->write_comment(comment);
 
     std::vector<VeriPB::Lit> lits_for_check; wght RHS=0; // TODO: RHS should be of type weight, which should be declared in the SolverTypesInt file.
@@ -660,9 +660,9 @@ constraintid SortingNetworkProoflogger::derive_odds_leq_evens_plus_2_merge_input
 
 template <class TSeqLit, class TSeqWght, class TSeqCxnId>
 constraintid SortingNetworkProoflogger::derive_counting_definition_of_outputvars_right(TSeqLit& inputlits, TSeqWght& wghtInputlits, TSeqLit& outputlits, wght j, constraintid input_geq_output, TSeqCxnId& sortedness_outputlits){
-    std::string comment = "Encoding the constraint: " + PL->to_string(outputlits[j-1]) + " ->" ;
+    std::string comment = "Encoding the constraint: " + PL->literal_to_string(outputlits[j-1]) + " ->" ;
     for(int i = 0; i < inputlits.size(); i++)
-        comment += " " + PL->to_string(inputlits[i]);
+        comment += " " + PL->literal_to_string(inputlits[i]);
     comment += " >= " + std::to_string(j);
     PL->write_comment(comment);
     
@@ -695,9 +695,9 @@ constraintid SortingNetworkProoflogger::derive_counting_definition_of_outputvars
 
 template <class TSeqLit, class TSeqWght, class TSeqCxnId>
 constraintid SortingNetworkProoflogger::derive_counting_definition_of_outputvars_left(TSeqLit& inputlits, TSeqWght& wghtInputlits, TSeqLit& outputlits, wght j, constraintid output_geq_input, TSeqCxnId& sortedness_outputlits){
-    std::string comment = "Encoding the constraint: " + PL->to_string(outputlits[j-1]) + " <-" ;
+    std::string comment = "Encoding the constraint: " + PL->literal_to_string(outputlits[j-1]) + " <-" ;
     for(int i = 0; i < inputlits.size(); i++)
-        comment += " " + PL->to_string(inputlits[i]);
+        comment += " " + PL->literal_to_string(inputlits[i]);
     comment += " >= " + std::to_string(j);
     PL->write_comment(comment);
 
@@ -836,9 +836,9 @@ void SortingNetworkProoflogger::delete_temp_constraints(ConstraintStoreSort& plc
 
 template<class TSeqLit>
 std::string SortingNetworkProoflogger::sequence_to_string(TSeqLit& lits){
-    std::string res = "< " + (lits.size() > 0 ? PL->to_string(lits[0]) : "");
+    std::string res = "< " + (lits.size() > 0 ? PL->literal_to_string(lits[0]) : "");
     for(int i = 1; i < lits.size(); i++)
-        res += ", " + PL->to_string(lits[i]);
+        res += ", " + PL->literal_to_string(lits[i]);
     return res + ">"; 
 }
 

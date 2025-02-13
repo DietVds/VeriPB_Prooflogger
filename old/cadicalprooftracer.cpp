@@ -20,7 +20,7 @@ void CadicalProofTracer::veripb_add_derived_clause(
     const vector<uint64_t> &chain) {
 
   if(vPL->comments)
-    vPL->write_comment("Cadical PT: add derived clause with id " + std::to_string(id) + " and veripb id " + std::to_string(vPL->constraint_counter+1));
+    vPL->write_comment("Cadical PT: add derived clause with id " + std::literal_to_string(id) + " and veripb id " + std::literal_to_string(vPL->constraint_counter+1));
   
   *vPL->proof << "rup ";
   for(auto lit : clause) 
@@ -47,7 +47,7 @@ void CadicalProofTracer::veripb_add_derived_clause(
 void CadicalProofTracer::veripb_add_derived_clause (uint64_t id, bool redundant,
                                               const vector<int> &clause) {
   if(vPL->comments)
-    vPL->write_comment("Cadical PT: add derived clause with id " + std::to_string(id) + " and veripb id " + std::to_string(vPL->constraint_counter+1));
+    vPL->write_comment("Cadical PT: add derived clause with id " + std::literal_to_string(id) + " and veripb id " + std::literal_to_string(vPL->constraint_counter+1));
   constraintid cxn = vPL->rup(clause);
 
   // assert(checked_deletions);
@@ -60,7 +60,7 @@ void CadicalProofTracer::veripb_add_derived_clause (uint64_t id, bool redundant,
 
 void CadicalProofTracer::veripb_delete_clause (uint64_t id, bool redundant) {
   if(vPL->comments)
-    vPL->write_comment("Cadical PT: delete clause with id " + std::to_string(id) + " and veripb id " + std::to_string(clauses_vpb[id]));
+    vPL->write_comment("Cadical PT: delete clause with id " + std::literal_to_string(id) + " and veripb id " + std::literal_to_string(clauses_vpb[id]));
   
   bool marked = weakened_clauses.find(id) != weakened_clauses.end();
 
@@ -88,14 +88,14 @@ void CadicalProofTracer::add_original_clause (uint64_t id, bool redundant, const
 
   constraintid cxnid = next_cxnid == undefcxn ? vPL->constraint_counter : next_cxnid;
   if(vPL->comments)  
-    vPL->write_comment("Cadical PT: add original clause with id " + std::to_string(id) + " and veripb id " + std::to_string(cxnid));
-  // vPL->write_comment("next_cxnid = " + std::to_string(next_cxnid));
+    vPL->write_comment("Cadical PT: add original clause with id " + std::literal_to_string(id) + " and veripb id " + std::literal_to_string(cxnid));
+  // vPL->write_comment("next_cxnid = " + std::literal_to_string(next_cxnid));
   // std::string strcls = "Added clause:";
   // for(int l : clause){
-  //   strcls += " " + vPL->to_string(l);
+  //   strcls += " " + vPL->literal_to_string(l);
   // }
   // vPL->write_comment(strcls);
-  // vPL->write_comment("Is redundant? " + std::to_string(redundant) + " Is restored?  "  + std::to_string(restored));
+  // vPL->write_comment("Is redundant? " + std::literal_to_string(redundant) + " Is restored?  "  + std::literal_to_string(restored));
 
   if(restored) return; // A restored clause keeps its original clause id's. 
 
