@@ -54,7 +54,7 @@ private:
  * Implementation for default VarManager
  */
 
-using VeriPB::variable;
+using VeriPB::variable, VeriPB::write_number, VeriPB::number_to_string;
 
 void VarManager::write_var_name(const VeriPB::Var& var, std::ostream* s, bool add_prefix_space){
     if(add_prefix_space)
