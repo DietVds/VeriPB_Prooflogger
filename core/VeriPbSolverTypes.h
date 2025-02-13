@@ -17,6 +17,11 @@
 #define PL_constraintid int64_t
 #endif
 
+/**
+ * TODO:
+ * - Conversion from TCoeff to TConst (also in Prooflogger)
+ */
+
 namespace VeriPB {
 
 typedef PL_VarIdx VarIdx;

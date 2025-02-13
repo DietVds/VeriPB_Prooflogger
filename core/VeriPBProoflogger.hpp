@@ -1,12 +1,7 @@
 #include "VeriPBProoflogger.h"
-/* TODO: 
-   - Instantiate important functions for VeriPB::Var, VeriPB::Lit, constraintid as TNumber, ...
-   - Replace number_to_string by write_number as much as possible
-*/
 
 //=================================================================================================
 
-//prooflogging Library
 using namespace VeriPB;
 
 // ------------- Proof file -------------

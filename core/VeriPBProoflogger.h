@@ -21,28 +21,16 @@
 #include "VariableManager.h"
 
 
-// Idea: pb_coeff can be a smaller type than TConst. However, pb_coeff need to be implicitly convertable to TConst. 
-// TODO: Check if this works with Roundingsat.
 
-/******************
- * Posssible template classes:
- * TLit = Type representing a literal
- * TVar = Type representing a variable
- * TSeqLit = A Sequence Container containing literals. 
- *        This means that if lits is of the type TSeqLit, it is possible to retrieve the i'th lit by lits[i].
- *        Examples are std::vector<VeriPB::Lit>, Glucose::vec<Glucose::Lit>, Glucose::Clause, ...
- *        Also necessary: size() function.
- * TSeqWght = A Sequence Container containing Integers. 
- * TSeqLBool = A sequence container containing Minisat's (and Glucose's) lbool's.
- *******************/
 
 //prooflogging Library
 
 /**
  * TODOs
- * Rewrite redundance based for a map from variables to union of literals or boolean value.
- * -> Can use the std::variant (C++ 17).
- * Dominance rule
+ * - Dominance rule
+   - Instantiate important functions for VeriPB::Var, VeriPB::Lit, constraintid as TNumber, ...
+   - Replace number_to_string by write_number as much as possible
+   - Constructors
  */
 
 //=================================================================================================
@@ -351,9 +339,7 @@ namespace VeriPB {
         void move_to_coreset(const TConstraint& cxn, bool overrule_keeporiginalformula=false);
     
         // ------------- Constructor -------------
-        
-
-    // -----------------------------------    
+        // TODO  
     private:
         // ------------- Variable Manager -------------
         VarManager* _varMgr;        
@@ -373,7 +359,7 @@ namespace VeriPB {
         // Objective function
         LinTermBoolVars<ObjLit, ObjCoeff, ObjConst> _objective;
         ObjConst _best_objective_value;
-        bool _found_solution=false; // TODO-Dieter: Keep track of bookkeeping of already found solution.
+        bool _found_solution=false; // TODO: Keep track of bookkeeping of already found solution.
         constraintid _model_improvement_constraint = 0; // Last model improvement constraint
  
         // ------------- Cutting plane derivations -------------
@@ -381,7 +367,7 @@ namespace VeriPB {
         bool _writing_CP_to_proof=false;
 
         // ------------- Commenting -------------
-        bool _comments=true;  //TODO-Dieter: add compile definition instead
+        bool _comments=true;  //TODO: add compile definition instead
        
 
         // ------------- Writing -------------

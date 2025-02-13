@@ -54,6 +54,8 @@ private:
  * Implementation for default VarManager
  */
 
+using VeriPB::variable;
+
 void VarManager::write_var_name(const VeriPB::Var& var, std::ostream* s, bool add_prefix_space){
     if(add_prefix_space)
         *s << ' ';
@@ -63,7 +65,7 @@ void VarManager::write_var_name(const VeriPB::Var& var, std::ostream* s, bool ad
         *s << 'y';
     else
         *s << 'x';
-    VeriPB::write_number(varidx(var));
+    write_number(varidx(var));
 }
 
 std::string VarManager::var_name(const VeriPB::Var& var){
@@ -74,7 +76,7 @@ std::string VarManager::var_name(const VeriPB::Var& var){
         prefix =  'y';
     else
         prefix = 'x';
-    return prefix + VeriPB::number_to_string(varidx(var));
+    return prefix + number_to_string(varidx(var));
 }
 
 
@@ -83,11 +85,11 @@ void VarManager::write_literal(const VeriPB::Lit& lit, std::ostream* s, bool add
         *s << ' ';
     if(is_negated(lit))
         *s << '~';
-    write_var_name(VeriPB::variable<VeriPB::Var, VeriPB::Lit>(lit), s);
+    write_var_name(variable<VeriPB::Var, VeriPB::Lit>(lit), s);
 }
 
 std::string VarManager::literal_to_string(const VeriPB::Lit& lit){
-    return (is_negated(lit) ? "~" : "") + var_name(VeriPB::variable<VeriPB::Var, VeriPB::Lit>(lit));
+    return (is_negated(lit) ? "~" : "") + var_name(variable<VeriPB::Var, VeriPB::Lit>(lit));
 }
 
 void VarManager::set_number_original_variables(size_t& n){
@@ -146,7 +148,7 @@ void VarManagerWithVarRewriting::write_literal(const VeriPB::Lit& lit, std::ostr
 
     VeriPB::Lit l = lit;
     while(true) {
-        VeriPB::Var v = VeriPB::variable<VeriPB::Var, VeriPB::Lit>(l);
+        VeriPB::Var v = variable<VeriPB::Var, VeriPB::Lit>(l);
 
         if(!needs_rewrite(v)) {
            VarManager::write_literal(lit, s, add_prefix_space);
@@ -156,7 +158,7 @@ void VarManagerWithVarRewriting::write_literal(const VeriPB::Lit& lit, std::ostr
         const std::vector<VeriPB::Lit>* rewriteStorage = v.only_known_in_proof ? &_proofVarsRewriteStorage : &_solverVarsRewriteStorage;
         const VeriPB::Lit lit_to_rewrite_to = is_negated(lit) ? neg((*rewriteStorage)[v.v]) : (*rewriteStorage)[v.v];
 
-        if(VeriPB::variable<VeriPB::Var, VeriPB::Lit>(lit_to_rewrite_to) == v) {
+        if(variable<VeriPB::Var, VeriPB::Lit>(lit_to_rewrite_to) == v) {
             VarManager::write_literal(lit, s, add_prefix_space);
             return;
         }
@@ -169,7 +171,7 @@ std::string VarManagerWithVarRewriting::literal_to_string(const VeriPB::Lit& lit
 
     VeriPB::Lit l = lit;
     while(true) {
-        VeriPB::Var v = VeriPB::variable<VeriPB::Var, VeriPB::Lit>(l);
+        VeriPB::Var v = variable<VeriPB::Var, VeriPB::Lit>(l);
 
         if(!needs_rewrite(v)) {
             return VarManager::literal_to_string(l);
@@ -178,7 +180,7 @@ std::string VarManagerWithVarRewriting::literal_to_string(const VeriPB::Lit& lit
         const std::vector<VeriPB::Lit>* rewriteStorage = v.only_known_in_proof ? &_proofVarsRewriteStorage : &_solverVarsRewriteStorage;
         const VeriPB::Lit lit_to_rewrite_to = is_negated(lit) ? neg((*rewriteStorage)[v.v]) : (*rewriteStorage)[v.v];
 
-        if(VeriPB::variable<VeriPB::Var, VeriPB::Lit>(lit_to_rewrite_to) == v) {
+        if(variable<VeriPB::Var, VeriPB::Lit>(lit_to_rewrite_to) == v) {
             return VarManager::literal_to_string(lit_to_rewrite_to);
         }
         l = lit_to_rewrite_to;
