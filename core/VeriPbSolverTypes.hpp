@@ -78,7 +78,7 @@ void VeriPB::write_number(const TNumber& n, const bool prefixspace){
 
     if(prefixspace)
         buffer[0] = ' ';
-    std::to_chars_result result = std::to_chars(buffer + 1, buffer + buffer_size, weight);
+    std::to_chars_result result = std::to_chars(buffer + prefixspace, buffer + buffer_size, weight);
     assert(result.ec != std::errc::value_too_large); 
     proof->write(buffer, result.ptr - buffer);
 }
