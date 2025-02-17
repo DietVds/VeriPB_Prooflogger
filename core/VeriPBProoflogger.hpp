@@ -1269,7 +1269,7 @@ template <class TLit>
 constraintid VeriPbProofLogger::redundanceBasedStrengtheningUnitClause(const TLit& lit){
     *proof << "red";
     write_weighted_literal(lit);
-    *proof << ">= 1; "; 
+    *proof << " >= 1; "; 
     
     VeriPB::Var var = toVeriPbVar(variable(lit));
     bool rewritten_to_negated_literal = write_variable_after_possible_rewrite(proof, var, is_negated(lit));
