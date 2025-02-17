@@ -30,7 +30,11 @@
  * - Dominance rule
    - Instantiate important functions for VeriPB::Var, VeriPB::Lit, constraintid as TNumber, ...
    - Replace number_to_string by write_number as much as possible
-   - Constructors
+   - Set n orig vars (or make varMgr public)
+   - Constructors:
+        * Only proof file name and open it manually/prooffilestream
+        * VarMgr
+        * 
  */
 
 //=================================================================================================
@@ -64,7 +68,7 @@ namespace VeriPB {
         void set_n_orig_constraints(int nbconstraints);
         bool is_original_constraint(const constraintid& cxn);
         constraintid get_constraint_counter();
-        void set_variable_manager(const VarManager* varMgr);
+        void set_variable_manager(VarManager* varMgr);
 
         // ------------- Conclusion -------------
         void write_conclusion_NONE();
@@ -352,7 +356,7 @@ namespace VeriPB {
         // ------------- Formula stream -------------
         std::ostream* proof;
         int _write_buffer_size = 32 * 1024 * 1024;
-        char* _write_buffer = new char[write_buffer_size]; // Buffer for the proof.
+        char* _write_buffer = new char[_write_buffer_size]; // Buffer for the proof.
 
         
         // ------------- Objective function -------------
@@ -374,7 +378,7 @@ namespace VeriPB {
         template <class TLit>
         void write_weighted_literal(const TLit &literal, const ObjCoeff& weight = 1, const bool& add_prefix_space=true);
         template <typename TModel>
-        void write_model(const TModel& model, const bool log_as_comment);
+        void write_model(const TModel& model, const bool only_original_variables_necessary=false, const bool log_as_comment=false);
         template <typename TConstraint>
         void write_constraint(const TConstraint& cxn);
         template <typename TClause>

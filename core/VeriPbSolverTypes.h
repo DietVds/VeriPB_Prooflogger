@@ -43,11 +43,11 @@ static Lit lit_undef {.v=var_undef, .negated=false};
 template <typename TLit, typename TCoeff, typename TConst>
 class LinTermBoolVars {
     public:
-        TLit literal(const litindex& idx);
-        TCoeff coefficient(const litindex& idx);
-        TConst constant();
-        TConst sum_of_coefficients();
-        size_t size();
+        TLit literal(const litindex& idx) const;
+        TCoeff coefficient(const litindex& idx) const;
+        TConst constant() const;
+        TConst sum_of_coefficients() const;
+        size_t size() const;
 
         void add_literal(const TLit& lit, const TCoeff& coeff=1);
         bool delete_literal(const TLit& lit);
@@ -56,8 +56,8 @@ class LinTermBoolVars {
         void subtract_constant(const TConst& constant);
 
         LinTermBoolVars(const bool all_coeff_one = false);
-        LinTermBoolVars(std::vector<TLit>* lits, std::vector<TCoeff>* coeff, TConst& constant = 0);
-        LinTermBoolVars(std::vector<TLit>* lits, TConst& constant = 0);
+        LinTermBoolVars(std::vector<TLit>* lits, std::vector<TCoeff>* coeff, TConst constant = 0);
+        LinTermBoolVars(std::vector<TLit>* lits, TConst constant = 0);
 
         ~LinTermBoolVars();
     
@@ -76,12 +76,12 @@ enum Comparison {GEQ, LEQ};
 template <typename TLit, typename TCoeff, typename TRhs>
 class Constraint {
     public:
-        TLit literal(const litindex& idx);
-        TCoeff coefficient(const litindex& idx);
-        TRhs rhs();
-        TRhs sum_of_coefficients();
-        Comparison comparison();
-        size_t size();
+        TLit literal(const litindex& idx) const;
+        TCoeff coefficient(const litindex& idx) const;
+        TRhs rhs() const;
+        TRhs sum_of_coefficients() const;
+        Comparison comparison() const;
+        size_t size() const;
 
         void add_literal(const TLit& lit, const TCoeff& coeff=1);
         void add_RHS(const TRhs& rhs_to_add);
@@ -209,7 +209,7 @@ TRhs sum_of_coefficients(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
  * - These functions can be immediately instantiated for standard C++ datatypes (except for numbers represented with the boost library). 
  */
 template <typename TNumber>
-void write_number(const TNumber&, const bool add_prefix_space=true);
+void write_number(const TNumber&, std::ostream*, const bool add_prefix_space=true);
 
 template <typename TNumber>
 std::string number_to_string(const TNumber&);
@@ -236,7 +236,16 @@ ModelValue model_value(const TVar& var, const TModel& model, bool first_call=fal
 bool operator==(const VeriPB::Var& lhs, const VeriPB::Var& rhs);
 bool operator!=(const VeriPB::Var& lhs, const VeriPB::Var& rhs);
 bool operator< (const VeriPB::Var& lhs, const VeriPB::Var& rhs);
+bool operator<=(const VeriPB::Var& lhs, const VeriPB::Var& rhs); 
+bool operator> (const VeriPB::Var& lhs, const VeriPB::Var& rhs); 
+bool operator>=(const VeriPB::Var& lhs, const VeriPB::Var& rhs); 
+
 bool operator==(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
+bool operator!=(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
 bool operator< (const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
+bool operator<=(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
+bool operator> (const VeriPB::Lit& lhs, const VeriPB::Lit& rhs); 
+bool operator>=(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs); 
+
 
 #endif

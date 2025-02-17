@@ -8,17 +8,17 @@ using namespace VeriPB;
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::set_proof_stream(std::ostream* proof){
     this->proof = proof;
-    proof->rdbuf()->pubsetbuf(write_buffer, write_buffer_size); 
+    proof->rdbuf()->pubsetbuf(_write_buffer, _write_buffer_size); 
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::set_keep_original_formula_on(){
-    keep_original_formula = true;
+    _keep_original_formula = true;
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::set_keep_original_formula_off(){
-    keep_original_formula = false;
+    _keep_original_formula = false;
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
@@ -30,7 +30,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_proof_header()
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::set_n_orig_constraints(int nbconstraints){
-    assert(constraint_counter == 0);
+    assert(_constraint_counter == 0);
     _constraint_counter = nbconstraints;
     _n_orig_constraints = nbconstraints;
 }
@@ -46,7 +46,7 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::get_constraint_count
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
-void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::set_variable_manager(const VarManager* varMgr){
+void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::set_variable_manager(VarManager* varMgr){
     _varMgr = varMgr;
 }
 
@@ -89,24 +89,24 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_conclusion_SAT(){
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_conclusion_OPTIMAL(){
-    if(!found_solution){
+    if(!_found_solution){
         write_conclusion_UNSAT_optimization();
     }
     else{
         *proof << "output NONE\n"
-            << "conclusion BOUNDS " << number_to_string(best_objective_value) << " " << number_to_string(best_objective_value) << "\n"
+            << "conclusion BOUNDS " << number_to_string(_best_objective_value) << " " << number_to_string(_best_objective_value) << "\n"
             << "end pseudo-Boolean proof\n";
     }
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_conclusion_OPTIMAL(const constraintid& hint){
-    if(!found_solution){
+    if(!_found_solution){
         write_conclusion_UNSAT_optimization();
     }
     else{
         *proof << "output NONE\n"
-            << "conclusion BOUNDS " << number_to_string(best_objective_value) << " : " << number_to_string(hint) << " " << number_to_string(best_objective_value) << "\n"
+            << "conclusion BOUNDS " << number_to_string(_best_objective_value) << " : " << number_to_string(hint) << " " << number_to_string(_best_objective_value) << "\n"
             << "end pseudo-Boolean proof\n";
     }    
 }
@@ -146,7 +146,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::add_objective_literal(const 
 
 template<typename ObjLit, typename ObjCoeff, typename ObjConst>
 bool VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::remove_objective_literal(const ObjLit& lit){
-    _objective.delete_literal(lit);
+    return _objective.delete_literal(lit);
 }
 
 template<typename ObjLit, typename ObjCoeff, typename ObjConst>
@@ -170,7 +170,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::subtract_objective_constant(
 template<typename ObjLit, typename ObjCoeff, typename ObjConst>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_comment_objective_function()
 {
-    if(!comments) return;
+    if(!_comments) return;
 
     *proof << "* f = ";
     for (int i = 0; i < _objective.size(); i++)
@@ -190,12 +190,12 @@ template<typename ObjLit, typename ObjCoeff, typename ObjConst>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::check_model_improving_constraint(const constraintid& cxnid){
     assert(_found_solution);
 
-    VeriPB::Constraint<ObjLit, ObjCoeff, ObjConst> mic(_objective, _best_objective_value-1, Comparison::LEQ);
+    VeriPB::Constraint<ObjLit, ObjCoeff, ObjConst> mic(&_objective, _best_objective_value-1, Comparison::LEQ);
     
     if(cxnid == undefcxn)
-        check_constraint_exists(cxn);
+        check_constraint_exists(mic);
     else 
-        equals_rule(cxn, cxnid);
+        equals_rule(mic, cxnid);
 }
 
 template<typename ObjLit, typename ObjCoeff, typename ObjConst>
@@ -219,7 +219,7 @@ template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <typename TModel>
 ObjConst VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::calculate_objective_value(const TModel& model)
 {
-    ObjConst objective_value = objective_constant_cost;
+    ObjConst objective_value = _objective.constant();
     ModelValue v;
     for (int i = 0; i < _objective.size(); i++)
     {
@@ -232,19 +232,18 @@ ObjConst VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::calculate_objective_valu
         else if(v == ModelValue::Undef){
             throw out_of_range("[CalculateObjectiveValue] Objective literal " + _varMgr->literal_to_string(objlit) + " not assigned a value." );
         }
-        model_start_idx = model_idx;
     }
     return objective_value;
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <typename TModel>
-constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::log_solution(const TModel &TModel, const ObjConst objective_value, const bool only_original_variables_necessary, const bool log_as_comment)
+constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::log_solution(const TModel& model, const ObjConst objective_value, const bool only_original_variables_necessary, const bool log_as_comment)
 {
-    if(log_as_comment && !comments) return get_model_improving_constraint();
+    if(log_as_comment && !_comments) return get_model_improving_constraint();
 
     write_comment("Solution with objective value: " + number_to_string(objective_value));
-    write_model(model, log_as_comment);
+    write_model(model, only_original_variables_necessary, log_as_comment);
     
     if(!log_as_comment){ // Veripb automatically adds an improvement constraint so counter needs to be incremented
         _model_improvement_constraint = ++_constraint_counter;
@@ -260,13 +259,13 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::log_solution(const T
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TSeqLit>
-constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::log_solution(const TSeqLit &model, bool only_original_variables_necessary=true, bool log_as_comment=false){
+constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::log_solution(const TSeqLit &model, bool only_original_variables_necessary, bool log_as_comment){
     if(size(_objective) > 0){
         ObjConst objVal = calculate_objective_value(model);
         return log_solution(model, objVal, only_original_variables_necessary, log_as_comment);
     }
     else{
-        write_model(model, log_as_comment);
+        write_model(model, only_original_variables_necessary, log_as_comment);
 
         if(!log_as_comment) 
             return ++_constraint_counter;
@@ -282,13 +281,13 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::log_solution_with_ch
     ObjConst current_objective_value = calculate_objective_value(model);
     if (current_objective_value < _best_objective_value)
     {
-        if(comments){
+        if(_comments){
             write_comment_objective_function();
-            write_comment("Objective update from " + number_to_string(best_objective_value) + " to " + number_to_string(current_objective_value));
+            write_comment("Objective update from " + number_to_string(_best_objective_value) + " to " + number_to_string(current_objective_value));
         }
         log_solution(model, current_objective_value, only_original_variables_necessary);
     }
-    else if(comments && log_nonimproving_solution_as_comment){
+    else if(_comments && log_nonimproving_solution_as_comment){
         write_comment_objective_function();
         write_comment("Non-improving solution:");
         log_solution(model, current_objective_value, only_original_variables_necessary, true);
@@ -305,8 +304,8 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::get_model_improving_
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::update_model_improving_constraint(const constraintid& newmic){
-    model_improvement_constraint = newmic;
-    if(comments)
+    _model_improvement_constraint = newmic;
+    if(_comments)
         write_comment("Model improving constraint: " + number_to_string(newmic));
 }
 
@@ -315,7 +314,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::update_model_improving_const
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_objective_update(){
     *proof << "obju new";
-    for (int i = 0; i < objective_lits.size(); i++)
+    for (int i = 0; i < _objective.size(); i++)
         write_weighted_literal(_objective.literal(i), _objective.coefficient(i));
     if(_objective.constant() != 0)
         *proof << number_to_string(_objective.constant());
@@ -431,7 +430,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_start_subderivation_cxn_i
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TLit>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_start_subderivation_lit_axiom(cuttingplanes_derivation& cpder, const TLit& lit_axiom){
-    cpder += " " + _varMgr->literal_to_string(li);
+    cpder += " " + _varMgr->literal_to_string(lit_axiom);
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
@@ -441,7 +440,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_add_subderivation(cutting
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TNumber>
-void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_add_cxn(cuttingplanes_derivation& cpder, const constraintid& cxn_id, const TNumber& mult=1){
+void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_add_cxn(cuttingplanes_derivation& cpder, const constraintid& cxn_id, const TNumber& mult){
     cpder += " " + number_to_string(cxn_id);
     if(mult > 1)
         cpder += " " + number_to_string(mult);
@@ -450,7 +449,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_add_cxn(cuttingplanes_der
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TLit, class TNumber>
-void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_add_litaxiom(cuttingplanes_derivation& cpder, const TLit& lit_axiom, const TNumber& mult=1){
+void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_add_litaxiom(cuttingplanes_derivation& cpder, const TLit& lit_axiom, const TNumber& mult){
     cpder += " " + _varMgr->literal_to_string(lit_axiom);
     if(mult > 1)
         cpder += " " + number_to_string(mult);
@@ -459,36 +458,36 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_add_litaxiom(cuttingplane
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TNumber>
-void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_divide(cuttingplanes_derivation& cp, const TNumber& n){
+void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_divide(cuttingplanes_derivation& cpder, const TNumber& n){
     cpder += " " + number_to_string(n) + " d";
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
-void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_saturate(cuttingplanes_derivation& cp){
+void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_saturate(cuttingplanes_derivation& cpder){
     cpder += " s";
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TNumber>
-void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_multiply(cuttingplanes_derivation& cp, const TNumber& n){
+void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_multiply(cuttingplanes_derivation& cpder, const TNumber& n){
     cpder += " " + number_to_string(n) + " *";
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TVar>
-void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_weaken(cuttingplanes_derivation& cp, const TVar& var){
-    cpder += " " + var_name(var) + " w";
+void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_weaken(cuttingplanes_derivation& cpder, const TVar& var){
+    cpder += " " + _varMgr->var_name(toVeriPbVar(var)) + " w";
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
-constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_CP_derivation(const cuttingplanes_derivation& cp){
-    *proof << "p " << cp << "\n";
+constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_CP_derivation(const cuttingplanes_derivation& cpder){
+    *proof << "p " << cpder << "\n";
     return ++_constraint_counter;
 }
 
 // internal CP derivation
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
-void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::start_internal_CP_derivation(bool write_directly_to_proof=false){
+void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::start_internal_CP_derivation(bool write_directly_to_proof){
     _writing_CP_to_proof = write_directly_to_proof;
 
     if(_writing_CP_to_proof)
@@ -498,12 +497,12 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::start_internal_CP_derivation
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
-void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::start_internal_CP_derivation_cxn(const constraintid& cxn_id,bool write_directly_to_proof=false){
+void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::start_internal_CP_derivation_cxn(const constraintid& cxn_id,bool write_directly_to_proof){
     _writing_CP_to_proof = write_directly_to_proof;
 
     if(_writing_CP_to_proof){
         *proof << "p";
-        write_number(cxn_id);
+        write_number(cxn_id,proof);
     }
     else
         _internal_cuttingplanes_buffer = number_to_string(cxn_id);
@@ -512,7 +511,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::start_internal_CP_derivation
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TLit>
-void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::start_internal_CP_derivation_lit_axiom(const TLit& lit_axiom, bool write_directly_to_proof=false){
+void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::start_internal_CP_derivation_lit_axiom(const TLit& lit_axiom, bool write_directly_to_proof){
     _writing_CP_to_proof = write_directly_to_proof;
 
     if(_writing_CP_to_proof){
@@ -559,7 +558,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_add_subderivation(){
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TNumber>
-void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_add_cxn(const constraintid& cxn_id, const TNumber& mult=1){
+void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_add_cxn(const constraintid& cxn_id, const TNumber& mult){
     if(_writing_CP_to_proof){
         *proof << " " << number_to_string(cxn_id); 
         if(mult > 1)
@@ -573,7 +572,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_add_cxn(const constrainti
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TLit, class TNumber>
-void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_add_litaxiom(const TLit& lit_axiom, const TNumber& mult=1){
+void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_add_litaxiom(const TLit& lit_axiom, const TNumber& mult){
     if(_writing_CP_to_proof){
         _varMgr->write_literal(lit_axiom, proof, true);
         if(mult > 1)
@@ -581,7 +580,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_add_litaxiom(const TLit& 
         *proof << " +";
     }
     else
-        CP_add_litaxiom(_internal_cuttingplanes_buffer, cxn_id, mult);    
+        CP_add_litaxiom(_internal_cuttingplanes_buffer, lit_axiom, mult);    
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
@@ -616,7 +615,7 @@ template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TVar>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::CP_weaken(const TVar& var){
     if(_writing_CP_to_proof){
-        *proof << var_name(var) << " w";
+        *proof << _varMgr->var_name(toVeriPbVar(var)) << " w";
     }
     else
         CP_weaken(_internal_cuttingplanes_buffer, var);
@@ -636,7 +635,7 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_internal_CP_de
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_comment(const char *comment)
 {
-    if(comments)
+    if(_comments)
         *proof << "* " << comment << "\n";
     // proof->flush(); // Can be uncommented for debugging reasons
 }
@@ -644,7 +643,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_comment(const char *co
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_comment(const std::string &comment)
 {
-    if(comments)
+    if(_comments)
         *proof << "* " << comment << "\n";
     // proof->flush(); // Can be uncommented for debugging reasons
 }
@@ -657,7 +656,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::equals_rule(const TConstrain
     *proof << "e ";
     write_constraint(cxn);
     *proof << "; ";
-    write_number(cxn_id);
+    write_number(cxn_id, proof);
     *proof << "\n";
 }
 
@@ -686,7 +685,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::check_implied(const TConstra
         *proof << ";\n";
     else{
         *proof << ";";
-        write_number(cxn_id);
+        write_number(cxn_id, proof);
         *proof << "\n";
     }
         
@@ -702,7 +701,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::check_implied(const TConstra
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TConstraint>
 constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::derive_if_implied(const TConstraint& cxn){
-    derive_if_implied(cxn, undefcxn);
+    return derive_if_implied(cxn, undefcxn);
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
@@ -712,7 +711,7 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::derive_if_implied(co
     write_constraint(cxn);
     *proof << ";";
     if(cxn_id != undefcxn)
-        write_number(cxn_id);
+        write_number(cxn_id,proof);
     *proof << "\n";
     return ++_constraint_counter;
 }
@@ -731,7 +730,7 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::unchecked_assumption
 // ------------- Reverse Unit Propagation -------------
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TConstraint>
-constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup(const TConstraint& cxn, bool core_constraint=false){
+constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup(const TConstraint& cxn, bool core_constraint){
     *proof << "rup";
     write_constraint(cxn);
     *proof << ";\n";
@@ -741,7 +740,7 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup(const TConstrain
 }
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TConstraint>
-constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup(const TConstraint& cxn, const std::vector<constraintid>& hints, const bool core_constraint=false){
+constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup(const TConstraint& cxn, const std::vector<constraintid>& hints, const bool core_constraint){
     *proof << "rup";
     write_constraint(cxn);
     *proof << ";";
@@ -771,7 +770,7 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_clause(const TCo
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TLit>
-constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_unit_clause(const TLit& lit, bool core_constraint=true){
+constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_unit_clause(const TLit& lit, bool core_constraint){
     *proof << "rup";
     write_weighted_literal(lit);
     *proof << " >= 1;\n";
@@ -781,7 +780,7 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_unit_clause(cons
 }
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TLit>
-constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_unit_clause(const TLit& lit, std::vector<constraintid>& hints, bool core_constraint=true){
+constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_unit_clause(const TLit& lit, std::vector<constraintid>& hints, bool core_constraint){
     *proof << "rup";
     write_weighted_literal(lit);
     *proof << " >= 1;";
@@ -794,7 +793,7 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_unit_clause(cons
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TLit>
-constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_binary_clause(const TLit& lit1, const TLit& lit2, bool core_constraint=false){
+constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_binary_clause(const TLit& lit1, const TLit& lit2, bool core_constraint){
     *proof << "rup";
     write_weighted_literal(lit1);
     write_weighted_literal(lit2);
@@ -805,7 +804,7 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_binary_clause(co
 }
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TLit>
-constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_binary_clause(const TLit& lit1, const TLit& lit2, std::vector<constraintid>& hints,  bool core_constraint=false){
+constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_binary_clause(const TLit& lit1, const TLit& lit2, std::vector<constraintid>& hints,  bool core_constraint){
     *proof << "rup";
     write_weighted_literal(lit1);
     write_weighted_literal(lit2);
@@ -819,7 +818,7 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_binary_clause(co
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TLit> 
-constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, bool core_constraint=false){
+constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, bool core_constraint){
     *proof << "rup";
     write_weighted_literal(lit1);
     write_weighted_literal(lit2);
@@ -831,7 +830,7 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_ternary_clause(c
 }
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TLit> 
-constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, std::vector<constraintid>& hints, bool core_constraint=false){
+constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, std::vector<constraintid>& hints, bool core_constraint){
     *proof << "rup";
     write_weighted_literal(lit1);
     write_weighted_literal(lit2);
@@ -889,28 +888,17 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_substitution(const sub
 {
     VeriPB::Var varfrom, varto;
     VeriPB::Lit lit_to;
-    bool rewritten_to_negated_literal, boolto;
+    bool boolto;
 
     for(auto lit_ass : witness.first){
         varfrom = lit_ass.first;
         lit_to = lit_ass.second;
-        varto = variable(lit_to);
-
-        rewritten_to_negated_literal = write_variable_after_possible_rewrite(proof, varfrom);
-        *proof << " -> ";
-
-        lit_to.negated ^= rewritten_to_negated_literal;
-        _varMgr->write_literal(lit_to, proof, false);
+        _varMgr->write_var_to_lit(varfrom, lit_to, proof);
     }
     for(auto bool_ass : witness.second){
         varfrom = bool_ass.first;
         boolto = bool_ass.second;
-
-        rewritten_to_negated_literal = write_variable_after_possible_rewrite(proof, varfrom);
-        *proof << " -> ";
-
-        boolto ^= rewritten_to_negated_literal;
-        *proof << boolto;
+        _varMgr->write_var_to_bool(varfrom, boolto, proof);
     }   
 }
 
@@ -941,7 +929,7 @@ bool VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::get_boolean_assignment(subst
         if(ass.first == toVeriPbVar(var))
             return ass.second;
     }
-    std::cout << "ERROR: Proof logging library: Could not find boolean assignment for variable " << var_name(var) << std::endl;
+    std::cout << "ERROR: Proof logging library: Could not find boolean assignment for variable " << _varMgr->var_name(toVeriPbVar(var)) << std::endl;
     assert(false);
     return false;
 }
@@ -953,7 +941,7 @@ VeriPB::Lit VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::get_literal_assignmen
         if(ass.first == toVeriPbVar(var))
             return ass.second;
     }
-    std::cout << "ERROR: Proof logging library: Could not find literal assignment for variable " << var_name(var) << std::endl;
+    std::cout << "ERROR: Proof logging library: Could not find literal assignment for variable " << _varMgr->var_name(toVeriPbVar(var)) << std::endl;
     assert(false);
     return VeriPB::lit_undef;
 }
@@ -971,7 +959,7 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::redundance_based_str
     *proof << "; ";
     write_substitution(witness);
     *proof << "\n";
-    return ++constraint_counter;
+    return ++_constraint_counter;
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
@@ -980,15 +968,8 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::redundance_based_str
     *proof << "red";
     write_weighted_literal(lit);
     *proof << ">= 1; "; 
-    
-    VeriPB::Var var = toVeriPbVar(variable(lit));
-    bool rewritten_to_negated_literal = write_variable_after_possible_rewrite(proof, var, is_negated(lit));
-    *proof << " -> ";
-    *proof << !rewritten_to_negated_literal << "\n";
-    
-    write_comment("variable: " + var_name(var) + " negated literal = " + number_to_string(is_negated(lit)) + " rewritten_to_negated_lit = " + number_to_string(rewritten_to_negated_literal));
-
-    return ++constraint_counter;
+    _varMgr->write_var_to_bool(toVeriPbVar(variable(lit)), !is_negated(lit), proof);
+    return ++_constraint_counter;
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
@@ -1009,7 +990,7 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::redundance_based_str
             *proof << "\tproofgoal " << p.proofgoal << "\n";
             for(int i = 0; i < p.derivations.size(); i++){
                 *proof << "\t\tp " << p.derivations[i] << "\n";
-                constraint_counter++;
+                _constraint_counter++;
             }
             // *proof << "\t\t c -1\n";
             *proof << "\tend -1\n";
@@ -1056,12 +1037,12 @@ template <class TLit, class TConstraint>
 constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::reification_literal_right_implication(const TLit& lit, const TConstraint& cxn, const bool store_reified_constraint){
     int i;
 
-    if(comments){
+    if(_comments){
         // TODO-Dieter: Make comment a string in the PL library to not always have to take the memory again.
-        std::string comment = _varMgr->literal_to_string(lit) + " -> " ;
-        for(i = 0; i < lits.size(); i++)
-            comment += number_to_string(weights[i]) + " " + _varMgr->literal_to_string(lits[i]) + " ";
-        comment += (comparison(cxn) == Comparison::GEQ ? ">= " : "=< ") + number_to_string(RHS);
+        std::string comment = _varMgr->literal_to_string(toVeriPbLit(lit)) + " -> " ;
+        for(i = 0; i < size(cxn); i++)
+            comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(literal(cxn,i)) + " ";
+        comment += (comparison(cxn) == Comparison::GEQ ? ">= " : "=< ") + number_to_string(rhs(cxn));
         write_comment(comment);
     }
 
@@ -1100,11 +1081,11 @@ template <class TLit, class TConstraint>
 constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::reification_literal_left_implication(const TLit& lit, const TConstraint& cxn, const bool store_reified_constraint){
     int i;
 
-    if(comments){
-        std::string comment = _varMgr->literal_to_string(lit) + " <- " ;
-        for(i = 0; i < lits.size(); i++)
-            comment += number_to_string(weights[i]) + " " + _varMgr->literal_to_string(lits[i]) + " ";
-        comment += (comparison(cxn) == Comparison::GEQ ? ">= " : "=< ") + number_to_string(RHS);
+    if(_comments){
+        std::string comment = _varMgr->literal_to_string(toVeriPbLit(lit)) + " <- " ;
+        for(i = 0; i < size(cxn); i++)
+            comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(literal(cxn,i)) + " ";
+        comment += (comparison(cxn) == Comparison::GEQ ? ">= " : "=< ") + number_to_string(rhs(cxn));
         write_comment(comment);
     }
 
@@ -1144,7 +1125,7 @@ template <class TVar>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::delete_reified_constraint_left_implication(const TVar& var){
     VeriPB::Var _var = toVeriPbVar(var);
 
-    std::vector<constraintid>* storage = _var.only_known_in_proof ? &reifiedConstraintLeftImplOnlyProofVars : &reifiedConstraintLeftImpl;
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &_reifiedConstraintLeftImplOnlyProofVars : &_reifiedConstraintLeftImpl;
 
     if(_var.v <= storage->size()){
         delete_constraint_by_id((*storage)[_var.v]);
@@ -1157,7 +1138,7 @@ template <class TVar>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::delete_reified_constraint_right_implication(const TVar& var){
     VeriPB::Var _var = toVeriPbVar(var);
 
-    std::vector<constraintid>* storage = _var.only_known_in_proof ? &reifiedConstraintRightImplOnlyProofVars : &reifiedConstraintRightImpl;
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &_reifiedConstraintRightImplOnlyProofVars : &_reifiedConstraintRightImpl;
 
     if(_var.v <= storage->size()){
         delete_constraint_by_id((*storage)[_var.v]);
@@ -1169,7 +1150,7 @@ template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TVar>
 constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::get_reified_constraint_left_implication(const TVar& var){
     VeriPB::Var _var = toVeriPbVar(var);
-    std::vector<constraintid>* storage = _var.only_known_in_proof ? &reifiedConstraintLeftImplOnlyProofVars : &reifiedConstraintLeftImpl;
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &_reifiedConstraintLeftImplOnlyProofVars : &_reifiedConstraintLeftImpl;
     constraintid cxn = undefcxn;
     if(_var.v < storage->size())
         cxn = (*storage)[_var.v];
@@ -1181,7 +1162,7 @@ template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TVar>
 constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::get_reified_constraint_right_implication(const TVar& var){
     VeriPB::Var _var = toVeriPbVar(var);
-    std::vector<constraintid>* storage = _var.only_known_in_proof ? &reifiedConstraintRightImplOnlyProofVars : &reifiedConstraintRightImpl;
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &_reifiedConstraintRightImplOnlyProofVars : &_reifiedConstraintRightImpl;
     constraintid cxn = undefcxn;
     if(_var.v < storage->size())
         cxn = (*storage)[_var.v];
@@ -1193,7 +1174,7 @@ template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TVar>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::store_reified_constraint_left_implication(const TVar& var, const constraintid& cxnId){
     VeriPB::Var _var = toVeriPbVar(var);
-    std::vector<constraintid>* storage = _var.only_known_in_proof ? &reifiedConstraintLeftImplOnlyProofVars : &reifiedConstraintLeftImpl;
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &_reifiedConstraintLeftImplOnlyProofVars : &_reifiedConstraintLeftImpl;
     
     // Increase storage if necessary.
     if(_var.v >= storage->size() && INIT_NAMESTORAGE > _var.v ){
@@ -1209,7 +1190,7 @@ template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TVar>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::store_reified_constraint_right_implication(const TVar& var, const constraintid& cxnId){
     VeriPB::Var _var = toVeriPbVar(var);
-    std::vector<constraintid>* storage = _var.only_known_in_proof ? &reifiedConstraintRightImplOnlyProofVars : &reifiedConstraintRightImpl;
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &_reifiedConstraintRightImplOnlyProofVars : &_reifiedConstraintRightImpl;
     
     // Increase storage if necessary.
     if(_var.v >= storage->size() && INIT_NAMESTORAGE > _var.v ){
@@ -1230,7 +1211,7 @@ template <class TVar>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::remove_reified_constraint_right_implication_from_constraintstore(const TVar& var){
     VeriPB::Var _var = toVeriPbVar(var);
 
-    std::vector<constraintid>* storage = _var.only_known_in_proof ? &reifiedConstraintRightImplOnlyProofVars : &reifiedConstraintRightImpl;
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &_reifiedConstraintRightImplOnlyProofVars : &_reifiedConstraintRightImpl;
 
     if(_var.v <= storage->size()){
         (*storage)[_var.v] = undefcxn;
@@ -1246,7 +1227,7 @@ template <class TVar>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::remove_reified_constraint_left_implication_from_constraintstore(const TVar& var){
     VeriPB::Var _var = toVeriPbVar(var);
 
-    std::vector<constraintid>* storage = _var.only_known_in_proof ? &reifiedConstraintLeftImplOnlyProofVars : &reifiedConstraintLeftImpl;
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &_reifiedConstraintLeftImplOnlyProofVars : &_reifiedConstraintLeftImpl;
 
     if(_var.v <= storage->size()){
         delete_constraint_by_id((*storage)[_var.v]);
@@ -1286,10 +1267,10 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::prove_by_casesplitti
 
 // ------------- Deleting & Overwriting Constraints -------------
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
-void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::delete_constraint_by_id(const constraintid constraint_id, bool overrule_keeporiginalformula=false){
+void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::delete_constraint_by_id(const constraintid cxn_id, bool overrule_keeporiginalformula){
     *proof << "del id";
-    if(!(keep_original_formula && is_original_constraint(id)) || overrule_keeporiginalformula)
-        write_number(constraint_id, true);
+    if(!(_keep_original_formula && is_original_constraint(cxn_id)) || overrule_keeporiginalformula)
+        write_number(cxn_id, proof, true);
     *proof << "\n";
 }
 
@@ -1299,7 +1280,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::delete_constraint_by_id(cons
     *proof << "del id";
     for (constraintid id : constraint_ids)
     {
-        if(!(keep_original_formula && is_original_constraint(id)) || overrule_keeporiginalformula)
+        if(!(_keep_original_formula && is_original_constraint(id)) || overrule_keeporiginalformula)
             *proof << " " << id;
     }
     *proof << "\n";
@@ -1309,7 +1290,7 @@ template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TConstraint>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::delete_constraint(const TConstraint& cxn, const bool overrule_keeporiginalformula)
 {
-    assert(!keep_original_formula || overrule_keeporiginalformula);
+    assert(!_keep_original_formula || overrule_keeporiginalformula);
 
     *proof << "del spec";
     write_constraint(cxn);
@@ -1318,8 +1299,8 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::delete_constraint(const TCon
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TConstraint>
-void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::delete_constraint(const TConstraint& cxn, const substitution& witness, bool overrule_keeporiginalformula=false){
-    assert(!keep_original_formula || overrule_keeporiginalformula);
+void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::delete_constraint(const TConstraint& cxn, const substitution& witness, bool overrule_keeporiginalformula){
+    assert(!_keep_original_formula || overrule_keeporiginalformula);
     write_constraint(cxn);
     *proof << "; ";
     write_substitution(witness);
@@ -1329,7 +1310,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::delete_constraint(const TCon
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TConstraint>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::delete_clause(const TConstraint& cxn, bool overrule_keeporiginalformula){
-    assert(!keep_original_formula || overrule_keeporiginalformula);
+    assert(!_keep_original_formula || overrule_keeporiginalformula);
     *proof << "del spec";
     write_clause(cxn);
     *proof << ";\n";
@@ -1353,9 +1334,9 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::overwrite_constraint
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst> 
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::move_to_coreset(const constraintid& cxn_id, bool overrule_keeporiginalformula){
-    if(!keep_original_formula || overrule_keeporiginalformula){
+    if(!_keep_original_formula || overrule_keeporiginalformula){
         *proof << "core id ";
-        write_number(cxn_id);
+        write_number(cxn_id,proof);
         *proof << "\n";
     }
 
@@ -1378,7 +1359,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::move_to_coreset(const TConst
 template <class TSeqLBool>
 constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::log_solution_lbools(TSeqLBool &model, wght objective_value)
 {
-    if(comments)
+    if(_comments)
         write_comment("Model improvement update with objective value = " + number_to_string(objective_value));
 
     VeriPB::Var var;
@@ -1408,21 +1389,21 @@ constraintid VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::log_solution_lbools(
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TLit>
-void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_weighted_literal(const TLit &literal, const ObjCoeff& weight = 1, const bool& add_prefix_space=true){
-    write_number(weight, add_prefix_space);
+void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_weighted_literal(const TLit &lit, const ObjCoeff& weight, const bool& add_prefix_space){
+    write_number(weight, proof, add_prefix_space);
     _varMgr->write_literal(toVeriPbLit(lit), proof, true);
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <typename TModel>
-void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_model(const TModel& model, const bool log_as_comment){
+void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_model(const TModel& model, const bool only_original_variables_necessary, const bool log_as_comment){
     if(log_as_comment) 
         *proof << "* ";
     *proof << "soli";
     VeriPB::Lit lit; 
     for (int i = 0; i < model_size(model); i++){
         lit = toVeriPbLit(model_literal(i, model));
-        if(only_original_variables_necessary && is_aux_var(variable(lit)))
+        if(only_original_variables_necessary && _varMgr->is_aux_var(variable<VeriPB::Var, VeriPB::Lit>(lit)))
             continue;
         _varMgr->write_literal(lit, proof, true);
     }
@@ -1432,7 +1413,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_model(const TModel& mo
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <typename TConstraint>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_constraint(const TConstraint& cxn){
-    bool normalized = comparison(cxn) == Comparison::GEQ
+    bool normalized = comparison(cxn) == Comparison::GEQ;
 
     for(int i = 0; i < size(cxn); i++){
         assert(coefficient(cxn,i) > 0);
@@ -1444,9 +1425,9 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_constraint(const TCons
 
     *proof << " >= ";
     if(normalized)
-        write_number(rhs(cxn),false);
+        write_number(rhs(cxn), proof, false);
     else
-        write_number(sum_of_coefficients(cxn) - rhs(cxn), false);
+        write_number(sum_of_coefficients(cxn) - rhs(cxn), proof, false);
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
@@ -1454,7 +1435,7 @@ template <typename TClause>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_clause(const TClause& cxn){
     VeriPB::Lit prevlit, currentlit;
 
-    for(int i = 0; i < size(clause); i++){
+    for(int i = 0; i < size(cxn); i++){
         prevlit = currentlit;
         currentlit = toVeriPbLit(literal(cxn, i));
 
@@ -1470,7 +1451,7 @@ void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_clause(const TClause& 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::write_hints(std::vector<constraintid>& hints){
     for(constraintid cxn_id : hints)
-        write_number(cxn_id);
+        write_number(cxn_id,proof);
 }
 
 
