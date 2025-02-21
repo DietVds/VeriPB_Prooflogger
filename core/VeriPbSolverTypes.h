@@ -214,6 +214,11 @@ void write_number(const TNumber&, std::ostream*, const bool add_prefix_space=tru
 template <typename TNumber>
 std::string number_to_string(const TNumber&);
 
+#ifndef NONUMBERCONVERSION
+template <typename TNumber1, typename TNumber2>
+TNumber2 convert_number(const TNumber1&);
+#endif
+
 /*******************
  * Functions for models. 
  * - model_literal and model_size can be immediately instantiated for representations of models as a sequence of literals (i.e., where it works to write model[i] and model.size())

@@ -213,7 +213,6 @@ ObjConst VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::get_best_objective_value
 /// @brief Calculate the objective value of the objective stored in VeriPBProoflogger for a model. This function uses the optimistic assumption that the literals are sorted.
 /// @param model Vector of assignments to literals.
 /// @return Objective value for model.
-// TODO-Dieter: add conversion of ObjCoeff to ObjConst.
 // TODO-Dieter: Add example of using lbools.
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <typename TModel>
@@ -227,7 +226,11 @@ ObjConst VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::calculate_objective_valu
         v = model_value(variable(objlit), model, i==0);
         if (v == ModelValue::True)
         {
-            objective_value += _objective.coefficient(i); // TODO-Dieter: Conversion
+            #ifdef NONUMBERCONVERSION
+                objective_value += _objective.coefficient(i); 
+            #else
+                objective_value += convert_numer<ObjCoeff, ObjConst>(_objective.coefficient(i));
+            #endif
         }
         else if(v == ModelValue::Undef){
             throw out_of_range("[CalculateObjectiveValue] Objective literal " + _varMgr->literal_to_string(objlit) + " not assigned a value." );

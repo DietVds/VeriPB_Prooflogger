@@ -86,19 +86,46 @@ void VeriPB::write_number(const TNumber& n, std::ostream* s, const bool prefixsp
     assert(result.ec != std::errc::value_too_large); 
     s->write(buffer, result.ptr - buffer);
 }
+#ifndef NOINIT_CONSTRAINTID
 template void VeriPB::write_number<VeriPB::constraintid>(const VeriPB::constraintid&, std::ostream*, const bool);
+#endif
+#ifndef NOINIT_VARIDX
 template void VeriPB::write_number<VeriPB::VarIdx>(const VeriPB::VarIdx&, std::ostream*, const bool);
+#endif
+#ifndef NOINIT_LITINDEX
 template void VeriPB::write_number<VeriPB::litindex>(const VeriPB::litindex&, std::ostream*, const bool);
+#endif
 
 
 template <typename TNumber>
 std::string number_to_string(const TNumber& n){
     return std::to_string(n);
 }
+#ifndef NOINIT_CONSTRAINTID
 template std::string number_to_string<VeriPB::constraintid>(const VeriPB::constraintid&);
+#endif
+#ifndef NOINIT_VARIDX
 template std::string number_to_string<VeriPB::VarIdx>(const VeriPB::VarIdx&);
+#endif
+#ifndef NOINIT_LITINDEX
 template std::string number_to_string<VeriPB::litindex>(const VeriPB::litindex&);
+#endif
 
+#ifndef NONUMBERCONVERSION
+template <typename TNumber1, typename TNumber2>
+TNumber2 convert_number(const TNumber1& n){
+    return n;
+}
+#ifndef NOINIT_CONSTRAINTID
+template VeriPB::constraintid convert_number<VeriPB::constraintid,VeriPB::constraintid>(const VeriPB::constraintid&);
+#endif
+#ifndef NOINIT_VARIDX
+template VeriPB::VarIdx convert_number<VeriPB::VarIdx,VeriPB::VarIdx>(const VeriPB::VarIdx&);
+#endif
+#ifndef NOINIT_LITINDEX
+template VeriPB::litindex convert_number<VeriPB::litindex,VeriPB::litindex>(const VeriPB::litindex&);
+#endif
+#endif
 
 /*******************
  * Functions for models. 
@@ -221,7 +248,11 @@ inline void VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::add_literal(const TLi
     _literals->push_back(lit);
     if(!_all_coeff_one)
         _coefficients->push_back(coeff);
-    _sum_coeffs += coeff; 
+    #ifdef NONUMBERCONVERSION
+        _sum_coeffs += coeff; 
+    #else 
+        _sum_coeffs += convert_number<TCoeff, TConst>(coeff);
+    #endif
 }
 template <typename TLit, typename TCoeff, typename TConst>
 bool VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::delete_literal(const TLit& lit){
