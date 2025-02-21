@@ -206,7 +206,7 @@ TRhs sum_of_coefficients(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
 
 /*******************
  * Functions to deal with numbers
- * - These functions can be immediately instantiated for standard C++ datatypes (except for numbers represented with the boost library). 
+ * - These functions can be immediately instantiated for standard C++ datatypes (except for specific number types, such as for example represented with the boost library). 
  */
 template <typename TNumber>
 void write_number(const TNumber&, std::ostream*, const bool add_prefix_space=true);
