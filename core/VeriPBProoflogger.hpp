@@ -229,7 +229,7 @@ ObjConst VeriPbProofLogger<ObjLit, ObjCoeff, ObjConst>::calculate_objective_valu
             #ifdef NONUMBERCONVERSION
                 objective_value += _objective.coefficient(i); 
             #else
-                objective_value += convert_numer<ObjCoeff, ObjConst>(_objective.coefficient(i));
+                objective_value += convert_numer(_objective.coefficient(i));
             #endif
         }
         else if(v == ModelValue::Undef){
