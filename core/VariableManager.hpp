@@ -143,7 +143,7 @@ void VarManagerWithVarRewriting::write_var_to_lit(const VeriPB::Var& var, const 
     if(write_arrow)
         *s << " ->";
     VeriPB::Lit rewritten_lit = lit_to_rewrite_to({.v=var, .negated=false});
-    VeriPB::Lit lit_to_write = {.v=lit.v, .negated=(rewritten_lit.negated ^ lit.negated)};
+    VeriPB::Lit lit_to_write = {.v=lit.v, .negated=(rewritten_lit.negated ? !lit.negated : lit.negated)};
     write_literal(lit_to_write, s, true);
 }   
 
