@@ -6,7 +6,10 @@
 #include <string>
 
 #ifndef PL_VarIdx
-#define PL_VarIdx uint32_t
+#define PL_VarIdx size_t
+#ifndef PL_litindex
+#define NOINIT_LITINDEX // If PL_litindex is not yet defined, it will get the same type.
+#endif
 #endif
 
 #ifndef PL_litindex
@@ -15,6 +18,10 @@
 
 #ifndef PL_constraintid
 #define PL_constraintid int64_t
+#endif
+
+#ifndef PL_defaultmult
+#define PL_defaultmultipliertype uint32_t
 #endif
 
 /**
@@ -27,6 +34,7 @@ namespace VeriPB {
 typedef PL_VarIdx VarIdx;
 typedef PL_litindex litindex;
 typedef PL_constraintid constraintid;
+typedef PL_defaultmultipliertype defaultmultipliertype;
 
 struct Var{
     VarIdx v;
@@ -54,6 +62,7 @@ class LinTermBoolVars {
         bool delete_literal(const litindex& index);
         void add_constant(const TConst& constant);
         void subtract_constant(const TConst& constant);
+        void clear(const bool all_coeff_one=false, const TConst& new_const=0 );
 
         LinTermBoolVars(const bool all_coeff_one = false);
         LinTermBoolVars(std::vector<TLit>* lits, std::vector<TCoeff>* coeff, TConst constant = 0);
@@ -86,9 +95,10 @@ class Constraint {
         void add_literal(const TLit& lit, const TCoeff& coeff=1);
         void add_RHS(const TRhs& rhs_to_add);
         void subtract_RHS(const TRhs& rhs_to_subtract);
+        void clear(const bool cardinality_constraint=false, const TRhs& new_RHS=0, const Comparison& new_comparison = Comparison::GEQ );
 
 
-        Constraint(const bool cardinality_constraint=false, enum Comparison comp = Comparison::GEQ);
+        Constraint(const bool cardinality_constraint=false, const TRhs& rhs=0, enum Comparison comp = Comparison::GEQ);
         Constraint(LinTermBoolVars<TLit, TCoeff, TRhs>* term, TRhs rhs, enum Comparison comp = Comparison::GEQ);
         Constraint(std::vector<TLit>* lits, std::vector<TCoeff>* coeff, TRhs rhs, enum Comparison comp = Comparison::GEQ);
         Constraint(std::vector<TLit>* lits, TRhs rhs=1, enum Comparison comp = Comparison::GEQ);

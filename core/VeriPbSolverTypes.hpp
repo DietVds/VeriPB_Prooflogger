@@ -95,7 +95,9 @@ template void VeriPB::write_number<VeriPB::VarIdx>(const VeriPB::VarIdx&, std::o
 #ifndef NOINIT_LITINDEX
 template void VeriPB::write_number<VeriPB::litindex>(const VeriPB::litindex&, std::ostream*, const bool);
 #endif
-
+#ifndef NOINIT_DEFAULTMULT
+template void VeriPB::write_number<VeriPB::defaultmultipliertype>(const VeriPB::defaultmultipliertype&, std::ostream*, const bool);
+#endif
 
 template <typename TNumber>
 std::string number_to_string(const TNumber& n){
@@ -109,6 +111,9 @@ template std::string number_to_string<VeriPB::VarIdx>(const VeriPB::VarIdx&);
 #endif
 #ifndef NOINIT_LITINDEX
 template std::string number_to_string<VeriPB::litindex>(const VeriPB::litindex&);
+#endif
+#ifndef NOINIT_DEFAULTMULT
+template std::string number_to_string<VeriPB::defaultmultipliertype>(const VeriPB::defaultmultipliertype&);
 #endif
 
 #ifndef NONUMBERCONVERSION
@@ -307,6 +312,13 @@ template <typename TLit, typename TCoeff, typename TConst>
 inline void VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::subtract_constant(const TConst& constant){
     _constant -= constant;
 }
+template <typename TLit, typename TCoeff, typename TConst>
+void VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::clear(const bool all_coeff_one, const TConst& new_const){
+    _all_coeff_one=all_coeff_one;
+    _constant = new_const;
+    _coefficients->clear();
+    _literals->clear();
+}
 
 template <typename TLit, typename TCoeff, typename TConst>
 inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(const bool all_coeff_one) : 
@@ -391,11 +403,17 @@ template <typename TLit, typename TCoeff, typename TRhs>
 inline void VeriPB::Constraint<TLit, TCoeff, TRhs>::subtract_RHS(const TRhs& rhs_to_subtract){
     _rhs -= rhs_to_subtract;
 }
+template <typename TLit, typename TCoeff, typename TRhs>
+void VeriPB::Constraint<TLit, TCoeff, TRhs>::clear(const bool cardinality_constraint, const TRhs& new_RHS, const Comparison& new_comparison ){
+    _linterm->clear(cardinality_constraint, 0);
+    _rhs=new_RHS;
+    _comp=new_comparison;
+}
 
 template <typename TLit, typename TCoeff, typename TRhs>
-inline VeriPB::Constraint<TLit, TCoeff, TRhs>::Constraint(const bool cardinality_constraint, enum Comparison comp) : 
+inline VeriPB::Constraint<TLit, TCoeff, TRhs>::Constraint(const bool cardinality_constraint, const TRhs& rhs, enum Comparison comp) : 
     _linterm(new VeriPB::LinTermBoolVars<TLit, TCoeff, TRhs>(cardinality_constraint)),
-    _rhs(0),
+    _rhs(rhs),
     _comp(comp),
     _owned(true)
 { }

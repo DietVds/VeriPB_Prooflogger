@@ -4,6 +4,6 @@
 
 template class VeriPB::LinTermBoolVars<VeriPB::Lit, unsigned int, unsigned int>;
 template class VeriPB::Constraint<VeriPB::Lit, unsigned int, unsigned int>;
-template class VeriPB::VeriPbProofLogger<VeriPB::Lit, unsigned int, unsigned int>;
+template class VeriPB::ProofloggerOpt<VeriPB::Lit, unsigned int, unsigned int>;
 
-template long VeriPB::VeriPbProofLogger<VeriPB::Lit, unsigned int, unsigned int>::unchecked_assumption<VeriPB::Constraint<VeriPB::Lit, unsigned int, unsigned int> >(VeriPB::Constraint<VeriPB::Lit, unsigned int, unsigned int> const&);
+template long VeriPB::Prooflogger::unchecked_assumption<VeriPB::Constraint<VeriPB::Lit, unsigned int, unsigned int> >(VeriPB::Constraint<VeriPB::Lit, unsigned int, unsigned int> const&);

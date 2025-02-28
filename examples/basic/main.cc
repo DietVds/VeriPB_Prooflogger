@@ -31,7 +31,7 @@ int main() {
 
     
     // Creation of PL object
-    VeriPB::VeriPbProofLogger<VeriPB::Lit, uint32_t, uint32_t> vPL;
+    VeriPB::ProofloggerOpt<VeriPB::Lit, uint32_t, uint32_t> vPL;
 
     // Set proof stream
     std::ofstream prooffilestream;
