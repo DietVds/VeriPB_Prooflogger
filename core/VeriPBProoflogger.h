@@ -34,14 +34,11 @@
    - Constructors:
         * Only proof file name and open it manually/prooffilestream
         * VarMgr
-        * 
+    - Make proof goal abstract, so that proof goal is not a string anymore, but something readable.
  */
 
 //=================================================================================================
 // Prooflogger
-
-// Forward declaration of MaxSATProoflogger as to make it a friend class.
-class MaxSATProoflogger;
 
 namespace VeriPB {
     
@@ -54,11 +51,8 @@ namespace VeriPB {
         std::vector<cuttingplanes_derivation> derivations;
     };
 
-    template <typename ObjLit, typename ObjCoeff, typename ObjConst>
-    class VeriPbProofLogger
+    class Prooflogger
     {
-        friend MaxSATProoflogger;
-
     public:
         // ------------- Proof file manipulation -------------
         void set_proof_stream(std::ostream* proof);
@@ -70,53 +64,20 @@ namespace VeriPB {
         constraintid get_constraint_counter();
         void set_variable_manager(VarManager* varMgr);
 
+        // ------------- Solution Logging -------------
+        bool logged_solution();
+        template <class TModel>
+        constraintid log_solution(const TModel& model, const bool derive_excluding_constraint=true, const bool only_print_original_variables=true,  const bool log_as_comment=false);
+
+
         // ------------- Conclusion -------------
         void write_conclusion_NONE();
         void write_conclusion_UNSAT();
-        void write_conclusion_UNSAT_optimization();
-        void write_conclusion_UNSAT_optimization(const constraintid& hint);
         void write_conclusion_SAT();
-        void write_conclusion_OPTIMAL();
-        void write_conclusion_OPTIMAL(const constraintid& hint);
-        void write_conclusion_BOUNDS(const ObjConst& LB, const ObjConst& UB);
-        void write_conclusion_BOUNDS(const ObjConst& LB, const constraintid& hint, const ObjConst& UB);
         void write_fail();
 
-        // ------------- Objective function manipulation -------------
-        void set_objective(const LinTermBoolVars<ObjLit, ObjCoeff, ObjConst>* new_objective);
-        void add_objective_literal(const ObjLit& lit, const ObjCoeff weight);
-        bool remove_objective_literal(const ObjLit& lit);
-        ObjCoeff get_objective_weight(const ObjLit& lit);
-        void add_objective_constant(const ObjConst& weight);
-        void subtract_objective_constant(const ObjConst& weight);
-        void write_comment_objective_function();
-        void check_model_improving_constraint(const constraintid& cxnid=undefcxn);
-        bool logged_solution();
-        ObjConst get_best_objective_value();
-
-        // ------------- Solution improving -------------
-        template <typename TModel>
-        ObjConst calculate_objective_value(const TModel& model);
-        template <typename TModel>
-        constraintid log_solution(const TModel& model, const ObjConst objective_value, const bool only_original_variables_necessary=true, const bool log_as_comment=false);
-        template <class TModel>
-        constraintid log_solution(const TModel& model, bool only_original_variables_necessary=true, bool log_as_comment=false); // TODO-Dieter: if no objective is set, we need to use this one.
-        template <class TModel>
-        constraintid log_solution_with_check(const TModel &model, bool only_original_variables_necessary=true, bool log_nonimproving_solution_as_comment=false);
-        constraintid get_model_improving_constraint();
-        void update_model_improving_constraint(const constraintid& newmic);
-        
-        // ------------- Objective update -------------
-        void write_objective_update();
-        //TODO-Dieter: Also create objective update with subproofs/hints.
-        template <class TLinTerm>
-        void write_objective_update_diff(TLinTerm& oldObj, TLinTerm& newObj);
-        template <class TLit>
-        void write_objective_update_diff_for_literal(TLit& literal_to_remove, ObjCoeff weight = 1, ObjConst constant_for_lit = 0, bool update_model_improving_constraint=false);
-        template <class TLit> 
-        void write_objective_update_diff_literal_replacement(TLit& literal_to_remove, TLit& literal_to_add, ObjCoeff weight=1, bool update_model_improving_constraint=false);
-
         // ------------- Cutting Planes derivations -------------
+        //TODO: add assertions to ensure that we do not mix-up internal and non-internal CP derivations.
 
         constraintid copy_constraint(const constraintid cxn);
         
@@ -129,14 +90,14 @@ namespace VeriPB {
         template <class TLit>
         void CP_start_subderivation_lit_axiom(cuttingplanes_derivation& cpder, const TLit& lit_axiom);
         void CP_add_subderivation(cuttingplanes_derivation& cpder);
-        template <class TNumber>
+        template <class TNumber=VeriPB::defaultmultipliertype>
         void CP_add_cxn(cuttingplanes_derivation& cpder, const constraintid& cxn_id, const TNumber& mult=1);
-        template <class TLit, class TNumber>
+        template <class TLit, class TNumber=VeriPB::defaultmultipliertype>
         void CP_add_litaxiom(cuttingplanes_derivation& cpder, const TLit& lit_axiom, const TNumber& mult=1);
-        template <class TNumber>
+        template <class TNumber=VeriPB::defaultmultipliertype>
         void CP_divide(cuttingplanes_derivation& cp, const TNumber& n);
         void CP_saturate(cuttingplanes_derivation& cp);
-        template <class TNumber>
+        template <class TNumber=VeriPB::defaultmultipliertype>
         void CP_multiply(cuttingplanes_derivation& cp, const TNumber& n);
         template <class TVar>
         void CP_weaken(cuttingplanes_derivation& cp, const TVar& var);
@@ -152,14 +113,14 @@ namespace VeriPB {
         template <class TLit>
         void CP_start_subderivation_lit_axiom(const TLit& lit_axiom);
         void CP_add_subderivation();
-        template <class TNumber>
+        template <class TNumber=VeriPB::defaultmultipliertype>
         void CP_add_cxn(const constraintid& cxn_id, const TNumber& mult=1);
-        template <class TLit, class TNumber>
+        template <class TLit, class TNumber=VeriPB::defaultmultipliertype>
         void CP_add_litaxiom(const TLit& lit_axiom, const TNumber& mult=1);
-        template <class TNumber>
+        template <class TNumber=VeriPB::defaultmultipliertype>
         void CP_divide(const TNumber& n);
         void CP_saturate();
-        template <class TNumber>
+        template <class TNumber=VeriPB::defaultmultipliertype>
         void CP_multiply(const TNumber& n);
         template <class TVar>
         void CP_weaken(const TVar& var);
@@ -344,7 +305,7 @@ namespace VeriPB {
     
         // ------------- Constructor -------------
         // TODO  
-    private:
+    protected:
         // ------------- Variable Manager -------------
         VarManager* _varMgr;        
 
@@ -352,6 +313,7 @@ namespace VeriPB {
         bool _keep_original_formula = false; // If true, the proof logging library will never delete any constraint that is an original constraint and will never move a constraint to the core set. 
         int _n_orig_constraints = 0;
         constraintid _constraint_counter = 0;
+        bool _found_solution=false; // TODO: Keep track of bookkeeping of already found solution.
 
         // ------------- Formula stream -------------
         std::ostream* proof;
@@ -359,13 +321,6 @@ namespace VeriPB {
         char* _write_buffer = new char[_write_buffer_size]; // Buffer for the proof.
 
         
-        // ------------- Objective function -------------
-        // Objective function
-        LinTermBoolVars<ObjLit, ObjCoeff, ObjConst> _objective;
-        ObjConst _best_objective_value;
-        bool _found_solution=false; // TODO: Keep track of bookkeeping of already found solution.
-        constraintid _model_improvement_constraint = 0; // Last model improvement constraint
- 
         // ------------- Cutting plane derivations -------------
         std::string _internal_cuttingplanes_buffer;
         bool _writing_CP_to_proof=false;
@@ -375,16 +330,16 @@ namespace VeriPB {
        
 
         // ------------- Writing -------------
-        template <class TLit>
-        void write_weighted_literal(const TLit &literal, const ObjCoeff& weight = 1, const bool& add_prefix_space=true);
+        template <class TLit, class TNumber=VeriPB::defaultmultipliertype>
+        void write_weighted_literal(const TLit &literal, const TNumber& weight = 1, const bool& add_prefix_space=true);
         template <typename TModel>
-        void write_model(const TModel& model, const bool only_original_variables_necessary=false, const bool log_as_comment=false);
+        void _log_solution(const TModel& model, const std::string& log_command="sol", const bool only_original_variables_necessary=false, const bool log_as_comment=false);
         template <typename TConstraint>
         void write_constraint(const TConstraint& cxn);
         template <typename TClause>
         void write_clause(const TClause& cxn);
  
-        void write_hints(std::vector<constraintid>& hints);
+        void write_hints(const std::vector<constraintid>& hints);
         void write_substitution(const substitution &witness);
         
         // ------------- Reification Variables -------------
@@ -392,6 +347,61 @@ namespace VeriPB {
         std::vector<constraintid> _reifiedConstraintRightImpl;
         std::vector<constraintid> _reifiedConstraintLeftImplOnlyProofVars;
         std::vector<constraintid> _reifiedConstraintRightImplOnlyProofVars;
+    };
+
+    template <typename ObjLit, typename ObjCoeff, typename ObjConst>
+    class ProofloggerOpt : public Prooflogger
+    {
+    public:
+        // ------------- Objective function manipulation -------------
+        void set_objective(const LinTermBoolVars<ObjLit, ObjCoeff, ObjConst>* new_objective);
+        void add_objective_literal(const ObjLit& lit, const ObjCoeff weight);
+        bool remove_objective_literal(const ObjLit& lit);
+        ObjCoeff get_objective_weight(const ObjLit& lit);
+        void add_objective_constant(const ObjConst& weight);
+        void subtract_objective_constant(const ObjConst& weight);
+        void write_comment_objective_function();
+        void check_model_improving_constraint(const constraintid& cxnid=undefcxn);
+        ObjConst get_best_objective_value();
+
+        // ------------- Solution Logging -------------
+        template <typename TModel>
+        ObjConst calculate_objective_value(const TModel& model);
+        template <class TModel>
+        constraintid log_solution(const TModel& model, const bool derive_excluding_constraint=true, const bool only_print_original_variables=true,  const bool log_as_comment=false);
+        template <typename TModel>
+        constraintid log_solution(const TModel& model, const ObjConst objective_value, const bool derive_excluding_constraint=true, const bool only_original_variables_necessary=true, const bool log_as_comment=false);
+        template <class TModel>
+        constraintid log_solution_if_improving(const TModel &model, const bool derive_excluding_constraint=true, bool only_original_variables_necessary=true, bool log_nonimproving_solution_as_comment=false);
+        constraintid get_model_improving_constraint();
+        void update_model_improving_constraint(const constraintid& newmic);
+        
+        // ------------- Objective update -------------
+        void write_objective_update();
+        //TODO-Dieter: Also create objective update with subproofs/hints.
+        template <class TLinTerm>
+        void write_objective_update_diff(TLinTerm& oldObj, TLinTerm& newObj);
+        template <class TLit>
+        void write_objective_update_diff_for_literal(TLit& literal_to_remove, ObjCoeff weight = 1, ObjConst constant_for_lit = 0, bool update_model_improving_constraint=false);
+        template <class TLit> 
+        void write_objective_update_diff_literal_replacement(TLit& literal_to_remove, TLit& literal_to_add, ObjCoeff weight=1, bool update_model_improving_constraint=false);
+
+        // ------------- Conclusion -------------
+        void write_conclusion_OPTIMAL();
+        void write_conclusion_OPTIMAL(const constraintid& hint);
+        void write_conclusion_BOUNDS(const ObjConst& LB, const ObjConst& UB);
+        void write_conclusion_BOUNDS(const ObjConst& LB, const constraintid& hint, const ObjConst& UB);
+        void write_conclusion_UNSAT_optimization();
+        void write_conclusion_UNSAT_optimization(const constraintid& hint);
+        
+    private:
+        // ------------- Objective function -------------
+        // Objective function
+        LinTermBoolVars<ObjLit, ObjCoeff, ObjConst> _objective;
+        ObjConst _best_objective_value;
+        constraintid _model_improvement_constraint = 0; // Last model improvement constraint
+ 
+
     };
 }
 
