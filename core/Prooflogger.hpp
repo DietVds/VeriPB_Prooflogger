@@ -1,5 +1,8 @@
-#include "Prooflogger.h"
+#include "VeriPbSolverTypes.hpp"
 #include "CuttingPlanesDerivation.hpp"
+#include "VariableManager.hpp"
+#include "Prooflogger.h"
+
 
 //=================================================================================================
 
@@ -88,7 +91,7 @@ constraintid Prooflogger::copy_constraint(const constraintid cxn){
     return ++_constraint_counter;
 }
 
-CuttingPlanesDerivation Prooflogger::get_cuttingplanes_derivation(bool write_directly_to_proof=false, bool use_internal_buffer=false){
+CuttingPlanesDerivation Prooflogger::get_cuttingplanes_derivation(bool write_directly_to_proof, bool use_internal_buffer){
     if(write_directly_to_proof){
         return CuttingPlanesDerivation(this, true);
     }
@@ -688,12 +691,12 @@ constraintid Prooflogger::end_proof_by_contradiction(){
 template <class TConstraint>
 constraintid Prooflogger::prove_by_casesplitting(const TConstraint& cxn, const constraintid& case1, const constraintid& case2){
     constraintid cxnNeg = start_proof_by_contradiction(cxn);
-    start_internal_CP_derivation_cxn(cxnNeg, true);
-    CP_add_cxn(case1);
-    CP_start_subderivation_cxn_id(cxnNeg);
-    CP_add_cxn(case2);
-    CP_add_subderivation();
-    write_internal_CP_derivation();
+    _cpder->start_from_constraint(cxnNeg);
+    _cpder->add_constraint(case1);
+    _cpder->start_subderivation_from_constraint(cxnNeg);
+    _cpder->add_constraint(case2);
+    _cpder->add_subderivation();
+    _cpder->end();
     return end_proof_by_contradiction();
 }
 

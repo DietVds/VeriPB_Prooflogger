@@ -72,12 +72,12 @@ void CuttingPlanesDerivation::add_subderivation(){
     }
 }
 template <class TNumber=VeriPB::defaultmultipliertype>
-void CuttingPlanesDerivation::add_constraint(const constraintid& cxn_id, const TNumber& mult=1){
+void CuttingPlanesDerivation::add_constraint(const constraintid& cxn_id, const TNumber& mult){
     if(_write_directly_to_proof){
         write_number(cxn_id, _pl->proof, true);
         if(mult != 1){
             write_number(mult, _pl->proof, true);
-            *(_pl->proof) << " *"
+            *(_pl->proof) << " *";
         }
         *(_pl->proof) << " +";
     }else{
@@ -85,17 +85,17 @@ void CuttingPlanesDerivation::add_constraint(const constraintid& cxn_id, const T
         if(mult != 1){
             *(_buffer) += number_to_string(mult) + " *";
         }
-        *(_buffer) << " +";
+        *(_buffer) += " +";
     }
 }
 template <class TLit, class TNumber=VeriPB::defaultmultipliertype>
-void CuttingPlanesDerivation::add_literal_axiom(const TLit& lit_axiom, const TNumber& mult=1){
-    VeriPB::Lit l = toVeriPbLit(lit);
+void CuttingPlanesDerivation::add_literal_axiom(const TLit& lit_axiom, const TNumber& mult){
+    VeriPB::Lit l = toVeriPbLit(lit_axiom);
     if(_write_directly_to_proof){
         _pl->_varMgr->write_literal(l, _pl->proof, true);
         if(mult != 1){
             write_number(mult, _pl->proof, true);
-            *(_pl->proof) << " *"
+            *(_pl->proof) << " *";
         }
         *(_pl->proof) << " +";
     }else{
@@ -103,7 +103,7 @@ void CuttingPlanesDerivation::add_literal_axiom(const TLit& lit_axiom, const TNu
         if(mult != 1){
             *(_buffer) += number_to_string(mult) + " *";
         }
-        *(_buffer) << " +";
+        *(_buffer) += " +";
     }
 }
 
@@ -133,7 +133,7 @@ void CuttingPlanesDerivation::weaken(const TVar& var){
         _pl->_varMgr->write_var_name(v, _pl->proof, true);
         *(_pl->proof) << " w";
     }else{
-        *(_buffer) += " " + _pl->_varMgr->var_name(n) + " *";
+        *(_buffer) += " " + _pl->_varMgr->var_name(v) + " *";
     }
 }
 
@@ -148,7 +148,7 @@ constraintid CuttingPlanesDerivation::end(bool clear){
     return ++_pl->_constraint_counter;
 }
 
-CuttingPlanesDerivation::CuttingPlanesDerivation(Prooflogger* pl, bool write_directly_to_proof=false) : 
+CuttingPlanesDerivation::CuttingPlanesDerivation(Prooflogger* pl, bool write_directly_to_proof) : 
     _pl(pl), _write_directly_to_proof(write_directly_to_proof) 
     {
         if(!write_directly_to_proof){

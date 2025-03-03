@@ -288,15 +288,15 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update_diff_for
         if(constant_for_lit > 0)
             rup_unit_clause(literal_to_remove, false);
 
-        start_internal_CP_derivation_cxn(get_model_improving_constraint(), true);
+        _cpder->start_from_constraint(get_model_improving_constraint());
         
         if(constant_for_lit > 0){
-            CP_add_cxn(-1, weight);
+            _cpder->add_constraint(-1, weight);
         }
         else{
-            CP_add_litaxiom(literal_to_remove, weight);
+            _cpder->add_literal_axiom(literal_to_remove, weight);
         }
-        constraintid cxn = write_internal_CP_derivation();
+        constraintid cxn = _cpder->end();
         update_model_improving_constraint(cxn);
     }
 }
@@ -315,9 +315,9 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update_diff_lit
         write_comment("Update model-improving constraint:");
         constraintid cxn_newlit_leq_oldlit = rup_binary_clause(neg(literal_to_add), literal_to_remove);
         
-        start_internal_CP_derivation_cxn(get_model_improving_constraint());
-        CP_add_cxn(cxn_newlit_leq_oldlit, weight);
-        constraintid cxn = write_internal_CP_derivation();
+        _cpder->start_from_constraint(get_model_improving_constraint());
+        _cpder->add_constraint(cxn_newlit_leq_oldlit, weight);
+        constraintid cxn = _cpder->end();
         update_model_improving_constraint(cxn);
     }
 }
@@ -326,59 +326,24 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update_diff_lit
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(const std::string& prooffile, VarManager* varMgr) :
-    proof(new std::ofstream(prooffile)), 
-    _proofOwned(true),
-    _varMgr(varMgr), 
-    _keep_original_formula(false), 
-    _n_orig_constraints(0), 
-    _constraint_counter(0), 
-    _found_solution(false), 
-    _comments(true),
-    _cpder(new CuttingPlanesDerivation(this, true))
+    Prooflogger(prooffile, varMgr)
 {}
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
-ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(const std::string& prooffile, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true) :
-    proof(new std::ofstream(prooffile)), 
-    _proofOwned(true),
-    _varMgr(varMgr), 
-    _keep_original_formula(keep_original_formula), 
-    _n_orig_constraints(n_orig_constraints), 
-    _constraint_counter(n_orig_constraints), 
-    _found_solution(false), 
-    _comments(comments),
-    _cpder(new CuttingPlanesDerivation(this, true))
+ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(const std::string& prooffile, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula, bool comments) :
+    Prooflogger(prooffile, varMgr, n_orig_constraints, keep_original_formula, comments)
 {}
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(std::ostream* proof, VarManager* varMgr) :
-    proof(proof),
-    _proofOwned(false),
-    _varMgr(varMgr), 
-    _keep_original_formula(false), 
-    _n_orig_constraints(0), 
-    _constraint_counter(0), 
-    _found_solution(false), 
-    _comments(true),
-    _cpder(new CuttingPlanesDerivation(this, true))
+    Prooflogger(proof, varMgr)
 {}
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
-ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(std::ostream* proof, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true) :
-    proof(proof),
-    _proofOwned(false),
-    _varMgr(varMgr), 
-    _keep_original_formula(keep_original_formula), 
-    _n_orig_constraints(n_orig_constraints), 
-    _constraint_counter(n_orig_constraints), 
-    _found_solution(false), 
-    _comments(comments),
-    _cpder(new CuttingPlanesDerivation(this, true))
+ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(std::ostream* proof, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula, bool comments) :
+    Prooflogger(proof, varMgr, n_orig_constraints, keep_original_formula, comments)
 {}
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
-ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::~ProofloggerOpt(){
-    if(_proofOwned)
-        delete proof;
-    delete _cpder;   
-}
+ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::~ProofloggerOpt()
+{}

@@ -1,5 +1,5 @@
 #include "VeriPbSolverTypes.h"
-#include "VeriPBProoflogger.h"
+#include "ProofloggerOptimization.h"
 
 int main() { 
     // Original variables
@@ -30,18 +30,12 @@ int main() {
     C3.add_RHS(1);
 
     
-    // Creation of PL object
-    VeriPB::ProofloggerOpt<VeriPB::Lit, uint32_t, uint32_t> vPL;
-
-    // Set proof stream
-    std::ofstream prooffilestream;
-    prooffilestream.open("maxsat_proof.pbp");
-    vPL.set_proof_stream(&prooffilestream);
-
     // Set VarMgr
     VeriPB::VarManager varMgr;
     varMgr.set_number_original_variables(4);
-    vPL.set_variable_manager(&varMgr);
+
+    // Creation of PL object
+    VeriPB::ProofloggerOpt<VeriPB::Lit, uint32_t, uint32_t> vPL("testproof.pbp", &varMgr);
 
     // Set original constraints
     vPL.set_n_orig_constraints(0);
@@ -60,8 +54,6 @@ int main() {
     vPL.unchecked_assumption(C3);
 
     vPL.write_conclusion_NONE();
-
-    prooffilestream.close();
 
     return 0;
 }

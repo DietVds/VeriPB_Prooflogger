@@ -1,6 +1,4 @@
-#include "VeriPbSolverTypes.hpp"
-#include "VariableManager.hpp"
-#include "VeriPBProoflogger.hpp"
+#include "ProofloggerOptimization.hpp"
 
 template class VeriPB::LinTermBoolVars<VeriPB::Lit, unsigned int, unsigned int>;
 template class VeriPB::Constraint<VeriPB::Lit, unsigned int, unsigned int>;
