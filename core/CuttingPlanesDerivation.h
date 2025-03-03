@@ -3,7 +3,7 @@
 
 #include <string>
 #include "VeriPbSolverTypes.h"
-#include "VeriPBProoflogger.h"
+#include "Prooflogger.h"
 #include <cassert>
 
 namespace VeriPB {
