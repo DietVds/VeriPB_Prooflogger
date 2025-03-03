@@ -137,10 +137,13 @@ void CuttingPlanesDerivation::weaken(const TVar& var){
     }
 }
 
-constraintid CuttingPlanesDerivation::write_to_proof(bool clear){
+constraintid CuttingPlanesDerivation::end(bool clear){
     if(!_write_directly_to_proof){
         *(_pl->proof) << *(_buffer);
+        if(clear)
+            this->clear();
     }
+    *(_pl->proof) << "\n";
     _finished = true;
     return ++_pl->_constraint_counter;
 }

@@ -36,7 +36,7 @@ namespace VeriPB {
         void multiply(const TNumber& n);
         template <class TVar>
         void weaken(const TVar& var);
-        constraintid write_to_proof(bool clear=true);
+        constraintid end(bool clear=true);
 
         CuttingPlanesDerivation(Prooflogger* pl, bool write_directly_to_proof=false);
 
