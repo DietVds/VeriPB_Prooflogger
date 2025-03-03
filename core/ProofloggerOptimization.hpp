@@ -321,3 +321,58 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update_diff_lit
         update_model_improving_constraint(cxn);
     }
 }
+
+template <typename ObjLit, typename ObjCoeff, typename ObjConst>
+ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(const std::string& prooffile, VarManager* varMgr) :
+    proof(new std::ofstream(prooffile)), 
+    _proofOwned(true),
+    _varMgr(varMgr), 
+    _keep_original_formula(false), 
+    _n_orig_constraints(0), 
+    _constraint_counter(0), 
+    _found_solution(false), 
+    _comments(true)
+{}
+
+template <typename ObjLit, typename ObjCoeff, typename ObjConst>
+ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(const std::string& prooffile, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true) :
+    proof(new std::ofstream(prooffile)), 
+    _proofOwned(true),
+    _varMgr(varMgr), 
+    _keep_original_formula(keep_original_formula), 
+    _n_orig_constraints(n_orig_constraints), 
+    _constraint_counter(n_orig_constraints), 
+    _found_solution(false), 
+    _comments(comments)
+{}
+
+template <typename ObjLit, typename ObjCoeff, typename ObjConst>
+ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(std::ostream* proof, VarManager* varMgr) :
+    proof(proof),
+    _proofOwned(false),
+    _varMgr(varMgr), 
+    _keep_original_formula(false), 
+    _n_orig_constraints(0), 
+    _constraint_counter(0), 
+    _found_solution(false), 
+    _comments(true)
+{}
+
+template <typename ObjLit, typename ObjCoeff, typename ObjConst>
+ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(std::ostream* proof, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true) :
+    proof(proof),
+    _proofOwned(false),
+    _varMgr(varMgr), 
+    _keep_original_formula(keep_original_formula), 
+    _n_orig_constraints(n_orig_constraints), 
+    _constraint_counter(n_orig_constraints), 
+    _found_solution(false), 
+    _comments(comments)
+{}
+
+template <typename ObjLit, typename ObjCoeff, typename ObjConst>
+ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::~ProofloggerOpt(){
+    if(_proofOwned){
+        delete proof;
+    }
+}
