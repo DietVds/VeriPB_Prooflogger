@@ -284,7 +284,6 @@ namespace VeriPB {
         // ------------- Cutting plane derivations -------------
         // TODO: add to the constructors.
         std::string _cuttingplanes_buffer;
-        CuttingPlanesDerivation* _internal_cpder;
 
         // ------------- Commenting -------------
         bool _comments=true;  //TODO: add compile definition instead

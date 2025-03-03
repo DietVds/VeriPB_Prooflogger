@@ -397,10 +397,21 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update_diff_lit
 }
 
 // ------------- Cutting Planes derivations -------------
-//TODO-Dieter: Change whereever I wrote *proof << var_name(var) to write immediately to the proof.
 constraintid Prooflogger::copy_constraint(const constraintid cxn){
     *proof << "p " << cxn << "\n";
     return ++_constraint_counter;
+}
+
+CuttingPlanesDerivation Prooflogger::get_cuttingplanes_derivation(bool write_directly_to_proof=false, bool use_internal_buffer=false){
+    if(write_directly_to_proof){
+        return CuttingPlanesDerivation(this, true);
+    }
+    else if(use_internal_buffer) {
+        return CuttingPlanesDerivation(this, &_cuttingplanes_buffer);
+    }
+    else{
+        return CuttingPlanesDerivation(this);
+    }
 }
 
 // ------------- Comments -------------
