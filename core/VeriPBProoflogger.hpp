@@ -1,4 +1,5 @@
 #include "VeriPBProoflogger.h"
+#include "CuttingPlanesDerivation.hpp"
 
 //=================================================================================================
 
@@ -402,221 +403,23 @@ constraintid Prooflogger::copy_constraint(const constraintid cxn){
     return ++_constraint_counter;
 }
 
-cuttingplanes_derivation Prooflogger::start_CP_derivation(){
-    return "";
-}
-
-cuttingplanes_derivation Prooflogger::start_CP_derivation_cxn(const constraintid& cxn_id){
-    return number_to_string(cxn_id);
-}
-
-template <class TLit>
-cuttingplanes_derivation Prooflogger::start_CP_derivation_lit_axiom(const TLit& lit_axiom){
-    return _varMgr->literal_to_string(lit_axiom);
-}
-
-void Prooflogger::CP_add(cuttingplanes_derivation& cpder1, const cuttingplanes_derivation& cpder2){
-    cpder1 += " " + cpder2 + " +";
-}
-
-void Prooflogger::CP_start_subderivation_cxn_id(cuttingplanes_derivation& cpder, const constraintid& cxn_id){
-    cpder += " " + number_to_string(cxn_id);
-}
-
-template <class TLit>
-void Prooflogger::CP_start_subderivation_lit_axiom(cuttingplanes_derivation& cpder, const TLit& lit_axiom){
-    cpder += " " + _varMgr->literal_to_string(lit_axiom);
-}
-
-void Prooflogger::CP_add_subderivation(cuttingplanes_derivation& cpder){
-    cpder += " +";
-}
-
-template <class TNumber>
-void Prooflogger::CP_add_cxn(cuttingplanes_derivation& cpder, const constraintid& cxn_id, const TNumber& mult){
-    cpder += " " + number_to_string(cxn_id);
-    if(mult > 1)
-        cpder += " " + number_to_string(mult);
-    cpder += " +";
-}
-
-template <class TLit, class TNumber>
-void Prooflogger::CP_add_litaxiom(cuttingplanes_derivation& cpder, const TLit& lit_axiom, const TNumber& mult){
-    cpder += " " + _varMgr->literal_to_string(lit_axiom);
-    if(mult > 1)
-        cpder += " " + number_to_string(mult);
-    cpder += " +";
-}
-
-template <class TNumber>
-void Prooflogger::CP_divide(cuttingplanes_derivation& cpder, const TNumber& n){
-    cpder += " " + number_to_string(n) + " d";
-}
-
-void Prooflogger::CP_saturate(cuttingplanes_derivation& cpder){
-    cpder += " s";
-}
-
-template <class TNumber>
-void Prooflogger::CP_multiply(cuttingplanes_derivation& cpder, const TNumber& n){
-    cpder += " " + number_to_string(n) + " *";
-}
-
-template <class TVar>
-void Prooflogger::CP_weaken(cuttingplanes_derivation& cpder, const TVar& var){
-    cpder += " " + _varMgr->var_name(toVeriPbVar(var)) + " w";
-}
-
-constraintid Prooflogger::write_CP_derivation(const cuttingplanes_derivation& cpder){
-    *proof << "p " << cpder << "\n";
-    return ++_constraint_counter;
-}
-
-// internal CP derivation
-void Prooflogger::start_internal_CP_derivation(bool write_directly_to_proof){
-    _writing_CP_to_proof = write_directly_to_proof;
-
-    if(_writing_CP_to_proof)
-        *proof << "p";
-    else
-        _internal_cuttingplanes_buffer = "";
-}
-
-void Prooflogger::start_internal_CP_derivation_cxn(const constraintid& cxn_id,bool write_directly_to_proof){
-    _writing_CP_to_proof = write_directly_to_proof;
-
-    if(_writing_CP_to_proof){
-        *proof << "p";
-        write_number(cxn_id,proof);
-    }
-    else
-        _internal_cuttingplanes_buffer = number_to_string(cxn_id);
-
-}
-
-template <class TLit>
-void Prooflogger::start_internal_CP_derivation_lit_axiom(const TLit& lit_axiom, bool write_directly_to_proof){
-    _writing_CP_to_proof = write_directly_to_proof;
-
-    if(_writing_CP_to_proof){
-        *proof << "p";
-        _varMgr->write_literal(lit_axiom, proof, true);
-    }
-    else
-        _internal_cuttingplanes_buffer = _varMgr->literal_to_string(lit_axiom);
-}
-
-void Prooflogger::CP_add(const cuttingplanes_derivation& cpder2){
-    if(_writing_CP_to_proof)
-        *proof << " " << cpder2 << " +";
-    else
-        CP_add(_internal_cuttingplanes_buffer, cpder2);
-}
-
-void Prooflogger::CP_start_subderivation_cxn_id(const constraintid& cxn_id){
-    if(_writing_CP_to_proof)
-        *proof << " " << number_to_string(cxn_id) ;
-    else
-        CP_start_subderivation_cxn_id(_internal_cuttingplanes_buffer, cxn_id);
-}
-
-template <class TLit>
-void Prooflogger::CP_start_subderivation_lit_axiom(const TLit& lit_axiom){
-    if(_writing_CP_to_proof){
-        _varMgr->write_literal(lit_axiom, proof, true);
-    }
-    else
-        CP_start_subderivation_lit_axiom(_internal_cuttingplanes_buffer, lit_axiom);
-}
-
-void Prooflogger::CP_add_subderivation(){
-    if(_writing_CP_to_proof)
-        *proof << " +";
-    else
-        CP_add_subderivation(_internal_cuttingplanes_buffer);
-}
-
-template <class TNumber>
-void Prooflogger::CP_add_cxn(const constraintid& cxn_id, const TNumber& mult){
-    if(_writing_CP_to_proof){
-        *proof << " " << number_to_string(cxn_id); 
-        if(mult > 1)
-            *proof << " " << number_to_string(mult) << " *";
-        *proof << " +";
-    }
-    else
-        CP_add_cxn(_internal_cuttingplanes_buffer, cxn_id, mult);
-    
-}
-
-template <class TLit, class TNumber>
-void Prooflogger::CP_add_litaxiom(const TLit& lit_axiom, const TNumber& mult){
-    if(_writing_CP_to_proof){
-        _varMgr->write_literal(lit_axiom, proof, true);
-        if(mult > 1)
-            write_number(mult,true); 
-        *proof << " +";
-    }
-    else
-        CP_add_litaxiom(_internal_cuttingplanes_buffer, lit_axiom, mult);    
-}
-
-template <class TNumber>
-void Prooflogger::CP_divide(const TNumber& n){
-    if(_writing_CP_to_proof)
-        *proof << " " << number_to_string(n) << " d";
-    else
-        CP_divide(_internal_cuttingplanes_buffer, n);
-}
-
-void Prooflogger::CP_saturate(){
-    if(_writing_CP_to_proof)
-        *proof << " s";
-    else
-        CP_saturate(_internal_cuttingplanes_buffer);
-}
-
-template <class TNumber>
-void Prooflogger::CP_multiply(const TNumber& n){
-    if(_writing_CP_to_proof){
-       write_number(n);
-       *proof << " *";
-    }
-    else
-        CP_multiplication(_internal_cuttingplanes_buffer, n);
-}
-
-template <class TVar>
-void Prooflogger::CP_weaken(const TVar& var){
-    if(_writing_CP_to_proof){
-        *proof << _varMgr->var_name(toVeriPbVar(var)) << " w";
-    }
-    else
-        CP_weaken(_internal_cuttingplanes_buffer, var);
-}
-
-constraintid Prooflogger::write_internal_CP_derivation(){
-    if(_writing_CP_to_proof)
-        *proof << "\n";
-    else
-        write_CP_derivation(_internal_cuttingplanes_buffer);
-    return ++_constraint_counter;
-    
-}
-
 // ------------- Comments -------------
 void Prooflogger::write_comment(const char *comment)
 {
     if(_comments)
         *proof << "* " << comment << "\n";
-    // proof->flush(); // Can be uncommented for debugging reasons
+    #ifdef FLUSHPROOFCOMMENTS
+        proof->flush(); // Can be uncommented for debugging reasons
+    #endif
 }
 
 void Prooflogger::write_comment(const std::string &comment)
 {
     if(_comments)
         *proof << "* " << comment << "\n";
-    // proof->flush(); // Can be uncommented for debugging reasons
+    #ifdef FLUSHPROOFCOMMENTS
+        proof->flush(); // Can be uncommented for debugging reasons
+    #endif
 }
 
 // ------------- Rules for checking constraints -------------

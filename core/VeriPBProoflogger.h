@@ -22,7 +22,6 @@
 
 
 
-
 //prooflogging Library
 
 /**
@@ -35,20 +34,24 @@
         * Only proof file name and open it manually/prooffilestream
         * VarMgr
     - Make proof goal abstract, so that proof goal is not a string anymore, but something readable.
+    - Add functions to start and end proof easier.
+    - Include in documentation:
+        * compiler macros
  */
 
 //=================================================================================================
 // Prooflogger
 
 namespace VeriPB {
+
+    class CuttingPlanesDerivation;
     
     #define undefcxn 0
-    typedef std::string cuttingplanes_derivation;
     typedef std::pair<std::vector<std::pair<VeriPB::Var, VeriPB::Lit>>, std::vector<std::pair<VeriPB::Var, bool>>> substitution;
 
     struct subproof {
         std::string proofgoal;
-        std::vector<cuttingplanes_derivation> derivations;
+        std::vector<std::string> derivations;
     };
 
     class Prooflogger
@@ -77,54 +80,11 @@ namespace VeriPB {
         void write_fail();
 
         // ------------- Cutting Planes derivations -------------
-        //TODO: add assertions to ensure that we do not mix-up internal and non-internal CP derivations.
+        friend CuttingPlanesDerivation;
 
         constraintid copy_constraint(const constraintid cxn);
-        
-        cuttingplanes_derivation start_CP_derivation();
-        cuttingplanes_derivation start_CP_derivation_cxn(const constraintid& cxn_id); 
-        template <class TLit>
-        cuttingplanes_derivation start_CP_derivation_lit_axiom(const TLit& lit_axiom);
-        void CP_add(cuttingplanes_derivation& cpder1, const cuttingplanes_derivation& cpder2);
-        void CP_start_subderivation_cxn_id(cuttingplanes_derivation& cpder, const constraintid& cxn_id);
-        template <class TLit>
-        void CP_start_subderivation_lit_axiom(cuttingplanes_derivation& cpder, const TLit& lit_axiom);
-        void CP_add_subderivation(cuttingplanes_derivation& cpder);
-        template <class TNumber=VeriPB::defaultmultipliertype>
-        void CP_add_cxn(cuttingplanes_derivation& cpder, const constraintid& cxn_id, const TNumber& mult=1);
-        template <class TLit, class TNumber=VeriPB::defaultmultipliertype>
-        void CP_add_litaxiom(cuttingplanes_derivation& cpder, const TLit& lit_axiom, const TNumber& mult=1);
-        template <class TNumber=VeriPB::defaultmultipliertype>
-        void CP_divide(cuttingplanes_derivation& cp, const TNumber& n);
-        void CP_saturate(cuttingplanes_derivation& cp);
-        template <class TNumber=VeriPB::defaultmultipliertype>
-        void CP_multiply(cuttingplanes_derivation& cp, const TNumber& n);
-        template <class TVar>
-        void CP_weaken(cuttingplanes_derivation& cp, const TVar& var);
-        constraintid write_CP_derivation(const cuttingplanes_derivation& cp);
 
-        // internal CP derivation
-        void start_internal_CP_derivation(bool write_directly_to_proof=false);
-        void start_internal_CP_derivation_cxn(const constraintid& cxn_id,bool write_directly_to_proof=false);
-        template <class TLit>
-        void start_internal_CP_derivation_lit_axiom(const TLit& lit_axiom, bool write_directly_to_proof=false);
-        void CP_add(const cuttingplanes_derivation& cpder2);
-        void CP_start_subderivation_cxn_id(const constraintid& cxn_id);
-        template <class TLit>
-        void CP_start_subderivation_lit_axiom(const TLit& lit_axiom);
-        void CP_add_subderivation();
-        template <class TNumber=VeriPB::defaultmultipliertype>
-        void CP_add_cxn(const constraintid& cxn_id, const TNumber& mult=1);
-        template <class TLit, class TNumber=VeriPB::defaultmultipliertype>
-        void CP_add_litaxiom(const TLit& lit_axiom, const TNumber& mult=1);
-        template <class TNumber=VeriPB::defaultmultipliertype>
-        void CP_divide(const TNumber& n);
-        void CP_saturate();
-        template <class TNumber=VeriPB::defaultmultipliertype>
-        void CP_multiply(const TNumber& n);
-        template <class TVar>
-        void CP_weaken(const TVar& var);
-        constraintid write_internal_CP_derivation();
+        CuttingPlanesDerivation get_cuttingplanes_derivation(bool write_directly_to_proof=false, bool use_internal_buffer=false);
 
         // ------------- Comments -------------
         void write_comment(const char *comment);
@@ -322,8 +282,9 @@ namespace VeriPB {
 
         
         // ------------- Cutting plane derivations -------------
-        std::string _internal_cuttingplanes_buffer;
-        bool _writing_CP_to_proof=false;
+        // TODO: add to the constructors.
+        std::string _cuttingplanes_buffer;
+        CuttingPlanesDerivation* _internal_cpder;
 
         // ------------- Commenting -------------
         bool _comments=true;  //TODO: add compile definition instead
