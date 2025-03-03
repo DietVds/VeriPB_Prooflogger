@@ -264,7 +264,11 @@ namespace VeriPB {
         void move_to_coreset(const TConstraint& cxn, bool overrule_keeporiginalformula=false);
     
         // ------------- Constructor -------------
-        // TODO  
+        Prooflogger(const std::string& prooffile, VarManager* varMgr);
+        Prooflogger(const std::string& prooffile, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true);
+        Prooflogger(std::ostream* proof, VarManager* varMgr);
+        Prooflogger(std::ostream* proof, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true);
+        ~Prooflogger();
     protected:
         // ------------- Variable Manager -------------
         VarManager* _varMgr;        
@@ -277,6 +281,7 @@ namespace VeriPB {
 
         // ------------- Formula stream -------------
         std::ostream* proof;
+        bool _proofOwned;
         int _write_buffer_size = 32 * 1024 * 1024;
         char* _write_buffer = new char[_write_buffer_size]; // Buffer for the proof.
 
