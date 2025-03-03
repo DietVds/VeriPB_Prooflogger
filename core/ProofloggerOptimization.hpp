@@ -322,6 +322,8 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update_diff_lit
     }
 }
 
+// ------------- Constructor -------------
+
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(const std::string& prooffile, VarManager* varMgr) :
     proof(new std::ofstream(prooffile)), 
@@ -331,7 +333,8 @@ ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(const std::string& pr
     _n_orig_constraints(0), 
     _constraint_counter(0), 
     _found_solution(false), 
-    _comments(true)
+    _comments(true),
+    _cpder(new CuttingPlanesDerivation(this, true))
 {}
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
@@ -343,7 +346,8 @@ ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(const std::string& pr
     _n_orig_constraints(n_orig_constraints), 
     _constraint_counter(n_orig_constraints), 
     _found_solution(false), 
-    _comments(comments)
+    _comments(comments),
+    _cpder(new CuttingPlanesDerivation(this, true))
 {}
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
@@ -355,7 +359,8 @@ ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(std::ostream* proof, 
     _n_orig_constraints(0), 
     _constraint_counter(0), 
     _found_solution(false), 
-    _comments(true)
+    _comments(true),
+    _cpder(new CuttingPlanesDerivation(this, true))
 {}
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
@@ -367,12 +372,13 @@ ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(std::ostream* proof, 
     _n_orig_constraints(n_orig_constraints), 
     _constraint_counter(n_orig_constraints), 
     _found_solution(false), 
-    _comments(comments)
+    _comments(comments),
+    _cpder(new CuttingPlanesDerivation(this, true))
 {}
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::~ProofloggerOpt(){
-    if(_proofOwned){
+    if(_proofOwned)
         delete proof;
-    }
+    delete _cpder;   
 }
