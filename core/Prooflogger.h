@@ -66,6 +66,7 @@ namespace VeriPB {
         bool is_original_constraint(const constraintid& cxn);
         constraintid get_constraint_counter();
         void set_variable_manager(VarManager* varMgr);
+        void flush_proof();
 
         // ------------- Solution Logging -------------
         bool logged_solution();

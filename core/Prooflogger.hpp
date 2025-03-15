@@ -46,6 +46,10 @@ void Prooflogger::set_variable_manager(VarManager* varMgr){
     _varMgr = varMgr;
 }
 
+void Prooflogger::flush_proof(){
+    proof->flush();
+}
+
 // ------------- Conclusion -------------
 void Prooflogger::write_conclusion_NONE(){
     *proof << "output NONE\n"
