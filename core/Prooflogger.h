@@ -46,12 +46,61 @@ namespace VeriPB {
 
     class CuttingPlanesDerivation;
     
-    #define undefcxn 0
+    const constraintid undefcxn = 0;
     typedef std::pair<std::vector<std::pair<VeriPB::Var, VeriPB::Lit>>, std::vector<std::pair<VeriPB::Var, bool>>> substitution;
 
     struct subproof {
         std::string proofgoal;
         std::vector<std::string> derivations;
+    };
+
+    class CuttingPlanesDerivation
+    {
+        friend Prooflogger; 
+
+        public:
+        std::string toString() const;
+        bool writing_directly_to_proof() const;
+        bool isEmpty() const;
+
+        void clear(); // asserts that not writing to proof.
+
+        void start_from_constraint(const constraintid& cxn_id);
+        template <class TLit>
+        void start_from_literal_axiom(const TLit& lit);
+        template <class TNumber=VeriPB::defaultmultipliertype>
+        void add(const CuttingPlanesDerivation* cp_to_add, const TNumber& mult=1); 
+        void start_subderivation_from_constraint(const constraintid& cxn_id);
+        template <class TLit>
+        void start_subderivation_from_literal_axiom(const TLit& lit_axiom);
+        void add_subderivation();
+        template <class TNumber=VeriPB::defaultmultipliertype>
+        void add_constraint(const constraintid& cxn_id, const TNumber& mult=1);
+        template <class TLit, class TNumber=VeriPB::defaultmultipliertype>
+        void add_literal_axiom(const TLit& lit_axiom, const TNumber& mult=1);
+        template <class TNumber=VeriPB::defaultmultipliertype>
+        void divide(const TNumber& n);
+        void saturate();
+        template <class TNumber=VeriPB::defaultmultipliertype>
+        void multiply(const TNumber& n);
+        template <class TVar>
+        void weaken(const TVar& var);
+        constraintid end(bool clear=true);
+
+        CuttingPlanesDerivation(Prooflogger* pl, bool write_directly_to_proof=false);
+
+        private: 
+        bool _write_directly_to_proof;
+        bool _finished=true; // If derivation is written directly to the proof, a new derivation can only be started when the previous derivation is finished.
+        
+        Prooflogger* _pl;
+        std::string* _buffer;
+        bool _bufferOwned;
+
+        CuttingPlanesDerivation(Prooflogger* pl, std::string* buffer);
+
+        public:
+        ~CuttingPlanesDerivation();
     };
 
     class Prooflogger
@@ -65,6 +114,7 @@ namespace VeriPB {
         void set_n_orig_constraints(int nbconstraints);
         bool is_original_constraint(const constraintid& cxn);
         constraintid get_constraint_counter();
+        constraintid increase_constraint_counter();
         void set_variable_manager(VarManager* varMgr);
         void flush_proof();
 
