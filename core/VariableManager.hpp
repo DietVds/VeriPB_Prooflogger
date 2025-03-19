@@ -62,7 +62,7 @@ void VarManager::set_number_original_variables(size_t n){
 }
 
 bool VarManager::is_aux_var(const VeriPB::Var& var){
-    return (var.v > _n_orig_vars) || var.only_known_in_proof;
+    return ((var.v > _n_orig_vars) && _n_orig_vars > 0) || var.only_known_in_proof;
 }
 
 VeriPB::Var VarManager::new_variable_only_in_proof(){
