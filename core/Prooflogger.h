@@ -44,7 +44,7 @@
 
 namespace VeriPB {
 
-    class CuttingPlanesDerivation;
+    class Prooflogger;
     
     const constraintid undefcxn = 0;
     typedef std::pair<std::vector<std::pair<VeriPB::Var, VeriPB::Lit>>, std::vector<std::pair<VeriPB::Var, bool>>> substitution;
@@ -63,6 +63,7 @@ namespace VeriPB {
         bool writing_directly_to_proof() const;
         bool isEmpty() const;
 
+        void setProoflogger(Prooflogger* _pl);
         void clear(); // asserts that not writing to proof.
 
         void start_from_constraint(const constraintid& cxn_id);
@@ -87,7 +88,7 @@ namespace VeriPB {
         void weaken(const TVar& var);
         constraintid end(bool clear=true);
 
-        CuttingPlanesDerivation(Prooflogger* pl, bool write_directly_to_proof=false);
+        CuttingPlanesDerivation(Prooflogger* pl = nullptr, bool write_directly_to_proof=false);
 
         private: 
         bool _write_directly_to_proof;
@@ -102,7 +103,6 @@ namespace VeriPB {
         public:
         ~CuttingPlanesDerivation();
     };
-
     class Prooflogger
     {
     public:

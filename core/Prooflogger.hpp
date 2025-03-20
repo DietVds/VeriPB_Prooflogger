@@ -21,6 +21,11 @@ bool CuttingPlanesDerivation::isEmpty() const{
     return _finished;
 }
 
+void CuttingPlanesDerivation::setProoflogger(Prooflogger* pl){
+    assert(_pl == nullptr);
+    _pl = pl;
+}
+
 void CuttingPlanesDerivation::clear(){
     assert(!_write_directly_to_proof);
     _finished=true;
@@ -28,6 +33,7 @@ void CuttingPlanesDerivation::clear(){
 }
 
 void CuttingPlanesDerivation::start_from_constraint(const constraintid& cxn_id){
+    assert(_pl != nullptr);
     assert(_finished);
     _finished=true;
     if(_write_directly_to_proof){
@@ -39,6 +45,7 @@ void CuttingPlanesDerivation::start_from_constraint(const constraintid& cxn_id){
 }
 template <class TLit>
 void CuttingPlanesDerivation::start_from_literal_axiom(const TLit& lit){
+    assert(_pl != nullptr);
     assert(_finished);
     _finished=true;
     VeriPB::Lit l = toVeriPbLit(lit);
@@ -52,11 +59,15 @@ void CuttingPlanesDerivation::start_from_literal_axiom(const TLit& lit){
 
 template <class TNumber>
 void CuttingPlanesDerivation::add(const CuttingPlanesDerivation* cp_to_add, const TNumber& mult){
+    assert(_pl != nullptr);
     assert(!cp_to_add->writing_directly_to_proof());
 
     if(_write_directly_to_proof){
         *(_pl->proof) << " " << cp_to_add->toString();
-        if(mult > 1) *(_pl->proof) << mult << " *"
+        if(mult > 1){ 
+            write_number(mult, _pl->proof, true);
+            *(_pl->proof) << " *";
+        }
         *(_pl->proof) << " +";
     }else{
         *(_buffer) += " " + cp_to_add->toString();
@@ -66,6 +77,7 @@ void CuttingPlanesDerivation::add(const CuttingPlanesDerivation* cp_to_add, cons
 }
 
 void CuttingPlanesDerivation::start_subderivation_from_constraint(const constraintid& cxn_id){
+    assert(_pl != nullptr);
     if(_write_directly_to_proof){
         write_number(cxn_id, _pl->proof, true);
     }else{
@@ -74,6 +86,7 @@ void CuttingPlanesDerivation::start_subderivation_from_constraint(const constrai
 }
 template <class TLit>
 void CuttingPlanesDerivation::start_subderivation_from_literal_axiom(const TLit& lit_axiom){
+    assert(_pl != nullptr);
     VeriPB::Lit l = toVeriPbLit(l);
 
     if(_write_directly_to_proof){
@@ -83,6 +96,7 @@ void CuttingPlanesDerivation::start_subderivation_from_literal_axiom(const TLit&
     }
 }
 void CuttingPlanesDerivation::add_subderivation(){
+    assert(_pl != nullptr);
     if(_write_directly_to_proof){
         *(_pl->proof) << " +";
     }else{
@@ -91,6 +105,7 @@ void CuttingPlanesDerivation::add_subderivation(){
 }
 template <class TNumber=VeriPB::defaultmultipliertype>
 void CuttingPlanesDerivation::add_constraint(const constraintid& cxn_id, const TNumber& mult){
+    assert(_pl != nullptr);
     if(_write_directly_to_proof){
         write_number(cxn_id, _pl->proof, true);
         if(mult != 1){
@@ -108,6 +123,7 @@ void CuttingPlanesDerivation::add_constraint(const constraintid& cxn_id, const T
 }
 template <class TLit, class TNumber=VeriPB::defaultmultipliertype>
 void CuttingPlanesDerivation::add_literal_axiom(const TLit& lit_axiom, const TNumber& mult){
+    assert(_pl != nullptr);
     VeriPB::Lit l = toVeriPbLit(lit_axiom);
     if(_write_directly_to_proof){
         _pl->_varMgr->write_literal(l, _pl->proof, true);
@@ -127,6 +143,7 @@ void CuttingPlanesDerivation::add_literal_axiom(const TLit& lit_axiom, const TNu
 
 template <class TNumber=VeriPB::defaultmultipliertype>
 void CuttingPlanesDerivation::divide(const TNumber& n){
+    assert(_pl != nullptr);
     if(_write_directly_to_proof){
         write_number(n, _pl->proof, true);
         *(_pl->proof) << " d";
@@ -137,6 +154,7 @@ void CuttingPlanesDerivation::divide(const TNumber& n){
 void CuttingPlanesDerivation::saturate(){}
 template <class TNumber=VeriPB::defaultmultipliertype>
 void CuttingPlanesDerivation::multiply(const TNumber& n){
+    assert(_pl != nullptr);
     if(_write_directly_to_proof){
         write_number(n, _pl->proof, true);
         *(_pl->proof) << " *";
@@ -146,6 +164,7 @@ void CuttingPlanesDerivation::multiply(const TNumber& n){
 }
 template <class TVar>
 void CuttingPlanesDerivation::weaken(const TVar& var){
+    assert(_pl != nullptr);
     VeriPB::Var v = toVeriPbVar(var);
     if(_write_directly_to_proof){
         _pl->_varMgr->write_var_name(v, _pl->proof, true);
@@ -156,6 +175,7 @@ void CuttingPlanesDerivation::weaken(const TVar& var){
 }
 
 constraintid CuttingPlanesDerivation::end(bool clear){
+    assert(_pl != nullptr);
     if(!_write_directly_to_proof){
         *(_pl->proof) << *(_buffer);
         if(clear)
