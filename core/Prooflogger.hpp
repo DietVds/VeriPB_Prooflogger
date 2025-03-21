@@ -1030,7 +1030,7 @@ void Prooflogger::_log_solution(const TModel& model, const std::string& log_comm
     VeriPB::Lit lit; 
     for (int i = 0; i < model_size(model); i++){
         lit = toVeriPbLit(model_literal(i, model));
-        if(only_original_variables_necessary && _varMgr->is_aux_var(variable<VeriPB::Var, VeriPB::Lit>(lit)))
+        if(only_original_variables_necessary && _varMgr->is_aux_var(variable(lit)))
             continue;
         _varMgr->write_literal(lit, proof, true);
     }

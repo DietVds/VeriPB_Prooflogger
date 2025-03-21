@@ -112,46 +112,18 @@ class Constraint {
 };
 
 /*******************
- * Functions for variables and literals 
- * - need to be specialized. Already specialized for VeriPB::Var and VeriPB::Lit.
+ * Functions for VeriPB variables and literals 
 */
-template <class TVar, class TLit>
-TVar variable(const TLit&);
+VeriPB::Var variable(const VeriPB::Lit& l);
+bool is_negated(const VeriPB::Lit& l);
+VeriPB::Lit neg(const VeriPB::Lit& l);
+VeriPB::Lit create_literal(const VeriPB::Var& var, bool negated);
 
-template <typename TLit>
-bool is_negated(const TLit&);
+VeriPB::Var toVeriPbVar(const VeriPB::Var& v);
+VeriPB::Lit toVeriPbLit(const VeriPB::Lit& l);
 
-template <typename TLit>
-TLit neg(const TLit&);
+VeriPB::VarIdx varidx(const VeriPB::Var& var);
 
-template <typename TLit, typename TVar>
-TLit create_literal(const TVar&, bool);
-
-template <typename TVar>
-VeriPB::Var toVeriPbVar(const TVar&);
-
-template <typename TLit>
-VeriPB::Lit toVeriPbLit(const TLit&);
-
-template <typename TVar>
-VeriPB::VarIdx varidx(const TVar&);
-
-/********************
- * Functions for linear terms
- * - need to be specialized
- */
-
-template <typename TLinTerm, typename TLit>
-TLit literal(const TLinTerm&, const litindex&);
-
-template <typename TLinTerm, typename TCoeff>
-TCoeff coefficient(const TLinTerm&, const VeriPB::litindex&);
-
-template <typename TLinTerm, typename TCoeff>
-TCoeff get_constant(const TLinTerm&);
-
-template <typename TLinTerm, typename TConst>
-TConst sum_of_coefficients(const TLinTerm&);
 
 /********************
  * Functions for VeriPB linear terms
@@ -168,29 +140,6 @@ TCoeff get_constant(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&);
 
 template <typename TLit, typename TCoeff, typename TConst>
 TConst sum_of_coefficients(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&);
-
-
-/*******************
- * Functions for constraints:
- * - need to be specialized
-*/
-template <typename TLit, typename TConstraint> 
-TLit literal(const TConstraint&, const litindex&);
-
-template <typename TCoeff, typename TConstraint> 
-TCoeff coefficient(const TConstraint&, const litindex&);
-
-template <typename TConstraint> 
-Comparison comparison(const TConstraint&);
-
-template <typename TConstraint, typename TRhs> 
-TRhs rhs(const TConstraint&);
-
-template <typename TConstraint>
-size_t size(const TConstraint& cxn);
-
-template <typename TConstraint, typename TRhs>
-TRhs sum_of_coefficients(const TConstraint& cxn);
 
 /*******************
  * Functions for VeriPB constraints:

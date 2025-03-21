@@ -3,17 +3,22 @@
 #include <cassert>
 #include <iostream>
 
-template <> VeriPB::Var VeriPB::variable(const VeriPB::Lit& l){return l.v;}
-template <> bool VeriPB::is_negated(const VeriPB::Lit& l){return l.negated;}
-template <> VeriPB::Lit VeriPB::neg(const VeriPB::Lit& l){VeriPB::Lit newl; newl.v = l.v; newl.negated = !l.negated; return newl;}
-template <> VeriPB::Lit VeriPB::create_literal(const VeriPB::Var& var, bool negated){VeriPB::Lit l; l.v = var; l.negated = negated; return l; }
-
-template <> VeriPB::Var VeriPB::toVeriPbVar(const VeriPB::Var& v){return v;}
-template <> VeriPB::Lit VeriPB::toVeriPbLit(const VeriPB::Lit& l){return l;}
-
-template <> VeriPB::VarIdx VeriPB::varidx(const VeriPB::Var& var){return var.v;}
 
 namespace VeriPB{
+
+/*******************
+ * Functions for VeriPB variables and literals 
+*/
+VeriPB::Var variable(const VeriPB::Lit& l){return l.v;}
+bool is_negated(const VeriPB::Lit& l){return l.negated;}
+VeriPB::Lit neg(const VeriPB::Lit& l){VeriPB::Lit newl; newl.v = l.v; newl.negated = !l.negated; return newl;}
+VeriPB::Lit create_literal(const VeriPB::Var& var, bool negated){VeriPB::Lit l; l.v = var; l.negated = negated; return l; }
+
+VeriPB::Var toVeriPbVar(const VeriPB::Var& v){return v;}
+VeriPB::Lit toVeriPbLit(const VeriPB::Lit& l){return l;}
+
+VeriPB::VarIdx varidx(const VeriPB::Var& var){return var.v;}
+
 /*******************
  * Functions for constraints:
 */
@@ -158,12 +163,13 @@ VeriPB::ModelValue model_value(const TVar& var, const TModel& model, bool first_
     VeriPB::Var vvar = toVeriPbVar(var);
     VeriPB::Lit vlit = toVeriPbLit(model_literal(model, i));
 
-    while(vvar != VeriPB::variable<VeriPB::Var, VeriPB::Lit>(vlit)){
+    while(vvar != VeriPB::variable(vlit)){
         i++;
         if(i >= model_size(model))
             i=0;
         else if(i == start_i)
             return VeriPB::ModelValue::Undef;
+        vlit = toVeriPbLit(model_literal(model, i));
     }
     if(is_negated(vlit))
         return VeriPB::ModelValue::False;
