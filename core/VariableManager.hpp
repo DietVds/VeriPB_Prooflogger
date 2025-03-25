@@ -15,7 +15,7 @@ void VarManager::write_var_name(const VeriPB::Var& var, std::ostream* s, bool ad
         *s << 'y';
     else
         *s << 'x';
-    VeriPB::write_number(varidx(var), s);
+    VeriPB::write_number(varidx(var), s, false);
 }
 
 std::string VarManager::var_name(const VeriPB::Var& var){

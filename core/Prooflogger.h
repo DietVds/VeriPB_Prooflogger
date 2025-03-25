@@ -102,6 +102,9 @@ namespace VeriPB {
 
         public:
         ~CuttingPlanesDerivation();
+
+        CuttingPlanesDerivation& copyTo(CuttingPlanesDerivation&) const;
+        CuttingPlanesDerivation& operator=(const CuttingPlanesDerivation&);
     };
     class Prooflogger
     {

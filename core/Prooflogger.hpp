@@ -35,12 +35,13 @@ void CuttingPlanesDerivation::clear(){
 void CuttingPlanesDerivation::start_from_constraint(const constraintid& cxn_id){
     assert(_pl != nullptr);
     assert(_finished);
-    _finished=true;
+    _finished=false;
     if(_write_directly_to_proof){
         *(_pl->proof) << "p ";
         write_number(cxn_id,_pl->proof, false);
     }else{
-        *(_buffer) += "p " + number_to_string(cxn_id);
+        assert(_buffer != nullptr);
+        *(_buffer) += number_to_string(cxn_id);
     }
 }
 template <class TLit>
@@ -53,7 +54,7 @@ void CuttingPlanesDerivation::start_from_literal_axiom(const TLit& lit){
         *(_pl->proof) << "p";
         _pl->_varMgr->write_literal(l, _pl->proof, true);
     }else{
-        *(_buffer) += "p " + _pl->_varMgr->literal_to_string(l);
+        *(_buffer) += _pl->_varMgr->literal_to_string(l);
     }
 }
 
@@ -116,7 +117,7 @@ void CuttingPlanesDerivation::add_constraint(const constraintid& cxn_id, const T
     }else{
         *(_buffer) += " " + number_to_string(cxn_id);
         if(mult != 1){
-            *(_buffer) += number_to_string(mult) + " *";
+            *(_buffer) += " " + number_to_string(mult) + " *";
         }
         *(_buffer) += " +";
     }
@@ -151,7 +152,15 @@ void CuttingPlanesDerivation::divide(const TNumber& n){
         *(_buffer) += " " + number_to_string(n) + " d";
     }
 }
-void CuttingPlanesDerivation::saturate(){}
+void CuttingPlanesDerivation::saturate(){
+    assert(_pl != nullptr);
+    if(_write_directly_to_proof){
+        *(_pl->proof) << " s";
+    }else{
+        *(_buffer) += " s";
+    }
+}
+
 template <class TNumber=VeriPB::defaultmultipliertype>
 void CuttingPlanesDerivation::multiply(const TNumber& n){
     assert(_pl != nullptr);
@@ -177,7 +186,7 @@ void CuttingPlanesDerivation::weaken(const TVar& var){
 constraintid CuttingPlanesDerivation::end(bool clear){
     assert(_pl != nullptr);
     if(!_write_directly_to_proof){
-        *(_pl->proof) << *(_buffer);
+        *(_pl->proof) << "p " << *(_buffer);
         if(clear)
             this->clear();
     }
@@ -201,6 +210,27 @@ CuttingPlanesDerivation::CuttingPlanesDerivation(Prooflogger* pl, std::string* b
 CuttingPlanesDerivation::~CuttingPlanesDerivation(){
     if(_bufferOwned)
         delete _buffer;
+}
+
+CuttingPlanesDerivation& CuttingPlanesDerivation::copyTo(CuttingPlanesDerivation& target) const{
+    if(&target != this){
+        target._write_directly_to_proof = _write_directly_to_proof;
+        target._finished = _finished;
+        target._bufferOwned = _bufferOwned;
+        target._pl = _pl;
+
+        // If buffer owned, need to make a copy of the actual string instead of copying the pointer.
+        if(!_write_directly_to_proof && _bufferOwned){
+            *(target._buffer) = *_buffer;
+        }
+        else if(!_write_directly_to_proof && !_bufferOwned)
+            target._buffer = _buffer;
+    }
+    return target;
+}
+
+CuttingPlanesDerivation& CuttingPlanesDerivation::operator=(const CuttingPlanesDerivation& other){
+    return other.copyTo(*this);
 }
 
 // ------------- Proof file -------------
@@ -1042,7 +1072,8 @@ void Prooflogger::write_constraint(const TConstraint& cxn){
     bool normalized = comparison(cxn) == Comparison::GEQ;
 
     for(int i = 0; i < size(cxn); i++){
-        assert(coefficient(cxn,i) > 0);
+        if(coefficient(cxn,i) == 0) continue;
+        
         if(normalized)
             write_weighted_literal(literal(cxn,i), coefficient(cxn,i));
         else
