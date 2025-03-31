@@ -1026,6 +1026,8 @@ constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const wght RHS, std::ve
     *proof << ";";
     for(constraintid hint : hints) 
         *proof << ' ' << hint;
+    for(constraintid hint : storage_always_propagate_hints)
+        *proof << ' ' << hint;
     *proof << "\n";
     return ++constraint_counter;
 }
@@ -1037,6 +1039,8 @@ constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const TSeqWght &weights
     write_PB_constraint(lits, weights, RHS);
     *proof << ";";
     for(constraintid hint : hints) 
+        *proof << ' ' << hint;
+    for(constraintid hint : storage_always_propagate_hints)
         *proof << ' ' << hint;
     *proof << "\n";
     return ++constraint_counter;
@@ -1053,6 +1057,8 @@ constraintid VeriPbProofLogger::rup_clause(const TSeqLit& lits, std::vector<cons
     *proof << " >= 1;";
     for(constraintid hint : hints) 
         *proof << ' ' << hint ;
+    for(constraintid hint : storage_always_propagate_hints)
+        *proof << ' ' << hint;
     *proof << "\n";
     return ++constraint_counter;
 }
@@ -1064,6 +1070,8 @@ constraintid VeriPbProofLogger::rup_unit_clause(const TLit& lit, std::vector<con
     *proof << " >= 1;";
     for(constraintid hint : hints) 
         *proof << ' ' << hint ;
+    for(constraintid hint : storage_always_propagate_hints)
+        *proof << ' ' << hint;
     *proof << "\n";
 
     if(core_constraint)
@@ -1080,6 +1088,8 @@ constraintid VeriPbProofLogger::rup_binary_clause(const TLit& lit1, const TLit& 
     *proof << " >= 1;";
     for(constraintid hint : hints) 
         *proof << ' ' << hint ;
+    for(constraintid hint : storage_always_propagate_hints)
+        *proof << ' ' << hint;
     *proof << "\n";
 
     if(core_constraint)
@@ -1097,6 +1107,8 @@ constraintid VeriPbProofLogger::rup_ternary_clause(const TLit& lit1, const TLit&
     *proof << " >= 1;";
     for(constraintid hint : hints) 
         *proof << ' ' << hint ;
+    for(constraintid hint : storage_always_propagate_hints)
+        *proof << ' ' << hint;
     *proof << "\n";
 
     if(core_constraint)
