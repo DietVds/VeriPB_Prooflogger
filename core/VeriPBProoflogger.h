@@ -59,6 +59,7 @@ typedef int constraintid;
 #define undefcxn 0
 
 #define INIT_NAMESTORAGE 500
+#define INIT_CONSTRAINT_STORAGE 500
 
 typedef std::pair<std::vector<std::pair<VeriPB::Var, VeriPB::Lit>>, std::vector<std::pair<VeriPB::Var, bool>>> substitution;
 typedef std::string cuttingplanes_derivation;
@@ -116,6 +117,13 @@ private:
     bool write_variable_after_possible_rewrite(std::ostream* out, VeriPB::Var& variable, bool negated=false);
     void write_varIdx(std::ostream* out, const VeriPB::VarIdx& varidx);
     std::string to_string_rewrite_var_by_literal(VeriPB::Var& variable, VeriPB::Lit& literal); 
+
+    // bookkeeping for keeping track of unit clauses
+    // vector of constraintid's that always need to be added to the hints. These are typically unit constraints that represent propagation at DL=0;
+    std::vector<constraintid> storage_always_propagate_hints;
+    // By using the varidx as index, the constraint can be used as the constraint that propagates a certain variable, i.e., as unit constraint derived by propagation at DL=0;
+    std::vector<constraintid> storage_var_to_cxn;
+    std::vector<constraintid> storage_var_onlyknowninproof_to_cxn;
 
     // Constraint counter
     //
@@ -292,6 +300,11 @@ public:
 
     
     // ------------- Reverse Unit Propagation -------------
+    
+    void save_propagation_constraint(const VeriPB::Var var, const constraintid cxn, bool always_use_constraint_hints=true);
+    constraintid get_propagation_constraint(const VeriPB::Var var);
+    void save_always_use_constraint_hints(const constraintid cxn);
+
 
     template <class TSeqLit>
     constraintid rup(const TSeqLit &lits, const wght RHS = 1);

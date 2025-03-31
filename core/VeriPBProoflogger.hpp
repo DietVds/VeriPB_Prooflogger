@@ -917,6 +917,36 @@ constraintid VeriPbProofLogger::unchecked_assumption_unit_clause(const TLit& lit
 }
 
 // ------------- Reverse Unit Propagation -------------
+
+void VeriPbProofLogger::save_propagation_constraint(const VeriPB::Var var, const constraintid cxn, bool always_use_constraint_hints){
+    // After that, update storage with new propagation.
+    // Increase storage if necessary.
+    std::vector<constraintid>* storage = var.only_known_in_proof ? &storage_var_onlyknowninproof_to_cxn : &storage_var_to_cxn;
+    
+    // Increase storage if necessary.
+    if(var.v >= storage->size() && n_variables > var.v )
+        storage->resize(2 * n_variables, undefcxn);
+    else if(var.v >= storage->size())
+        storage->resize(2 * var.v, undefcxn);
+
+    (*storage)[var.v] = cxn;
+
+    if(always_use_constraint_hints) 
+        save_always_use_constraint_hints(cxn);
+}
+constraintid VeriPbProofLogger::get_propagation_constraint(const VeriPB::Var var){
+    std::vector<constraintid>* storage = var.only_known_in_proof ? &storage_var_onlyknowninproof_to_cxn : &storage_var_to_cxn;
+
+    if(var.v > storage->size())
+        return undefcxn;
+    else    
+        return (*storage)[var.v];
+}
+
+void VeriPbProofLogger::save_always_use_constraint_hints(const constraintid cxn){
+    storage_always_propagate_hints.push_back(cxn);
+}
+
 template <class TSeqLit>
 constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const wght RHS)
 {
