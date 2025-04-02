@@ -301,8 +301,10 @@ public:
     
     // ------------- Reverse Unit Propagation -------------
     
-    void save_propagation_constraint(const VeriPB::Var var, const constraintid cxn, bool always_use_constraint_hints=true);
-    constraintid get_propagation_constraint(const VeriPB::Var var);
+    template <class TVar>
+    void save_propagation_constraint(const TVar& var, const constraintid cxn, bool always_use_constraint_hints=false);
+    template <class TVar>
+    constraintid get_propagation_constraint(const TVar& var);
     void save_always_use_constraint_hints(const constraintid cxn);
 
 

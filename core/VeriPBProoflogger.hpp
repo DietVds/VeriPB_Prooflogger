@@ -918,29 +918,34 @@ constraintid VeriPbProofLogger::unchecked_assumption_unit_clause(const TLit& lit
 
 // ------------- Reverse Unit Propagation -------------
 
-void VeriPbProofLogger::save_propagation_constraint(const VeriPB::Var var, const constraintid cxn, bool always_use_constraint_hints){
+template <class TVar>
+void VeriPbProofLogger::save_propagation_constraint(const TVar& var, const constraintid cxn, bool always_use_constraint_hints){
     // After that, update storage with new propagation.
     // Increase storage if necessary.
-    std::vector<constraintid>* storage = var.only_known_in_proof ? &storage_var_onlyknowninproof_to_cxn : &storage_var_to_cxn;
+    VeriPB::Var _var = toVeriPbVar(var);
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &storage_var_onlyknowninproof_to_cxn : &storage_var_to_cxn;
     
     // Increase storage if necessary.
-    if(var.v >= storage->size() && n_variables > var.v )
+    if(_var.v >= storage->size() && n_variables > _var.v )
         storage->resize(2 * n_variables, undefcxn);
-    else if(var.v >= storage->size())
+    else if(_var.v >= storage->size())
         storage->resize(2 * var.v, undefcxn);
 
-    (*storage)[var.v] = cxn;
+    (*storage)[_var.v] = cxn;
 
     if(always_use_constraint_hints) 
         save_always_use_constraint_hints(cxn);
 }
-constraintid VeriPbProofLogger::get_propagation_constraint(const VeriPB::Var var){
-    std::vector<constraintid>* storage = var.only_known_in_proof ? &storage_var_onlyknowninproof_to_cxn : &storage_var_to_cxn;
 
-    if(var.v > storage->size())
+template <class TVar>
+constraintid VeriPbProofLogger::get_propagation_constraint(const TVar& var){
+    VeriPB::Var _var = toVeriPbVar(var);
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &storage_var_onlyknowninproof_to_cxn : &storage_var_to_cxn;
+
+    if(_var.v > storage->size())
         return undefcxn;
     else    
-        return (*storage)[var.v];
+        return (*storage)[_var.v];
 }
 
 void VeriPbProofLogger::save_always_use_constraint_hints(const constraintid cxn){
