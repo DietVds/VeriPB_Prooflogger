@@ -1,4 +1,3 @@
-#include "VeriPbSolverTypes.h"
 #include "ProofloggerOptimization.h"
 
 int main() { 
@@ -12,21 +11,21 @@ int main() {
     VeriPB::Constraint<VeriPB::Lit, uint32_t, uint32_t> C1, C2(true, VeriPB::Comparison::LEQ), C3;
 
     // 3 x1 + 2 x2 + 2 x3 >= 3
-    C1.add_literal(VeriPB::create_literal<VeriPB::Lit, VeriPB::Var>(x1, false), 3);
-    C1.add_literal(VeriPB::create_literal<VeriPB::Lit, VeriPB::Var>(x2, true), 2);
-    C1.add_literal(VeriPB::create_literal<VeriPB::Lit, VeriPB::Var>(x3, true), 2);
+    C1.add_literal(VeriPB::create_literal(x1, false), 3);
+    C1.add_literal(VeriPB::create_literal(x2, true), 2);
+    C1.add_literal(VeriPB::create_literal(x3, true), 2);
     C1.add_RHS(3);
 
     // x1 + x2 + x3 + x4 =< 2
-    C2.add_literal(VeriPB::create_literal<VeriPB::Lit, VeriPB::Var>(x1, false));
-    C2.add_literal(VeriPB::create_literal<VeriPB::Lit, VeriPB::Var>(x2, false));
-    C2.add_literal(VeriPB::create_literal<VeriPB::Lit, VeriPB::Var>(x3, false));
-    C2.add_literal(VeriPB::create_literal<VeriPB::Lit, VeriPB::Var>(x4, false));
+    C2.add_literal(VeriPB::create_literal(x1, false));
+    C2.add_literal(VeriPB::create_literal(x2, false));
+    C2.add_literal(VeriPB::create_literal(x3, false));
+    C2.add_literal(VeriPB::create_literal(x4, false));
     C2.add_RHS(2);
 
     // ~x1 + ~x2 >= 1
-    C3.add_literal(VeriPB::create_literal<VeriPB::Lit, VeriPB::Var>(x1, true));
-    C3.add_literal(VeriPB::create_literal<VeriPB::Lit, VeriPB::Var>(x2, true));
+    C3.add_literal(VeriPB::create_literal(x1, true));
+    C3.add_literal(VeriPB::create_literal(x2, true));
     C3.add_RHS(1);
 
     
@@ -42,10 +41,10 @@ int main() {
     vPL.write_proof_header();
 
     // Set objective to ~x1 + ~x2 + ~x3 + ~x4
-    vPL.add_objective_literal(VeriPB::create_literal<VeriPB::Lit, VeriPB::Var>(x1, true),1);
-    vPL.add_objective_literal(VeriPB::create_literal<VeriPB::Lit, VeriPB::Var>(x2, true),1);
-    vPL.add_objective_literal(VeriPB::create_literal<VeriPB::Lit, VeriPB::Var>(x3, true),1);
-    vPL.add_objective_literal(VeriPB::create_literal<VeriPB::Lit, VeriPB::Var>(x4, true),1);
+    vPL.add_objective_literal(VeriPB::create_literal(x1, true),1);
+    vPL.add_objective_literal(VeriPB::create_literal(x2, true),1);
+    vPL.add_objective_literal(VeriPB::create_literal(x3, true),1);
+    vPL.add_objective_literal(VeriPB::create_literal(x4, true),1);
 
     // Unchecked assumption of the three constraints.
 
