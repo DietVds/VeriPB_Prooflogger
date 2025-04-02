@@ -1157,8 +1157,10 @@ Prooflogger::Prooflogger(std::ostream* proof, VarManager* varMgr, int n_orig_con
 { }
 
 Prooflogger::~Prooflogger(){
-    if(_proofOwned)
+    if(_proofOwned){
+        flush_proof();
         delete proof;
+    }    
     delete _cpder;
 }
 
