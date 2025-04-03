@@ -322,18 +322,18 @@ public:
     constraintid rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, bool core_constraint=false);
 
 
-    template <class TSeqLit>
-    constraintid rup(const TSeqLit &lits, const wght RHS, std::vector<constraintid>& hints);
-    template <class TSeqLit, class TSeqWght>
-    constraintid rup(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, std::vector<constraintid>& hints);
-    template <class TSeqLit>
-    constraintid  rup_clause(const TSeqLit& lits, std::vector<constraintid>& hints);
-    template <class TLit>
-    constraintid rup_unit_clause(const TLit& lit, std::vector<constraintid>& hints, bool core_constraint=true);
-    template <class TLit>
-    constraintid rup_binary_clause(const TLit& lit1, const TLit& lit2, std::vector<constraintid>& hints,  bool core_constraint=false);
-    template <class TLit> 
-    constraintid rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, std::vector<constraintid>& hints, bool core_constraint=false);
+    template <class TSeqLit, class TSeqCxnId>
+    constraintid rup(const TSeqLit &lits, const wght RHS, const TSeqCxnId& hints);
+    template <class TSeqLit, class TSeqWght, class TSeqCxnId>
+    constraintid rup(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const TSeqCxnId& hints);
+    template <class TSeqLit, class TSeqCxnId>
+    constraintid  rup_clause(const TSeqLit& lits, const TSeqCxnId& hints);
+    template <class TLit, class TSeqCxnId>
+    constraintid rup_unit_clause(const TLit& lit, const TSeqCxnId& hints, bool core_constraint=true);
+    template <class TLit, class TSeqCxnId>
+    constraintid rup_binary_clause(const TLit& lit1, const TLit& lit2, const TSeqCxnId& hints,  bool core_constraint=false);
+    template <class TLit, class TSeqCxnId> 
+    constraintid rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, const TSeqCxnId& hints, bool core_constraint=false);
 
     // ------------- Redundance Based Strenghtening -------------
     void strenghten_to_core();

@@ -1023,8 +1023,8 @@ constraintid VeriPbProofLogger::rup_ternary_clause(const TLit& lit1, const TLit&
 
 // **********************
 
-template <class TSeqLit>
-constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const wght RHS, std::vector<constraintid>& hints)
+template <class TSeqLit, class TSeqCxnId>
+constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const wght RHS, const TSeqCxnId& hints)
 {
     *proof << "u";
     write_cardinality_constraint(lits, RHS);
@@ -1037,8 +1037,8 @@ constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const wght RHS, std::ve
     return ++constraint_counter;
 }
 
-template <class TSeqLit, class TSeqWght>
-constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, std::vector<constraintid>& hints)
+template <class TSeqLit, class TSeqWght, class TSeqCxnId>
+constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const TSeqCxnId& hints)
 {
     *proof << "u";
     write_PB_constraint(lits, weights, RHS);
@@ -1051,8 +1051,8 @@ constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const TSeqWght &weights
     return ++constraint_counter;
 }
 
-template <class TSeqLit>
-constraintid VeriPbProofLogger::rup_clause(const TSeqLit& lits, std::vector<constraintid>& hints){
+template <class TSeqLit, class TSeqCxnId>
+constraintid VeriPbProofLogger::rup_clause(const TSeqLit& lits, const TSeqCxnId& hints){
     *proof << "u";
     write_weighted_literal(lits[0]);
     for(int i = 1; i < lits.size(); i++){
@@ -1068,8 +1068,8 @@ constraintid VeriPbProofLogger::rup_clause(const TSeqLit& lits, std::vector<cons
     return ++constraint_counter;
 }
 
-template <class TLit>
-constraintid VeriPbProofLogger::rup_unit_clause(const TLit& lit, std::vector<constraintid>& hints, bool core_constraint){
+template <class TLit, class TSeqCxnId>
+constraintid VeriPbProofLogger::rup_unit_clause(const TLit& lit, const TSeqCxnId& hints, bool core_constraint){
     *proof << "u";
     write_weighted_literal(lit);
     *proof << " >= 1;";
@@ -1085,8 +1085,8 @@ constraintid VeriPbProofLogger::rup_unit_clause(const TLit& lit, std::vector<con
     return ++constraint_counter;
 }
 
-template <class TLit>
-constraintid VeriPbProofLogger::rup_binary_clause(const TLit& lit1, const TLit& lit2, std::vector<constraintid>& hints, bool core_constraint){
+template <class TLit, class TSeqCxnId>
+constraintid VeriPbProofLogger::rup_binary_clause(const TLit& lit1, const TLit& lit2, const TSeqCxnId& hints, bool core_constraint){
     *proof << "u";
     write_weighted_literal(lit1);
     write_weighted_literal(lit2);
@@ -1103,8 +1103,8 @@ constraintid VeriPbProofLogger::rup_binary_clause(const TLit& lit1, const TLit& 
     return ++constraint_counter;
 }
 
-template <class TLit> 
-constraintid VeriPbProofLogger::rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, std::vector<constraintid>& hints,  bool core_constraint){
+template <class TLit, class TSeqCxnId> 
+constraintid VeriPbProofLogger::rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, const TSeqCxnId& hints,  bool core_constraint){
     *proof << "u";
     write_weighted_literal(lit1);
     write_weighted_literal(lit2);
