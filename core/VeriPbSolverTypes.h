@@ -141,6 +141,9 @@ TCoeff get_constant(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&);
 template <typename TLit, typename TCoeff, typename TConst>
 TConst sum_of_coefficients(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&);
 
+template <typename TLit, typename TCoeff, typename TConst>
+size_t size(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&);
+
 /*******************
  * Functions for VeriPB constraints:
  * - can be immediately instantiated

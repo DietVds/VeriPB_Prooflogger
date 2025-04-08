@@ -73,7 +73,12 @@ inline TCoeff get_constant(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& 
 
 template <typename TLit, typename TCoeff, typename TConst>
 inline TConst sum_of_coefficients(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& linterm){
-    return linterm._sum_coeffs;
+    return linterm.sum_of_coefficients();
+}
+
+template <typename TLit, typename TCoeff, typename TConst>
+inline size_t size(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& linterm){
+    return linterm.size();
 }
 
 /*******************

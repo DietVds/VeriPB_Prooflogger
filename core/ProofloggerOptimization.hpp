@@ -258,17 +258,17 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update_diff(TLi
     *proof << "obju diff";
     for(int i = 0; i < size(oldObj); i++){
         *proof << " -";
-        write_number(coefficient(oldObj,i), false);
+        write_number(coefficient(oldObj,i), proof, false);
         _varMgr->write_literal(literal(oldObj, i), proof, true);
     }
     for(int i = 0; i < size(newObj); i++){
-        write_number(coefficient(newObj, i));
+        write_number(coefficient(newObj, i),  proof);
         _varMgr->write_literal(literal(newObj, i), proof, true);
     }
 
     *proof << " -";
-    write_number(get_constant(oldObj), false);
-    write_number(get_constant(newObj), true);
+    write_number(get_constant(oldObj), proof, false);
+    write_number(get_constant(newObj), proof, true);
     *proof << ";\n";
 }
 
@@ -277,10 +277,10 @@ template <class TLit>
 void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update_diff_for_literal(TLit& literal_to_remove, ObjCoeff weight, ObjConst constant_for_lit, bool write_update_model_improving_constraint){
     write_comment("write_objective_update_diff_for_literal. Weight = " + number_to_string(weight));
     *proof << "obju diff -";
-    write_number(weight, false);
+    write_number(weight, proof, false);
     _varMgr->write_literal(literal_to_remove, proof, true);
     if(constant_for_lit > 0) 
-        write_number(constant_for_lit, true);
+        write_number(constant_for_lit, proof, true);
     *proof << ";\n";
 
     if(write_update_model_improving_constraint && get_model_improving_constraint() != 0){
@@ -305,9 +305,9 @@ template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TLit> 
 void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update_diff_literal_replacement(TLit& literal_to_remove, TLit& literal_to_add, ObjCoeff weight, bool write_update_model_improving_constraint){
     *proof << "obju diff -";
-    write_number(weight, false);
+    write_number(weight, proof, false);
     _varMgr->write_literal(literal_to_remove, proof, true);
-    write_number(weight);
+    write_number(weight, proof);
     _varMgr->write_literal(literal_to_add, proof, true);
     *proof << ";\n";
 

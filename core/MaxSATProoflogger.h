@@ -23,7 +23,6 @@ public:
     MaxSATProoflogger(const std::string& prooffile, VarManagerWithVarRewriting* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true);
     MaxSATProoflogger(std::ostream* proof, VarManagerWithVarRewriting* varMgr);
     MaxSATProoflogger(std::ostream* proof, VarManagerWithVarRewriting* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true);
-    ~MaxSATProoflogger();
 
     //=============================================================================================
     // Variable manager needs to allow for rewriting.

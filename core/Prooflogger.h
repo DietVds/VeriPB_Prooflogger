@@ -313,7 +313,7 @@ namespace VeriPB {
         template <class TConstraint>
         constraintid overwrite_constraint(const TConstraint& orig_cxn, const TConstraint& new_cxn, bool origclause_in_coreset=false);
 
-        void move_to_coreset(const constraintid& cxn, bool overrule_keeporiginalformula=false);
+        void move_to_coreset_by_id(const constraintid& cxn, bool overrule_keeporiginalformula=false);
         template <class TConstraint>
         void move_to_coreset(const TConstraint& cxn, bool overrule_keeporiginalformula=false);
     
