@@ -1,5 +1,7 @@
 #include "integrations/MaxCDCL/MaxCDCLProoflogger.h"
 #include "core/VeriPBProoflogger.hpp"
+
+#include <forward_list>
 //=================================================================================================
 
 template void VeriPbProofLogger::set_objective<std::vector<VeriPB::Lit>, std::vector<wght>>(const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, wght constant_cost);
@@ -115,11 +117,9 @@ template constraintid VeriPbProofLogger::rup<Minisat::vec<Minisat::Lit>, Minisat
 
 template constraintid VeriPbProofLogger::rup_binary_clause<VeriPB::Lit>(const VeriPB::Lit& lit1, const VeriPB::Lit& lit2, bool core_constraint);
 template constraintid VeriPbProofLogger::rup_binary_clause<Minisat::Lit>(const Minisat::Lit& lit1, const Minisat::Lit& lit2, bool core_constraint);
-template constraintid VeriPbProofLogger::rup_binary_clause<Minisat::Lit>(const Minisat::Lit& lit1, const Minisat::Lit& lit2, std::vector<constraintid>& hints, bool core_constraint);
 
 template constraintid VeriPbProofLogger::rup_unit_clause<VeriPB::Lit>(const VeriPB::Lit& lit, bool core_constraint);
 template constraintid VeriPbProofLogger::rup_unit_clause<Minisat::Lit>(const Minisat::Lit& lit, bool core_constraint);
-template constraintid VeriPbProofLogger::rup_unit_clause<Minisat::Lit>(const Minisat::Lit& lit, std::vector<constraintid>& hints, bool core_constraint);
 
 template void VeriPbProofLogger::add_boolean_assignment<Minisat::Var>(substitution &s, const Minisat::Var& var, const bool value);
 template void VeriPbProofLogger::add_boolean_assignment<VeriPB::Var>(substitution &s, const VeriPB::Var& var, const bool value);
@@ -245,3 +245,13 @@ template void VeriPbProofLogger::move_to_coreset<Minisat::vec<Minisat::Lit>, Min
 template void VeriPbProofLogger::move_to_coreset<Minisat::Clause>(Minisat::Clause&, long, bool);
 template constraintid VeriPbProofLogger::derive_if_implied<Minisat::vec<Minisat::Lit>, Minisat::vec<wght>>(const constraintid hint, const Minisat::vec<Minisat::Lit> &lits, const Minisat::vec<wght> &weights, const wght RHS);
 template constraintid VeriPbProofLogger::derive_if_implied<std::vector<VeriPB::Lit>, std::vector<wght>>(const constraintid hint, const std::vector<VeriPB::Lit> &lits, const std::vector<wght> &weights, const wght RHS);
+
+#ifdef RUPWITHHINTS
+template void VeriPbProofLogger::save_propagation_constraint<int>(int const&, int, bool);
+template int VeriPbProofLogger::get_propagation_constraint<int>(int const&);
+template int VeriPbProofLogger::rup_unit_clause<Minisat::Lit, std::vector<int, std::allocator<int> > >(Minisat::Lit const&, std::vector<int, std::allocator<int> > const&, bool);
+template void VeriPbProofLogger::save_propagation_constraint<VeriPB::Var>(VeriPB::Var const&, int, bool);
+template int VeriPbProofLogger::rup<Minisat::vec<Minisat::Lit>, std::forward_list<int, std::allocator<int> > >(Minisat::vec<Minisat::Lit> const&, long, std::forward_list<int, std::allocator<int> > const&);
+template constraintid VeriPbProofLogger::rup_binary_clause<Minisat::Lit, std::forward_list<constraintid>>(const Minisat::Lit& lit1, const Minisat::Lit& lit2, const std::forward_list<constraintid>& hints, bool core_constraint);
+template constraintid VeriPbProofLogger::rup_unit_clause<Minisat::Lit, std::forward_list<constraintid>>(const Minisat::Lit& lit, const std::forward_list<constraintid>& hints, bool core_constraint);
+#endif
