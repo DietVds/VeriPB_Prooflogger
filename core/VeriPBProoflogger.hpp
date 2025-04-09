@@ -929,7 +929,7 @@ void VeriPbProofLogger::save_propagation_constraint(const TVar& var, const const
     if(_var.v >= storage->size() && n_variables > _var.v )
         storage->resize(2 * n_variables, undefcxn);
     else if(_var.v >= storage->size())
-        storage->resize(2 * var.v, undefcxn);
+        storage->resize(2 * _var.v, undefcxn);
 
     (*storage)[_var.v] = cxn;
 

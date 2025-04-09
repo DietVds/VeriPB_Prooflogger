@@ -57,6 +57,7 @@ class MaxSATProoflogger;
 
 typedef int constraintid;
 #define undefcxn 0
+#define markercxn INT_MAX 
 
 #define INIT_NAMESTORAGE 500
 #define INIT_CONSTRAINT_STORAGE 500
