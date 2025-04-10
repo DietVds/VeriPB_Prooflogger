@@ -136,17 +136,26 @@ std::string VarManagerWithVarRewriting::literal_to_string(const VeriPB::Lit& lit
 }
 
 void VarManagerWithVarRewriting::write_var_to_lit(const VeriPB::Var& var, const VeriPB::Lit& lit, std::ostream* s, bool write_arrow, bool add_prefix_space){
-    write_var_name(var, s, add_prefix_space);
+    VeriPB::Lit rewritten_lit_from = lit_to_rewrite_to({.v=var, .negated=false});
+    VeriPB::Lit rewritten_lit_to = lit_to_rewrite_to(lit);
+
+    write_var_name(variable(rewritten_lit_from), s, add_prefix_space);
     if(write_arrow)
         *s << " ->";
-    VeriPB::Lit rewritten_lit = lit_to_rewrite_to({.v=var, .negated=false});
-    VeriPB::Lit lit_to_write = {.v=lit.v, .negated=(rewritten_lit.negated ? !lit.negated : lit.negated)};
+    VeriPB::Lit lit_to_write = {.v=rewritten_lit_to.v, .negated=(rewritten_lit_from.negated ? !rewritten_lit_to.negated : rewritten_lit_to.negated)};
     write_literal(lit_to_write, s, true);
 }   
 
-void VarManagerWithVarRewriting::write_var_to_bool(const VeriPB::Var& var, const bool val, std::ostream*, bool write_arrow, bool add_prefix_space){
+void VarManagerWithVarRewriting::write_var_to_bool(const VeriPB::Var& var, const bool val, std::ostream* s, bool write_arrow, bool add_prefix_space){
     VeriPB::Lit rewritten_lit = lit_to_rewrite_to({.v=var, .negated=false});
-    
+    write_var_name(var, s, add_prefix_space);
+    if(write_arrow)
+        *s << " ->";
+    *s << " ";
+    if(rewritten_lit.negated)
+        *s << !val;
+    else
+        *s << val;
 }
 
 
