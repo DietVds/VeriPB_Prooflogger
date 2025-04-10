@@ -141,6 +141,7 @@ namespace VeriPB {
         CuttingPlanesDerivation get_cuttingplanes_derivation(bool write_directly_to_proof=false, bool use_internal_buffer=false);
 
         // ------------- Comments -------------
+        void set_comments(bool write_comments=true);
         void write_comment(const char *comment);
         void write_comment(const std::string &comment);
 
