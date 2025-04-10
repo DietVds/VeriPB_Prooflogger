@@ -329,6 +329,7 @@ void VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::clear(const bool all_coeff_o
     _constant = new_const;
     _coefficients->clear();
     _literals->clear();
+    _sum_coeffs = 0;
 }
 
 template <typename TLit, typename TCoeff, typename TConst>

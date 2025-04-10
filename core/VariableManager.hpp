@@ -124,11 +124,8 @@ VeriPB::Lit VarManagerWithVarRewriting::lit_to_rewrite_to(const VeriPB::Lit& lit
 }
 
 void VarManagerWithVarRewriting::write_literal(const VeriPB::Lit& lit, std::ostream* s, bool add_prefix_space){
-    if(add_prefix_space)
-        *s << ' ';
-
     if(!needs_rewrite(lit.v)) // Typically, literals will not have to be rewritten. Therefore, in that case, write the literal as fast as possible.
-        VarManager::write_literal(lit_to_rewrite_to(lit), s, add_prefix_space);
+        VarManager::write_literal(lit, s, add_prefix_space);
     else
         VarManager::write_literal(lit_to_rewrite_to(lit), s, add_prefix_space);
 }

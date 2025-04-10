@@ -735,7 +735,7 @@ constraintid Prooflogger::reification_literal_right_implication(const TLit& lit,
         write_weighted_literal(neg(lit), rhs(cxn));
         for(int i = 0; i < size(cxn); i++)
             write_weighted_literal(literal(cxn, i), coefficient(cxn,i));
-        *proof << ">= ";
+        *proof << ">=";
         write_number(rhs(cxn), proof);
         *proof << "; ";
     }
@@ -744,7 +744,7 @@ constraintid Prooflogger::reification_literal_right_implication(const TLit& lit,
         write_weighted_literal(lit, RHSreif);
         for(int i = 0; i < size(cxn); i++)
             write_weighted_literal(neg(literal(cxn, i)), coefficient(cxn,i));
-        *proof << ">= ";
+        *proof << ">=";
         write_number(RHSreif, proof);
         *proof << "; ";
     }
@@ -772,7 +772,7 @@ constraintid Prooflogger::reification_literal_left_implication(const TLit& lit, 
         write_comment(comment);
     }
 
-    *proof << "red ";
+    *proof << "red";
     if(comparison(cxn) == Comparison::GEQ){
         auto RHSreif = sum_of_coefficients(cxn) - rhs(cxn) + 1;
         write_weighted_literal(lit, RHSreif);
