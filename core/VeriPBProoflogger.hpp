@@ -1041,11 +1041,13 @@ constraintid VeriPbProofLogger::rup_ternary_clause(const TLit& lit1, const TLit&
 // **********************
 
 template <class TSeqLit, class TSeqCxnId>
-constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const wght RHS, const TSeqCxnId& hints)
+constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const wght RHS, const TSeqCxnId& hints, const bool propagate_negated_constraint)
 {
     *proof << "u";
     write_cardinality_constraint(lits, RHS);
     *proof << ";";
+    if(propagate_negated_constraint)
+        *proof << " ~";
     for(constraintid hint : hints) 
         *proof << ' ' << hint;
     for(constraintid hint : storage_always_propagate_hints)
@@ -1055,11 +1057,13 @@ constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const wght RHS, const T
 }
 
 template <class TSeqLit, class TSeqWght, class TSeqCxnId>
-constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const TSeqCxnId& hints)
+constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const TSeqCxnId& hints, const bool propagate_negated_constraint)
 {
     *proof << "u";
     write_PB_constraint(lits, weights, RHS);
     *proof << ";";
+    if(propagate_negated_constraint)
+        *proof << " ~";
     for(constraintid hint : hints) 
         *proof << ' ' << hint;
     for(constraintid hint : storage_always_propagate_hints)
@@ -1069,7 +1073,7 @@ constraintid VeriPbProofLogger::rup(const TSeqLit &lits, const TSeqWght &weights
 }
 
 template <class TSeqLit, class TSeqCxnId>
-constraintid VeriPbProofLogger::rup_clause(const TSeqLit& lits, const TSeqCxnId& hints){
+constraintid VeriPbProofLogger::rup_clause(const TSeqLit& lits, const TSeqCxnId& hints, const bool propagate_negated_constraint){
     *proof << "u";
     write_weighted_literal(lits[0]);
     for(int i = 1; i < lits.size(); i++){
@@ -1077,6 +1081,8 @@ constraintid VeriPbProofLogger::rup_clause(const TSeqLit& lits, const TSeqCxnId&
             write_weighted_literal(lits[i]);
     }
     *proof << " >= 1;";
+    if(propagate_negated_constraint)
+        *proof << " ~";
     for(constraintid hint : hints) 
         *proof << ' ' << hint ;
     for(constraintid hint : storage_always_propagate_hints)
@@ -1086,10 +1092,12 @@ constraintid VeriPbProofLogger::rup_clause(const TSeqLit& lits, const TSeqCxnId&
 }
 
 template <class TLit, class TSeqCxnId>
-constraintid VeriPbProofLogger::rup_unit_clause(const TLit& lit, const TSeqCxnId& hints, bool core_constraint){
+constraintid VeriPbProofLogger::rup_unit_clause(const TLit& lit, const TSeqCxnId& hints, const bool propagate_negated_constraint, bool core_constraint){
     *proof << "u";
     write_weighted_literal(lit);
     *proof << " >= 1;";
+    if(propagate_negated_constraint)
+        *proof << " ~";
     for(constraintid hint : hints) 
         *proof << ' ' << hint ;
     for(constraintid hint : storage_always_propagate_hints)
@@ -1103,11 +1111,13 @@ constraintid VeriPbProofLogger::rup_unit_clause(const TLit& lit, const TSeqCxnId
 }
 
 template <class TLit, class TSeqCxnId>
-constraintid VeriPbProofLogger::rup_binary_clause(const TLit& lit1, const TLit& lit2, const TSeqCxnId& hints, bool core_constraint){
+constraintid VeriPbProofLogger::rup_binary_clause(const TLit& lit1, const TLit& lit2, const TSeqCxnId& hints, const bool propagate_negated_constraint, bool core_constraint){
     *proof << "u";
     write_weighted_literal(lit1);
     write_weighted_literal(lit2);
     *proof << " >= 1;";
+    if(propagate_negated_constraint)
+        *proof << " ~";
     for(constraintid hint : hints) 
         *proof << ' ' << hint ;
     for(constraintid hint : storage_always_propagate_hints)
@@ -1121,12 +1131,14 @@ constraintid VeriPbProofLogger::rup_binary_clause(const TLit& lit1, const TLit& 
 }
 
 template <class TLit, class TSeqCxnId> 
-constraintid VeriPbProofLogger::rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, const TSeqCxnId& hints,  bool core_constraint){
+constraintid VeriPbProofLogger::rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, const TSeqCxnId& hints, const bool propagate_negated_constraint,  bool core_constraint){
     *proof << "u";
     write_weighted_literal(lit1);
     write_weighted_literal(lit2);
     write_weighted_literal(lit3);
     *proof << " >= 1;";
+    if(propagate_negated_constraint)
+        *proof << " ~";
     for(constraintid hint : hints) 
         *proof << ' ' << hint ;
     for(constraintid hint : storage_always_propagate_hints)

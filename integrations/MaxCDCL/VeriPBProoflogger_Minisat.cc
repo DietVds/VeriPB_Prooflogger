@@ -249,10 +249,10 @@ template constraintid VeriPbProofLogger::derive_if_implied<std::vector<VeriPB::L
 #ifdef RUPWITHHINTS
 template void VeriPbProofLogger::save_propagation_constraint<int>(int const&, int, bool);
 template int VeriPbProofLogger::get_propagation_constraint<int>(int const&);
-template int VeriPbProofLogger::rup_unit_clause<Minisat::Lit, std::vector<int, std::allocator<int> > >(Minisat::Lit const&, std::vector<int, std::allocator<int> > const&, bool);
+template int VeriPbProofLogger::rup_unit_clause<Minisat::Lit, std::vector<int, std::allocator<int> > >(Minisat::Lit const&, std::vector<int, std::allocator<int> > const&, bool, bool);
 template void VeriPbProofLogger::save_propagation_constraint<VeriPB::Var>(VeriPB::Var const&, int, bool);
-template int VeriPbProofLogger::rup<Minisat::vec<Minisat::Lit>, std::forward_list<int, std::allocator<int> > >(Minisat::vec<Minisat::Lit> const&, long, std::forward_list<int, std::allocator<int> > const&);
-template constraintid VeriPbProofLogger::rup_binary_clause<Minisat::Lit, std::forward_list<constraintid>>(const Minisat::Lit& lit1, const Minisat::Lit& lit2, const std::forward_list<constraintid>& hints, bool core_constraint);
-template constraintid VeriPbProofLogger::rup_unit_clause<Minisat::Lit, std::forward_list<constraintid>>(const Minisat::Lit& lit, const std::forward_list<constraintid>& hints, bool core_constraint);
+template int VeriPbProofLogger::rup<Minisat::vec<Minisat::Lit>, std::forward_list<int, std::allocator<int> > >(Minisat::vec<Minisat::Lit> const&, long, std::forward_list<int, std::allocator<int> > const&, bool);
+template constraintid VeriPbProofLogger::rup_binary_clause<Minisat::Lit, std::forward_list<constraintid>>(const Minisat::Lit& lit1, const Minisat::Lit& lit2, const std::forward_list<constraintid>& hints, bool, bool core_constraint);
+template constraintid VeriPbProofLogger::rup_unit_clause<Minisat::Lit, std::forward_list<constraintid>>(const Minisat::Lit& lit, const std::forward_list<constraintid>& hints, bool, bool core_constraint);
 template int VeriPbProofLogger::check_constraint_exists_and_add<Minisat::vec<Minisat::Lit> >(Minisat::vec<Minisat::Lit> const&, long);
 #endif

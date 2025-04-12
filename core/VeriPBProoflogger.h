@@ -330,17 +330,17 @@ public:
 
 
     template <class TSeqLit, class TSeqCxnId>
-    constraintid rup(const TSeqLit &lits, const wght RHS, const TSeqCxnId& hints);
+    constraintid rup(const TSeqLit &lits, const wght RHS, const TSeqCxnId& hints, const bool propagate_negated_constraint=true);
     template <class TSeqLit, class TSeqWght, class TSeqCxnId>
-    constraintid rup(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const TSeqCxnId& hints);
+    constraintid rup(const TSeqLit &lits, const TSeqWght &weights, const wght RHS, const TSeqCxnId& hints, const bool propagate_negated_constraint=true);
     template <class TSeqLit, class TSeqCxnId>
-    constraintid  rup_clause(const TSeqLit& lits, const TSeqCxnId& hints);
+    constraintid  rup_clause(const TSeqLit& lits, const TSeqCxnId& hints, const bool propagate_negated_constraint=true);
     template <class TLit, class TSeqCxnId>
-    constraintid rup_unit_clause(const TLit& lit, const TSeqCxnId& hints, bool core_constraint=true);
+    constraintid rup_unit_clause(const TLit& lit, const TSeqCxnId& hints, const bool propagate_negated_constraint=true, bool core_constraint=true);
     template <class TLit, class TSeqCxnId>
-    constraintid rup_binary_clause(const TLit& lit1, const TLit& lit2, const TSeqCxnId& hints,  bool core_constraint=false);
+    constraintid rup_binary_clause(const TLit& lit1, const TLit& lit2, const TSeqCxnId& hints, const bool propagate_negated_constraint=true,  bool core_constraint=false);
     template <class TLit, class TSeqCxnId> 
-    constraintid rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, const TSeqCxnId& hints, bool core_constraint=false);
+    constraintid rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, const TSeqCxnId& hints, const bool propagate_negated_constraint=true, bool core_constraint=false);
 
     // ------------- Redundance Based Strenghtening -------------
     void strenghten_to_core();
