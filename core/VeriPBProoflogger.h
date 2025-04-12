@@ -259,6 +259,12 @@ public:
     template <class TSeqLit, class TSeqWght>
     void check_constraint_exists(const TSeqLit& lits_greater, const TSeqWght& weights_greater, const wght const_greater, const TSeqLit& lits_smaller, const TSeqWght& weights_smaller, const wght const_smaller  );
 
+    template <class TSeqLit>
+    constraintid check_constraint_exists_and_add(const TSeqLit& lits, const wght RHS = 1);
+    template <class TSeqLit, class TSeqWght>
+    constraintid check_constraint_exists_and_add(const TSeqLit& lits, const TSeqWght &weights, const wght RHS = 1);
+
+
     // ------------- Rules for adding implied constraints -------------
     template <class TSeqLit>
     constraintid derive_if_implied(const constraintid hint, const TSeqLit &lits, const wght RHS = 1);

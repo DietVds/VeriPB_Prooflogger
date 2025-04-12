@@ -254,4 +254,5 @@ template void VeriPbProofLogger::save_propagation_constraint<VeriPB::Var>(VeriPB
 template int VeriPbProofLogger::rup<Minisat::vec<Minisat::Lit>, std::forward_list<int, std::allocator<int> > >(Minisat::vec<Minisat::Lit> const&, long, std::forward_list<int, std::allocator<int> > const&);
 template constraintid VeriPbProofLogger::rup_binary_clause<Minisat::Lit, std::forward_list<constraintid>>(const Minisat::Lit& lit1, const Minisat::Lit& lit2, const std::forward_list<constraintid>& hints, bool core_constraint);
 template constraintid VeriPbProofLogger::rup_unit_clause<Minisat::Lit, std::forward_list<constraintid>>(const Minisat::Lit& lit, const std::forward_list<constraintid>& hints, bool core_constraint);
+template int VeriPbProofLogger::check_constraint_exists_and_add<Minisat::vec<Minisat::Lit> >(Minisat::vec<Minisat::Lit> const&, long);
 #endif

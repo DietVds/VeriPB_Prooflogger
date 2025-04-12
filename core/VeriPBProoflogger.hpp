@@ -712,6 +712,23 @@ void VeriPbProofLogger::check_constraint_exists(const TSeqLit& lits_greater, con
     write_PB_constraint(lits_greater, weights_greater, const_greater, lits_smaller, weights_smaller, const_smaller);
     *proof << ";\n";
 }
+
+template <class TSeqLit>
+constraintid VeriPbProofLogger::check_constraint_exists_and_add(const TSeqLit& lits, const wght RHS){
+    *proof << "ea";
+    write_cardinality_constraint(lits, RHS);
+    *proof << ";\n";
+    return ++constraint_counter;
+}
+template <class TSeqLit, class TSeqWght>
+constraintid VeriPbProofLogger::check_constraint_exists_and_add(const TSeqLit& lits, const TSeqWght &weights, const wght RHS){
+    *proof << "ea";
+    write_PB_constraint(lits, weights, RHS);
+    *proof << ";\n";
+    return ++constraint_counter;
+}
+
+
 // ------------- Rules for adding implied constraints -------------
 template <class TSeqLit>
 constraintid VeriPbProofLogger::derive_if_implied(const constraintid hint, const TSeqLit &lits, const wght RHS){
