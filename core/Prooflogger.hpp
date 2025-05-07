@@ -179,7 +179,7 @@ void CuttingPlanesDerivation::weaken(const TVar& var){
         _pl->_varMgr->write_var_name(v, _pl->proof, true);
         *(_pl->proof) << " w";
     }else{
-        *(_buffer) += " " + _pl->_varMgr->var_name(v) + " *";
+        *(_buffer) += " " + _pl->_varMgr->var_name(v) + " w";
     }
 }
 
@@ -324,7 +324,7 @@ constraintid Prooflogger::copy_constraint(const constraintid cxn){
     return ++_constraint_counter;
 }
 
-CuttingPlanesDerivation Prooflogger::get_cuttingplanes_derivation(bool write_directly_to_proof, bool use_internal_buffer){
+CuttingPlanesDerivation Prooflogger::new_cuttingplanes_derivation(bool write_directly_to_proof, bool use_internal_buffer){
     if(write_directly_to_proof){
         return CuttingPlanesDerivation(this, true);
     }
@@ -726,29 +726,21 @@ constraintid Prooflogger::reification_literal_right_implication(const TLit& lit,
         std::string comment = _varMgr->literal_to_string(toVeriPbLit(lit)) + " -> " ;
         for(i = 0; i < size(cxn); i++)
             comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(literal(cxn,i)) + " ";
-        comment += (comparison(cxn) == Comparison::GEQ ? ">= " : "=< ") + number_to_string(rhs(cxn));
+        comment += to_string(comparison(cxn)) + " " + number_to_string(rhs(cxn));
         write_comment(comment);
     }
 
     *proof << "red";
-    if(comparison(cxn) == Comparison::GEQ){
-        write_weighted_literal(neg(lit), rhs(cxn));
-        for(int i = 0; i < size(cxn); i++)
-            write_weighted_literal(literal(cxn, i), coefficient(cxn,i));
-        *proof << " >=";
-        write_number(rhs(cxn), proof);
-        *proof << "; ";
+    if(comparison(cxn) == GEQ){
+        write_weighted_literal(neg(lit), rhs(cxn)-min_val_lhs(cxn));
     }
-    else{
-        auto RHSreif = sum_of_coefficients(cxn) - rhs(cxn);
-        write_weighted_literal(lit, RHSreif);
-        for(int i = 0; i < size(cxn); i++)
-            write_weighted_literal(neg(literal(cxn, i)), coefficient(cxn,i));
-        *proof << " >=";
-        write_number(RHSreif, proof);
-        *proof << "; ";
+    else if(comparison(cxn) == LEQ){
+        *proof << " -";
+        write_weighted_literal(neg(lit), max_val_lhs(cxn)-rhs(cxn), false); // Literal should have negative coefficient, even when coefficients of constraint itself are unsigned types.
     }
-
+    write_constraint(cxn);
+    *proof << "; ";
+    
     VeriPB::Var var = toVeriPbVar(variable(lit));
     substitution witness = get_new_substitution();
     add_boolean_assignment(witness, var, is_negated(lit)); // Set lit to false makes reification constraint true. So that means that if lit is negated, we need to set the variable true.
@@ -768,29 +760,31 @@ constraintid Prooflogger::reification_literal_left_implication(const TLit& lit, 
         std::string comment = _varMgr->literal_to_string(toVeriPbLit(lit)) + " <- " ;
         for(i = 0; i < size(cxn); i++)
             comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(literal(cxn,i)) + " ";
-        comment += (comparison(cxn) == Comparison::GEQ ? ">= " : "=< ") + number_to_string(rhs(cxn));
+        comment += to_string(comparison(cxn)) + " " + number_to_string(rhs(cxn));
         write_comment(comment);
     }
 
     *proof << "red";
     if(comparison(cxn) == Comparison::GEQ){
-        auto RHSreif = sum_of_coefficients(cxn) - rhs(cxn) + 1;
-        write_weighted_literal(lit, RHSreif);
-        for(int i = 0; i < size(cxn); i++)
-            write_weighted_literal(neg(literal(cxn,i)), coefficient(cxn,i));
-        *proof << " >= ";
-        write_number(RHSreif, proof);
-        *proof << "; ";
+        *proof << " -";
+       write_weighted_literal(lit, max_val_lhs(cxn) - rhs(cxn) + 1, false); // Literal should have negative coefficient, even when coefficients of constraint itself are unsigned types.
     }
-    else{
-        auto RHSreif = rhs(cxn) + 1;
-        write_weighted_literal(lit, RHSreif);
-        for(int i = 0; i < size(cxn); i++)
-            write_weighted_literal(literal(cxn,i), coefficient(cxn,i));
-        *proof << " >= ";
-        write_number(RHSreif, proof);
-        *proof << "; ";
+    else if(comparison(cxn) == Comparison::LEQ){
+        write_weighted_literal(lit, rhs(cxn) + 1 - min_val_lhs(cxn));
     }
+
+    for(int i = 0; i < size(cxn); i++)
+        write_weighted_literal(literal(cxn, i), coefficient(cxn,i));
+
+    if(comparison(cxn) == Comparison::GEQ){
+        *proof << ' ' << to_string(Comparison::LEQ);
+        write_number(rhs(cxn) - 1, proof);
+    }
+    else if(comparison(cxn) == Comparison::LEQ){
+        *proof <<  ' ' << to_string(Comparison::GEQ);
+        write_number(rhs(cxn) + 1, proof);
+    }
+    *proof << "; ";
 
     VeriPB::Var var = toVeriPbVar(variable(lit));
     substitution witness = get_new_substitution();
@@ -1073,22 +1067,17 @@ void Prooflogger::_log_solution(const TModel& model, const std::string& log_comm
 
 template <typename TConstraint>
 void Prooflogger::write_constraint(const TConstraint& cxn){
-    bool normalized = comparison(cxn) == Comparison::GEQ;
-
     for(int i = 0; i < size(cxn); i++){
         if(coefficient(cxn,i) == 0) continue;
-        
-        if(normalized)
-            write_weighted_literal(literal(cxn,i), coefficient(cxn,i));
-        else
-            write_weighted_literal(neg(literal(cxn,i)), coefficient(cxn,i));
+        write_weighted_literal(literal(cxn,i), coefficient(cxn,i));
     }
 
-    *proof << " >= ";
-    if(normalized)
-        write_number(rhs(cxn), proof, false);
-    else
-        write_number(sum_of_coefficients(cxn) - rhs(cxn), proof, false);
+    if(comparison(cxn) == Comparison::GEQ)
+        *proof << " >= ";
+    else if(comparison(cxn) == Comparison::LEQ)
+        *proof << " <= ";
+
+    write_number(rhs(cxn), proof, false);
 }
 
 template <typename TClause>

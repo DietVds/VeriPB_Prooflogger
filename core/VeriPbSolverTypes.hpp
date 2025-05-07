@@ -49,8 +49,13 @@ inline size_t size(const VeriPB::Constraint<TLit, TCoeff, TRhs>& cxn){
 }
 
 template <typename TLit, typename TCoeff, typename TRhs>
-inline TRhs sum_of_coefficients(const VeriPB::Constraint<TLit, TCoeff, TRhs>& cxn){
-    return cxn.sum_of_coefficients();
+inline TRhs max_val_lhs(const VeriPB::Constraint<TLit, TCoeff, TRhs>& cxn){
+    return cxn.max_val_lhs();
+}
+
+template <typename TLit, typename TCoeff, typename TRhs>
+inline TRhs min_val_lhs(const VeriPB::Constraint<TLit, TCoeff, TRhs>& cxn){
+    return cxn.min_val_lhs();
 }
 
 /********************
@@ -72,8 +77,13 @@ inline TCoeff get_constant(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& 
 }
 
 template <typename TLit, typename TCoeff, typename TConst>
-inline TConst sum_of_coefficients(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& linterm){
-    return linterm.sum_of_coefficients();
+inline TConst max_val_lhs(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& linterm){
+    return linterm.max_val_lhs();
+}
+
+template <typename TLit, typename TCoeff, typename TConst>
+inline TConst min_val_lhs(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& linterm){
+    return linterm.min_val_lhs();
 }
 
 template <typename TLit, typename TCoeff, typename TConst>
@@ -264,12 +274,23 @@ inline void VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::add_literal(const TLi
     _literals->push_back(lit);
     if(!_all_coeff_one)
         _coefficients->push_back(coeff);
-    #ifdef NONUMBERCONVERSION
-        _sum_coeffs += coeff; 
-    #else 
-        _sum_coeffs += convert_number<TCoeff, TConst>(coeff);
-    #endif
+    
+    if(coeff > 0){
+        #ifdef NONUMBERCONVERSION
+            _max_val += coeff; 
+        #else 
+            _max_val += convert_number<TCoeff, TConst>(coeff);
+        #endif
+    }
+    else{
+        #ifdef NONUMBERCONVERSION
+            _min_val += coeff; 
+        #else 
+            _min_val += convert_number<TCoeff, TConst>(coeff);
+        #endif
+    }
 }
+
 template <typename TLit, typename TCoeff, typename TConst>
 bool VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::delete_literal(const TLit& lit){
     int i=0;
@@ -279,8 +300,24 @@ bool VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::delete_literal(const TLit& l
 
     if(i < _literals->size() && lit == _literals->at(i)) found=true; 
 
-    if(found)
-        _sum_coeffs -= _coefficients->at(i);
+    if(found){
+        TCoeff coeff = _coefficients->at(i);
+
+        if(coeff > 0){
+            #ifdef NONUMBERCONVERSION
+                _max_val -= coeff; 
+            #else 
+                _max_val -= convert_number<TCoeff, TConst>(coeff);
+            #endif
+        }
+        else{
+            #ifdef NONUMBERCONVERSION
+                _min_val -= coeff; 
+            #else 
+                _min_val -= convert_number<TCoeff, TConst>(coeff);
+            #endif
+        }
+    }
 
     while(found && i+1 < _literals->size()) {
         assert(_literals->at(i+1) != lit);
@@ -301,7 +338,22 @@ template <typename TLit, typename TCoeff, typename TConst>
 bool VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::delete_literal(const litindex& index){
     bool found = index < _literals->size();
     if(found){
-        _sum_coeffs -= _coefficients->at(index);
+        TCoeff coeff = _coefficients->at(index);
+
+        if(coeff > 0){
+            #ifdef NONUMBERCONVERSION
+                _max_val -= coeff; 
+            #else 
+                _max_val -= convert_number<TCoeff, TConst>(coeff);
+            #endif
+        }
+        else{
+            #ifdef NONUMBERCONVERSION
+                _min_val -= coeff; 
+            #else 
+                _min_val -= convert_number<TCoeff, TConst>(coeff);
+            #endif
+        }
         _literals->erase(_literals->begin() + index);
         if(!_all_coeff_one)
             _coefficients->erase(_coefficients->begin() + index);
@@ -311,9 +363,14 @@ bool VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::delete_literal(const litinde
     return found; 
 }
 template <typename TLit, typename TCoeff, typename TConst>
-TConst VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::sum_of_coefficients() const {
-    return _sum_coeffs;
+TConst VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::max_val() const {
+    return _max_val;
 }
+template <typename TLit, typename TCoeff, typename TConst>
+TConst VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::min_val() const {
+    return _min_val;
+}
+
 
 template <typename TLit, typename TCoeff, typename TConst>
 inline void VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::add_constant(const TConst& constant){
@@ -329,7 +386,8 @@ void VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::clear(const bool all_coeff_o
     _constant = new_const;
     _coefficients->clear();
     _literals->clear();
-    _sum_coeffs = 0;
+    _max_val = 0;
+    _min_val = 0;
 }
 
 template <typename TLit, typename TCoeff, typename TConst>
@@ -337,7 +395,9 @@ inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(const bool
     _literals(new std::vector<TLit>),
     _all_coeff_one(all_coeff_one),
     _constant(0),
-    _owned(true)
+    _owned(true),
+    _max_val(0),
+    _min_val(0)
 {
     if(!all_coeff_one)
         _coefficients = new std::vector<TCoeff>;
@@ -349,7 +409,9 @@ inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(std::vecto
     _coefficients(coeff),
     _constant(constant),
     _all_coeff_one(false),
-    _owned(false)
+    _owned(false),
+    _max_val(0),
+    _min_val(0)
 { }
 
 template <typename TLit, typename TCoeff, typename TConst>
@@ -358,7 +420,9 @@ inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(std::vecto
     _coefficients(nullptr),
     _constant(constant),
     _all_coeff_one(true),
-    _owned(false)
+    _owned(false),
+    _max_val(0),
+    _min_val(0)
 { }
 
 template <typename TLit, typename TCoeff, typename TConst>
@@ -384,8 +448,6 @@ inline TCoeff VeriPB::Constraint<TLit, TCoeff, TRhs>::coefficient(const litindex
 }
 template <typename TLit, typename TCoeff, typename TRhs>
 inline TRhs VeriPB::Constraint<TLit, TCoeff, TRhs>::rhs() const {
-    assert(_linterm->constant() < _rhs);
-
     return _rhs - _linterm->constant();
 }
 template <typename TLit, typename TCoeff, typename TRhs>
@@ -394,8 +456,13 @@ inline VeriPB::Comparison VeriPB::Constraint<TLit, TCoeff, TRhs>::comparison() c
 }
 
 template <typename TLit, typename TCoeff, typename TRhs>
-inline TRhs VeriPB::Constraint<TLit, TCoeff, TRhs>::sum_of_coefficients() const {
-    return _linterm->sum_of_coefficients();
+inline TRhs VeriPB::Constraint<TLit, TCoeff, TRhs>::max_val_lhs() const {
+    return _linterm->max_val();
+}
+
+template <typename TLit, typename TCoeff, typename TRhs>
+inline TRhs VeriPB::Constraint<TLit, TCoeff, TRhs>::min_val_lhs() const {
+    return _linterm->min_val();
 }
 
 template <typename TLit, typename TCoeff, typename TRhs>

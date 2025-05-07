@@ -266,9 +266,9 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update_diff(TLi
         _varMgr->write_literal(literal(newObj, i), proof, true);
     }
 
-    *proof << " -";
-    write_number(get_constant(oldObj), proof, false);
-    write_number(get_constant(newObj), proof, true);
+    ObjConst n = get_constant(newObj), m = get_constant(oldObj);
+    if(n != m)
+        write_number(n-m, proof, true);
     *proof << ";\n";
 }
 

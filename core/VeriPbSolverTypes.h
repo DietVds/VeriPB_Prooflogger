@@ -54,7 +54,8 @@ class LinTermBoolVars {
         TLit literal(const litindex& idx) const;
         TCoeff coefficient(const litindex& idx) const;
         TConst constant() const;
-        TConst sum_of_coefficients() const;
+        TConst max_val() const;
+        TConst min_val() const;
         size_t size() const;
 
         void add_literal(const TLit& lit, const TCoeff& coeff=1);
@@ -74,13 +75,19 @@ class LinTermBoolVars {
         std::vector<TLit>* _literals;
         std::vector<TCoeff>* _coefficients;
         TConst _constant;
-        TConst _sum_coeffs;
+        TConst _max_val;
+        TConst _min_val;
 
         bool _all_coeff_one;
         bool _owned;
 };
 
 enum Comparison {GEQ, LEQ};
+inline std::string to_string(const Comparison& comp){
+    if(comp == Comparison::GEQ) return ">=";
+    else if(comp == Comparison::LEQ) return "<=";
+    else assert(false); 
+}
 
 template <typename TLit, typename TCoeff, typename TRhs>
 class Constraint {
@@ -88,7 +95,8 @@ class Constraint {
         TLit literal(const litindex& idx) const;
         TCoeff coefficient(const litindex& idx) const;
         TRhs rhs() const;
-        TRhs sum_of_coefficients() const;
+        TRhs max_val_lhs() const;
+        TRhs min_val_lhs() const;
         Comparison comparison() const;
         size_t size() const;
 
@@ -139,7 +147,10 @@ template <typename TLit, typename TCoeff, typename TConst>
 TCoeff get_constant(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&);
 
 template <typename TLit, typename TCoeff, typename TConst>
-TConst sum_of_coefficients(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&);
+TConst max_val(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&);
+
+template <typename TLit, typename TCoeff, typename TConst>
+TConst min_val(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&);
 
 template <typename TLit, typename TCoeff, typename TConst>
 size_t size(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&);
@@ -164,7 +175,10 @@ template <typename TLit, typename TCoeff, typename TRhs>
 size_t size(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
 
 template <typename TLit, typename TCoeff, typename TRhs>
-TRhs sum_of_coefficients(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
+TRhs max_val_lhs(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
+
+template <typename TLit, typename TCoeff, typename TRhs>
+TRhs min_val_lhs(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
 
 /*******************
  * Functions to deal with numbers

@@ -13,10 +13,8 @@
 #include <charconv>
 #include <climits>
 #include <stdexcept>
-
 #include<iostream>
 
-// NOTE! Should include definition for types Var, Lit and Clause
 #include "VeriPbSolverTypes.h"
 #include "VariableManager.h"
 
@@ -138,7 +136,7 @@ namespace VeriPB {
 
         constraintid copy_constraint(const constraintid cxn);
 
-        CuttingPlanesDerivation get_cuttingplanes_derivation(bool write_directly_to_proof=false, bool use_internal_buffer=false);
+        CuttingPlanesDerivation new_cuttingplanes_derivation(bool write_directly_to_proof=false, bool use_internal_buffer=false);
 
         // ------------- Comments -------------
         void set_comments(bool write_comments=true);
