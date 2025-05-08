@@ -20,11 +20,11 @@ public:
     virtual void write_var_to_lit(const VeriPB::Var&, const VeriPB::Lit&, std::ostream*, bool write_arrow=false, bool add_prefix_space=false);
     virtual void write_var_to_bool(const VeriPB::Var&, const bool, std::ostream*, bool write_arrow=false, bool add_prefix_space=false);
 
-    void set_number_original_variables(size_t n);
+    virtual void set_number_original_variables(size_t n);
     virtual bool is_aux_var(const VeriPB::Var&);
 
-    VeriPB::Var new_variable_only_in_proof();
-    size_t get_number_variables_only_in_proof();
+    virtual VeriPB::Var new_variable_only_in_proof();
+    virtual size_t get_number_variables_only_in_proof();
 private: 
     VeriPB::VarIdx _n_vars_only_known_in_proof=0;
     size_t _n_orig_vars = 0;
