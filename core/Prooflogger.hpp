@@ -202,6 +202,9 @@ CuttingPlanesDerivation::CuttingPlanesDerivation(Prooflogger* pl, bool write_dir
             _buffer = new std::string();
             _bufferOwned = true;
         }
+        else{
+            _bufferOwned=false;
+        }
     };
 
 CuttingPlanesDerivation::CuttingPlanesDerivation(Prooflogger* pl, std::string* buffer) : 
