@@ -106,7 +106,6 @@ class Constraint {
         void subtract_RHS(const TRhs& rhs_to_subtract);
         void clear(const bool cardinality_constraint=false, const TRhs& new_RHS=0, const Comparison& new_comparison = Comparison::GEQ );
 
-
         Constraint(const bool cardinality_constraint=false, const TRhs& rhs=0, enum Comparison comp = Comparison::GEQ);
         Constraint(LinTermBoolVars<TLit, TCoeff, TRhs>* term, TRhs rhs, enum Comparison comp = Comparison::GEQ);
         Constraint(std::vector<TLit>* lits, std::vector<TCoeff>* coeff, TRhs rhs, enum Comparison comp = Comparison::GEQ);
@@ -118,6 +117,8 @@ class Constraint {
         TRhs _rhs;
         enum Comparison _comp;
         bool _owned;
+        TCoeff _coeff_left_reif;
+        TCoeff _coeff_right_reif;
 };
 
 /*******************
@@ -180,6 +181,17 @@ TRhs max_val_lhs(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
 
 template <typename TLit, typename TCoeff, typename TRhs>
 TRhs min_val_lhs(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
+
+/***************
+ * Functions for reifying constraints: 
+ * - Can be immediately instantiated for any constraints for which the following functions are implemented: max_val_lhs, min_val_lhs, comparison and rhs.
+ */
+
+template <typename TRhs, typename TConstraint>
+TRhs coeff_left_reif(const TConstraint&);
+template <typename TRhs, typename TConstraint>
+TRhs coeff_right_reif(const TConstraint&);
+
 
 /*******************
  * Functions to deal with numbers

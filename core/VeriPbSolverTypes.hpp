@@ -58,6 +58,29 @@ inline TRhs min_val_lhs(const VeriPB::Constraint<TLit, TCoeff, TRhs>& cxn){
     return cxn.min_val_lhs();
 }
 
+/***************
+ * Functions for reifying constraints: 
+ */
+
+template <typename TRhs, typename TConstraint>
+inline TRhs coeff_left_reif(const TConstraint& cxn){
+    if(_comparison == Comparison::GEQ){
+        return _linterm->max_val() - _rhs + 1;
+    }
+    else if(_comparison == Comparison::LEQ){
+        return _linterm.min_val() + _rhs + 1;
+    }
+}
+template <typename TRhs, typename TConstraint>
+inline TRhs coeff_right_reif(const TConstraint& cxn){
+    if(_comparison == Comparison::GEQ){
+        return _linterm->min_val() + _rhs;
+    }
+    else if(_comparison == Comparison::LEQ){
+        return _linterm->max_val() - _rhs;
+    }
+}
+
 /********************
  * Functions for linear terms
  */

@@ -278,7 +278,7 @@ void Prooflogger::set_variable_manager(VarManager* varMgr){
     _varMgr = varMgr;
 }
 
-VarManager* Prooflogger::get_variable_manager(VarManager* varMgr){
+VarManager* Prooflogger::get_variable_manager(){
     return _varMgr;
 }
 
