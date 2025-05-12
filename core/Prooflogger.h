@@ -117,6 +117,7 @@ namespace VeriPB {
         constraintid get_constraint_counter();
         constraintid increase_constraint_counter();
         void set_variable_manager(VarManager* varMgr);
+        VarManager* get_variable_manager(VarManager* varMgr);
         void flush_proof();
 
         // ------------- Solution Logging -------------
