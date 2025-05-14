@@ -732,7 +732,7 @@ constraintid Prooflogger::reification_literal_right_implication(const TLit& lit,
         // TODO-Dieter: Make comment a string in the PL library to not always have to take the memory again.
         std::string comment = _varMgr->literal_to_string(toVeriPbLit(lit)) + " -> " ;
         for(i = 0; i < size(cxn); i++)
-            comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(literal(cxn,i)) + " ";
+            comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(toVeriPbLit(literal(cxn,i))) + " ";
         comment += to_string(comparison(cxn)) + " " + number_to_string(rhs(cxn));
         write_comment(comment);
     }
@@ -766,7 +766,7 @@ constraintid Prooflogger::reification_literal_left_implication(const TLit& lit, 
     if(_comments){
         std::string comment = _varMgr->literal_to_string(toVeriPbLit(lit)) + " <- " ;
         for(i = 0; i < size(cxn); i++)
-            comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(literal(cxn,i)) + " ";
+            comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(toVeriPbLit(literal(cxn,i))) + " ";
         comment += to_string(comparison(cxn)) + " " + number_to_string(rhs(cxn));
         write_comment(comment);
     }
@@ -1064,7 +1064,7 @@ void Prooflogger::_log_solution(const TModel& model, const std::string& log_comm
     *proof << log_command;
     VeriPB::Lit lit; 
     for (int i = 0; i < model_size(model); i++){
-        lit = toVeriPbLit(model_literal(i, model));
+        lit = toVeriPbLit(model_literal(model, i));
         if(only_original_variables_necessary && _varMgr->is_aux_var(variable(lit)))
             continue;
         _varMgr->write_literal(lit, proof, true);

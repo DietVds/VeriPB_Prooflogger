@@ -42,12 +42,24 @@ struct Var{
     bool only_known_in_proof = false;
 };
 static Var var_undef {.v=0, .only_known_in_proof=false};
+bool operator==(const VeriPB::Var& lhs, const VeriPB::Var& rhs);
+bool operator!=(const VeriPB::Var& lhs, const VeriPB::Var& rhs);
+bool operator< (const VeriPB::Var& lhs, const VeriPB::Var& rhs);
+bool operator<=(const VeriPB::Var& lhs, const VeriPB::Var& rhs);
+bool operator> (const VeriPB::Var& lhs, const VeriPB::Var& rhs);
+bool operator>=(const VeriPB::Var& lhs, const VeriPB::Var& rhs);
 
 struct Lit{
     Var v;
     bool negated=false;
 };
 static Lit lit_undef {.v=var_undef, .negated=false};
+bool operator==(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
+bool operator!=(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
+bool operator< (const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
+bool operator<=(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
+bool operator> (const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
+bool operator>=(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
 
 template <typename TLit, typename TCoeff, typename TConst>
 class LinTermBoolVars {
@@ -217,7 +229,7 @@ TNumber2 convert_number(const TNumber1&);
 enum ModelValue {False, True, Undef};
 
 template <typename TModel>
-Lit model_literal(const litindex&, const TModel&);
+Lit model_literal(const TModel&, const litindex&);
 
 template <typename TModel>
 size_t model_size(const TModel& model);
@@ -226,20 +238,5 @@ template <typename TVar, typename TModel>
 ModelValue model_value(const TVar& var, const TModel& model, bool first_call=false);
 
 }
-
-bool operator==(const VeriPB::Var& lhs, const VeriPB::Var& rhs);
-bool operator!=(const VeriPB::Var& lhs, const VeriPB::Var& rhs);
-bool operator< (const VeriPB::Var& lhs, const VeriPB::Var& rhs);
-bool operator<=(const VeriPB::Var& lhs, const VeriPB::Var& rhs); 
-bool operator> (const VeriPB::Var& lhs, const VeriPB::Var& rhs); 
-bool operator>=(const VeriPB::Var& lhs, const VeriPB::Var& rhs); 
-
-bool operator==(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
-bool operator!=(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
-bool operator< (const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
-bool operator<=(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
-bool operator> (const VeriPB::Lit& lhs, const VeriPB::Lit& rhs); 
-bool operator>=(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs); 
-
 
 #endif

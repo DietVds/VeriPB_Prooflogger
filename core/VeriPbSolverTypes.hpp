@@ -64,20 +64,20 @@ inline TRhs min_val_lhs(const VeriPB::Constraint<TLit, TCoeff, TRhs>& cxn){
 
 template <typename TRhs, typename TConstraint>
 inline TRhs coeff_left_reif(const TConstraint& cxn){
-    if(_comparison == Comparison::GEQ){
-        return _linterm->max_val() - _rhs + 1;
+    if(comparison(cxn) == Comparison::GEQ){
+        return max_val_lhs(cxn) - rhs(cxn) + 1;
     }
-    else if(_comparison == Comparison::LEQ){
-        return _linterm.min_val() + _rhs + 1;
+    else if(comparison(cxn) == Comparison::LEQ){
+        return min_val_lhs(cxn) + rhs(cxn) + 1;
     }
 }
 template <typename TRhs, typename TConstraint>
 inline TRhs coeff_right_reif(const TConstraint& cxn){
-    if(_comparison == Comparison::GEQ){
-        return _linterm->min_val() + _rhs;
+    if(comparison(cxn) == Comparison::GEQ){
+        return min_val_lhs(cxn) + rhs(cxn);
     }
-    else if(_comparison == Comparison::LEQ){
-        return _linterm->max_val() - _rhs;
+    else if(comparison(cxn) == Comparison::LEQ){
+        return max_val_lhs(cxn) - rhs(cxn);
     }
 }
 
@@ -180,7 +180,7 @@ template VeriPB::litindex convert_number<VeriPB::litindex,VeriPB::litindex>(cons
  */
 
 template <typename TModel>
-VeriPB::Lit model_literal(const VeriPB::litindex& i, const TModel& model){
+VeriPB::Lit model_literal(const TModel& model, const VeriPB::litindex& i){
     return toVeriPbLit(model[i]);
 }
 

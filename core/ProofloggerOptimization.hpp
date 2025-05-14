@@ -153,11 +153,11 @@ ObjConst ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::calculate_objective_value(c
             #ifdef NONUMBERCONVERSION
                 objective_value += _objective.coefficient(i); 
             #else
-                objective_value += convert_numer(_objective.coefficient(i));
+                objective_value += convert_number<ObjCoeff, ObjConst>(_objective.coefficient(i));
             #endif
         }
         else if(v == ModelValue::Undef){
-            throw out_of_range("[CalculateObjectiveValue] Objective literal " + _varMgr->literal_to_string(objlit) + " not assigned a value." );
+            throw std::out_of_range("[CalculateObjectiveValue] Objective literal " + _varMgr->literal_to_string(toVeriPbLit(objlit)) + " not assigned a value." );
         }
     }
     return objective_value;
