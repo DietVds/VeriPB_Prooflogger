@@ -72,7 +72,7 @@ void CuttingPlanesDerivation::add(const CuttingPlanesDerivation* cp_to_add, cons
         *(_pl->proof) << " +";
     }else{
         *(_buffer) += " " + cp_to_add->toString();
-        if(mult > 1)  *(_buffer) += number_to_string(mult) + " *";
+        if(mult > 1)  *(_buffer) += " " + number_to_string(mult) + " *";
         *(_buffer) += " +";
     }
 }
@@ -136,7 +136,7 @@ void CuttingPlanesDerivation::add_literal_axiom(const TLit& lit_axiom, const TNu
     }else{
         *(_buffer) += " " + _pl->_varMgr->literal_to_string(l);
         if(mult != 1){
-            *(_buffer) += number_to_string(mult) + " *";
+            *(_buffer) += " " + number_to_string(mult) + " *";
         }
         *(_buffer) += " +";
     }

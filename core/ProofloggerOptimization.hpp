@@ -214,7 +214,8 @@ constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::log_solution_if_improvi
             write_comment_objective_function();
             write_comment("Objective update from " + number_to_string(_best_objective_value) + " to " + number_to_string(current_objective_value));
         }
-        _log_solution(model, (derive_excluding_constraint ? "soli" : "sol"), only_original_variables_necessary, false );
+        log_solution(model, true, true, false);
+        _best_objective_value = current_objective_value;
     }
     else if(_comments && log_nonimproving_solution_as_comment){
         write_comment_objective_function();
