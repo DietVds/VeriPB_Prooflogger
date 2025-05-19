@@ -1059,6 +1059,7 @@ void Prooflogger::write_weighted_literal(const TLit &lit, const TNumber& weight,
 
 template <typename TModel>
 void Prooflogger::_log_solution(const TModel& model, const std::string& log_command, const bool only_original_variables_necessary, const bool log_as_comment){
+    _found_solution = true;
     if(log_as_comment) 
         *proof << "* ";
     *proof << log_command;
