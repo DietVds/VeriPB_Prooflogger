@@ -2174,6 +2174,15 @@ constraintid VeriPbProofLogger::overwrite_constraint(const TSeqLit &lits_orig, c
 }
 
 template <class TSeqLit, class TSeqWght>
+constraintid VeriPbProofLogger::overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const wght RHS, bool origclause_in_coreset){
+    constraintid newconstraint = rup(lits, RHS);
+    if(origclause_in_coreset)
+        move_to_coreset(-1);
+    delete_constraint_by_id(constraint_id);
+    return newconstraint;
+}
+
+template <class TSeqLit, class TSeqWght>
 constraintid VeriPbProofLogger::overwrite_constraint(const constraintid constraint_id, const TSeqLit &lits, const TSeqWght &weights, const wght RHS, bool origclause_in_coreset)
 {
     constraintid newconstraint = rup(lits, weights, RHS);
