@@ -100,13 +100,13 @@ inline TCoeff get_constant(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& 
 }
 
 template <typename TLit, typename TCoeff, typename TConst>
-inline TConst max_val_lhs(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& linterm){
-    return linterm.max_val_lhs();
+inline TConst max_val(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& linterm){
+    return linterm.max_val();
 }
 
 template <typename TLit, typename TCoeff, typename TConst>
-inline TConst min_val_lhs(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& linterm){
-    return linterm.min_val_lhs();
+inline TConst min_val(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& linterm){
+    return linterm.min_val();
 }
 
 template <typename TLit, typename TCoeff, typename TConst>
@@ -511,6 +511,10 @@ void VeriPB::Constraint<TLit, TCoeff, TRhs>::clear(const bool cardinality_constr
     _rhs=new_RHS;
     _comp=new_comparison;
 }
+template <typename TLit, typename TCoeff, typename TRhs>
+void VeriPB::Constraint<TLit, TCoeff, TRhs>::set_comp(const Comparison new_comparison){
+    _comp=new_comparison;
+}
 
 template <typename TLit, typename TCoeff, typename TRhs>
 inline VeriPB::Constraint<TLit, TCoeff, TRhs>::Constraint(const bool cardinality_constraint, const TRhs& rhs, enum Comparison comp) : 
@@ -548,4 +552,18 @@ inline VeriPB::Constraint<TLit, TCoeff, TRhs>::~Constraint(){
     if(_owned)
         delete _linterm;
 }
+
+template <typename TLit>
+inline VeriPB::Clause<TLit>::Clause() : 
+    Constraint<TLit, uint8_t, uint8_t>(true, 1, Comparison::GEQ)
+{ }
+
+template <typename TLit>
+inline VeriPB::Clause<TLit>::Clause(std::vector<TLit>* lits) : 
+    Constraint<TLit, uint8_t, uint8_t>(lits, 1, Comparison::GEQ)
+{ }
+
+template <typename TLit>
+inline VeriPB::Clause<TLit>::~Clause(){ }
+
 }

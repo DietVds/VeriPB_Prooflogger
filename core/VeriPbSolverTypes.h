@@ -117,6 +117,7 @@ class Constraint {
         void add_RHS(const TRhs& rhs_to_add);
         void subtract_RHS(const TRhs& rhs_to_subtract);
         void clear(const bool cardinality_constraint=false, const TRhs& new_RHS=0, const Comparison& new_comparison = Comparison::GEQ );
+        void set_comp(const Comparison);
 
         Constraint(const bool cardinality_constraint=false, const TRhs& rhs=0, enum Comparison comp = Comparison::GEQ);
         Constraint(LinTermBoolVars<TLit, TCoeff, TRhs>* term, TRhs rhs, enum Comparison comp = Comparison::GEQ);
@@ -131,6 +132,14 @@ class Constraint {
         bool _owned;
         TCoeff _coeff_left_reif;
         TCoeff _coeff_right_reif;
+};
+
+template <typename TLit>
+class Clause : public Constraint<TLit, uint8_t, uint8_t> {
+    public:
+        Clause();
+        Clause(std::vector<TLit>* lits);
+        ~Clause();
 };
 
 /*******************
@@ -193,6 +202,8 @@ TRhs max_val_lhs(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
 
 template <typename TLit, typename TCoeff, typename TRhs>
 TRhs min_val_lhs(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
+
+
 
 /***************
  * Functions for reifying constraints: 
