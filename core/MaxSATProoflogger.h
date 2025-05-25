@@ -35,7 +35,7 @@ public:
 
     constraintid add_unit_clause_blocking_literal(ObjLit var, constraintid wcnflinenumber, ObjLit unitclause, ObjCoeff weight_softclause, bool rewrite_objective = false);
     
-    void derive_blocking_literal_value_by_redundance(constraintid wcnflinenumber, bool value);
+    void derive_blocking_literal_value_by_redundance(constraintid wcnflinenumber, ModelValue value);
 
     // Functions for proof logging OLL:
 

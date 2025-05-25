@@ -152,6 +152,8 @@ namespace VeriPB {
         template <class TConstraint>
         void check_constraint_exists(const TConstraint& cxn);
         template <class TConstraint>
+        constraintid check_constraint_exists_and_add(const TConstraint& cxn);
+        template <class TConstraint>
         void check_implied(const TConstraint& cxn);
         template <class TConstraint>
         void check_implied(const TConstraint& cxn, constraintid cxn_id);
@@ -169,28 +171,30 @@ namespace VeriPB {
         // ------------- Reverse Unit Propagation -------------
         template <class TConstraint>
         constraintid rup(const TConstraint& cxn, bool core_constraint=false);
-        template <class TConstraint>
-        constraintid rup(const TConstraint& cxn, const std::vector<constraintid>& hints, const bool core_constraint=false);
+        template <class TConstraint, class TSeqHints>
+        constraintid rup(const TConstraint& cxn, const TSeqHints& hints, const bool core_constraint=false);
 
         template <class TConstraint>
         constraintid rup_clause(const TConstraint& lits);
-        template <class TConstraint>
-        constraintid rup_clause(const TConstraint& lits, std::vector<constraintid>& hints);
+        template <class TConstraint, class TSeqHints>
+        constraintid rup_clause(const TConstraint& lits, const TSeqHints& hints);
         
         template <class TLit>
         constraintid rup_unit_clause(const TLit& lit, bool core_constraint=true);
-        template <class TLit>
-        constraintid rup_unit_clause(const TLit& lit, std::vector<constraintid>& hints, bool core_constraint=true);
+        template <class TLit, class TSeqHints>
+        constraintid rup_unit_clause(const TLit& lit, const TSeqHints& hints, bool core_constraint=true);
         
         template <class TLit>
         constraintid rup_binary_clause(const TLit& lit1, const TLit& lit2, bool core_constraint=false);
-        template <class TLit>
-        constraintid rup_binary_clause(const TLit& lit1, const TLit& lit2, std::vector<constraintid>& hints,  bool core_constraint=false);
+        template <class TLit, class TSeqHints>
+        constraintid rup_binary_clause(const TLit& lit1, const TLit& lit2, const TSeqHints& hints,  bool core_constraint=false);
         
         template <class TLit> 
         constraintid rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, bool core_constraint=false);
-        template <class TLit> 
-        constraintid rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, std::vector<constraintid>& hints, bool core_constraint=false);
+        template <class TLit, class TSeqHints> 
+        constraintid rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, const TSeqHints& hints, bool core_constraint=false);
+
+        constraintid rup_empty_clause();
 
         // ------------- Redundance Based Strenghtening -------------
         void strenghten_to_core_on();
@@ -316,6 +320,12 @@ namespace VeriPB {
         void move_to_coreset_by_id(const constraintid& cxn, bool overrule_keeporiginalformula=false);
         template <class TConstraint>
         void move_to_coreset(const TConstraint& cxn, bool overrule_keeporiginalformula=false);
+
+        // ------------- Saving Propagation of a Variable -------------
+        template <class TVar>
+        void save_propagation_constraint(const TVar& var, const constraintid cxn, bool always_use_constraint_hints=false);
+        template <class TVar>
+        constraintid get_propagation_constraint(const TVar& var);
     
         // ------------- Constructor -------------
         Prooflogger(const std::string& prooffile, VarManager* varMgr);
@@ -358,8 +368,9 @@ namespace VeriPB {
         void write_constraint(const TConstraint& cxn);
         template <typename TClause>
         void write_clause(const TClause& cxn);
- 
-        void write_hints(const std::vector<constraintid>& hints);
+
+        template <typename TSeqHints>
+        void write_hints(const TSeqHints& hints);
         void write_substitution(const substitution &witness);
         
         // ------------- Reification Variables -------------
@@ -367,6 +378,11 @@ namespace VeriPB {
         std::vector<constraintid> _reifiedConstraintRightImpl;
         std::vector<constraintid> _reifiedConstraintLeftImplOnlyProofVars;
         std::vector<constraintid> _reifiedConstraintRightImplOnlyProofVars;
+
+        // ------------- Propagation Constraints -------------
+        // By using the varidx as index, the constraint can be used as the constraint that propagates a certain variable, i.e., as unit constraint derived by propagation at DL=0;
+        std::vector<constraintid> _storage_var_to_cxn;
+        std::vector<constraintid> _storage_var_onlyknowninproof_to_cxn;
     };
 }
 

@@ -111,9 +111,10 @@ constraintid VeriPB::MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::add_unit_cla
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
-void MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::derive_blocking_literal_value_by_redundance(constraintid wcnflinenumber, bool value){
+void MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::derive_blocking_literal_value_by_redundance(constraintid wcnflinenumber, ModelValue value){
+    assert(value != ModelValue::Undef);
     // VeriPB adds blocking literal 1 ~_b2 to a soft clause. Hence, if value == 1, we prove the clause 1 ~_b2 >= 1, otherwise, we prove the clause 1 _b2 >= 1. 
-    *(this->proof) << "red 1 " << (value ? "~" : "") << "_b" << std::to_string(wcnflinenumber) << " >= 1; "  << "_b" << std::to_string(wcnflinenumber) << " -> " << (value ? 0 : 1) << "\n";
+    *(this->proof) << "red 1 " << (value == ModelValue::False ? "~" : "") << "_b" << std::to_string(wcnflinenumber) << " >= 1; "  << "_b" << std::to_string(wcnflinenumber) << " -> " << (value ? 0 : 1) << "\n";
     ++(this->_constraint_counter);
     this->move_to_coreset_by_id(-1);
 }

@@ -45,6 +45,12 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_conclusion_OPTIMAL(const 
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
+constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::rup_lower_bound_constraint(){
+    VeriPB::Constraint<ObjLit, ObjCoeff, ObjConst> lowerboundconstraint(&_objective, _best_objective_value, Comparison::GEQ);
+    rup(lowerboundconstraint);
+}
+
+template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_conclusion_BOUNDS(const ObjConst& LB, const ObjConst& UB){
     *proof << "output NONE\n"
         << "conclusion BOUNDS " << number_to_string(LB) << " " << number_to_string(UB) << "\n"

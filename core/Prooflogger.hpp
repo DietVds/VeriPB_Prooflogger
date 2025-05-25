@@ -392,6 +392,14 @@ void Prooflogger::check_constraint_exists(const TConstraint& cxn)
 }
 
 template <class TConstraint>
+constraintid check_constraint_exists_and_add(const TConstraint& cxn){
+    *proof << "ea ";
+    write_constraint(cxn);
+    *proof << ";\n";
+    return ++_constraint_counter;
+}
+
+template <class TConstraint>
 void Prooflogger::check_implied(const TConstraint& cxn, constraintid cxn_id){
     *proof << "i ";
     write_constraint(cxn);
@@ -450,8 +458,8 @@ constraintid Prooflogger::rup(const TConstraint& cxn, bool core_constraint){
     return ++_constraint_counter;
 }
 
-template <class TConstraint>
-constraintid Prooflogger::rup(const TConstraint& cxn, const std::vector<constraintid>& hints, const bool core_constraint){
+template <class TConstraint, class TSeqHints>
+constraintid Prooflogger::rup(const TConstraint& cxn, const TSeqHints& hints, const bool core_constraint){
     *proof << "rup";
     write_constraint(cxn);
     *proof << ";";
@@ -469,8 +477,8 @@ constraintid Prooflogger::rup_clause(const TConstraint& clause){
     return ++_constraint_counter;
 }
 
-template <class TConstraint>
-constraintid Prooflogger::rup_clause(const TConstraint& clause, std::vector<constraintid>& hints){
+template <class TConstraint, class TSeqHints>
+constraintid Prooflogger::rup_clause(const TConstraint& clause, const TSeqHints& hints){
     *proof << "rup";
     write_clause(clause);
     *proof << ";";
@@ -490,8 +498,8 @@ constraintid Prooflogger::rup_unit_clause(const TLit& lit, bool core_constraint)
     return ++_constraint_counter;
 }
 
-template <class TLit>
-constraintid Prooflogger::rup_unit_clause(const TLit& lit, std::vector<constraintid>& hints, bool core_constraint){
+template <class TLit, class TSeqHints>
+constraintid Prooflogger::rup_unit_clause(const TLit& lit, const TSeqHints& hints, bool core_constraint){
     *proof << "rup";
     write_weighted_literal(lit);
     *proof << " >= 1;";
@@ -514,8 +522,8 @@ constraintid Prooflogger::rup_binary_clause(const TLit& lit1, const TLit& lit2, 
     return ++_constraint_counter;
 }
 
-template <class TLit>
-constraintid Prooflogger::rup_binary_clause(const TLit& lit1, const TLit& lit2, std::vector<constraintid>& hints,  bool core_constraint){
+template <class TLit, class TSeqHints>
+constraintid Prooflogger::rup_binary_clause(const TLit& lit1, const TLit& lit2, const TSeqHints& hints,  bool core_constraint){
     *proof << "rup";
     write_weighted_literal(lit1);
     write_weighted_literal(lit2);
@@ -540,8 +548,8 @@ constraintid Prooflogger::rup_ternary_clause(const TLit& lit1, const TLit& lit2,
     return ++_constraint_counter;
 }
 
-template <class TLit> 
-constraintid Prooflogger::rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, std::vector<constraintid>& hints, bool core_constraint){
+template <class TLit, class TSeqHints> 
+constraintid Prooflogger::rup_ternary_clause(const TLit& lit1, const TLit& lit2, const TLit& lit3, const TSeqHints& hints, bool core_constraint){
     *proof << "rup";
     write_weighted_literal(lit1);
     write_weighted_literal(lit2);
@@ -551,6 +559,11 @@ constraintid Prooflogger::rup_ternary_clause(const TLit& lit1, const TLit& lit2,
         move_to_coreset_by_id(-1);
     write_hints(hints);
     *proof << "\n";
+    return ++_constraint_counter;
+}
+
+constraintid Prooflogger::rup_empty_clause(){
+    *proof << "rup 0 >= 1;\n";
     return ++_constraint_counter;
 }
 
@@ -1014,6 +1027,36 @@ void Prooflogger::move_to_coreset(const TConstraint& cxn, bool overrule_keeporig
     *proof << "\n";
 }
 
+template <class TVar>
+void Prooflogger::save_propagation_constraint(const TVar& var, const constraintid cxn, bool always_use_constraint_hints){
+    // After that, update storage with new propagation.
+    // Increase storage if necessary.
+    VeriPB::Var _var = toVeriPbVar(var);
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &_storage_var_onlyknowninproof_to_cxn : &_storage_var_to_cxn;
+    
+    // Increase storage if necessary.
+    if(_var.v >= storage->size() && n_variables > _var.v )
+        storage->resize(2 * n_variables, undefcxn);
+    else if(_var.v >= storage->size())
+        storage->resize(2 * _var.v, undefcxn);
+
+    (*storage)[_var.v] = cxn;
+
+    if(always_use_constraint_hints) 
+        save_always_use_constraint_hints(cxn);
+}
+
+template <class TVar>
+constraintid Prooflogger::get_propagation_constraint(const TVar& var){
+    VeriPB::Var _var = toVeriPbVar(var);
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &storage_var_onlyknowninproof_to_cxn : &storage_var_to_cxn;
+
+    if(_var.v > storage->size())
+        return undefcxn;
+    else    
+        return (*storage)[_var.v];
+}
+
 // -----------------------------------------------------
 
 
@@ -1105,7 +1148,8 @@ void Prooflogger::write_clause(const TClause& cxn){
     *proof << " >= 1";
 }
 
-void Prooflogger::write_hints(const std::vector<constraintid>& hints){
+template <typename TSeqHints>
+void Prooflogger::write_hints(const TSeqHints& hints){
     for(constraintid cxn_id : hints)
         write_number(cxn_id,proof);
 }

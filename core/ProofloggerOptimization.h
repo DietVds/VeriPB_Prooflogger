@@ -49,6 +49,7 @@ public:
     void write_conclusion_BOUNDS(const ObjConst& LB, const constraintid& hint, const ObjConst& UB);
     void write_conclusion_UNSAT_optimization();
     void write_conclusion_UNSAT_optimization(const constraintid& hint);
+    constraintid rup_lower_bound_constraint();
     
     // ------------- Constructor -------------
     ProofloggerOpt(const std::string& prooffile, VarManager* varMgr);
