@@ -73,6 +73,10 @@ size_t VarManager::get_number_variables_only_in_proof(){
     return _n_vars_only_known_in_proof;
 }
 
+size_t VarManager::get_number_original_vars(){
+    return _n_orig_vars;
+}
+
 /***********
  * Implementation for VarManagerWithVarRewriting
  */

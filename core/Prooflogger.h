@@ -323,7 +323,7 @@ namespace VeriPB {
 
         // ------------- Saving Propagation of a Variable -------------
         template <class TVar>
-        void save_propagation_constraint(const TVar& var, const constraintid cxn, bool always_use_constraint_hints=false);
+        void save_propagation_constraint(const TVar& var, const constraintid cxn);
         template <class TVar>
         constraintid get_propagation_constraint(const TVar& var);
     

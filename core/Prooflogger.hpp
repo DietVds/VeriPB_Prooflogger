@@ -392,7 +392,7 @@ void Prooflogger::check_constraint_exists(const TConstraint& cxn)
 }
 
 template <class TConstraint>
-constraintid check_constraint_exists_and_add(const TConstraint& cxn){
+constraintid Prooflogger::check_constraint_exists_and_add(const TConstraint& cxn){
     *proof << "ea ";
     write_constraint(cxn);
     *proof << ";\n";
@@ -1028,28 +1028,26 @@ void Prooflogger::move_to_coreset(const TConstraint& cxn, bool overrule_keeporig
 }
 
 template <class TVar>
-void Prooflogger::save_propagation_constraint(const TVar& var, const constraintid cxn, bool always_use_constraint_hints){
+void Prooflogger::save_propagation_constraint(const TVar& var, const constraintid cxn){
     // After that, update storage with new propagation.
     // Increase storage if necessary.
     VeriPB::Var _var = toVeriPbVar(var);
     std::vector<constraintid>* storage = _var.only_known_in_proof ? &_storage_var_onlyknowninproof_to_cxn : &_storage_var_to_cxn;
     
     // Increase storage if necessary.
-    if(_var.v >= storage->size() && n_variables > _var.v )
-        storage->resize(2 * n_variables, undefcxn);
+    size_t n_orig_vars = _varMgr->get_number_original_vars();
+    if(_var.v >= storage->size() && n_orig_vars > _var.v )
+        storage->resize(2 * n_orig_vars, undefcxn);
     else if(_var.v >= storage->size())
         storage->resize(2 * _var.v, undefcxn);
 
     (*storage)[_var.v] = cxn;
-
-    if(always_use_constraint_hints) 
-        save_always_use_constraint_hints(cxn);
 }
 
 template <class TVar>
 constraintid Prooflogger::get_propagation_constraint(const TVar& var){
     VeriPB::Var _var = toVeriPbVar(var);
-    std::vector<constraintid>* storage = _var.only_known_in_proof ? &storage_var_onlyknowninproof_to_cxn : &storage_var_to_cxn;
+    std::vector<constraintid>* storage = _var.only_known_in_proof ? &_storage_var_onlyknowninproof_to_cxn : &_storage_var_to_cxn;
 
     if(_var.v > storage->size())
         return undefcxn;

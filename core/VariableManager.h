@@ -25,6 +25,8 @@ public:
 
     virtual VeriPB::Var new_variable_only_in_proof();
     virtual size_t get_number_variables_only_in_proof();
+
+    virtual size_t get_number_original_vars();
 private: 
     VeriPB::VarIdx _n_vars_only_known_in_proof=0;
     size_t _n_orig_vars = 0;
