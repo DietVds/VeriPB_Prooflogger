@@ -125,7 +125,7 @@ class Constraint {
         Constraint(std::vector<TLit>* lits, TRhs rhs=1, enum Comparison comp = Comparison::GEQ);
 
         ~Constraint();
-    private:
+    protected:
         LinTermBoolVars<TLit, TCoeff, TRhs>* _linterm;
         TRhs _rhs;
         enum Comparison _comp;
@@ -137,8 +137,8 @@ class Constraint {
 template <typename TLit>
 class Clause : public Constraint<TLit, uint8_t, uint8_t> {
     public:
+        void clear();
         Clause();
-        Clause(std::vector<TLit>* lits);
         ~Clause();
 };
 

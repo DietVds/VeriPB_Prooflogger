@@ -192,7 +192,6 @@ size_t model_size(const TSeqLit& model){
 template <typename TVar, typename TModel>
 VeriPB::ModelValue model_value(const TVar& var, const TModel& model, bool first_call){
     static int i; // Uses the optimistic assumption that model_value will be called multiple times for variables that are placed in an increasing index. 
-
     if(first_call)
         i = 0;
 
@@ -416,6 +415,7 @@ void VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::clear(const bool all_coeff_o
 template <typename TLit, typename TCoeff, typename TConst>
 inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(const bool all_coeff_one) : 
     _literals(new std::vector<TLit>),
+    _coefficients(nullptr),
     _all_coeff_one(all_coeff_one),
     _constant(0),
     _owned(true),
@@ -423,7 +423,7 @@ inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(const bool
     _min_val(0)
 {
     if(!all_coeff_one)
-        _coefficients = new std::vector<TCoeff>;
+        _coefficients = new std::vector<TCoeff>();
 }
 
 template <typename TLit, typename TCoeff, typename TConst>
@@ -450,9 +450,11 @@ inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(std::vecto
 
 template <typename TLit, typename TCoeff, typename TConst>
 inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::~LinTermBoolVars(){
-    if(_owned)
-        delete _coefficients;
+    if(_owned){
         delete _literals;
+        if(_coefficients != nullptr)
+            delete _coefficients;
+    }
 }
 
 /**
@@ -537,14 +539,14 @@ inline VeriPB::Constraint<TLit, TCoeff, TRhs>::Constraint(std::vector<TLit>* lit
     _linterm(new VeriPB::LinTermBoolVars<TLit, TCoeff, TRhs>(lits, coeff, 0)),
     _rhs(rhs),
     _comp(comp),
-    _owned(false)
+    _owned(true)
 { }
 template <typename TLit, typename TCoeff, typename TRhs>
 inline VeriPB::Constraint<TLit, TCoeff, TRhs>::Constraint(std::vector<TLit>* lits, TRhs rhs, enum Comparison comp) :
     _linterm(new VeriPB::LinTermBoolVars<TLit, TCoeff, TRhs>(lits)),
     _rhs(rhs),
     _comp(comp),
-    _owned(false)
+    _owned(true)
 { }
 
 template <typename TLit, typename TCoeff, typename TRhs>
@@ -559,11 +561,10 @@ inline VeriPB::Clause<TLit>::Clause() :
 { }
 
 template <typename TLit>
-inline VeriPB::Clause<TLit>::Clause(std::vector<TLit>* lits) : 
-    Constraint<TLit, uint8_t, uint8_t>(lits, 1, Comparison::GEQ)
-{ }
+void VeriPB::Clause<TLit>::clear(){
+    Constraint<TLit, uint8_t, uint8_t>::clear(true, 1);
+}
 
 template <typename TLit>
 inline VeriPB::Clause<TLit>::~Clause(){ }
-
 }
