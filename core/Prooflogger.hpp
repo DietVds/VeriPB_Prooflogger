@@ -49,12 +49,11 @@ void CuttingPlanesDerivation::start_from_literal_axiom(const TLit& lit){
     assert(_pl != nullptr);
     assert(_finished);
     _finished=true;
-    VeriPB::Lit l = toVeriPbLit(lit);
     if(_write_directly_to_proof){
         *(_pl->proof) << "p";
-        _pl->_varMgr->write_literal(l, _pl->proof, true);
+        _pl->_varMgr->write_literal(lit, _pl->proof, true);
     }else{
-        *(_buffer) += _pl->_varMgr->literal_to_string(l);
+        *(_buffer) += _pl->_varMgr->literal_to_string(lit);
     }
 }
 
@@ -88,12 +87,11 @@ void CuttingPlanesDerivation::start_subderivation_from_constraint(const constrai
 template <class TLit>
 void CuttingPlanesDerivation::start_subderivation_from_literal_axiom(const TLit& lit_axiom){
     assert(_pl != nullptr);
-    VeriPB::Lit l = toVeriPbLit(l);
 
     if(_write_directly_to_proof){
-        _pl->_varMgr->write_literal(l, _pl->proof, true);
+        _pl->_varMgr->write_literal(lit_axiom, _pl->proof, true);
     }else{
-        *(_buffer) += _pl->_varMgr->literal_to_string(l);
+        *(_buffer) += _pl->_varMgr->literal_to_string(lit_axiom);
     }
 }
 void CuttingPlanesDerivation::add_subderivation(){
@@ -125,16 +123,15 @@ void CuttingPlanesDerivation::add_constraint(const constraintid& cxn_id, const T
 template <class TLit, class TNumber=VeriPB::defaultmultipliertype>
 void CuttingPlanesDerivation::add_literal_axiom(const TLit& lit_axiom, const TNumber& mult){
     assert(_pl != nullptr);
-    VeriPB::Lit l = toVeriPbLit(lit_axiom);
     if(_write_directly_to_proof){
-        _pl->_varMgr->write_literal(l, _pl->proof, true);
+        _pl->_varMgr->write_literal(lit_axiom, _pl->proof, true);
         if(mult != 1){
             write_number(mult, _pl->proof, true);
             *(_pl->proof) << " *";
         }
         *(_pl->proof) << " +";
     }else{
-        *(_buffer) += " " + _pl->_varMgr->literal_to_string(l);
+        *(_buffer) += " " + _pl->_varMgr->literal_to_string(lit_axiom);
         if(mult != 1){
             *(_buffer) += " " + number_to_string(mult) + " *";
         }
@@ -174,12 +171,11 @@ void CuttingPlanesDerivation::multiply(const TNumber& n){
 template <class TVar>
 void CuttingPlanesDerivation::weaken(const TVar& var){
     assert(_pl != nullptr);
-    VeriPB::Var v = toVeriPbVar(var);
     if(_write_directly_to_proof){
-        _pl->_varMgr->write_var_name(v, _pl->proof, true);
+        _pl->_varMgr->write_var_name(var, _pl->proof, true);
         *(_pl->proof) << " w";
     }else{
-        *(_buffer) += " " + _pl->_varMgr->var_name(v) + " w";
+        *(_buffer) += " " + _pl->_varMgr->var_name(var) + " w";
     }
 }
 
@@ -649,7 +645,7 @@ bool Prooflogger::get_boolean_assignment(substitution &s, const TVar& var){
         if(ass.first == toVeriPbVar(var))
             return ass.second;
     }
-    std::cout << "ERROR: Proof logging library: Could not find boolean assignment for variable " << _varMgr->var_name(toVeriPbVar(var)) << std::endl;
+    std::cout << "ERROR: Proof logging library: Could not find boolean assignment for variable " << _varMgr->var_name(var) << std::endl;
     assert(false);
     return false;
 }
@@ -660,7 +656,7 @@ VeriPB::Lit Prooflogger::get_literal_assignment(substitution &s, const TVar& var
         if(ass.first == toVeriPbVar(var))
             return ass.second;
     }
-    std::cout << "ERROR: Proof logging library: Could not find literal assignment for variable " << _varMgr->var_name(toVeriPbVar(var)) << std::endl;
+    std::cout << "ERROR: Proof logging library: Could not find literal assignment for variable " << _varMgr->var_name(var) << std::endl;
     assert(false);
     return VeriPB::lit_undef;
 }
@@ -684,7 +680,7 @@ constraintid Prooflogger::redundance_based_strengthening_unit_clause(const TLit&
     *proof << "red";
     write_weighted_literal(lit);
     *proof << " >= 1; "; 
-    _varMgr->write_var_to_bool(toVeriPbVar(variable(lit)), !is_negated(lit), proof);
+    _varMgr->write_var_to_bool(variable(lit), !is_negated(lit), proof);
     *proof << "\n";
     return ++_constraint_counter;
 }
@@ -750,9 +746,9 @@ constraintid Prooflogger::reification_literal_right_implication(const TLit& lit,
 
     if(_comments){
         // TODO-Dieter: Make comment a string in the PL library to not always have to take the memory again.
-        std::string comment = _varMgr->literal_to_string(toVeriPbLit(lit)) + " -> " ;
+        std::string comment = _varMgr->literal_to_string(lit) + " -> " ;
         for(i = 0; i < size(cxn); i++)
-            comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(toVeriPbLit(literal(cxn,i))) + " ";
+            comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(literal(cxn,i)) + " ";
         comment += to_string(comparison(cxn)) + " " + number_to_string(rhs(cxn));
         write_comment(comment);
     }
@@ -784,9 +780,9 @@ constraintid Prooflogger::reification_literal_left_implication(const TLit& lit, 
     int i;
 
     if(_comments){
-        std::string comment = _varMgr->literal_to_string(toVeriPbLit(lit)) + " <- " ;
+        std::string comment = _varMgr->literal_to_string(lit) + " <- " ;
         for(i = 0; i < size(cxn); i++)
-            comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(toVeriPbLit(literal(cxn,i))) + " ";
+            comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(literal(cxn,i)) + " ";
         comment += to_string(comparison(cxn)) + " " + number_to_string(rhs(cxn));
         write_comment(comment);
     }
@@ -1102,7 +1098,7 @@ constraintid Prooflogger::log_solution_lbools(TSeqLBool &model, wght objective_v
 template <class TLit, class TNumber>
 void Prooflogger::write_weighted_literal(const TLit &lit, const TNumber& weight, const bool& add_prefix_space){
     write_number(weight, proof, add_prefix_space);
-    _varMgr->write_literal(toVeriPbLit(lit), proof, true);
+    _varMgr->write_literal(lit, proof, true);
 }
 
 template <typename TModel>
@@ -1138,7 +1134,7 @@ void Prooflogger::write_constraint(const TConstraint& cxn){
 
 template <typename TClause>
 void Prooflogger::write_clause(const TClause& cxn){
-    VeriPB::Lit prevlit, currentlit;
+    VeriPB::Lit prevlit, currentlit = lit_undef;
 
     for(int i = 0; i < size(cxn); i++){
         prevlit = currentlit;

@@ -47,17 +47,17 @@ void MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::set_variable_manager(VarMana
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TLit>
 void VeriPB::MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::add_blocking_literal(TLit lit, constraintid cxn_id){
-    _varMgrRewrite->store_variable_name(toVeriPbVar(variable(lit)), "_b" + std::to_string(cxn_id));
+    _varMgrRewrite->store_variable_name(variable(lit), "_b" + std::to_string(cxn_id));
 
     // VeriPB expects the blocking literal added to the clauses to be a negated blocking variable. 
     // If the solver adds a non-negated blocking literal to clauses, all literals over this variable have to be negated throughout the proof.
     if(!is_negated(lit))
-        _varMgrRewrite->store_rewrite_var_by_lit(toVeriPbVar(variable(lit)), toVeriPbLit(neg(lit)));
+        _varMgrRewrite->store_rewrite_var_by_lit(variable(lit), toVeriPbLit(neg(lit)));
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 constraintid VeriPB::MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::add_unit_clause_blocking_literal(ObjLit blocking_lit, constraintid cxn_id, ObjLit unitclause, ObjCoeff weight_softclause, bool rewrite_objective){
-    _varMgrRewrite->store_variable_name(toVeriPbVar(variable(blocking_lit)), "_bu" + std::to_string(cxn_id));
+    _varMgrRewrite->store_variable_name(variable(blocking_lit), "_bu" + std::to_string(cxn_id));
 
     Constraint<ObjLit, ObjCoeff, ObjConst> cls(true,1); // Create clause
     cls.add_literal(unitclause);
@@ -84,9 +84,9 @@ constraintid VeriPB::MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::add_unit_cla
         constraintid c_inverse_id = this->redundance_based_strengthening(cls, witness);
         this->move_to_coreset_by_id(-1);
 
-        this->add_objective_literal(blocking_lit, weight_softclause);
+        this->objective.add_literal(blocking_lit, weight_softclause);
         ObjLit neglit = neg(unitclause);
-        this->remove_objective_literal(neglit);
+        this->objective.delete_literal(neglit);
         
         LinTermBoolVars<ObjLit, ObjCoeff, ObjConst> linTermOld, linTermNew;
         linTermOld.add_literal(neg(unitclause), weight_softclause);
@@ -114,7 +114,7 @@ template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::derive_blocking_literal_value_by_redundance(constraintid wcnflinenumber, ModelValue value){
     assert(value != ModelValue::Undef);
     // VeriPB adds blocking literal 1 ~_b2 to a soft clause. Hence, if value == 1, we prove the clause 1 ~_b2 >= 1, otherwise, we prove the clause 1 _b2 >= 1. 
-    *(this->proof) << "red 1 " << (value == ModelValue::False ? "~" : "") << "_b" << std::to_string(wcnflinenumber) << " >= 1; "  << "_b" << std::to_string(wcnflinenumber) << " -> " << (value ? 0 : 1) << "\n";
+    *(this->proof) << "red 1 " << (value == ModelValue::True ? "~" : "") << "_b" << std::to_string(wcnflinenumber) << " >= 1; "  << "_b" << std::to_string(wcnflinenumber) << " -> " << (value ? 0 : 1) << "\n";
     ++(this->_constraint_counter);
     this->move_to_coreset_by_id(-1);
 }
@@ -218,11 +218,13 @@ constraintid MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::derive_at_most_one_c
     assert(am1_lits.size() > 1);
     std::vector<constraintid> binary_clauses;
 
+    VeriPB::Clause<VeriPB::Lit> C;
+    
     if(am1_lits.size() == 2){
-        std::vector<VeriPB::Lit> lits; 
-        lits.push_back(neg(toVeriPbLit(am1_lits[0])));
-        lits.push_back(neg(toVeriPbLit(am1_lits[1])));
-        return this->rup(lits, 1);
+        C.clear();
+        C.add_literal(toVeriPbLit(neg(am1_lits[0])));
+        C.add_literal(toVeriPbLit(neg(am1_lits[1])));
+        return this->rup(C);
     }
 
     for (int new_lit_idx = 1; new_lit_idx < am1_lits.size(); new_lit_idx++)
@@ -235,12 +237,17 @@ constraintid MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::derive_at_most_one_c
         for (int lit_idx = 0; lit_idx < new_lit_idx; lit_idx++)
         {
             constraintid binary_clause_id; 
-            if(am1_sign)
-                binary_clause_id = this->rup(std::vector<VeriPB::Lit>{neg(toVeriPbLit(am1_lits[new_lit_idx])), neg(toVeriPbLit(am1_lits[lit_idx]))});
-            else
-                binary_clause_id = this->rup(std::vector<VeriPB::Lit>{toVeriPbLit(am1_lits[new_lit_idx]), toVeriPbLit(am1_lits[lit_idx])});
-            
-            binary_clauses.push_back(binary_clause_id);
+            C.clear();
+            if(am1_sign){
+                C.add_literal(toVeriPbLit(neg(am1_lits[new_lit_idx])));
+                C.add_literal(toVeriPbLit(neg(am1_lits[lit_idx])));
+            }
+            else{
+                C.add_literal(toVeriPbLit(am1_lits[new_lit_idx]));
+                C.add_literal(toVeriPbLit(am1_lits[lit_idx]));
+            }
+                
+            binary_clauses.push_back(this->rup(C));
 
             // the first binary constraint to start the derivation
             if (new_lit_idx == 1)

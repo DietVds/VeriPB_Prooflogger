@@ -46,8 +46,9 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_conclusion_OPTIMAL(const 
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::rup_lower_bound_constraint(){
-    VeriPB::Constraint<ObjLit, ObjCoeff, ObjConst> lowerboundconstraint(&_objective, _best_objective_value, Comparison::GEQ);
+    VeriPB::Constraint<ObjLit, ObjCoeff, ObjConst> lowerboundconstraint(&objective, _best_objective_value, Comparison::GEQ);
     rup(lowerboundconstraint);
+    return ++_constraint_counter;
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
@@ -67,51 +68,15 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_conclusion_BOUNDS(const O
 // ------------- Objective function manipulation -------------
 
 template<typename ObjLit, typename ObjCoeff, typename ObjConst>
-void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::set_objective(const LinTermBoolVars<ObjLit, ObjCoeff, ObjConst>* new_objective)
-{
-    assert(_objective.size() == 0 && _objective.constant() == 0);
-    _objective = new_objective;
-}
-
-
-template<typename ObjLit, typename ObjCoeff, typename ObjConst>
-void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::add_objective_literal(const ObjLit& lit, const ObjCoeff weight){
-    _objective.add_literal(lit, weight);
-}
-
-template<typename ObjLit, typename ObjCoeff, typename ObjConst>
-bool ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::remove_objective_literal(const ObjLit& lit){
-    return _objective.delete_literal(lit);
-}
-
-template<typename ObjLit, typename ObjCoeff, typename ObjConst>
-ObjCoeff ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::get_objective_weight(const ObjLit& lit){
-    int i=0;
-    while(lit != _objective.literal(i)) i++;
-
-    return _objective.coefficient(i);
-}
-
-template<typename ObjLit, typename ObjCoeff, typename ObjConst>
-void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::add_objective_constant(const ObjConst& weight){
-    _objective.add_constant(weight);
-}
-
-template<typename ObjLit, typename ObjCoeff, typename ObjConst>
-void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::subtract_objective_constant(const ObjConst& weight){
-    _objective.subtract_constant(weight);
-}
-
-template<typename ObjLit, typename ObjCoeff, typename ObjConst>
 void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_comment_objective_function()
 {
     if(!_comments) return;
 
     *proof << "* f = ";
-    for (int i = 0; i < _objective.size(); i++)
-        write_weighted_literal(_objective.literal(i), _objective.coefficient(i));
-    if(_objective.constant() != 0)
-        *proof << " + " << number_to_string(_objective.constant());
+    for (int i = 0; i < objective.size(); i++)
+        write_weighted_literal(objective.literal(i), objective.coefficient(i));
+    if(objective.constant() != 0)
+        *proof << " + " << number_to_string(objective.constant());
     
     if(_found_solution)
         *proof << "; Current best solution: " << number_to_string(_best_objective_value);
@@ -125,7 +90,7 @@ template<typename ObjLit, typename ObjCoeff, typename ObjConst>
 void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::check_model_improving_constraint(const constraintid& cxnid){
     assert(_found_solution);
 
-    VeriPB::Constraint<ObjLit, ObjCoeff, ObjConst> mic(&_objective, _best_objective_value-1, Comparison::LEQ);
+    VeriPB::Constraint<ObjLit, ObjCoeff, ObjConst> mic(&objective, _best_objective_value-1, Comparison::LEQ);
     
     if(cxnid == undefcxn)
         check_constraint_exists(mic);
@@ -148,21 +113,22 @@ template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <typename TModel>
 ObjConst ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::calculate_objective_value(const TModel& model)
 {
-    ObjConst objective_value = _objective.constant();
+    ObjConst objective_value = objective.constant();
     ModelValue v;
-    for (int i = 0; i < _objective.size(); i++)
+    for (int i = 0; i < objective.size(); i++)
     {
-        ObjLit objlit = _objective.literal(i);
+        ObjLit objlit = objective.literal(i);
         v = model_value(variable(objlit), model, i==0);
-        if (v == ModelValue::True)
+        if ((v == ModelValue::True) != is_negated(objlit))
         {
             #ifdef NONUMBERCONVERSION
-                objective_value += _objective.coefficient(i); 
+                objective_value += objective.coefficient(i); 
             #else
-                objective_value += convert_number<ObjCoeff, ObjConst>(_objective.coefficient(i));
+                objective_value += convert_number<ObjCoeff, ObjConst>(objective.coefficient(i));
             #endif
         }
         else if(v == ModelValue::Undef){
+            flush_proof();
             throw std::out_of_range("[CalculateObjectiveValue] Objective literal " + _varMgr->literal_to_string(toVeriPbLit(objlit)) + " not assigned a value." );
         }
     }
@@ -174,14 +140,14 @@ template <typename TModel>
 constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::log_solution(const TModel& model, const ObjConst objective_value, const bool derive_excluding_constraint, const bool only_original_variables_necessary, const bool log_as_comment)
 {
     if(log_as_comment && !_comments) return get_model_improving_constraint();
+    bool first_solution = !_found_solution;
 
-    write_comment("Solution with objective value: " + number_to_string(objective_value));
     _log_solution(model, (derive_excluding_constraint ? "soli" : "sol"), only_original_variables_necessary, log_as_comment);
     
     if(!log_as_comment){ // Veripb automatically adds an improvement constraint so counter needs to be incremented
         _model_improvement_constraint = ++_constraint_counter;
 
-        if(objective_value < _best_objective_value)
+        if(objective_value < _best_objective_value || first_solution)
             _best_objective_value = objective_value;
     }
 
@@ -191,6 +157,8 @@ constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::log_solution(const TMod
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TModel>
 constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::log_solution(const TModel& model, const bool derive_excluding_constraint, const bool only_print_original_variables,  const bool log_as_comment){
+    bool first_solution = !_found_solution;
+    
     _log_solution(model, (derive_excluding_constraint ? "soli" : "sol"), only_print_original_variables, log_as_comment);
     
     if(log_as_comment){
@@ -198,7 +166,8 @@ constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::log_solution(const TMod
     }
     else{
         ObjConst objVal = calculate_objective_value(model);
-        if(objVal < _best_objective_value){
+        write_comment("Current solution: " + number_to_string(objVal) + " _best_objective_value: " + number_to_string(_best_objective_value));
+        if(objVal < _best_objective_value || first_solution){
             _best_objective_value = objVal;
             _model_improvement_constraint = ++_constraint_counter;
             return _model_improvement_constraint;
@@ -213,20 +182,18 @@ template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TModel>
 constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::log_solution_if_improving(const TModel &model, const bool derive_excluding_constraint, bool only_original_variables_necessary, bool log_nonimproving_solution_as_comment)
 {
-    ObjConst current_objective_value = calculate_objective_value(model);
-    if (current_objective_value < _best_objective_value)
+    bool first_solution = !_found_solution;
+    ObjConst currentobjective_value = calculate_objective_value(model);
+    if (currentobjective_value < _best_objective_value || first_solution)
     {
         if(_comments){
             write_comment_objective_function();
-            write_comment("Objective update from " + number_to_string(_best_objective_value) + " to " + number_to_string(current_objective_value));
+            write_comment("Objective update from " + number_to_string(_best_objective_value) + " to " + number_to_string(currentobjective_value));
         }
         log_solution(model, true, true, false);
-        _best_objective_value = current_objective_value;
     }
     else if(_comments && log_nonimproving_solution_as_comment){
-        write_comment_objective_function();
-        write_comment("Non-improving solution:");
-        log_solution(model, current_objective_value, derive_excluding_constraint, only_original_variables_necessary, true);
+        log_solution(model, currentobjective_value, derive_excluding_constraint, only_original_variables_necessary, true);
     }
 
     return get_model_improving_constraint();
@@ -250,11 +217,11 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::update_model_improving_constrai
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update(){
     *proof << "obju new";
-    for (int i = 0; i < _objective.size(); i++)
-        write_weighted_literal(_objective.literal(i), _objective.coefficient(i));
-    if(_objective.constant() != 0)
-        *proof << number_to_string(_objective.constant());
-    if(_objective.size() == 0 && _objective.constant() == 0)
+    for (int i = 0; i < objective.size(); i++)
+        write_weighted_literal(objective.literal(i), objective.coefficient(i));
+    if(objective.constant() != 0)
+        write_number(objective.constant(), proof);
+    if(objective.size() == 0 && objective.constant() == 0)
         *proof << ' ';
     *proof << ";\n";
 }
@@ -282,7 +249,7 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update_diff(TLi
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TLit>
 void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update_diff_for_literal(TLit& literal_to_remove, ObjCoeff weight, ObjConst constant_for_lit, bool write_update_model_improving_constraint){
-    write_comment("write_objective_update_diff_for_literal. Weight = " + number_to_string(weight));
+    write_comment("writeobjective_update_diff_for_literal. Weight = " + number_to_string(weight));
     *proof << "obju diff -";
     write_number(weight, proof, false);
     _varMgr->write_literal(literal_to_remove, proof, true);

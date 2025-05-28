@@ -10,12 +10,7 @@ class ProofloggerOpt : public Prooflogger
 {
 public:
     // ------------- Objective function manipulation -------------
-    void set_objective(const LinTermBoolVars<ObjLit, ObjCoeff, ObjConst>* new_objective);
-    void add_objective_literal(const ObjLit& lit, const ObjCoeff weight);
-    bool remove_objective_literal(const ObjLit& lit);
-    ObjCoeff get_objective_weight(const ObjLit& lit);
-    void add_objective_constant(const ObjConst& weight);
-    void subtract_objective_constant(const ObjConst& weight);
+    LinTermBoolVars<ObjLit, ObjCoeff, ObjConst> objective;
     void write_comment_objective_function();
     void check_model_improving_constraint(const constraintid& cxnid=undefcxn);
     ObjConst get_best_objective_value();
@@ -59,8 +54,6 @@ public:
     ~ProofloggerOpt();
 private:
     // ------------- Objective function -------------
-    // Objective function
-    LinTermBoolVars<ObjLit, ObjCoeff, ObjConst> _objective;
     ObjConst _best_objective_value;
     constraintid _model_improvement_constraint = 0; // Last model improvement constraint
 
