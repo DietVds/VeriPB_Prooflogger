@@ -119,6 +119,7 @@ namespace VeriPB {
         void set_variable_manager(VarManager* varMgr);
         VarManager* get_variable_manager();
         void flush_proof();
+        void end_proof();
 
         // ------------- Solution Logging -------------
         bool logged_solution();

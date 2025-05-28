@@ -282,6 +282,12 @@ VarManager* Prooflogger::get_variable_manager(){
     return _varMgr;
 }
 
+void Prooflogger::end_proof(){
+    flush_proof();
+    if(_proofOwned)
+        static_cast<std::ofstream*>(proof)->close();
+}
+
 void Prooflogger::flush_proof(){
     proof->flush();
 }
@@ -563,7 +569,7 @@ constraintid Prooflogger::rup_ternary_clause(const TLit& lit1, const TLit& lit2,
 }
 
 constraintid Prooflogger::rup_empty_clause(){
-    *proof << "rup 0 >= 1;\n";
+    *proof << "rup >= 1;\n";
     return ++_constraint_counter;
 }
 
@@ -677,8 +683,9 @@ template <class TLit>
 constraintid Prooflogger::redundance_based_strengthening_unit_clause(const TLit& lit){
     *proof << "red";
     write_weighted_literal(lit);
-    *proof << ">= 1; "; 
+    *proof << " >= 1; "; 
     _varMgr->write_var_to_bool(toVeriPbVar(variable(lit)), !is_negated(lit), proof);
+    *proof << "\n";
     return ++_constraint_counter;
 }
 
@@ -1201,7 +1208,10 @@ Prooflogger::Prooflogger(std::ostream* proof, VarManager* varMgr, int n_orig_con
 
 Prooflogger::~Prooflogger(){
     if(_proofOwned){
-        flush_proof();
+        std::ofstream* fproof = static_cast<std::ofstream*>(proof);
+        if(fproof->is_open()){
+            end_proof();
+        }
         delete proof;
     }    
     delete _cpder;
