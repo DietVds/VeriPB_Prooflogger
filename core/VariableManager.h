@@ -27,6 +27,14 @@ public:
     virtual size_t get_number_variables_only_in_proof();
 
     virtual size_t get_number_original_vars();
+
+    template <typename TVar> void write_var_name(const TVar&, std::ostream*, bool add_prefix_space=false);
+    template <typename TVar> std::string var_name(const TVar&);
+    template <typename TLit> void write_literal(const TLit&, std::ostream*, bool add_prefix_space=false);
+    template <typename TLit> std::string literal_to_string(const TLit&);
+    template <typename TVar, typename TLit> void write_var_to_lit(const TVar&, const TLit&, std::ostream*, bool write_arrow=false, bool add_prefix_space=false);
+    template <typename TVar> void write_var_to_bool(const TVar&, const bool, std::ostream*, bool write_arrow=false, bool add_prefix_space=false);
+    template <typename TVar> bool is_aux_var(const TVar&);
 private: 
     VeriPB::VarIdx _n_vars_only_known_in_proof=0;
     size_t _n_orig_vars = 0;
@@ -44,6 +52,9 @@ public:
 
     void store_variable_name(const VeriPB::Var&, const std::string&);
     void store_rewrite_var_by_lit(const VeriPB::Var&, const VeriPB::Lit&);
+
+    template <typename TVar> void store_variable_name(const TVar&, const std::string&);
+    template <typename TVar, typename TLit> void store_rewrite_var_by_lit(const TVar&, const TLit&);
 private:
     bool has_meaningful_name(const VeriPB::Var&);
     bool needs_rewrite(const VeriPB::Var&);

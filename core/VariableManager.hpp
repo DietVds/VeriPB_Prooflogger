@@ -77,6 +77,36 @@ size_t VarManager::get_number_original_vars(){
     return _n_orig_vars;
 }
 
+// Implementation of translation to VeriPB Lits and Vars
+template <typename TVar> 
+void VarManager::write_var_name(const TVar& var, std::ostream* s, bool add_prefix_space){
+    this->write_var_name(toVeriPbVar(var), s, add_prefix_space);
+}
+template <typename TVar> 
+std::string VarManager::var_name(const TVar& var){
+    return this->var_name(toVeriPbVar(var));
+}
+template <typename TLit> 
+void VarManager::write_literal(const TLit& lit, std::ostream* s, bool add_prefix_space){
+    this->write_literal(toVeriPbLit(lit), s, add_prefix_space);
+}
+template <typename TLit> 
+std::string VarManager::literal_to_string(const TLit& lit){
+    this->literal_to_string(toVeriPbLit(lit));
+}
+template <typename TVar, typename TLit> 
+void VarManager::write_var_to_lit(const TVar& var, const TLit& lit, std::ostream* s, bool write_arrow, bool add_prefix_space){
+    this->write_var_to_lit(toVeriPbVar(var), toVeriPbLit(lit), s, write_arrow, add_prefix_space);
+}
+template <typename TVar> 
+void VarManager::write_var_to_bool(const TVar& var, bool val, std::ostream* s, bool write_arrow, bool add_prefix_space){
+    this->write_var_to_bool(toVeriPbVar(var), val, s, write_arrow, add_prefix_space);
+}
+template <typename TVar> 
+bool VarManager::is_aux_var(const TVar& var){
+    this->is_aux_var(toVeriPbVar(var));
+}
+
 /***********
  * Implementation for VarManagerWithVarRewriting
  */
@@ -204,6 +234,13 @@ void VarManagerWithVarRewriting::store_rewrite_var_by_lit(const VeriPB::Var& var
 
     (*rewriteFlag)[var.v] = true;
     (*rewriteStorage)[var.v] = lit;
+}
+
+template <typename TVar> void VarManagerWithVarRewriting::store_variable_name(const TVar& var, const std::string& name){
+    this->store_variable_name(toVeriPbVar(var), name);
+}
+template <typename TVar, typename TLit> void VarManagerWithVarRewriting::store_rewrite_var_by_lit(const TVar& var, const TLit& lit){
+    this->store_rewrite_var_by_lit(toVeriPbVar(var), toVeriPbLit(lit));
 }
 
 bool VarManagerWithVarRewriting::has_meaningful_name(const VeriPB::Var& var){
