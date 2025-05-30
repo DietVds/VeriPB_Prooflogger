@@ -236,7 +236,6 @@ constraintid MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::derive_at_most_one_c
 
         for (int lit_idx = 0; lit_idx < new_lit_idx; lit_idx++)
         {
-            constraintid binary_clause_id; 
             C.clear();
             if(am1_sign){
                 C.add_literal(toVeriPbLit(neg(am1_lits[new_lit_idx])));
@@ -252,11 +251,11 @@ constraintid MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::derive_at_most_one_c
             // the first binary constraint to start the derivation
             if (new_lit_idx == 1)
             {
-                this->_cpder->start_from_constraint(binary_clause_id);
+                this->_cpder->start_from_constraint(binary_clauses.back());
             }
             else
             {
-                this->_cpder->add_constraint(binary_clause_id);
+                this->_cpder->add_constraint(binary_clauses.back());
             }
         }
         this->_cpder->divide(new_lit_idx);

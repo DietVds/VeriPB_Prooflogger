@@ -92,7 +92,7 @@ void VarManager::write_literal(const TLit& lit, std::ostream* s, bool add_prefix
 }
 template <typename TLit> 
 std::string VarManager::literal_to_string(const TLit& lit){
-    this->literal_to_string(toVeriPbLit(lit));
+    return this->literal_to_string(toVeriPbLit(lit));
 }
 template <typename TVar, typename TLit> 
 void VarManager::write_var_to_lit(const TVar& var, const TLit& lit, std::ostream* s, bool write_arrow, bool add_prefix_space){

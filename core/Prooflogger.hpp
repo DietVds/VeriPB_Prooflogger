@@ -1164,7 +1164,7 @@ Prooflogger::Prooflogger(const std::string& prooffile, VarManager* varMgr) :
     _constraint_counter(0), 
     _found_solution(false), 
     _comments(true),
-    _cpder(new CuttingPlanesDerivation(this, true))
+    _cpder(new CuttingPlanesDerivation(this, false))
 { }
 
 Prooflogger::Prooflogger(const std::string& prooffile, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula, bool comments) : 
@@ -1176,7 +1176,7 @@ Prooflogger::Prooflogger(const std::string& prooffile, VarManager* varMgr, int n
     _constraint_counter(n_orig_constraints), 
     _found_solution(false), 
     _comments(comments),
-    _cpder(new CuttingPlanesDerivation(this, true))
+    _cpder(new CuttingPlanesDerivation(this, false))
 { }
 Prooflogger::Prooflogger(std::ostream* proof, VarManager* varMgr) :
     proof(proof),
@@ -1187,7 +1187,7 @@ Prooflogger::Prooflogger(std::ostream* proof, VarManager* varMgr) :
     _constraint_counter(0), 
     _found_solution(false), 
     _comments(true),
-    _cpder(new CuttingPlanesDerivation(this, true))
+    _cpder(new CuttingPlanesDerivation(this, false))
 { }
 
 Prooflogger::Prooflogger(std::ostream* proof, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula, bool comments) :
@@ -1199,7 +1199,7 @@ Prooflogger::Prooflogger(std::ostream* proof, VarManager* varMgr, int n_orig_con
     _constraint_counter(n_orig_constraints), 
     _found_solution(false), 
     _comments(comments),
-    _cpder(new CuttingPlanesDerivation(this, true))
+    _cpder(new CuttingPlanesDerivation(this, false))
 { }
 
 Prooflogger::~Prooflogger(){
