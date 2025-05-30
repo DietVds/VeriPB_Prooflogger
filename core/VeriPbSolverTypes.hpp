@@ -406,7 +406,8 @@ template <typename TLit, typename TCoeff, typename TConst>
 void VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::clear(const bool all_coeff_one, const TConst& new_const){
     _all_coeff_one=all_coeff_one;
     _constant = new_const;
-    _coefficients->clear();
+    if(_coefficients != nullptr)
+        _coefficients->clear();
     _literals->clear();
     _max_val = 0;
     _min_val = 0;
