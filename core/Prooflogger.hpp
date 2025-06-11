@@ -368,6 +368,20 @@ void Prooflogger::write_comment(const std::string &comment)
     #endif
 }
 
+// ------------- Comments -------------
+void Prooflogger::start_timed_section(std::string& name){
+    *proof << "start_time " << name << "\n";
+}
+void Prooflogger::end_timed_section(std::string& name){
+    *proof << "end_time " << name << "\n";
+}
+void Prooflogger::start_timed_section(const char *name){
+    *proof << "start_time " << name << "\n";
+}
+void Prooflogger::end_timed_section(const char *name){
+    *proof << "end_time " << name << "\n";
+}
+
 // ------------- Rules for checking constraints -------------
 template <class TConstraint>
 void Prooflogger::equals_rule(const TConstraint& cxn, const constraintid cxn_id)

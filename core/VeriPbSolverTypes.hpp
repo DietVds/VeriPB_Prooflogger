@@ -316,45 +316,53 @@ inline void VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::add_literal(const TLi
 template <typename TLit, typename TCoeff, typename TConst>
 bool VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::delete_literal(const TLit& lit){
     int i=0;
-    bool found = false;
+    int n_found = 0;
 
-    while(i < _literals->size() && lit != _literals->at(i)) i++;
+    while(i < _literals->size()){
+        if(n_found == 0 && lit != _literals->at(i)){
+            i++; continue;
+        } 
 
-    if(i < _literals->size() && lit == _literals->at(i)) found=true; 
+        if(lit == _literals->at(i)){
+            if(n_found == 0) // First time literal is found handled here. Otherwise, literal found is handled while copying.
+                n_found++;
 
-    if(found){
-        TCoeff coeff = _coefficients->at(i);
-
-        if(coeff > 0){
-            #ifdef NONUMBERCONVERSION
-                _max_val -= coeff; 
-            #else 
-                _max_val -= convert_number<TCoeff, TConst>(coeff);
-            #endif
+            TCoeff coeff = coefficient(i);
+            if(coeff > 0){
+                #ifdef NONUMBERCONVERSION
+                    _max_val -= coeff; 
+                #else 
+                    _max_val -= convert_number<TCoeff, TConst>(coeff);
+                #endif
+            }
+            else{
+                #ifdef NONUMBERCONVERSION
+                    _min_val -= coeff; 
+                #else 
+                    _min_val -= convert_number<TCoeff, TConst>(coeff);
+                #endif
+            }
         }
-        else{
-            #ifdef NONUMBERCONVERSION
-                _min_val -= coeff; 
-            #else 
-                _min_val -= convert_number<TCoeff, TConst>(coeff);
-            #endif
-        }
-    }
 
-    while(found && i+1 < _literals->size()) {
-        assert(_literals->at(i+1) != lit);
-        _literals->at(i) = _literals->at(i+1);
-        if(!_all_coeff_one)
-            _coefficients->at(i) = _coefficients->at(i+1);
+        while(i+n_found < _literals->size() && _literals->at(i+n_found) == lit) // If literal found, doesn't have to be copied.
+            n_found++;
+        
+        if(i+n_found < _literals->size()){
+            assert(_literals->at(i+n_found) != lit);
+            _literals->at(i) = _literals->at(i+n_found);
+            if(!_all_coeff_one)
+                _coefficients->at(i) = _coefficients->at(i+n_found);
+        }
+        
         i++;
     }
-    
-    if(found && _literals->size() > 0)
-        _literals->resize(_literals->size()-1);
-    if(found && !_all_coeff_one &&  _literals->size() > 0)
-        _coefficients->resize(_coefficients->size()-1);
 
-    return found;
+    if(n_found > 0 && _literals->size() > 0)
+        _literals->resize(_literals->size()-n_found);
+    if(n_found > 0 && !_all_coeff_one &&  _literals->size() > 0)
+        _coefficients->resize(_coefficients->size()-n_found);
+
+    return n_found > 0;
 }
 template <typename TLit, typename TCoeff, typename TConst>
 bool VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::delete_literal(const litindex& index){

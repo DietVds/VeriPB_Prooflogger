@@ -145,6 +145,13 @@ namespace VeriPB {
         void write_comment(const char *comment);
         void write_comment(const std::string &comment);
 
+        // ------------- Comments -------------
+        void start_timed_section(std::string&);
+        void end_timed_section(std::string&);
+        void start_timed_section(const char *);
+        void end_timed_section(const char *);
+        
+
         // ------------- Rules for checking constraints -------------
         template <class TConstraint>
         void equals_rule(const TConstraint& cxn, const constraintid cxn_id);
