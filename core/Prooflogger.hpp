@@ -1165,6 +1165,7 @@ void Prooflogger::write_clause(const TClause& cxn){
 
 template <typename TSeqHints>
 void Prooflogger::write_hints(const TSeqHints& hints){
+    *proof << " ~";
     for(constraintid cxn_id : hints)
         write_number(cxn_id,proof);
 }
