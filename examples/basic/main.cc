@@ -43,10 +43,10 @@ int main() {
     vPL.write_proof_header();
 
     // Set objective to ~x1 + ~x2 + ~x3 + ~x4
-    vPL.add_objective_literal(VeriPB::create_literal(x1, true),1);
-    vPL.add_objective_literal(VeriPB::create_literal(x2, true),1);
-    vPL.add_objective_literal(VeriPB::create_literal(x3, true),1);
-    vPL.add_objective_literal(VeriPB::create_literal(x4, true),1);
+    vPL.objective.add_literal(VeriPB::create_literal(x1, true),1);
+    vPL.objective.add_literal(VeriPB::create_literal(x2, true),1);
+    vPL.objective.add_literal(VeriPB::create_literal(x3, true),1);
+    vPL.objective.add_literal(VeriPB::create_literal(x4, true),1);
 
     // Unchecked assumption of the three constraints.
 
