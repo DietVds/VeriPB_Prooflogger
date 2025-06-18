@@ -145,10 +145,12 @@ constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::log_solution(const TMod
     _log_solution(model, (derive_excluding_constraint ? "soli" : "sol"), only_original_variables_necessary, log_as_comment);
     
     if(!log_as_comment){ // Veripb automatically adds an improvement constraint so counter needs to be incremented
-        _model_improvement_constraint = ++_constraint_counter;
+        if(derive_excluding_constraint)
+            _model_improvement_constraint = ++_constraint_counter;
 
-        if(objective_value < _best_objective_value || first_solution)
+        if(objective_value < _best_objective_value || first_solution){
             _best_objective_value = objective_value;
+        }
     }
 
     return get_model_improving_constraint(); 
@@ -165,11 +167,13 @@ constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::log_solution(const TMod
         return _model_improvement_constraint;
     }
     else{
+        if(derive_excluding_constraint)
+            _model_improvement_constraint = ++_constraint_counter;
+
         ObjConst objVal = calculate_objective_value(model);
         write_comment("Current solution: " + number_to_string(objVal) + " _best_objective_value: " + number_to_string(_best_objective_value));
         if(objVal < _best_objective_value || first_solution){
             _best_objective_value = objVal;
-            _model_improvement_constraint = ++_constraint_counter;
             return _model_improvement_constraint;
         }
         else{

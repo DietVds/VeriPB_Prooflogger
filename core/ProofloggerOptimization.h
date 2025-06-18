@@ -54,7 +54,7 @@ public:
     ~ProofloggerOpt();
 private:
     // ------------- Objective function -------------
-    ObjConst _best_objective_value;
+    ObjConst _best_objective_value = 0;
     constraintid _model_improvement_constraint = 0; // Last model improvement constraint
 
 

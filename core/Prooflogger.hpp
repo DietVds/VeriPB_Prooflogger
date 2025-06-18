@@ -321,7 +321,7 @@ template <class TModel>
 constraintid Prooflogger::log_solution(const TModel& model, const bool derive_excluding_constraint, const bool only_print_original_variables, const bool log_as_comment){
     assert(!(derive_excluding_constraint && log_as_comment));
     _log_solution(model, (derive_excluding_constraint ? "solx" : "sol"), only_print_original_variables, log_as_comment);
-    if(derive_excluding_constraint)
+    if(derive_excluding_constraint && !log_as_comment)
         return ++_constraint_counter;
     else
         return undefcxn;
@@ -1117,9 +1117,11 @@ void Prooflogger::write_weighted_literal(const TLit &lit, const TNumber& weight,
 
 template <typename TModel>
 void Prooflogger::_log_solution(const TModel& model, const std::string& log_command, const bool only_original_variables_necessary, const bool log_as_comment){
-    _found_solution = true;
     if(log_as_comment) 
         *proof << "* ";
+    else
+        _found_solution = true;
+        
     *proof << log_command;
     VeriPB::Lit lit; 
     for (int i = 0; i < model_size(model); i++){
