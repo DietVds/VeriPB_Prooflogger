@@ -367,19 +367,42 @@ void Prooflogger::write_comment(const std::string &comment)
         proof->flush(); // Can be uncommented for debugging reasons
     #endif
 }
+using section_id = uint32_t;
+section_id Prooflogger::create_new_timed_checking_section(std::string& name){
+    _timed_checking_sections.push_back(name);
+    return _timed_checking_sections.size()-1;
+}
+section_id Prooflogger::create_new_timed_checking_section(const char* name){
+    _timed_checking_sections.push_back(name);
+    return _timed_checking_sections.size()-1;
+}
+void Prooflogger::start_timed_checking_section(section_id id){
+    *proof << "start_time " << _timed_checking_sections[id] << "\n";
+}
+void Prooflogger::end_timed_checking_section(section_id id){
+    *proof << "end_time " << _timed_checking_sections[id] << "\n";
+}
 
-// ------------- Comments -------------
-void Prooflogger::start_timed_section(std::string& name){
-    *proof << "start_time " << name << "\n";
+section_id Prooflogger::create_new_timed_solving_section(std::string& name){
+    _timed_solving_sections.push_back(std::pair<std::string, milliseconds>{name,0});
+    _timed_solving_section_start.emplace_back();
+    return _timed_solving_sections.size()-1;
 }
-void Prooflogger::end_timed_section(std::string& name){
-    *proof << "end_time " << name << "\n";
+section_id Prooflogger::create_new_timed_solving_section(const char* name){
+    _timed_solving_sections.push_back(std::pair<std::string, milliseconds>{name,0});
+    _timed_solving_section_start.emplace_back();
+    return _timed_solving_sections.size()-1;
 }
-void Prooflogger::start_timed_section(const char *name){
-    *proof << "start_time " << name << "\n";
+void Prooflogger::start_timed_solving_section(section_id id){
+    _timed_solving_section_start[id] = high_resolution_clock::now();
 }
-void Prooflogger::end_timed_section(const char *name){
-    *proof << "end_time " << name << "\n";
+void Prooflogger::end_timed_solving_section(section_id id){
+    time_point<high_resolution_clock> end = high_resolution_clock::now();
+    _timed_solving_sections[id].second += duration_cast<milliseconds>( end - _timed_solving_section_start[id]);
+}
+
+std::vector<std::pair<std::string, milliseconds>> Prooflogger::get_solving_timers(){
+    return _timed_solving_sections;
 }
 
 // ------------- Rules for checking constraints -------------

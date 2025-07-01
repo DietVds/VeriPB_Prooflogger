@@ -13,12 +13,14 @@
 #include <charconv>
 #include <climits>
 #include <stdexcept>
-#include<iostream>
+#include <iostream>
+#include <chrono>
 
 #include "VeriPbSolverTypes.h"
 #include "VariableManager.h"
 
-
+using section_id = uint32_t;
+using std::chrono::duration, std::chrono::milliseconds, std::chrono::time_point, std::chrono::high_resolution_clock, std::chrono::duration_cast;
 
 //prooflogging Library
 
@@ -145,12 +147,18 @@ namespace VeriPB {
         void write_comment(const char *comment);
         void write_comment(const std::string &comment);
 
-        // ------------- Comments -------------
-        void start_timed_section(std::string&);
-        void end_timed_section(std::string&);
-        void start_timed_section(const char *);
-        void end_timed_section(const char *);
-        
+        // ------------- Timing -------------
+
+        section_id create_new_timed_solving_section(std::string&);
+        section_id create_new_timed_solving_section(const char*);
+        void start_timed_solving_section(section_id);
+        void end_timed_solving_section(section_id);
+        std::vector<std::pair<std::string, milliseconds>> get_solving_timers();
+
+        section_id create_new_timed_checking_section(std::string&);
+        section_id create_new_timed_checking_section(const char*);
+        void start_timed_checking_section(section_id);
+        void end_timed_checking_section(section_id);
 
         // ------------- Rules for checking constraints -------------
         template <class TConstraint>
@@ -365,6 +373,12 @@ namespace VeriPB {
 
         // ------------- Commenting -------------
         bool _comments=true;  //TODO: add compile definition instead
+
+        // ------------- Timing -------------
+        std::vector<std::string> _timed_checking_sections;
+
+        std::vector<std::pair<std::string, milliseconds>> _timed_solving_sections;
+        std::vector<time_point<high_resolution_clock>> _timed_solving_section_start;
        
 
         // ------------- Writing -------------
