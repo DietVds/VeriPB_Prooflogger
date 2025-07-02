@@ -14,14 +14,15 @@
 #include <climits>
 #include <stdexcept>
 #include <iostream>
-#include <chrono>
 
 #include "VeriPbSolverTypes.h"
 #include "VariableManager.h"
 
+#ifndef NOVPBTIMETRACKING
+#include <chrono>
 using section_id = uint32_t;
-using std::chrono::duration, std::chrono::milliseconds, std::chrono::time_point, std::chrono::high_resolution_clock, std::chrono::duration_cast;
-
+using std::chrono::duration, std::chrono::microseconds, std::chrono::time_point, std::chrono::high_resolution_clock, std::chrono::system_clock, std::chrono::duration_cast;
+#endif
 //prooflogging Library
 
 /**
@@ -147,18 +148,20 @@ namespace VeriPB {
         void write_comment(const char *comment);
         void write_comment(const std::string &comment);
 
-        // ------------- Timing -------------
+        // ------------- Time Tracking -------------
 
+#ifndef NOVPBTIMETRACKING
         section_id create_new_timed_solving_section(std::string&);
         section_id create_new_timed_solving_section(const char*);
         void start_timed_solving_section(section_id);
         void end_timed_solving_section(section_id);
-        std::vector<std::pair<std::string, milliseconds>> get_solving_timers();
+        std::vector<std::pair<std::string, uint64_t>> get_solving_timers();
 
         section_id create_new_timed_checking_section(std::string&);
         section_id create_new_timed_checking_section(const char*);
         void start_timed_checking_section(section_id);
         void end_timed_checking_section(section_id);
+#endif
 
         // ------------- Rules for checking constraints -------------
         template <class TConstraint>
@@ -375,10 +378,12 @@ namespace VeriPB {
         bool _comments=true;  //TODO: add compile definition instead
 
         // ------------- Timing -------------
+#ifndef NOVPBTIMETRACKING
         std::vector<std::string> _timed_checking_sections;
 
-        std::vector<std::pair<std::string, milliseconds>> _timed_solving_sections;
+        std::vector<std::pair<std::string, uint64_t>> _timed_solving_sections;
         std::vector<time_point<high_resolution_clock>> _timed_solving_section_start;
+#endif
        
 
         // ------------- Writing -------------
