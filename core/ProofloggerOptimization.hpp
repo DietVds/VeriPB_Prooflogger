@@ -47,8 +47,7 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_conclusion_OPTIMAL(const 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::rup_lower_bound_constraint(){
     VeriPB::Constraint<ObjLit, ObjCoeff, ObjConst> lowerboundconstraint(&objective, _best_objective_value, Comparison::GEQ);
-    rup(lowerboundconstraint);
-    return ++_constraint_counter;
+    return rup(lowerboundconstraint);
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
@@ -194,7 +193,7 @@ constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::log_solution_if_improvi
             write_comment_objective_function();
             write_comment("Objective update from " + number_to_string(_best_objective_value) + " to " + number_to_string(currentobjective_value));
         }
-        log_solution(model, true, true, false);
+        log_solution(model, currentobjective_value, derive_excluding_constraint, only_original_variables_necessary, false);
     }
     else if(_comments && log_nonimproving_solution_as_comment){
         log_solution(model, currentobjective_value, derive_excluding_constraint, only_original_variables_necessary, true);
@@ -216,6 +215,15 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::update_model_improving_constrai
         write_comment("Model improving constraint: " + number_to_string(newmic));
 }
 
+template <typename ObjLit, typename ObjCoeff, typename ObjConst>
+void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::store_lower_bound_constraint(const constraintid& lowerboundconstraint){
+    _lower_bound_constraint = lowerboundconstraint;
+}
+
+template <typename ObjLit, typename ObjCoeff, typename ObjConst>
+constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::get_lower_bound_constraint(){
+    return _lower_bound_constraint;
+}
 // ------------- Objective update -------------
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>

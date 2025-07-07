@@ -26,6 +26,8 @@ public:
     constraintid log_solution_if_improving(const TModel &model, const bool derive_excluding_constraint=true, bool only_original_variables_necessary=true, bool log_nonimproving_solution_as_comment=false);
     constraintid get_model_improving_constraint();
     void update_model_improving_constraint(const constraintid& newmic);
+    void store_lower_bound_constraint(const constraintid& lowerboundconstraint);
+    constraintid get_lower_bound_constraint();
     
     // ------------- Objective update -------------
     void write_objective_update();
@@ -56,6 +58,7 @@ private:
     // ------------- Objective function -------------
     ObjConst _best_objective_value = 0;
     constraintid _model_improvement_constraint = 0; // Last model improvement constraint
+    constraintid _lower_bound_constraint = 0;
 
 
 };
