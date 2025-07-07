@@ -1090,7 +1090,7 @@ constraintid Prooflogger::get_propagation_constraint(const TVar& var){
     VeriPB::Var _var = toVeriPbVar(var);
     std::vector<constraintid>* storage = _var.only_known_in_proof ? &_storage_var_onlyknowninproof_to_cxn : &_storage_var_to_cxn;
 
-    if(_var.v > storage->size())
+    if(_var.v >= storage->size())
         return undefcxn;
     else    
         return (*storage)[_var.v];
