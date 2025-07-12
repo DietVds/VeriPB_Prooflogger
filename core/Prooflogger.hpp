@@ -786,6 +786,7 @@ template <class TLit, class TConstraint>
 constraintid Prooflogger::reification_literal_right_implication(const TLit& lit, const TConstraint& cxn, const bool store_reified_constraint){
     int i;
 
+#ifndef NOLIBCOMMENTS
     if(_comments){
         // TODO-Dieter: Make comment a string in the PL library to not always have to take the memory again.
         std::string comment = _varMgr->literal_to_string(lit) + " -> " ;
@@ -794,6 +795,7 @@ constraintid Prooflogger::reification_literal_right_implication(const TLit& lit,
         comment += to_string(comparison(cxn)) + " " + number_to_string(rhs(cxn));
         write_comment(comment);
     }
+#endif
 
     *proof << "red";
     if(comparison(cxn) == GEQ){
@@ -821,6 +823,7 @@ template <class TLit, class TConstraint>
 constraintid Prooflogger::reification_literal_left_implication(const TLit& lit, const TConstraint& cxn, const bool store_reified_constraint){
     int i;
 
+#ifndef NOLIBCOMMENTS
     if(_comments){
         std::string comment = _varMgr->literal_to_string(lit) + " <- " ;
         for(i = 0; i < size(cxn); i++)
@@ -828,6 +831,7 @@ constraintid Prooflogger::reification_literal_left_implication(const TLit& lit, 
         comment += to_string(comparison(cxn)) + " " + number_to_string(rhs(cxn));
         write_comment(comment);
     }
+#endif
 
     *proof << "red";
     if(comparison(cxn) == Comparison::GEQ){
@@ -1128,7 +1132,9 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
 
 
     for(TCoeff bucket = 1; bucket <= max_coeff; bucket <<= 1){
+#ifndef NOLIBCOMMENTS
         write_comment("Introduce variable for bucket " + VeriPB::number_to_string(bucket));
+#endif
         C.clear(true, 1);
 
         for(int i = 0; i < size(T); i++){
@@ -1148,8 +1154,9 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
         b_i = VeriPB::create_literal(_varMgr->new_variable_only_in_proof(), false);
         reif_left = reification_literal_left_implication(b_i, C);
         reif_right = reification_literal_right_implication(b_i, C);
-
+#ifndef NOLIBCOMMENTS
         write_comment("Derive GEQ for bucket " + VeriPB::number_to_string(bucket));
+#endif
 
         C.clear();
         C.add_literal(b_i);
@@ -1186,13 +1193,15 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
 
         Tres.add_literal(b_i, bucket);
     }
-
+#ifndef NOLIBCOMMENTS
     write_comment("Derivation of BinEnc >= T");
+#endif
     if(!CP_geq.isEmpty())
         res.bin_geq_input = CP_geq.end();
 
-
+#ifndef NOLIBCOMMENTS
     write_comment("Derivation of BinEnc =< T");
+#endif
     if(!CP_leq.isEmpty())
         res.bin_leq_input = CP_leq.end();
 
@@ -1205,7 +1214,9 @@ Prooflogger::BinaryAdderResult Prooflogger::half_adder(const VeriPB::Lit& l1, co
 
 
 Prooflogger::BinaryAdderResult Prooflogger::full_adder(const VeriPB::Lit& l1, const VeriPB::Lit& l2, const VeriPB::Lit& l3){
+#ifndef NOLIBCOMMENTS
     write_comment("full_adder");
+#endif
     Prooflogger::BinaryAdderResult res;
     res.sum = create_literal(_varMgr->new_variable_only_in_proof(), false);
     res.carry = create_literal(_varMgr->new_variable_only_in_proof(), false);
@@ -1234,14 +1245,18 @@ Prooflogger::BinaryAdderResult Prooflogger::full_adder(const VeriPB::Lit& l1, co
     CP.add_constraint(res.reif_right_carry, 2);
     CP.divide(3);
     res.bin_leq_input = CP.end();
+#ifndef NOLIBCOMMENTS
     write_comment("full_adder - end");
+#endif
 
     return res;
 }
 
 template <typename TLinTerm, typename TCoeff, typename TConst>
 Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_binary_addition(const TLinTerm& T1, const TLinTerm& T2){
+#ifndef NOLIBCOMMENTS
     write_comment("Start creating binary addition");
+#endif
     BinaryEncodingForLinearTerm<TCoeff, TConst> res;
     LinTermBoolVars<VeriPB::Lit, TCoeff, TConst>& Tres = res.T;
 
@@ -1319,10 +1334,14 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
         }
     }
     add_carry_if_necessary();
-    
+
+#ifndef NOLIBCOMMENTS    
     write_comment("Derive binenc_geq_term");
+#endif
     res.bin_geq_input = CP_geq.end();
+#ifndef NOLIBCOMMENTS
     write_comment("Derive binenc_leq_term");
+#endif
     res.bin_leq_input = CP_leq.end();
 
     return res;
