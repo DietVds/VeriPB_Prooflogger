@@ -104,7 +104,7 @@ void VarManager::write_var_to_bool(const TVar& var, bool val, std::ostream* s, b
 }
 template <typename TVar> 
 bool VarManager::is_aux_var(const TVar& var){
-    this->is_aux_var(toVeriPbVar(var));
+    return this->is_aux_var(toVeriPbVar(var));
 }
 
 /***********
