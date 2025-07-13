@@ -8,7 +8,8 @@ int main() {
                 x3 = {.v=3, .only_known_in_proof=false},
                 x4 = {.v=4, .only_known_in_proof=false},
                 x5 = {.v=5, .only_known_in_proof=false},
-                x6 = {.v=6, .only_known_in_proof=false};
+                x6 = {.v=6, .only_known_in_proof=false},
+                x7 = {.v=7, .only_known_in_proof=false};
 
     // Set VarMgr
     VeriPB::VarManager _varMgr;
@@ -72,6 +73,13 @@ int main() {
     if(b1.bin_leq_input != VeriPB::undefcxn) CP.add_constraint(b1.bin_leq_input);
     if(b2.bin_leq_input != VeriPB::undefcxn) CP.add_constraint(b2.bin_leq_input);
     CP.end();
+
+    T.clear();
+    T.add_literal(VeriPB::create_literal(x7, false), 1);
+    VeriPB::Prooflogger::BinaryEncodingForLinearTerm<uint32_t, uint32_t> b4 = pl.create_binary_encoding<VeriPB::LinTermBoolVars<VeriPB::Lit, uint32_t, uint32_t>, uint32_t, uint32_t>(T, 2);
+    comment_binenc = "Resulting in binenc ";
+    for(int i = 0; i < b4.T.size(); i++) comment_binenc += (i == 0 ? " " :  " + ") + VeriPB::number_to_string(VeriPB::coefficient(b4.T, i)) + " " + pl.get_variable_manager()->literal_to_string(VeriPB::literal(b4.T, i));
+    pl.write_comment(comment_binenc);
 
     pl.flush_proof();
 

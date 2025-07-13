@@ -2,7 +2,7 @@
 #include <charconv>
 #include <cassert>
 #include <iostream>
-
+#include <utility>
 
 namespace VeriPB{
 
@@ -554,6 +554,8 @@ inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& VeriPB::LinTermBoolVars<TL
     std::exchange(_constant, other._constant);
     std::exchange(_max_val, other._max_val);
     std::exchange(_min_val, other._min_val);
+
+    return *this;
 }
 /**
  * Implementation for Constraint
