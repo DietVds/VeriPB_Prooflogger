@@ -466,6 +466,95 @@ inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::~LinTermBoolVars(){
     }
 }
 
+// Copy constructor
+template <typename TLit, typename TCoeff, typename TConst>
+inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(const LinTermBoolVars& other){
+    _owned = other._owned;
+    _all_coeff_one = other._all_coeff_one;
+    _constant = other._constant;
+    _max_val = other._max_val;
+    _min_val = other._min_val;
+    if(_owned){
+        _literals = new std::vector<TLit>(*other._literals);
+        if(_coefficients)
+            _coefficients = new std::vector<TCoeff>(*other._coefficients);    
+    }
+    else{
+        _literals = other._literals;
+        _coefficients = other._coefficients;
+    }
+}
+// Copy assignment
+template <typename TLit, typename TCoeff, typename TConst>
+inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::operator=(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& other){
+    _owned = other._owned;
+    _all_coeff_one = other._all_coeff_one;
+    _constant = other._constant;
+    _max_val = other._max_val;
+    _min_val = other._min_val;
+
+    if(_owned){
+        delete _literals;
+        _literals = new std::vector<TLit>(*other._literals);
+        if(_coefficients){
+            delete _coefficients;
+            _coefficients = new std::vector<TCoeff>(*other._coefficients);
+        }
+    }
+    else{
+        _literals = other._literals;
+        if(_coefficients)
+            _coefficients = other._coefficients;
+    }
+
+    return *this;
+}
+
+template <typename TLit, typename TCoeff, typename TConst>
+inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(LinTermBoolVars&& other){
+    std::exchange(_owned, other._owned);
+    std::exchange(_all_coeff_one, other._all_coeff_one);
+    std::exchange(_constant, other._constant);
+    std::exchange(_max_val, other._max_val);
+    std::exchange(_min_val, other._min_val);
+
+    if(_owned){
+        _literals = other._literals;
+        other._literals = nullptr;
+        _coefficients = other._coefficients;
+        other._coefficients = nullptr;
+    }
+    else{
+        _literals = other._literals;
+        _coefficients = other._coefficients;
+    }
+}
+
+template <typename TLit, typename TCoeff, typename TConst>
+inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::operator=(VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&& other){
+    if(_owned){
+        if(_literals)
+            delete _literals;
+        if(_coefficients)
+            delete _coefficients;
+    }
+    if(other._owned){
+        _literals = other._literals;
+        _coefficients = other._coefficients;
+    }
+    else{
+        _literals = other._literals;
+        _coefficients = other._coefficients;
+    }
+    other._literals = nullptr;
+    other._coefficients = nullptr;
+
+    std::exchange(_owned, other._owned);
+    std::exchange(_all_coeff_one, other._all_coeff_one);
+    std::exchange(_constant, other._constant);
+    std::exchange(_max_val, other._max_val);
+    std::exchange(_min_val, other._min_val);
+}
 /**
  * Implementation for Constraint
  */
