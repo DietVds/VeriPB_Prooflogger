@@ -1107,7 +1107,7 @@ constraintid Prooflogger::get_propagation_constraint(const TVar& var){
 // ------------- Deriving a Binary Encoding for a Linear Term -------------
 template <typename TLinTerm, typename TCoeff, typename TConst>
 Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_binary_encoding(const TLinTerm& T, const constraintid& AMO){
-    assert(AMO != undefcxn);
+    assert(AMO != undefcxn || size(T) == 1);
 
     BinaryEncodingForLinearTerm<TCoeff, TConst> res;
     LinTermBoolVars<VeriPB::Lit, TCoeff, TConst>& Tres = res.T;
@@ -1130,6 +1130,14 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
                             CP_leq = new_cuttingplanes_derivation() , 
                             CP_geq = new_cuttingplanes_derivation();
 
+#ifndef NOLIBCOMMENTS
+    if(_comments){
+        std::string c = "Creating BinEnc for ";
+        for(int i = 0; i < size(T); i++)
+            c += " " + number_to_string(coefficient(T,i)) + " " + _varMgr->literal_to_string(literal(T,i)); 
+        write_comment(c);
+    }
+#endif
 
     for(TCoeff bucket = 1; bucket <= max_coeff; bucket <<= 1){
 #ifndef NOLIBCOMMENTS
