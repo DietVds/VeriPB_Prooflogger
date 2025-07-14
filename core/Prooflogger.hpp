@@ -784,13 +784,11 @@ constraintid Prooflogger::end_redundance_based_strengthening_with_subproofs(){
 
 template <class TLit, class TConstraint>
 constraintid Prooflogger::reification_literal_right_implication(const TLit& lit, const TConstraint& cxn, const bool store_reified_constraint){
-    int i;
-
 #ifndef NOLIBCOMMENTS
     if(_comments){
         // TODO-Dieter: Make comment a string in the PL library to not always have to take the memory again.
         std::string comment = _varMgr->literal_to_string(lit) + " -> " ;
-        for(i = 0; i < size(cxn); i++)
+        for(int i = 0; i < size(cxn); i++)
             comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(literal(cxn,i)) + " ";
         comment += to_string(comparison(cxn)) + " " + number_to_string(rhs(cxn));
         write_comment(comment);
@@ -799,13 +797,43 @@ constraintid Prooflogger::reification_literal_right_implication(const TLit& lit,
 
     *proof << "red";
     if(comparison(cxn) == GEQ){
-        write_weighted_literal(neg(lit), rhs(cxn)-min_val_lhs(cxn));
+        for(int i = 0; i < size(cxn); i++){
+            auto coeff = coefficient(cxn,i);
+            if(coeff < 0){
+                write_number(-coeff, proof, true);
+                _varMgr->write_literal(neg(literal(cxn,i)), proof, true);
+            }
+            else{
+                write_number(coeff, proof, true);
+                _varMgr->write_literal(literal(cxn,i), proof, true);
+            }
+        }
+        auto M = -min_val_lhs(cxn) + rhs(cxn);
+        write_number(M, proof, true);
+        _varMgr->write_literal(neg(lit), proof, true);
+        *proof << " >=";
+        write_number(M, proof, true);
     }
-    else if(comparison(cxn) == LEQ){
-        *proof << " -";
-        write_weighted_literal(neg(lit), max_val_lhs(cxn)-rhs(cxn), false); // Literal should have negative coefficient, even when coefficients of constraint itself are unsigned types.
+    else{
+        for(int i = 0; i < size(cxn); i++){
+            auto coeff = coefficient(cxn,i);
+            if(coeff < 0){
+                write_number(-coeff, proof, true);
+                _varMgr->write_literal(literal(cxn,i), proof, true);
+            }
+            else{
+                write_number(coeff, proof, true);
+                _varMgr->write_literal(neg(literal(cxn,i)), proof, true);
+            }
+        }
+        auto M = max_val_lhs(cxn) - rhs(cxn);
+        std::cout << "reification of " << _varMgr->literal_to_string(lit) << " : " << max_val_lhs(cxn) << " - " << rhs(cxn) << " - " << M << std::endl;
+        std::cout << "size(cxn) " << size(cxn) << std::endl; 
+        write_number(M, proof, true);
+        _varMgr->write_literal(neg(lit), proof, true);
+        *proof << " >=";
+        write_number(M, proof, true);
     }
-    write_constraint(cxn);
     *proof << "; ";
     
     VeriPB::Var var = toVeriPbVar(variable(lit));
@@ -821,12 +849,10 @@ constraintid Prooflogger::reification_literal_right_implication(const TLit& lit,
 
 template <class TLit, class TConstraint>
 constraintid Prooflogger::reification_literal_left_implication(const TLit& lit, const TConstraint& cxn, const bool store_reified_constraint){
-    int i;
-
 #ifndef NOLIBCOMMENTS
     if(_comments){
         std::string comment = _varMgr->literal_to_string(lit) + " <- " ;
-        for(i = 0; i < size(cxn); i++)
+        for(int i = 0; i < size(cxn); i++)
             comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(literal(cxn,i)) + " ";
         comment += to_string(comparison(cxn)) + " " + number_to_string(rhs(cxn));
         write_comment(comment);
@@ -834,27 +860,43 @@ constraintid Prooflogger::reification_literal_left_implication(const TLit& lit, 
 #endif
 
     *proof << "red";
-    if(comparison(cxn) == Comparison::GEQ){
-        *proof << " -";
-       write_weighted_literal(lit, max_val_lhs(cxn) - rhs(cxn) + 1, false); // Literal should have negative coefficient, even when coefficients of constraint itself are unsigned types.
+    if(comparison(cxn)==GEQ){
+        for(int i = 0; i < size(cxn); i++){
+            auto coeff = coefficient(cxn,i);
+            if(coeff < 0){
+                write_number(-coeff, proof, true);
+                _varMgr->write_literal(literal(cxn,i), proof, true);
+            }
+            else{
+                write_number(coeff, proof, true);
+                _varMgr->write_literal(neg(literal(cxn,i)), proof, true);
+            }
+        }
+        auto M = max_val_lhs(cxn) - rhs(cxn) + 1;
+        write_number(M, proof, true);
+        _varMgr->write_literal(lit, proof, true);
+        *proof << " >=";
+        write_number(M, proof, true);
     }
-    else if(comparison(cxn) == Comparison::LEQ){
-        write_weighted_literal(lit, rhs(cxn) + 1 - min_val_lhs(cxn));
-    }
-
-    for(int i = 0; i < size(cxn); i++)
-        write_weighted_literal(literal(cxn, i), coefficient(cxn,i));
-
-    if(comparison(cxn) == Comparison::GEQ){
-        *proof << ' ' << to_string(Comparison::LEQ);
-        write_number(rhs(cxn) - 1, proof);
-    }
-    else if(comparison(cxn) == Comparison::LEQ){
-        *proof <<  ' ' << to_string(Comparison::GEQ);
-        write_number(rhs(cxn) + 1, proof);
+    else{
+        for(int i = 0; i < size(cxn); i++){
+            auto coeff = coefficient(cxn,i);
+            if(coeff < 0){
+                write_number(-coeff, proof, true);
+                _varMgr->write_literal(neg(literal(cxn,i)), proof, true);
+            }
+            else{
+                write_number(coeff, proof, true);
+                _varMgr->write_literal(literal(cxn,i), proof, true);
+            }
+        }
+        auto M = -min_val_lhs(cxn) + rhs(cxn) + 1;
+        write_number(M, proof, true);
+        _varMgr->write_literal(lit, proof, true);
+        *proof << " >=";
+        write_number(M, proof, true);
     }
     *proof << "; ";
-
     VeriPB::Var var = toVeriPbVar(variable(lit));
     substitution witness = get_new_substitution();
     add_boolean_assignment(witness, var, !is_negated(lit)); // Set lit to true makes reification constraint true. So that means that if lit is not negated, we need to set the variable true.
@@ -1213,6 +1255,16 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
     if(!CP_leq.isEmpty())
         res.bin_leq_input = CP_leq.end();
 
+
+#ifndef NOLIBCOMMENTS
+    if(_comments){
+        std::string c = "Binary encoding created ";
+        for(int i = 0; i < size(T); i++)
+            c += " " + number_to_string(coefficient(res.T,i)) + " " + _varMgr->literal_to_string(literal(res.T,i)); 
+        write_comment(c);
+    }
+#endif
+
     return res;
 }
 
@@ -1343,14 +1395,19 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
     }
     add_carry_if_necessary();
 
+    if(!CP_geq.isEmpty()){
 #ifndef NOLIBCOMMENTS    
-    write_comment("Derive binenc_geq_term");
+        write_comment("Derive binenc_geq_term");
 #endif
-    res.bin_geq_input = CP_geq.end();
+        res.bin_geq_input = CP_geq.end();
+    }
+
+    if(!CP_leq.isEmpty()){
 #ifndef NOLIBCOMMENTS
-    write_comment("Derive binenc_leq_term");
+        write_comment("Derive binenc_leq_term");
 #endif
-    res.bin_leq_input = CP_leq.end();
+        res.bin_leq_input = CP_leq.end();
+    }
 
     return res;
 }

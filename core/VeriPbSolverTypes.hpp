@@ -510,6 +510,7 @@ inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& VeriPB::LinTermBoolVars<TL
     return *this;
 }
 
+// Move Constructor
 template <typename TLit, typename TCoeff, typename TConst>
 inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(LinTermBoolVars&& other){
     std::exchange(_owned, other._owned);
@@ -519,9 +520,9 @@ inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(LinTermBoo
     std::exchange(_min_val, other._min_val);
 
     if(_owned){
-        _literals = other._literals;
+        _literals = std::move(other._literals);
         other._literals = nullptr;
-        _coefficients = other._coefficients;
+        _coefficients = std::move(other._coefficients);
         other._coefficients = nullptr;
     }
     else{
@@ -530,8 +531,10 @@ inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(LinTermBoo
     }
 }
 
+// Move assignment
 template <typename TLit, typename TCoeff, typename TConst>
 inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::operator=(VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&& other){
+    // assert(false);
     if(_owned){
         if(_literals)
             delete _literals;
@@ -539,8 +542,8 @@ inline VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>& VeriPB::LinTermBoolVars<TL
             delete _coefficients;
     }
     if(other._owned){
-        _literals = other._literals;
-        _coefficients = other._coefficients;
+        _literals = std::move(other._literals);
+        _coefficients = std::move(other._coefficients);
     }
     else{
         _literals = other._literals;
