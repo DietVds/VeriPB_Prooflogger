@@ -1061,6 +1061,11 @@ void Prooflogger::delete_constraint_by_id(const std::vector<constraintid> &const
     *proof << "\n";
 }
 
+void Prooflogger::delete_constraint_by_range_of_ids(const constraintid& begin, const constraintid& end){
+    *proof << "del range " << begin << " " << end << "\n";
+}
+
+
 template <class TConstraint>
 void Prooflogger::delete_constraint(const TConstraint& cxn, const bool overrule_keeporiginalformula)
 {
