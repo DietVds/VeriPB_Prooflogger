@@ -67,7 +67,8 @@ namespace VeriPB {
         void setProoflogger(Prooflogger* _pl);
         void clear(); // asserts that not writing to proof.
 
-        void start_from_constraint(const constraintid& cxn_id);
+        template <class TNumber=VeriPB::defaultmultipliertype>
+        void start_from_constraint(const constraintid& cxn_id, const TNumber& mult=1);
         template <class TLit>
         void start_from_literal_axiom(const TLit& lit);
         template <class TNumber=VeriPB::defaultmultipliertype>
@@ -345,6 +346,29 @@ namespace VeriPB {
         void save_propagation_constraint(const TVar& var, const constraintid cxn);
         template <class TVar>
         constraintid get_propagation_constraint(const TVar& var);
+
+        // ------------- Deriving a Binary Encoding for a Linear Term -------------
+
+        struct BinaryAdderResult {
+            VeriPB::Lit sum, carry;
+            constraintid reif_left_sum, reif_right_sum, reif_left_carry, reif_right_carry;
+            constraintid bin_geq_input = undefcxn, bin_leq_input = undefcxn;
+        };
+
+        template <typename TCoeff, typename TConst>
+        struct BinaryEncodingForLinearTerm {
+            LinTermBoolVars<VeriPB::Lit, TCoeff, TConst> T; // The term that is a binary representation
+            constraintid bin_geq_input = undefcxn, bin_leq_input = undefcxn;
+        };
+
+        template <typename TLinTerm, typename TCoeff, typename TConst>
+        BinaryEncodingForLinearTerm<TCoeff, TConst> create_binary_encoding(const TLinTerm& t, const constraintid& AMO);
+        BinaryAdderResult half_adder(const VeriPB::Lit& l1, const VeriPB::Lit& l2);
+        BinaryAdderResult full_adder(const VeriPB::Lit& l1, const VeriPB::Lit& l2, const VeriPB::Lit& l3);
+        template <typename TLinTerm, typename TCoeff, typename TConst>
+        BinaryEncodingForLinearTerm<TCoeff, TConst> create_binary_addition(const TLinTerm& T1, const TLinTerm& T2);
+        
+
     
         // ------------- Constructor -------------
         Prooflogger(const std::string& prooffile, VarManager* varMgr);

@@ -170,7 +170,9 @@ constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::log_solution(const TMod
             _model_improvement_constraint = ++_constraint_counter;
 
         ObjConst objVal = calculate_objective_value(model);
+#ifndef NOLIBCOMMENTS
         write_comment("Current solution: " + number_to_string(objVal) + " _best_objective_value: " + number_to_string(_best_objective_value));
+#endif
         if(objVal < _best_objective_value || first_solution){
             _best_objective_value = objVal;
             return _model_improvement_constraint;
@@ -189,10 +191,12 @@ constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::log_solution_if_improvi
     ObjConst currentobjective_value = calculate_objective_value(model);
     if (currentobjective_value < _best_objective_value || first_solution)
     {
+#ifndef NOLIBCOMMENTS
         if(_comments){
             write_comment_objective_function();
             write_comment("Objective update from " + number_to_string(_best_objective_value) + " to " + number_to_string(currentobjective_value));
         }
+#endif
         log_solution(model, currentobjective_value, derive_excluding_constraint, only_original_variables_necessary, false);
     }
     else if(_comments && log_nonimproving_solution_as_comment){
@@ -211,8 +215,10 @@ constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::get_model_improving_con
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::update_model_improving_constraint(const constraintid& newmic){
     _model_improvement_constraint = newmic;
+#ifndef NOLIBCOMMENTS
     if(_comments)
         write_comment("Model improving constraint: " + number_to_string(newmic));
+#endif
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
@@ -261,7 +267,9 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update_diff(TLi
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TLit>
 void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update_diff_for_literal(TLit& literal_to_remove, ObjCoeff weight, ObjConst constant_for_lit, bool write_update_model_improving_constraint){
+#ifndef NOLIBCOMMENTS
     write_comment("writeobjective_update_diff_for_literal. Weight = " + number_to_string(weight));
+#endif
     *proof << "obju diff -";
     write_number(weight, proof, false);
     _varMgr->write_literal(literal_to_remove, proof, true);
@@ -270,7 +278,9 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update_diff_for
     *proof << ";\n";
 
     if(write_update_model_improving_constraint && get_model_improving_constraint() != 0){
+#ifndef NOLIBCOMMENTS
         write_comment("Update model-improving constraint:");
+#endif
         if(constant_for_lit > 0)
             rup_unit_clause(literal_to_remove, false);
 
@@ -298,7 +308,9 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update_diff_lit
     *proof << ";\n";
 
     if(write_update_model_improving_constraint && get_model_improving_constraint() != 0){
+#ifndef NOLIBCOMMENTS
         write_comment("Update model-improving constraint:");
+#endif
         constraintid cxn_newlit_leq_oldlit = rup_binary_clause(neg(literal_to_add), literal_to_remove);
         
         _cpder->start_from_constraint(get_model_improving_constraint());

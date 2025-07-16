@@ -83,6 +83,11 @@ class LinTermBoolVars {
         LinTermBoolVars(std::vector<TLit>* lits, TConst constant = 0);
 
         ~LinTermBoolVars();
+
+        LinTermBoolVars(const LinTermBoolVars&);
+        LinTermBoolVars& operator=(const LinTermBoolVars&);
+        LinTermBoolVars(LinTermBoolVars&&);
+        LinTermBoolVars& operator=(LinTermBoolVars&&);
     
     private: 
         std::vector<TLit>* _literals;
