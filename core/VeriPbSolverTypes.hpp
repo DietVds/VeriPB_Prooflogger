@@ -671,3 +671,36 @@ void VeriPB::Clause<TLit>::clear(){
 template <typename TLit>
 VeriPB::Clause<TLit>::~Clause(){ }
 }
+
+
+// Copy constructor
+template <typename TLit, typename TCoeff, typename TConst>
+inline VeriPB::Constraint<TLit, TCoeff, TConst>::Constraint(const Constraint& other){
+    _owned = other._owned;
+    _rhs = other._rhs;
+    _comp = other._comp;
+    _coeff_left_reif = other._coeff_left_reif;
+    _coeff_right_reif = other._coeff_right_reif;
+    if(_owned){
+        _linterm = new LinTermBoolVars<TLit, TCoeff, TConst>(*other._linterm);
+    }
+    else{
+        _linterm = other._linterm;
+    }
+}
+// Copy assignment
+template <typename TLit, typename TCoeff, typename TConst>
+inline VeriPB::Constraint<TLit, TCoeff, TConst>& VeriPB::Constraint<TLit, TCoeff, TConst>::operator=(const VeriPB::Constraint<TLit, TCoeff, TConst>& other){
+    _owned = other._owned;
+    _rhs = other._rhs;
+    _comp = other._comp;
+    _coeff_left_reif = other._coeff_left_reif;
+    _coeff_right_reif = other._coeff_right_reif;
+    if(_owned){
+        _linterm = new LinTermBoolVars<TLit, TCoeff, TConst>(*other._linterm);
+    }
+    else{
+        _linterm = other._linterm;
+    }
+    return *this;
+}

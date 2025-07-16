@@ -129,6 +129,9 @@ class Constraint {
         Constraint(std::vector<TLit>* lits, std::vector<TCoeff>* coeff, TRhs rhs, enum Comparison comp = Comparison::GEQ);
         Constraint(std::vector<TLit>* lits, TRhs rhs=1, enum Comparison comp = Comparison::GEQ);
 
+        Constraint(const Constraint&);
+        Constraint& operator=(const Constraint&);
+
         ~Constraint();
     protected:
         LinTermBoolVars<TLit, TCoeff, TRhs>* _linterm;
