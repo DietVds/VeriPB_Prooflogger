@@ -318,6 +318,7 @@ namespace VeriPB {
         void delete_constraint_by_id(const constraintid constraint_id, const substitution& witness, const subproof& subproof, bool overrule_keeporiginalformula=false); // TODO-Dieter
         void delete_constraint_by_id(const constraintid constraint_id, const substitution& witness, const std::vector<subproof>& subproofs, bool overrule_keeporiginalformula=false); // TODO-Dieter
         void delete_constraint_by_id(const std::vector<constraintid> &constraint_ids, bool overrule_keeporiginalformula=false);
+        void delete_constraint_by_range_of_ids(const constraintid& begin, const constraintid& end);
         
         template <class TConstraint> 
         void delete_constraint(const TConstraint& cxn, const bool overrule_keeporiginalformula=false);

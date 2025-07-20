@@ -106,7 +106,7 @@ void CuttingPlanesDerivation::add_subderivation(){
         *(_buffer) += " +";
     }
 }
-template <class TNumber=VeriPB::defaultmultipliertype>
+template <class TNumber>
 void CuttingPlanesDerivation::add_constraint(const constraintid& cxn_id, const TNumber& mult){
     assert(_pl != nullptr);
     if(_write_directly_to_proof){
@@ -124,7 +124,7 @@ void CuttingPlanesDerivation::add_constraint(const constraintid& cxn_id, const T
         *(_buffer) += " +";
     }
 }
-template <class TLit, class TNumber=VeriPB::defaultmultipliertype>
+template <class TLit, class TNumber>
 void CuttingPlanesDerivation::add_literal_axiom(const TLit& lit_axiom, const TNumber& mult){
     assert(_pl != nullptr);
     if(_write_directly_to_proof){
@@ -143,7 +143,7 @@ void CuttingPlanesDerivation::add_literal_axiom(const TLit& lit_axiom, const TNu
     }
 }
 
-template <class TNumber=VeriPB::defaultmultipliertype>
+template <class TNumber>
 void CuttingPlanesDerivation::divide(const TNumber& n){
     assert(_pl != nullptr);
     if(_write_directly_to_proof){
@@ -162,7 +162,7 @@ void CuttingPlanesDerivation::saturate(){
     }
 }
 
-template <class TNumber=VeriPB::defaultmultipliertype>
+template <class TNumber>
 void CuttingPlanesDerivation::multiply(const TNumber& n){
     assert(_pl != nullptr);
     if(_write_directly_to_proof){
@@ -1060,6 +1060,11 @@ void Prooflogger::delete_constraint_by_id(const std::vector<constraintid> &const
     }
     *proof << "\n";
 }
+
+void Prooflogger::delete_constraint_by_range_of_ids(const constraintid& begin, const constraintid& end){
+    *proof << "del range " << begin << " " << end << "\n";
+}
+
 
 template <class TConstraint>
 void Prooflogger::delete_constraint(const TConstraint& cxn, const bool overrule_keeporiginalformula)
