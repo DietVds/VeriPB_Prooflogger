@@ -1259,7 +1259,7 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
 #ifndef NOLIBCOMMENTS
     if(_comments){
         std::string c = "Binary encoding created ";
-        for(int i = 0; i < size(T); i++)
+        for(int i = 0; i < size(res.T); i++)
             c += " " + number_to_string(coefficient(res.T,i)) + " " + _varMgr->literal_to_string(literal(res.T,i)); 
         write_comment(c);
     }
