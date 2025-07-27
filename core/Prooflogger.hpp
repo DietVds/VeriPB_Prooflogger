@@ -827,8 +827,6 @@ constraintid Prooflogger::reification_literal_right_implication(const TLit& lit,
             }
         }
         auto M = max_val_lhs(cxn) - rhs(cxn);
-        std::cout << "reification of " << _varMgr->literal_to_string(lit) << " : " << max_val_lhs(cxn) << " - " << rhs(cxn) << " - " << M << std::endl;
-        std::cout << "size(cxn) " << size(cxn) << std::endl; 
         write_number(M, proof, true);
         _varMgr->write_literal(neg(lit), proof, true);
         *proof << " >=";
