@@ -1318,7 +1318,7 @@ Prooflogger::BinaryAdderResult Prooflogger::full_adder(const VeriPB::Lit& l1, co
 }
 
 template <typename TLinTerm, typename TCoeff, typename TConst>
-Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_binary_addition(const TLinTerm& T1, const TLinTerm& T2){
+Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_binary_addition(const TLinTerm& T1, const TLinTerm& T2, const TCoeff UBsum, const VeriPB::constraintid UBsumCxn){
 #ifndef NOLIBCOMMENTS
     write_comment("Start creating binary addition");
 #endif
@@ -1398,7 +1398,6 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
             i++; j++;
         }
     }
-    add_carry_if_necessary();
 
     if(!CP_geq.isEmpty()){
 #ifndef NOLIBCOMMENTS    
@@ -1412,6 +1411,31 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
         write_comment("Derive binenc_leq_term");
 #endif
         res.bin_leq_input = CP_leq.end();
+    }
+
+    if(UBsumCxn != VeriPB::undefcxn && coeff_carry > UBsum && res.bin_leq_input != VeriPB::undefcxn){
+#ifndef NOLIBCOMMENTS
+        write_comment("Derive carry false");
+#endif
+        CuttingPlanesDerivation cp = new_cuttingplanes_derivation(true);
+        cp.start_from_constraint(res.bin_leq_input);
+        cp.add_constraint(UBsumCxn);
+        for(int i = 0; i < res.T.size(); i++)
+            cp.weaken(variable(literal(res.T, i)));
+        cp.divide(coeff_carry);
+        cp.multiply(coeff_carry);
+        constraintid cxnCarryFalse = cp.end();
+
+        cp.start_from_constraint(res.bin_geq_input);
+        cp.add_constraint(cxnCarryFalse);
+        res.bin_geq_input = cp.end();
+
+        cp.start_from_constraint(res.bin_leq_input);
+        cp.weaken(variable(carry));
+        res.bin_leq_input = cp.end();
+    }
+    else{
+        add_carry_if_necessary();
     }
 
     return res;

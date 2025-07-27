@@ -367,10 +367,8 @@ namespace VeriPB {
         BinaryAdderResult half_adder(const VeriPB::Lit& l1, const VeriPB::Lit& l2);
         BinaryAdderResult full_adder(const VeriPB::Lit& l1, const VeriPB::Lit& l2, const VeriPB::Lit& l3);
         template <typename TLinTerm, typename TCoeff, typename TConst>
-        BinaryEncodingForLinearTerm<TCoeff, TConst> create_binary_addition(const TLinTerm& T1, const TLinTerm& T2);
-        
+        BinaryEncodingForLinearTerm<TCoeff, TConst> create_binary_addition(const TLinTerm& T1, const TLinTerm& T2, const TCoeff UBsum = 0, const VeriPB::constraintid UBsumCxn = VeriPB::undefcxn);
 
-    
         // ------------- Constructor -------------
         Prooflogger(const std::string& prooffile, VarManager* varMgr);
         Prooflogger(const std::string& prooffile, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true);

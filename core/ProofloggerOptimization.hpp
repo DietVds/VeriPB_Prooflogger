@@ -140,7 +140,9 @@ constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::log_solution(const TMod
 {
     if(log_as_comment && !_comments) return get_model_improving_constraint();
     bool first_solution = !_found_solution;
-
+#ifndef NOLIBCOMMENTS
+    write_comment("Log solution with objective value " + VeriPB::number_to_string(objective_value));
+#endif
     _log_solution(model, (derive_excluding_constraint ? "soli" : "sol"), only_original_variables_necessary, log_as_comment);
     
     if(!log_as_comment){ // Veripb automatically adds an improvement constraint so counter needs to be incremented
