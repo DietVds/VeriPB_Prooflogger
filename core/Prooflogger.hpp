@@ -572,10 +572,10 @@ constraintid Prooflogger::rup_binary_clause(const TLit& lit1, const TLit& lit2, 
     write_weighted_literal(lit1);
     write_weighted_literal(lit2);
     *proof << " >= 1;";
-    if(core_constraint)
-        move_to_coreset_by_id(-1);
     write_hints(hints);
     *proof << "\n";
+    if(core_constraint)
+        move_to_coreset_by_id(-1);
     return ++_constraint_counter;
 }
 
