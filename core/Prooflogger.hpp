@@ -1063,6 +1063,14 @@ void Prooflogger::delete_constraint_by_range_of_ids(const constraintid& begin, c
     *proof << "del range " << begin << " " << end << "\n";
 }
 
+template <class TSeqCxnId>
+void Prooflogger::delete_constraints_by_ids(const TSeqCxnId& cxns){
+    *proof << "del id ";
+    for(int i = 0; i < cxns.size(); i++){
+        write_number(cxns[i], proof, true);
+    }
+    *proof << "\n";
+}
 
 template <class TConstraint>
 void Prooflogger::delete_constraint(const TConstraint& cxn, const bool overrule_keeporiginalformula)
