@@ -38,7 +38,7 @@ void CuttingPlanesDerivation::start_from_constraint(const constraintid& cxn_id, 
     assert(_finished);
     _finished=false;
     if(_write_directly_to_proof){
-        *(_pl->proof) << "p ";
+        *(_pl->proof) << "pol ";
         write_number(cxn_id,_pl->proof, false);
         if(mult != 1) write_number(mult, _pl->proof, true);
     }else{
@@ -54,7 +54,7 @@ void CuttingPlanesDerivation::start_from_literal_axiom(const TLit& lit){
     assert(_finished);
     _finished=true;
     if(_write_directly_to_proof){
-        *(_pl->proof) << "p";
+        *(_pl->proof) << "pol";
         _pl->_varMgr->write_literal(lit, _pl->proof, true);
     }else{
         *(_buffer) += _pl->_varMgr->literal_to_string(lit);
@@ -252,8 +252,7 @@ void Prooflogger::set_keep_original_formula_off(){
 
 void Prooflogger::write_proof_header()
 {
-    *proof << "pseudo-Boolean proof version 2.0\n";
-    *proof << "f\n";
+    *proof << "pseudo-Boolean proof version 3.0\n";
 }
 
 void Prooflogger::set_n_orig_constraints(int nbconstraints){
@@ -294,25 +293,25 @@ void Prooflogger::flush_proof(){
 
 // ------------- Conclusion -------------
 void Prooflogger::write_conclusion_NONE(){
-    *proof << "output NONE\n"
-        << "conclusion NONE\n"
-        << "end pseudo-Boolean proof\n";
+    *proof << "output NONE;\n"
+        << "conclusion NONE;\n"
+        << "end pseudo-Boolean proof;\n";
 }
 
 void Prooflogger::write_conclusion_UNSAT(){
-    *proof << "output NONE\n"
-        << "conclusion UNSAT\n"
-        << "end pseudo-Boolean proof\n";
+    *proof << "output NONE;\n"
+        << "conclusion UNSAT;\n"
+        << "end pseudo-Boolean proof;\n";
 }
 
 void Prooflogger::write_conclusion_SAT(){
-    *proof << "output NONE\n"
-        << "conclusion SAT\n"
-        << "end pseudo-Boolean proof\n";
+    *proof << "output NONE;\n"
+        << "conclusion SAT;\n"
+        << "end pseudo-Boolean proof;\n";
 }
 
 void Prooflogger::write_fail(){
-    *proof << "fail\n";
+    *proof << "fail;\n";
 }
 
 // ------------- Solution logging -------------
@@ -333,7 +332,7 @@ constraintid Prooflogger::log_solution(const TModel& model, const bool derive_ex
 
 // ------------- Cutting Planes derivations -------------
 constraintid Prooflogger::copy_constraint(const constraintid cxn){
-    *proof << "p " << cxn << "\n";
+    *proof << "pol " << cxn << "\n";
     return ++_constraint_counter;
 }
 
@@ -357,7 +356,7 @@ void Prooflogger::set_comments(bool write_comments){
 void Prooflogger::write_comment(const char *comment)
 {
     if(_comments)
-        *proof << "* " << comment << "\n";
+        *proof << "% " << comment << "\n";
     #ifdef FLUSHPROOFCOMMENTS
         proof->flush(); // Can be uncommented for debugging reasons
     #endif
@@ -366,7 +365,7 @@ void Prooflogger::write_comment(const char *comment)
 void Prooflogger::write_comment(const std::string &comment)
 {
     if(_comments)
-        *proof << "* " << comment << "\n";
+        *proof << "% " << comment << "\n";
     #ifdef FLUSHPROOFCOMMENTS
         proof->flush(); // Can be uncommented for debugging reasons
     #endif
@@ -382,10 +381,10 @@ section_id Prooflogger::create_new_timed_checking_section(const char* name){
     return _timed_checking_sections.size()-1;
 }
 void Prooflogger::start_timed_checking_section(section_id id){
-    *proof << "start_time " << _timed_checking_sections[id] << "\n";
+    *proof << "start_time " << _timed_checking_sections[id] << ";\n";
 }
 void Prooflogger::end_timed_checking_section(section_id id){
-    *proof << "end_time " << _timed_checking_sections[id] << "\n";
+    *proof << "end_time " << _timed_checking_sections[id] << ";\n";
 }
 
 section_id Prooflogger::create_new_timed_solving_section(std::string& name){
@@ -416,9 +415,9 @@ void Prooflogger::equals_rule(const TConstraint& cxn, const constraintid cxn_id)
 {
     *proof << "e ";
     write_constraint(cxn);
-    *proof << "; ";
+    *proof << ": ";
     write_number(cxn_id, proof);
-    *proof << "\n";
+    *proof << ";\n";
 }
 
 template <class TConstraint>
@@ -450,9 +449,9 @@ void Prooflogger::check_implied(const TConstraint& cxn, constraintid cxn_id){
     if(cxn_id == undefcxn)
         *proof << ";\n";
     else{
-        *proof << ";";
+        *proof << ":";
         write_number(cxn_id, proof);
-        *proof << "\n";
+        *proof << ";\n";
     }
         
 }
@@ -472,10 +471,11 @@ template <class TConstraint>
 constraintid Prooflogger::derive_if_implied(const TConstraint& cxn, const constraintid& cxn_id){
     *proof << "ia";
     write_constraint(cxn);
-    *proof << ";";
-    if(cxn_id != undefcxn)
+    if(cxn_id != undefcxn){
+        *proof << ":";
         write_number(cxn_id,proof);
-    *proof << "\n";
+    }
+    *proof << ";\n";
     return ++_constraint_counter;
 }
 
@@ -506,9 +506,9 @@ template <class TConstraint, class TSeqHints>
 constraintid Prooflogger::rup(const TConstraint& cxn, const TSeqHints& hints, const bool core_constraint){
     *proof << "rup";
     write_constraint(cxn);
-    *proof << ";";
+    *proof << ":";
     write_hints(hints);
-    *proof << "\n";
+    *proof << ";\n";
     return ++_constraint_counter;
 }
 
@@ -525,9 +525,9 @@ template <class TConstraint, class TSeqHints>
 constraintid Prooflogger::rup_clause(const TConstraint& clause, const TSeqHints& hints){
     *proof << "rup";
     write_clause(clause);
-    *proof << ";";
+    *proof << ":";
     write_hints(hints);
-    *proof << "\n";
+    *proof << ";\n";
     return ++_constraint_counter;
 }
 
@@ -546,9 +546,9 @@ template <class TLit, class TSeqHints>
 constraintid Prooflogger::rup_unit_clause(const TLit& lit, const TSeqHints& hints, bool core_constraint){
     *proof << "rup";
     write_weighted_literal(lit);
-    *proof << " >= 1;";
+    *proof << " >= 1:";
     write_hints(hints);
-    *proof << "\n";
+    *proof << ";\n";
     if(core_constraint)
         move_to_coreset_by_id(-1);
     return ++_constraint_counter;
@@ -571,9 +571,9 @@ constraintid Prooflogger::rup_binary_clause(const TLit& lit1, const TLit& lit2, 
     *proof << "rup";
     write_weighted_literal(lit1);
     write_weighted_literal(lit2);
-    *proof << " >= 1;";
+    *proof << " >= 1:";
     write_hints(hints);
-    *proof << "\n";
+    *proof << ";\n";
     if(core_constraint)
         move_to_coreset_by_id(-1);
     return ++_constraint_counter;
@@ -598,11 +598,11 @@ constraintid Prooflogger::rup_ternary_clause(const TLit& lit1, const TLit& lit2,
     write_weighted_literal(lit1);
     write_weighted_literal(lit2);
     write_weighted_literal(lit3);
-    *proof << " >= 1;";
+    *proof << " >= 1:";
+    write_hints(hints);
+    *proof << ";\n";
     if(core_constraint)
         move_to_coreset_by_id(-1);
-    write_hints(hints);
-    *proof << "\n";
     return ++_constraint_counter;
 }
 
@@ -613,11 +613,11 @@ constraintid Prooflogger::rup_empty_clause(){
 
 // ------------- Redundance Based Strenghtening -------------
 void Prooflogger::strenghten_to_core_on(){
-    *proof << "strengthening_to_core on\n"; 
+    *proof << "strengthening_to_core on;\n"; 
 }
 
 void Prooflogger::strenghten_to_core_off(){
-    *proof << "strengthening_to_core off\n"; 
+    *proof << "strengthening_to_core off;\n"; 
 }
 
 substitution Prooflogger::get_new_substitution(){
@@ -711,9 +711,9 @@ template <class TConstraint>
 constraintid Prooflogger::redundance_based_strengthening(const TConstraint& cxn, const substitution& witness){
     *proof << "red";
     write_constraint(cxn);
-    *proof << "; ";
+    *proof << ": ";
     write_substitution(witness);
-    *proof << "\n";
+    *proof << ";\n";
     return ++_constraint_counter;
 }
 
@@ -721,9 +721,9 @@ template <class TLit>
 constraintid Prooflogger::redundance_based_strengthening_unit_clause(const TLit& lit){
     *proof << "red";
     write_weighted_literal(lit);
-    *proof << " >= 1; "; 
+    *proof << " >= 1: "; 
     _varMgr->write_var_to_bool(variable(lit), !is_negated(lit), proof);
-    *proof << "\n";
+    *proof << ";\n";
     return ++_constraint_counter;
 }
 
@@ -731,12 +731,12 @@ template <typename TConstraint>
 constraintid Prooflogger::redundance_based_strengthening(const TConstraint& cxn, const substitution& witness, const std::vector<subproof>& subproofs){
     *proof << "red";
     write_constraint(cxn);
-    *proof << "; ";
+    *proof << " : ";
     write_substitution(witness);
 
     if(subproofs.size() > 0){
         _constraint_counter++; // constraint not C
-        *proof << "; begin \n";
+        *proof << ": subproof \n";
     
         for(int i = 0; i < subproofs.size(); i++){
             subproof p = subproofs[i];
@@ -747,11 +747,13 @@ constraintid Prooflogger::redundance_based_strengthening(const TConstraint& cxn,
                 _constraint_counter++;
             }
             // *proof << "\t\t c -1\n";
-            *proof << "\tend -1\n";
+            *proof << "\tqed;\n";
         }
-        *proof << "end";
+        *proof << "qed;";
     }
-    *proof << "\n";
+    else{
+        *proof << ";\n"
+    }
 
     return ++_constraint_counter;
 }
@@ -760,9 +762,9 @@ template <class TConstraint>
 constraintid Prooflogger::start_redundance_based_strengthening_with_subproofs(const TConstraint& cxn, const substitution& witness){
     *proof << "red";
     write_constraint(cxn);
-    *proof << "; ";
+    *proof << ": ";
     write_substitution(witness);
-    *proof << "; begin \n";
+    *proof << ": subproof\n";
     return ++_constraint_counter; // constraint not C
 }
 
@@ -772,11 +774,11 @@ constraintid Prooflogger::start_new_subproof(const std::string& proofgoal){
 }
 
 void Prooflogger::end_subproof(){
-    *proof << "\tend -1\n";
+    *proof << "\tqed;\n";
 }
 
 constraintid Prooflogger::end_redundance_based_strengthening_with_subproofs(){
-    *proof << "end\n";
+    *proof << "qed;\n";
     return ++_constraint_counter;
 }
 
@@ -832,13 +834,13 @@ constraintid Prooflogger::reification_literal_right_implication(const TLit& lit,
         *proof << " >=";
         write_number(M, proof, true);
     }
-    *proof << "; ";
+    *proof << ": ";
     
     VeriPB::Var var = toVeriPbVar(variable(lit));
     substitution witness = get_new_substitution();
     add_boolean_assignment(witness, var, is_negated(lit)); // Set lit to false makes reification constraint true. So that means that if lit is negated, we need to set the variable true.
     write_substitution(witness);
-    *proof << "\n";
+    *proof << ";\n";
     ++_constraint_counter;
     if(store_reified_constraint)
         store_reified_constraint_right_implication(var, _constraint_counter);
@@ -894,12 +896,12 @@ constraintid Prooflogger::reification_literal_left_implication(const TLit& lit, 
         *proof << " >=";
         write_number(M, proof, true);
     }
-    *proof << "; ";
+    *proof << ": ";
     VeriPB::Var var = toVeriPbVar(variable(lit));
     substitution witness = get_new_substitution();
     add_boolean_assignment(witness, var, !is_negated(lit)); // Set lit to true makes reification constraint true. So that means that if lit is not negated, we need to set the variable true.
     write_substitution(witness);
-    *proof << "\n";
+    *proof << ";\n";
     ++_constraint_counter;
     if(store_reified_constraint)
         store_reified_constraint_left_implication(var, _constraint_counter);
@@ -1017,14 +1019,15 @@ void Prooflogger::remove_reified_constraint_left_implication_from_constraintstor
 // ------------- Proof by contradiction -------------
 template <class TConstraint>
 constraintid Prooflogger::start_proof_by_contradiction(const TConstraint& cxn){
-    VeriPB::substitution w = get_new_substitution();
-    start_redundance_based_strengthening_with_subproofs(cxn, w);
-    return start_new_subproof("#1");
+    *proof << "pbc";
+    write_constraint(cxn);
+    *proof << ": subproof ";
+    return ++_constraint_counter;
 }
 
 constraintid Prooflogger::end_proof_by_contradiction(){
-    end_subproof();
-    return end_redundance_based_strengthening_with_subproofs();
+    *proof << "qed;";
+    return ++_constraint_counter;
 }
 
 // ------------- Proof by case splitting -------------
@@ -1045,7 +1048,7 @@ void Prooflogger::delete_constraint_by_id(const constraintid cxn_id, bool overru
     *proof << "del id";
     if(!(_keep_original_formula && is_original_constraint(cxn_id)) || overrule_keeporiginalformula)
         write_number(cxn_id, proof, true);
-    *proof << "\n";
+    *proof << ";\n";
 }
 
 void Prooflogger::delete_constraint_by_id(const std::vector<constraintid> &constraint_ids, bool overrule_keeporiginalformula)
@@ -1056,11 +1059,11 @@ void Prooflogger::delete_constraint_by_id(const std::vector<constraintid> &const
         if(!(_keep_original_formula && is_original_constraint(id)) || overrule_keeporiginalformula)
             *proof << " " << id;
     }
-    *proof << "\n";
+    *proof << ";\n";
 }
 
 void Prooflogger::delete_constraint_by_range_of_ids(const constraintid& begin, const constraintid& end){
-    *proof << "del range " << begin << " " << end << "\n";
+    *proof << "del range " << begin << " " << end << ";\n";
 }
 
 template <class TSeqCxnId>
@@ -1069,7 +1072,7 @@ void Prooflogger::delete_constraints_by_ids(const TSeqCxnId& cxns){
     for(int i = 0; i < cxns.size(); i++){
         write_number(cxns[i], proof, true);
     }
-    *proof << "\n";
+    *proof << ";\n";
 }
 
 template <class TConstraint>
@@ -1117,7 +1120,7 @@ void Prooflogger::move_to_coreset_by_id(const constraintid& cxn_id, bool overrul
     if(!_keep_original_formula || overrule_keeporiginalformula){
         *proof << "core id ";
         write_number(cxn_id,proof);
-        *proof << "\n";
+        *proof << ";\n";
     }
 
 }
@@ -1126,7 +1129,7 @@ template <class TConstraint>
 void Prooflogger::move_to_coreset(const TConstraint& cxn, bool overrule_keeporiginalformula){
     *proof << "core id ";
     write_constraint(cxn);
-    *proof << "\n";
+    *proof << ";\n";
 }
 
 template <class TVar>
@@ -1492,7 +1495,7 @@ void Prooflogger::write_weighted_literal(const TLit &lit, const TNumber& weight,
 template <typename TModel>
 void Prooflogger::_log_solution(const TModel& model, const std::string& log_command, const bool only_original_variables_necessary, const bool log_as_comment){
     if(log_as_comment) 
-        *proof << "* ";
+        *proof << "% ";
     else
         _found_solution = true;
         
@@ -1504,7 +1507,7 @@ void Prooflogger::_log_solution(const TModel& model, const std::string& log_comm
             continue;
         _varMgr->write_literal(lit, proof, true);
     }
-    *proof << "\n";
+    *proof << ";\n";
 }
 
 template <typename TConstraint>

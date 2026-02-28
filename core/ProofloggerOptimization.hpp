@@ -8,16 +8,16 @@ using namespace VeriPB;
 // ------------- Conclusion -------------
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_conclusion_UNSAT_optimization(){
-    *proof << "output NONE\n"
-        << "conclusion BOUNDS INF INF\n"
-        << "end pseudo-Boolean proof\n";
+    *proof << "output NONE;\n"
+        << "conclusion BOUNDS INF INF;\n"
+        << "end pseudo-Boolean proof;\n";
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_conclusion_UNSAT_optimization(const constraintid& hint){
-    *proof << "output NONE\n"
-        << "conclusion BOUNDS INF : " << hint << " INF\n"
-        << "end pseudo-Boolean proof\n";
+    *proof << "output NONE;\n"
+        << "conclusion BOUNDS INF : " << hint << " INF;\n"
+        << "end pseudo-Boolean proof;\n";
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
@@ -26,9 +26,9 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_conclusion_OPTIMAL(){
         write_conclusion_UNSAT_optimization();
     }
     else{
-        *proof << "output NONE\n"
-            << "conclusion BOUNDS " << number_to_string(_best_objective_value) << " " << number_to_string(_best_objective_value) << "\n"
-            << "end pseudo-Boolean proof\n";
+        *proof << "output NONE;\n"
+            << "conclusion BOUNDS " << number_to_string(_best_objective_value) << " " << number_to_string(_best_objective_value) << ";\n"
+            << "end pseudo-Boolean proof;\n";
     }
 }
 
@@ -38,9 +38,9 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_conclusion_OPTIMAL(const 
         write_conclusion_UNSAT_optimization();
     }
     else{
-        *proof << "output NONE\n"
-            << "conclusion BOUNDS " << number_to_string(_best_objective_value) << " : " << number_to_string(hint) << " " << number_to_string(_best_objective_value) << "\n"
-            << "end pseudo-Boolean proof\n";
+        *proof << "output NONE;\n"
+            << "conclusion BOUNDS " << number_to_string(_best_objective_value) << " : " << number_to_string(hint) << " " << number_to_string(_best_objective_value) << ";\n"
+            << "end pseudo-Boolean proof;\n";
     }    
 }
 
@@ -52,16 +52,16 @@ constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::rup_lower_bound_constra
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_conclusion_BOUNDS(const ObjConst& LB, const ObjConst& UB){
-    *proof << "output NONE\n"
-        << "conclusion BOUNDS " << number_to_string(LB) << " " << number_to_string(UB) << "\n"
-        << "end pseudo-Boolean proof\n";
+    *proof << "output NONE;\n"
+        << "conclusion BOUNDS " << number_to_string(LB) << " " << number_to_string(UB) << ";\n"
+        << "end pseudo-Boolean proof;\n";
 }
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_conclusion_BOUNDS(const ObjConst&  LB, const constraintid& hint, const ObjConst&  UB){
-    *proof << "output NONE\n"
-        << "conclusion BOUNDS " << number_to_string(LB) << " : " << number_to_string(hint) << " " << number_to_string(UB) << "\n"
-        << "end pseudo-Boolean proof\n";
+    *proof << "output NONE;\n"
+        << "conclusion BOUNDS " << number_to_string(LB) << " : " << number_to_string(hint) << " " << number_to_string(UB) << ";\n"
+        << "end pseudo-Boolean proof;\n";
 }
 
 // ------------- Objective function manipulation -------------
@@ -71,7 +71,7 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_comment_objective_functio
 {
     if(!_comments) return;
 
-    *proof << "* f = ";
+    *proof << "% f = ";
     for (int i = 0; i < objective.size(); i++)
         write_weighted_literal(objective.literal(i), objective.coefficient(i));
     if(objective.constant() != 0)
