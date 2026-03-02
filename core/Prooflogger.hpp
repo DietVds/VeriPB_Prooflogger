@@ -196,7 +196,7 @@ constraintid CuttingPlanesDerivation::end(bool clear){
 }
 
 CuttingPlanesDerivation::CuttingPlanesDerivation(Prooflogger* pl, bool write_directly_to_proof) : 
-    _pl(pl), _write_directly_to_proof(write_directly_to_proof) 
+    _write_directly_to_proof(write_directly_to_proof) ,_pl(pl) 
     {
         if(!write_directly_to_proof){
             _buffer = new std::string();
@@ -213,7 +213,7 @@ CuttingPlanesDerivation::CuttingPlanesDerivation(const CuttingPlanesDerivation& 
 
 
 CuttingPlanesDerivation::CuttingPlanesDerivation(Prooflogger* pl, std::string* buffer) : 
-    _buffer(buffer), _write_directly_to_proof(false), _bufferOwned(false), _pl(pl) {};
+    _write_directly_to_proof(false), _buffer(buffer), _bufferOwned(false), _pl(pl) {};
 
 CuttingPlanesDerivation::~CuttingPlanesDerivation(){
     if(_bufferOwned)
@@ -242,8 +242,8 @@ CuttingPlanesDerivation& CuttingPlanesDerivation::operator=(const CuttingPlanesD
 }
 
 // ------------- Proof file -------------
-void Prooflogger::set_proof_stream(std::ostream* proof){
-    this->proof = proof;
+void Prooflogger::set_proof_stream(std::ostream* _proof){
+    this->proof = _proof;
     proof->rdbuf()->pubsetbuf(_write_buffer, _write_buffer_size); 
 }
 
@@ -747,8 +747,8 @@ constraintid Prooflogger::redundance_based_strengthening(const TConstraint& cxn,
             subproof p = subproofs[i];
             _constraint_counter++; // constraint C\w
             *proof << "\tproofgoal " << p.proofgoal << "\n";
-            for(int i = 0; i < p.derivations.size(); i++){
-                *proof << "\t\tp " << p.derivations[i] << "\n";
+            for(int j = 0; j < p.derivations.size(); j++){
+                *proof << "\t\tp " << p.derivations[j] << "\n";
                 _constraint_counter++;
             }
             // *proof << "\t\t c -1\n";

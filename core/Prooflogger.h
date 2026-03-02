@@ -97,9 +97,10 @@ namespace VeriPB {
         bool _write_directly_to_proof;
         bool _finished=true; // If derivation is written directly to the proof, a new derivation can only be started when the previous derivation is finished.
         
-        Prooflogger* _pl;
         std::string* _buffer;
         bool _bufferOwned;
+
+        Prooflogger* _pl;
 
         CuttingPlanesDerivation(Prooflogger* pl, std::string* buffer);
 
