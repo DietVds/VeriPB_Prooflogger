@@ -42,24 +42,24 @@ struct Var{
     bool only_known_in_proof = false;
 };
 static Var var_undef {.v=0, .only_known_in_proof=false};
-bool operator==(const VeriPB::Var& lhs, const VeriPB::Var& rhs);
-bool operator!=(const VeriPB::Var& lhs, const VeriPB::Var& rhs);
-bool operator< (const VeriPB::Var& lhs, const VeriPB::Var& rhs);
-bool operator<=(const VeriPB::Var& lhs, const VeriPB::Var& rhs);
-bool operator> (const VeriPB::Var& lhs, const VeriPB::Var& rhs);
-bool operator>=(const VeriPB::Var& lhs, const VeriPB::Var& rhs);
+bool operator==(const Var& lhs, const Var& rhs);
+bool operator!=(const Var& lhs, const Var& rhs);
+bool operator< (const Var& lhs, const Var& rhs);
+bool operator<=(const Var& lhs, const Var& rhs);
+bool operator> (const Var& lhs, const Var& rhs);
+bool operator>=(const Var& lhs, const Var& rhs);
 
 struct Lit{
     Var v;
     bool negated=false;
 };
 static Lit lit_undef {.v=var_undef, .negated=false};
-bool operator==(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
-bool operator!=(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
-bool operator< (const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
-bool operator<=(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
-bool operator> (const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
-bool operator>=(const VeriPB::Lit& lhs, const VeriPB::Lit& rhs);
+bool operator==(const Lit& lhs, const Lit& rhs);
+bool operator!=(const Lit& lhs, const Lit& rhs);
+bool operator< (const Lit& lhs, const Lit& rhs);
+bool operator<=(const Lit& lhs, const Lit& rhs);
+bool operator> (const Lit& lhs, const Lit& rhs);
+bool operator>=(const Lit& lhs, const Lit& rhs);
 
 template <typename TLit, typename TCoeff, typename TConst>
 class LinTermBoolVars {
@@ -153,15 +153,15 @@ class Clause : public Constraint<TLit, uint8_t, uint8_t> {
 /*******************
  * Functions for VeriPB variables and literals 
 */
-VeriPB::Var variable(const VeriPB::Lit& l);
-bool is_negated(const VeriPB::Lit& l);
-VeriPB::Lit neg(const VeriPB::Lit& l);
-VeriPB::Lit create_literal(const VeriPB::Var& var, bool negated);
+Var variable(const Lit& l);
+bool is_negated(const Lit& l);
+Lit neg(const Lit& l);
+Lit create_literal(const Var& var, bool negated);
 
-VeriPB::Var toVeriPbVar(const VeriPB::Var& v);
-VeriPB::Lit toVeriPbLit(const VeriPB::Lit& l);
+Var toVeriPbVar(const Var& v);
+Lit toVeriPbLit(const Lit& l);
 
-VeriPB::VarIdx varidx(const VeriPB::Var& var);
+VarIdx varidx(const Var& var);
 
 
 /********************
@@ -169,47 +169,47 @@ VeriPB::VarIdx varidx(const VeriPB::Var& var);
  * - can be immediately instantiated
  */
 template <typename TLit, typename TCoeff, typename TConst>
-TLit literal(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&, const VeriPB::litindex&);
+TLit literal(const LinTermBoolVars<TLit, TCoeff, TConst>&, const litindex&);
 
 template <typename TLit, typename TCoeff, typename TConst>
-TCoeff coefficient(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&, const VeriPB::litindex&);
+TCoeff coefficient(const LinTermBoolVars<TLit, TCoeff, TConst>&, const litindex&);
 
 template <typename TLit, typename TCoeff, typename TConst>
-TCoeff get_constant(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&);
+TCoeff get_constant(const LinTermBoolVars<TLit, TCoeff, TConst>&);
 
 template <typename TLit, typename TCoeff, typename TConst>
-TConst max_val(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&);
+TConst max_val(const LinTermBoolVars<TLit, TCoeff, TConst>&);
 
 template <typename TLit, typename TCoeff, typename TConst>
-TConst min_val(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&);
+TConst min_val(const LinTermBoolVars<TLit, TCoeff, TConst>&);
 
 template <typename TLit, typename TCoeff, typename TConst>
-size_t size(const VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>&);
+size_t size(const LinTermBoolVars<TLit, TCoeff, TConst>&);
 
 /*******************
  * Functions for VeriPB constraints:
  * - can be immediately instantiated
 */
 template <typename TLit, typename TCoeff, typename TRhs> 
-TLit VeriPB::literal(const VeriPB::Constraint<TLit, TCoeff, TRhs>&, const VeriPB::litindex&);
+TLit literal(const Constraint<TLit, TCoeff, TRhs>&, const litindex&);
 
 template <typename TLit, typename TCoeff, typename TRhs> 
-TCoeff VeriPB::coefficient(const VeriPB::Constraint<TLit, TCoeff, TRhs>&, const VeriPB::litindex&);
+TCoeff coefficient(const Constraint<TLit, TCoeff, TRhs>&, const litindex&);
 
 template <typename TLit, typename TCoeff, typename TRhs> 
-VeriPB::Comparison comparison(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
+Comparison comparison(const Constraint<TLit, TCoeff, TRhs>&);
 
 template <typename TLit, typename TCoeff, typename TRhs> 
-TRhs rhs(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
+TRhs rhs(const Constraint<TLit, TCoeff, TRhs>&);
 
 template <typename TLit, typename TCoeff, typename TRhs>
-size_t size(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
+size_t size(const Constraint<TLit, TCoeff, TRhs>&);
 
 template <typename TLit, typename TCoeff, typename TRhs>
-TRhs max_val_lhs(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
+TRhs max_val_lhs(const Constraint<TLit, TCoeff, TRhs>&);
 
 template <typename TLit, typename TCoeff, typename TRhs>
-TRhs min_val_lhs(const VeriPB::Constraint<TLit, TCoeff, TRhs>&);
+TRhs min_val_lhs(const Constraint<TLit, TCoeff, TRhs>&);
 
 
 
