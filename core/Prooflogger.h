@@ -57,7 +57,7 @@ namespace VeriPB {
 
     class CuttingPlanesDerivation
     {
-        friend Prooflogger; 
+        friend Prooflogger;
 
         public:
         std::string toString() const;
@@ -72,7 +72,7 @@ namespace VeriPB {
         template <class TLit>
         void start_from_literal_axiom(const TLit& lit);
         template <class TNumber=VeriPB::defaultmultipliertype>
-        void add(const CuttingPlanesDerivation* cp_to_add, const TNumber& mult=1); 
+        void add(const CuttingPlanesDerivation* cp_to_add, const TNumber& mult=1);
         void start_subderivation_from_constraint(const constraintid& cxn_id);
         template <class TLit>
         void start_subderivation_from_literal_axiom(const TLit& lit_axiom);
@@ -90,9 +90,10 @@ namespace VeriPB {
         void weaken(const TVar& var);
         constraintid end(bool clear=true);
 
+        CuttingPlanesDerivation(const CuttingPlanesDerivation&);
         CuttingPlanesDerivation(Prooflogger* pl = nullptr, bool write_directly_to_proof=false);
 
-        private: 
+        private:
         bool _write_directly_to_proof;
         bool _finished=true; // If derivation is written directly to the proof, a new derivation can only be started when the previous derivation is finished.
         

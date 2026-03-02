@@ -207,6 +207,11 @@ CuttingPlanesDerivation::CuttingPlanesDerivation(Prooflogger* pl, bool write_dir
         }
     };
 
+CuttingPlanesDerivation::CuttingPlanesDerivation(const CuttingPlanesDerivation& other) {
+    other.copyTo(*this);
+}
+
+
 CuttingPlanesDerivation::CuttingPlanesDerivation(Prooflogger* pl, std::string* buffer) : 
     _buffer(buffer), _write_directly_to_proof(false), _bufferOwned(false), _pl(pl) {};
 
