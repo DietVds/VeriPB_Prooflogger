@@ -186,11 +186,11 @@ void CuttingPlanesDerivation::weaken(const TVar& var){
 constraintid CuttingPlanesDerivation::end(bool clear){
     assert(_pl != nullptr);
     if(!_write_directly_to_proof){
-        *(_pl->proof) << "p " << *(_buffer);
+        *(_pl->proof) << "pol " << *(_buffer);
         if(clear)
             this->clear();
     }
-    *(_pl->proof) << "\n";
+    *(_pl->proof) << ";\n";
     _finished = true;
     return ++_pl->_constraint_counter;
 }
@@ -332,7 +332,7 @@ constraintid Prooflogger::log_solution(const TModel& model, const bool derive_ex
 
 // ------------- Cutting Planes derivations -------------
 constraintid Prooflogger::copy_constraint(const constraintid cxn){
-    *proof << "pol " << cxn << "\n";
+    *proof << "pol " << cxn << ";\n";
     return ++_constraint_counter;
 }
 
@@ -752,7 +752,7 @@ constraintid Prooflogger::redundance_based_strengthening(const TConstraint& cxn,
         *proof << "qed;";
     }
     else{
-        *proof << ";\n"
+        *proof << ";\n";
     }
 
     return ++_constraint_counter;
