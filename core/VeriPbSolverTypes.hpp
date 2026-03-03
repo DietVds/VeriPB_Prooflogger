@@ -315,8 +315,8 @@ void VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::add_literal(const TLit& lit,
 
 template <typename TLit, typename TCoeff, typename TConst>
 bool VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::delete_literal(const TLit& lit){
-    int i=0;
-    int n_found = 0;
+    size_t i=0;
+    size_t n_found = 0;
 
     while(i < _literals->size()){
         if(n_found == 0 && lit != _literals->at(i)){

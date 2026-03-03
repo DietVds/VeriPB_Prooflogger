@@ -72,7 +72,7 @@ void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_comment_objective_functio
     if(!_comments) return;
 
     *proof << "% f = ";
-    for (int i = 0; i < objective.size(); i++)
+    for (size_t i = 0; i < objective.size(); i++)
         write_weighted_literal(objective.literal(i), objective.coefficient(i));
     if(objective.constant() != 0)
         *proof << " + " << number_to_string(objective.constant());
@@ -114,7 +114,7 @@ ObjConst ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::calculate_objective_value(c
 {
     ObjConst objective_value = objective.constant();
     ModelValue v;
-    for (int i = 0; i < objective.size(); i++)
+    for (size_t i = 0; i < objective.size(); i++)
     {
         ObjLit objlit = objective.literal(i);
         v = model_value(variable(objlit), model, i==0);
@@ -237,7 +237,7 @@ constraintid ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::get_lower_bound_constra
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update(){
     *proof << "obju new";
-    for (int i = 0; i < objective.size(); i++)
+    for (size_t i = 0; i < objective.size(); i++)
         write_weighted_literal(objective.literal(i), objective.coefficient(i));
     if(objective.constant() != 0)
         write_number(objective.constant(), proof);
@@ -250,12 +250,12 @@ template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 template <class TLinTerm>
 void ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::write_objective_update_diff(TLinTerm& oldObj, TLinTerm& newObj){
     *proof << "obju diff";
-    for(int i = 0; i < size(oldObj); i++){
+    for(size_t i = 0; i < size(oldObj); i++){
         *proof << " -";
         write_number(coefficient(oldObj,i), proof, false);
         _varMgr->write_literal(literal(oldObj, i), proof, true);
     }
-    for(int i = 0; i < size(newObj); i++){
+    for(size_t i = 0; i < size(newObj); i++){
         write_number(coefficient(newObj, i),  proof);
         _varMgr->write_literal(literal(newObj, i), proof, true);
     }

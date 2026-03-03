@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <cassert>
+#include <cstddef>
 
 #ifndef PL_VarIdx
 #define PL_VarIdx size_t

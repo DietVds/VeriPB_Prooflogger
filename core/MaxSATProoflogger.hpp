@@ -161,7 +161,7 @@ template <typename ObjLit, typename ObjCoeff, typename ObjConst>
 constraintid MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::derive_objective_reformulation_constraint(constraintid base_reform_id)
 {
     this->_cpder->start_from_constraint(base_reform_id);
-    for (int i = 0; i < core_lower_bounds.size(); i++)
+    for (size_t i = 0; i < core_lower_bounds.size(); i++)
     {
         this->_cpder->add_constraint(core_lower_bounds[i], core_weights[i]);
     }
@@ -198,7 +198,7 @@ constraintid MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::reformulate_with_unp
 {
     this->_cpder->start_from_constraint(base_reform_id);
 
-    for (int i = 0; i < core_ids.size(); i++)
+    for (size_t i = 0; i < core_ids.size(); i++)
     {
         this->_cpder->add_constraint(core_ids[i], core_weights[i]);
     }
@@ -272,7 +272,7 @@ constraintid MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::introduce_at_most_on
     VeriPB::Lit sel = toVeriPbLit(selector_all_lit);
     
     VeriPB::Constraint<VeriPB::Lit, ObjCoeff, ObjConst> c(true, 1);
-    for(int i = 0; i < am1_lits.size(); i++)
+    for(size_t i = 0; i < am1_lits.size(); i++)
         c.add_literal(toVeriPbLit(am1_lits[i]));
     c.add_literal(sel);
 
@@ -283,7 +283,7 @@ constraintid MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::introduce_at_most_on
 
 
     VeriPB::Constraint<VeriPB::Lit, ObjCoeff, ObjConst> c2(true, 1);
-    for(int i = 0; i < am1_lits.size(); i++)
+    for(size_t i = 0; i < am1_lits.size(); i++)
         c2.add_literal(toVeriPbLit(neg(am1_lits[i])));
     c2.add_literal(neg(sel));
 

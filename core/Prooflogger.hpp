@@ -750,7 +750,7 @@ constraintid Prooflogger::redundance_based_strengthening(const TConstraint& cxn,
         _constraint_counter++; // constraint not C
         *proof << ": subproof \n";
     
-        for(int i = 0; i < subproofs.size(); i++){
+        for(size_t i = 0; i < subproofs.size(); i++){
             subproof p = subproofs[i];
             _constraint_counter++; // constraint C\w
             *proof << "\tproofgoal " << p.proofgoal << "\n";
@@ -801,7 +801,7 @@ constraintid Prooflogger::reification_literal_right_implication(const TLit& lit,
 #ifndef NOLIBCOMMENTS
     if(_comments){
         _comment = _varMgr->literal_to_string(lit) + " -> " ;
-        for(int i = 0; i < size(cxn); i++)
+        for(size_t i = 0; i < size(cxn); i++)
             _comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(literal(cxn,i)) + " ";
         _comment += to_string(comparison(cxn)) + " " + number_to_string(rhs(cxn));
         write_comment(_comment);
@@ -810,7 +810,7 @@ constraintid Prooflogger::reification_literal_right_implication(const TLit& lit,
 
     *proof << "red";
     if(comparison(cxn) == GEQ){
-        for(int i = 0; i < size(cxn); i++){
+        for(size_t i = 0; i < size(cxn); i++){
             auto coeff = coefficient(cxn,i);
             if(coeff < 0){
                 write_number(-coeff, proof, true);
@@ -828,7 +828,7 @@ constraintid Prooflogger::reification_literal_right_implication(const TLit& lit,
         write_number(M, proof, true);
     }
     else{
-        for(int i = 0; i < size(cxn); i++){
+        for(size_t i = 0; i < size(cxn); i++){
             auto coeff = coefficient(cxn,i);
             if(coeff < 0){
                 write_number(-coeff, proof, true);
@@ -863,7 +863,7 @@ constraintid Prooflogger::reification_literal_left_implication(const TLit& lit, 
 #ifndef NOLIBCOMMENTS
     if(_comments){
         _comment = _varMgr->literal_to_string(lit) + " <- " ;
-        for(int i = 0; i < size(cxn); i++)
+        for(size_t i = 0; i < size(cxn); i++)
             _comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(literal(cxn,i)) + " ";
         _comment += to_string(comparison(cxn)) + " " + number_to_string(rhs(cxn));
         write_comment(_comment);
@@ -872,7 +872,7 @@ constraintid Prooflogger::reification_literal_left_implication(const TLit& lit, 
 
     *proof << "red";
     if(comparison(cxn)==GEQ){
-        for(int i = 0; i < size(cxn); i++){
+        for(size_t i = 0; i < size(cxn); i++){
             auto coeff = coefficient(cxn,i);
             if(coeff < 0){
                 write_number(-coeff, proof, true);
@@ -890,7 +890,7 @@ constraintid Prooflogger::reification_literal_left_implication(const TLit& lit, 
         write_number(M, proof, true);
     }
     else{
-        for(int i = 0; i < size(cxn); i++){
+        for(size_t i = 0; i < size(cxn); i++){
             auto coeff = coefficient(cxn,i);
             if(coeff < 0){
                 write_number(-coeff, proof, true);
@@ -1080,7 +1080,7 @@ void Prooflogger::delete_constraint_by_range_of_ids(const constraintid& begin, c
 template <class TSeqCxnId>
 void Prooflogger::delete_constraints_by_ids(const TSeqCxnId& cxns){
     *proof << "del id ";
-    for(int i = 0; i < cxns.size(); i++){
+    for(size_t i = 0; i < cxns.size(); i++){
         write_number(cxns[i], proof, true);
     }
     *proof << ";\n";
@@ -1183,7 +1183,7 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
 
     TCoeff max_coeff = 0;
     TCoeff c;
-    for(int i = 0; i < size(T); i++){
+    for(size_t i = 0; i < size(T); i++){
         c = coefficient(T,i);
         if(c > max_coeff) 
             max_coeff = c;
@@ -1200,7 +1200,7 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
 #ifndef NOLIBCOMMENTS
     if(_comments){
         _comment = "Creating BinEnc for ";
-        for(int i = 0; i < size(T); i++)
+        for(size_t i = 0; i < size(T); i++)
             _comment += " " + number_to_string(coefficient(T,i)) + " " + _varMgr->literal_to_string(literal(T,i)); 
         write_comment(_comment);
     }
@@ -1212,7 +1212,7 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
 #endif
         C.clear(true, 1);
 
-        for(int i = 0; i < size(T); i++){
+        for(size_t i = 0; i < size(T); i++){
             if(coefficient(T, i) & bucket) 
                 C.add_literal(toVeriPbLit(literal(T, i)));
         }
@@ -1237,7 +1237,7 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
         C.add_literal(b_i);
 
         size_t n_bucket = 0;
-        for(int i = 0; i < size(T); i++){
+        for(size_t i = 0; i < size(T); i++){
             if(coefficient(T, i) & bucket){ 
                 C.add_literal(neg(literal(T, i)));
                 n_bucket++;
@@ -1284,7 +1284,7 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
 #ifndef NOLIBCOMMENTS
     if(_comments){
         _comment = "Binary encoding created ";
-        for(int i = 0; i < size(res.T); i++)
+        for(size_t i = 0; i < size(res.T); i++)
             _comment += " " + number_to_string(coefficient(res.T,i)) + " " + _varMgr->literal_to_string(literal(res.T,i)); 
         write_comment(_comment);
     }
@@ -1476,7 +1476,7 @@ constraintid Prooflogger::log_solution_lbools(TSeqLBool &model, wght objective_v
     VeriPB::Lit lit;
 
     *proof << "soli";
-    for (int i = 0; i < model.size(); i++){
+    for (size_t i = 0; i < model.size(); i++){
         var = toVeriPbVar(i);
         lit = create_literal(var, !toBool(model[i]));
 
@@ -1512,7 +1512,7 @@ void Prooflogger::_log_solution(const TModel& model, const std::string& log_comm
         
     *proof << log_command;
     VeriPB::Lit lit; 
-    for (int i = 0; i < model_size(model); i++){
+    for (size_t i = 0; i < model_size(model); i++){
         lit = toVeriPbLit(model_literal(model, i));
         if(only_original_variables_necessary && _varMgr->is_aux_var(variable(lit)))
             continue;
@@ -1523,7 +1523,7 @@ void Prooflogger::_log_solution(const TModel& model, const std::string& log_comm
 
 template <typename TConstraint>
 void Prooflogger::write_constraint(const TConstraint& cxn){
-    for(int i = 0; i < size(cxn); i++){
+    for(size_t i = 0; i < size(cxn); i++){
         if(coefficient(cxn,i) == 0) continue;
         write_weighted_literal(literal(cxn,i), coefficient(cxn,i));
     }
@@ -1540,7 +1540,7 @@ template <typename TClause>
 void Prooflogger::write_clause(const TClause& cxn){
     VeriPB::Lit prevlit, currentlit = lit_undef;
 
-    for(int i = 0; i < size(cxn); i++){
+    for(size_t i = 0; i < size(cxn); i++){
         prevlit = currentlit;
         currentlit = toVeriPbLit(literal(cxn, i));
 
