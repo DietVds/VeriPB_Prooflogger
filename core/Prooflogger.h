@@ -376,8 +376,8 @@ namespace VeriPB {
         // ------------- Constructor -------------
         Prooflogger(const std::string& prooffile, VarManager* varMgr);
         Prooflogger(const std::string& prooffile, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true);
-        Prooflogger(std::ostream* proof, VarManager* varMgr);
-        Prooflogger(std::ostream* proof, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true);
+        Prooflogger(std::ostream* proofstream, VarManager* varMgr);
+        Prooflogger(std::ostream* proofstream, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true);
         ~Prooflogger();
     protected:
         // ------------- Formula stream -------------

@@ -51,8 +51,8 @@ public:
     // ------------- Constructor -------------
     ProofloggerOpt(const std::string& prooffile, VarManager* varMgr);
     ProofloggerOpt(const std::string& prooffile, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true);
-    ProofloggerOpt(std::ostream* proof, VarManager* varMgr);
-    ProofloggerOpt(std::ostream* proof, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true);
+    ProofloggerOpt(std::ostream* proofstream, VarManager* varMgr);
+    ProofloggerOpt(std::ostream* proofstream, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true);
     ~ProofloggerOpt();
 private:
     // ------------- Objective function -------------

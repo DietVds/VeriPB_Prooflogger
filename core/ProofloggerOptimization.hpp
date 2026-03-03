@@ -335,13 +335,13 @@ ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(const std::string& pr
 {}
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
-ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(std::ostream* proof, VarManager* varMgr) :
-    Prooflogger(proof, varMgr)
+ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(std::ostream* proofstream, VarManager* varMgr) :
+    Prooflogger(proofstream, varMgr)
 {}
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
-ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(std::ostream* proof, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula, bool comments) :
-    Prooflogger(proof, varMgr, n_orig_constraints, keep_original_formula, comments)
+ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>::ProofloggerOpt(std::ostream* proofstream, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula, bool comments) :
+    Prooflogger(proofstream, varMgr, n_orig_constraints, keep_original_formula, comments)
 {}
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>

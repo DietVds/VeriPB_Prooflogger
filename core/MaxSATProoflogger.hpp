@@ -26,14 +26,14 @@ MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::MaxSATProoflogger(const std::stri
 {}
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
-MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::MaxSATProoflogger(std::ostream* proof, VarManagerWithVarRewriting* varMgr) :
-    ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>(proof, varMgr),
+MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::MaxSATProoflogger(std::ostream* proofstream, VarManagerWithVarRewriting* varMgr) :
+    ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>(proofstream, varMgr),
     _varMgrRewrite(varMgr)
 {}
 
 template <typename ObjLit, typename ObjCoeff, typename ObjConst>
-MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::MaxSATProoflogger(std::ostream* proof, VarManagerWithVarRewriting* varMgr, int n_orig_constraints, bool keep_original_formula, bool comments) :
-    ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>(proof, varMgr, n_orig_constraints, keep_original_formula, comments),
+MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::MaxSATProoflogger(std::ostream* proofstream, VarManagerWithVarRewriting* varMgr, int n_orig_constraints, bool keep_original_formula, bool comments) :
+    ProofloggerOpt<ObjLit, ObjCoeff, ObjConst>(proofstream, varMgr, n_orig_constraints, keep_original_formula, comments),
     _varMgrRewrite(varMgr)
 {}
 

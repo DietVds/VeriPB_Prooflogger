@@ -21,8 +21,8 @@ public:
     /// @brief Constructor of the MaxSAT prooflogger object.
     MaxSATProoflogger(const std::string& prooffile, VarManagerWithVarRewriting* varMgr);
     MaxSATProoflogger(const std::string& prooffile, VarManagerWithVarRewriting* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true);
-    MaxSATProoflogger(std::ostream* proof, VarManagerWithVarRewriting* varMgr);
-    MaxSATProoflogger(std::ostream* proof, VarManagerWithVarRewriting* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true);
+    MaxSATProoflogger(std::ostream* proofstream, VarManagerWithVarRewriting* varMgr);
+    MaxSATProoflogger(std::ostream* proofstream, VarManagerWithVarRewriting* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true);
 
     //=============================================================================================
     // Variable manager needs to allow for rewriting.
