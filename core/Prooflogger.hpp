@@ -65,6 +65,7 @@ template <class TNumber>
 void CuttingPlanesDerivation::add(const CuttingPlanesDerivation* cp_to_add, const TNumber& mult){
     assert(_pl != nullptr);
     assert(!cp_to_add->writing_directly_to_proof());
+    if(mult == 0) return;
 
     if(_write_directly_to_proof){
         *(_pl->proof) << " " << cp_to_add->toString();
@@ -109,6 +110,8 @@ void CuttingPlanesDerivation::add_subderivation(){
 template <class TNumber>
 void CuttingPlanesDerivation::add_constraint(const constraintid& cxn_id, const TNumber& mult){
     assert(_pl != nullptr);
+    if(mult == 0) return;
+
     if(_write_directly_to_proof){
         write_number(cxn_id, _pl->proof, true);
         if(mult != 1){
@@ -127,6 +130,8 @@ void CuttingPlanesDerivation::add_constraint(const constraintid& cxn_id, const T
 template <class TLit, class TNumber>
 void CuttingPlanesDerivation::add_literal_axiom(const TLit& lit_axiom, const TNumber& mult){
     assert(_pl != nullptr);
+    if(mult == 0) return;
+
     if(_write_directly_to_proof){
         _pl->_varMgr->write_literal(lit_axiom, _pl->proof, true);
         if(mult != 1){
@@ -146,6 +151,7 @@ void CuttingPlanesDerivation::add_literal_axiom(const TLit& lit_axiom, const TNu
 template <class TNumber>
 void CuttingPlanesDerivation::divide(const TNumber& n){
     assert(_pl != nullptr);
+    assert(n != 0);
     if(_write_directly_to_proof){
         write_number(n, _pl->proof, true);
         *(_pl->proof) << " d";
@@ -165,6 +171,7 @@ void CuttingPlanesDerivation::saturate(){
 template <class TNumber>
 void CuttingPlanesDerivation::multiply(const TNumber& n){
     assert(_pl != nullptr);
+    assert(n != 0);
     if(_write_directly_to_proof){
         write_number(n, _pl->proof, true);
         *(_pl->proof) << " *";
