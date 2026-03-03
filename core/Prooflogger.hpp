@@ -800,12 +800,11 @@ template <class TLit, class TConstraint>
 constraintid Prooflogger::reification_literal_right_implication(const TLit& lit, const TConstraint& cxn, const bool store_reified_constraint){
 #ifndef NOLIBCOMMENTS
     if(_comments){
-        // TODO-Dieter: Make comment a string in the PL library to not always have to take the memory again.
-        std::string comment = _varMgr->literal_to_string(lit) + " -> " ;
+        _comment = _varMgr->literal_to_string(lit) + " -> " ;
         for(int i = 0; i < size(cxn); i++)
-            comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(literal(cxn,i)) + " ";
-        comment += to_string(comparison(cxn)) + " " + number_to_string(rhs(cxn));
-        write_comment(comment);
+            _comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(literal(cxn,i)) + " ";
+        _comment += to_string(comparison(cxn)) + " " + number_to_string(rhs(cxn));
+        write_comment(_comment);
     }
 #endif
 
@@ -863,11 +862,11 @@ template <class TLit, class TConstraint>
 constraintid Prooflogger::reification_literal_left_implication(const TLit& lit, const TConstraint& cxn, const bool store_reified_constraint){
 #ifndef NOLIBCOMMENTS
     if(_comments){
-        std::string comment = _varMgr->literal_to_string(lit) + " <- " ;
+        _comment = _varMgr->literal_to_string(lit) + " <- " ;
         for(int i = 0; i < size(cxn); i++)
-            comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(literal(cxn,i)) + " ";
-        comment += to_string(comparison(cxn)) + " " + number_to_string(rhs(cxn));
-        write_comment(comment);
+            _comment += number_to_string(coefficient(cxn,i)) + " " + _varMgr->literal_to_string(literal(cxn,i)) + " ";
+        _comment += to_string(comparison(cxn)) + " " + number_to_string(rhs(cxn));
+        write_comment(_comment);
     }
 #endif
 
@@ -1200,10 +1199,10 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
 
 #ifndef NOLIBCOMMENTS
     if(_comments){
-        std::string c = "Creating BinEnc for ";
+        _comment = "Creating BinEnc for ";
         for(int i = 0; i < size(T); i++)
-            c += " " + number_to_string(coefficient(T,i)) + " " + _varMgr->literal_to_string(literal(T,i)); 
-        write_comment(c);
+            _comment += " " + number_to_string(coefficient(T,i)) + " " + _varMgr->literal_to_string(literal(T,i)); 
+        write_comment(_comment);
     }
 #endif
 
@@ -1284,10 +1283,10 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
 
 #ifndef NOLIBCOMMENTS
     if(_comments){
-        std::string c = "Binary encoding created ";
+        _comment = "Binary encoding created ";
         for(int i = 0; i < size(res.T); i++)
-            c += " " + number_to_string(coefficient(res.T,i)) + " " + _varMgr->literal_to_string(literal(res.T,i)); 
-        write_comment(c);
+            _comment += " " + number_to_string(coefficient(res.T,i)) + " " + _varMgr->literal_to_string(literal(res.T,i)); 
+        write_comment(_comment);
     }
 #endif
 
@@ -1441,8 +1440,8 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
         CuttingPlanesDerivation cp = new_cuttingplanes_derivation(true);
         cp.start_from_constraint(res.bin_leq_input);
         cp.add_constraint(UBsumCxn);
-        for(int i = 0; i < res.T.size(); i++)
-            cp.weaken(variable(literal(res.T, i)));
+        for(int k = 0; k < res.T.size(); k++)
+            cp.weaken(variable(literal(res.T, k)));
         cp.divide(coeff_carry);
         cp.multiply(coeff_carry);
         constraintid cxnCarryFalse = cp.end();

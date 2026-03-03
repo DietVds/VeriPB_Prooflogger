@@ -381,7 +381,7 @@ namespace VeriPB {
         ~Prooflogger();
     protected:
         // ------------- Variable Manager -------------
-        VarManager* _varMgr;        
+        VarManager* _varMgr;
 
         // ------------- Formula information -------------
         bool _keep_original_formula = false; // If true, the proof logging library will never delete any constraint that is an original constraint and will never move a constraint to the core set. 
@@ -403,6 +403,9 @@ namespace VeriPB {
 
         // ------------- Commenting -------------
         bool _comments=true;  //TODO: add compile definition instead
+        #ifndef NOLIBCOMMENTS
+        std::string _comment;
+        #endif
 
         // ------------- Timing -------------
 #ifndef NOVPBTIMETRACKING
