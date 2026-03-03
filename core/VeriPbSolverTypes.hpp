@@ -191,11 +191,11 @@ size_t model_size(const TSeqLit& model){
 
 template <typename TVar, typename TModel>
 VeriPB::ModelValue model_value(const TVar& var, const TModel& model, bool first_call){
-    static int i; // Uses the optimistic assumption that model_value will be called multiple times for variables that are placed in an increasing index. 
+    static size_t i; // Uses the optimistic assumption that model_value will be called multiple times for variables that are placed in an increasing index. 
     if(first_call)
         i = 0;
 
-    int start_i = i;
+    size_t start_i = i;
 
     VeriPB::Var vvar = toVeriPbVar(var);
     VeriPB::Lit vlit = toVeriPbLit(model_literal(model, i));
@@ -425,11 +425,11 @@ template <typename TLit, typename TCoeff, typename TConst>
 VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(const bool all_coeff_one) : 
     _literals(new std::vector<TLit>),
     _coefficients(nullptr),
-    _all_coeff_one(all_coeff_one),
     _constant(0),
-    _owned(true),
     _max_val(0),
-    _min_val(0)
+    _min_val(0),
+    _all_coeff_one(all_coeff_one),
+    _owned(true)
 {
     if(!all_coeff_one)
         _coefficients = new std::vector<TCoeff>();
@@ -440,10 +440,10 @@ VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(std::vector<TLit>
     _literals(lits),
     _coefficients(coeff),
     _constant(constant),
-    _all_coeff_one(false),
-    _owned(false),
     _max_val(0),
-    _min_val(0)
+    _min_val(0),
+    _all_coeff_one(false),
+    _owned(false)
 { }
 
 template <typename TLit, typename TCoeff, typename TConst>
@@ -451,10 +451,10 @@ VeriPB::LinTermBoolVars<TLit, TCoeff, TConst>::LinTermBoolVars(std::vector<TLit>
     _literals(lits),
     _coefficients(nullptr),
     _constant(constant),
-    _all_coeff_one(true),
-    _owned(false),
     _max_val(0),
-    _min_val(0)
+    _min_val(0),
+    _all_coeff_one(true),
+    _owned(false)
 { }
 
 template <typename TLit, typename TCoeff, typename TConst>
