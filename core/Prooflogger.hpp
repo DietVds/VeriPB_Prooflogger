@@ -1563,48 +1563,48 @@ void Prooflogger::write_hints(const TSeqHints& hints){
 Prooflogger::Prooflogger(const std::string& prooffile, VarManager* varMgr) :
     proof(new std::ofstream(prooffile)), 
     _proofOwned(true),
-    _varMgr(varMgr), 
     _keep_original_formula(false), 
     _n_orig_constraints(0), 
     _constraint_counter(0), 
     _found_solution(false), 
-    _comments(true),
-    _cpder(new CuttingPlanesDerivation(this, false))
+    _varMgr(varMgr), 
+    _cpder(new CuttingPlanesDerivation(this, false)),
+    _comments(true)
 { }
 
 Prooflogger::Prooflogger(const std::string& prooffile, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula, bool comments) : 
     proof(new std::ofstream(prooffile)), 
     _proofOwned(true),
-    _varMgr(varMgr), 
     _keep_original_formula(keep_original_formula), 
     _n_orig_constraints(n_orig_constraints), 
     _constraint_counter(n_orig_constraints), 
     _found_solution(false), 
-    _comments(comments),
-    _cpder(new CuttingPlanesDerivation(this, false))
+    _varMgr(varMgr), 
+    _cpder(new CuttingPlanesDerivation(this, false)),
+    _comments(comments)
 { }
 Prooflogger::Prooflogger(std::ostream* proof, VarManager* varMgr) :
     proof(proof),
     _proofOwned(false),
-    _varMgr(varMgr), 
     _keep_original_formula(false), 
     _n_orig_constraints(0), 
     _constraint_counter(0), 
     _found_solution(false), 
-    _comments(true),
-    _cpder(new CuttingPlanesDerivation(this, false))
+    _varMgr(varMgr), 
+    _cpder(new CuttingPlanesDerivation(this, false)),
+    _comments(true)
 { }
 
 Prooflogger::Prooflogger(std::ostream* proof, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula, bool comments) :
     proof(proof),
     _proofOwned(false),
-    _varMgr(varMgr), 
     _keep_original_formula(keep_original_formula), 
     _n_orig_constraints(n_orig_constraints), 
     _constraint_counter(n_orig_constraints), 
     _found_solution(false), 
-    _comments(comments),
-    _cpder(new CuttingPlanesDerivation(this, false))
+    _varMgr(varMgr), 
+    _cpder(new CuttingPlanesDerivation(this, false)),
+    _comments(comments)
 { }
 
 Prooflogger::~Prooflogger(){

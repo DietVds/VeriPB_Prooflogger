@@ -380,8 +380,11 @@ namespace VeriPB {
         Prooflogger(std::ostream* proof, VarManager* varMgr, int n_orig_constraints, bool keep_original_formula=false, bool comments=true);
         ~Prooflogger();
     protected:
-        // ------------- Variable Manager -------------
-        VarManager* _varMgr;
+        // ------------- Formula stream -------------
+        std::ostream* proof;
+        bool _proofOwned;
+        int _write_buffer_size = 32 * 1024 * 1024;
+        char* _write_buffer = new char[_write_buffer_size]; // Buffer for the proof.
 
         // ------------- Formula information -------------
         bool _keep_original_formula = false; // If true, the proof logging library will never delete any constraint that is an original constraint and will never move a constraint to the core set. 
@@ -389,12 +392,8 @@ namespace VeriPB {
         constraintid _constraint_counter = 0;
         bool _found_solution=false; // TODO: Keep track of bookkeeping of already found solution.
 
-        // ------------- Formula stream -------------
-        std::ostream* proof;
-        bool _proofOwned;
-        int _write_buffer_size = 32 * 1024 * 1024;
-        char* _write_buffer = new char[_write_buffer_size]; // Buffer for the proof.
-
+        // ------------- Variable Manager -------------
+        VarManager* _varMgr;
         
         // ------------- Cutting plane derivations -------------
         // TODO: add to the constructors.
