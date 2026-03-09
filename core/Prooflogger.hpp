@@ -521,6 +521,8 @@ constraintid Prooflogger::rup(const TConstraint& cxn, const TSeqHints& hints, co
     *proof << ":";
     write_hints(hints);
     *proof << ";\n";
+    if(core_constraint) 
+        move_to_coreset_by_id(-1);
     return ++_constraint_counter;
 }
 
