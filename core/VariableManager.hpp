@@ -69,6 +69,10 @@ VeriPB::Var VarManager::new_variable_only_in_proof(){
     return {.v=++_n_vars_only_known_in_proof, .only_known_in_proof=true};
 }
 
+void VarManager::increase_index_variable_only_in_proof(const size_t n){
+    _n_vars_only_known_in_proof += n;
+}
+
 size_t VarManager::get_number_variables_only_in_proof(){
     return _n_vars_only_known_in_proof;
 }

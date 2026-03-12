@@ -25,6 +25,7 @@ public:
 
     virtual VeriPB::Var new_variable_only_in_proof();
     virtual size_t get_number_variables_only_in_proof();
+    virtual void increase_index_variable_only_in_proof(const size_t);
 
     virtual size_t get_number_original_vars();
 
