@@ -39,6 +39,9 @@ public:
 private: 
     VeriPB::VarIdx _n_vars_only_known_in_proof=0;
     size_t _n_orig_vars = 0;
+    #ifndef NDEBUG
+    VeriPB::VarIdx _lowest_aux_var_printed = 0;
+    #endif
 };
 
 class VarManagerWithVarRewriting : public VarManager {

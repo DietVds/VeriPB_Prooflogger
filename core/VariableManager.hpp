@@ -7,6 +7,10 @@
 namespace VeriPB{
 
 void VarManager::write_var_name(const VeriPB::Var& var, std::ostream* s, bool add_prefix_space){
+    #ifndef NDEBUG
+    if(is_aux_var(var) && !var.only_known_in_proof && varidx(var) < _lowest_aux_var_printed)
+        _lowest_aux_var_printed = varidx(var);
+    #endif
     if(add_prefix_space)
         *s << ' ';
     if(var.only_known_in_proof)
@@ -19,6 +23,10 @@ void VarManager::write_var_name(const VeriPB::Var& var, std::ostream* s, bool ad
 }
 
 std::string VarManager::var_name(const VeriPB::Var& var){
+    #ifndef NDEBUG
+    if(is_aux_var(var) && !var.only_known_in_proof && varidx(var) < _lowest_aux_var_printed)
+        _lowest_aux_var_printed = varidx(var);
+    #endif
     std::string prefix;
     if(var.only_known_in_proof)
         prefix =  "_p";
@@ -57,7 +65,8 @@ void VarManager::write_var_to_bool(const VeriPB::Var& var, const bool val, std::
 }
 
 void VarManager::set_number_original_variables(size_t n){
-    assert(_n_orig_vars == 0);
+    assert(_lowest_aux_var_printed == 0 || _lowest_aux_var_printed > n);
+    assert(n >= _n_orig_vars);
     _n_orig_vars = n;
 }
 
