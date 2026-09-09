@@ -81,7 +81,7 @@ constraintid VeriPB::MaxSATProoflogger<ObjLit, ObjCoeff, ObjConst>::add_unit_cla
         witness = this->get_new_substitution();
         this->add_boolean_assignment(witness, variable(blocking_lit), is_negated(blocking_lit));
         
-        constraintid c_inverse_id = this->redundance_based_strengthening(cls, witness);
+        this->redundance_based_strengthening(cls, witness);
         this->move_to_coreset_by_id(-1);
 
         this->objective.add_literal(blocking_lit, weight_softclause);
