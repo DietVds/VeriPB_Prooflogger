@@ -164,7 +164,7 @@ VeriPB::Lit VarManagerWithVarRewriting::lit_to_rewrite_to(const VeriPB::Lit& lit
         const VeriPB::Lit lit_to_rewrite_to = is_negated(lit) ? neg((*rewriteStorage)[v.v]) : (*rewriteStorage)[v.v];
 
         if(lit_to_rewrite_to.v == v) {
-            return lit;
+            return lit_to_rewrite_to;
         }
         l = lit_to_rewrite_to;
     }
@@ -208,7 +208,7 @@ void VarManagerWithVarRewriting::write_var_to_bool(const VeriPB::Var& var, const
 
 void VarManagerWithVarRewriting::store_variable_name(const VeriPB::Var& var, const std::string& name){
     std::vector<std::string>* nameStorage = var.only_known_in_proof ? &_proofVarsNameStorage : &_solverVarsNameStorage;
-    std::vector<bool>* meaningfulnameFlag = var.only_known_in_proof ? &_onlyproofVarsSpecialNameFlag : &_solverVarsSpecialNameFlag;
+    std::vector<bool>* meaningfulnameFlag = var.only_known_in_proof ? &_proofVarsSpecialNameFlag : &_solverVarsSpecialNameFlag;
 
     // Increase storage if necessary.
     if(var.v >= nameStorage->size() && INIT_NAMESTORAGE > var.v ){
@@ -228,7 +228,7 @@ void VarManagerWithVarRewriting::store_variable_name(const VeriPB::Var& var, con
     (*nameStorage)[var.v] = name;
 }
 void VarManagerWithVarRewriting::store_rewrite_var_by_lit(const VeriPB::Var& var, const VeriPB::Lit& lit){
-    std::vector<VeriPB::Lit>* rewriteStorage = var.only_known_in_proof ? &_solverVarsRewriteStorage : &_proofVarsRewriteStorage;
+    std::vector<VeriPB::Lit>* rewriteStorage = var.only_known_in_proof ? &_proofVarsRewriteStorage : &_solverVarsRewriteStorage;
     std::vector<bool>* rewriteFlag = var.only_known_in_proof ? &_proofVarsRewriteFlag : &_solverVarsRewriteFlag;
 
     if(var.v >=  rewriteStorage->size() && INIT_NAMESTORAGE > var.v){
@@ -256,14 +256,36 @@ template <typename TVar, typename TLit> void VarManagerWithVarRewriting::store_r
     this->store_rewrite_var_by_lit(toVeriPbVar(var), toVeriPbLit(lit));
 }
 
+template <typename TVar> void VarManagerWithVarRewriting::write_var_name(const TVar& var, std::ostream* s, bool add_prefix_space){
+    this->write_var_name(toVeriPbVar(var), s, add_prefix_space);
+}
+template <typename TVar> std::string VarManagerWithVarRewriting::var_name(const TVar& var){
+    return this->var_name(toVeriPbVar(var));
+}
+template <typename TLit> void VarManagerWithVarRewriting::write_literal(const TLit& lit, std::ostream* s, bool add_prefix_space){
+    this->write_literal(toVeriPbLit(lit), s, add_prefix_space);
+}
+template <typename TLit> std::string VarManagerWithVarRewriting::literal_to_string(const TLit& lit){
+    return this->literal_to_string(toVeriPbLit(lit));
+}
+template <typename TVar, typename TLit> void VarManagerWithVarRewriting::write_var_to_lit(const TVar& var, const TLit& lit, std::ostream* s, bool write_arrow, bool add_prefix_space){
+    this->write_var_to_lit(toVeriPbVar(var), toVeriPbLit(lit), s, write_arrow, add_prefix_space);
+}
+template <typename TVar> void VarManagerWithVarRewriting::write_var_to_bool(const TVar& var, const bool b, std::ostream* s, bool write_arrow, bool add_prefix_space){
+    this->write_var_to_bool(toVeriPbVar(var), b, s, write_arrow, add_prefix_space);
+}
+template <typename TVar> bool VarManagerWithVarRewriting::is_aux_var(const TVar& var){
+    return this->is_aux_var(toVeriPbVar(var));
+}
+
 bool VarManagerWithVarRewriting::has_meaningful_name(const VeriPB::Var& var){
-    std::vector<bool>* meaningfulnameFlag = var.only_known_in_proof ? &_onlyproofVarsSpecialNameFlag : &_solverVarsSpecialNameFlag;
+    std::vector<bool>* meaningfulnameFlag = var.only_known_in_proof ? &_proofVarsSpecialNameFlag : &_solverVarsSpecialNameFlag;
 
     return var.v < meaningfulnameFlag->size() && meaningfulnameFlag->at(var.v);
 }
 
 bool VarManagerWithVarRewriting::needs_rewrite(const VeriPB::Var& var){
-    std::vector<bool>* rewriteFlag = var.only_known_in_proof ? &_solverVarsRewriteFlag : &_proofVarsRewriteFlag;
+    std::vector<bool>* rewriteFlag = var.only_known_in_proof ? &_proofVarsRewriteFlag : &_solverVarsRewriteFlag;
 
     return var.v < rewriteFlag->size() && rewriteFlag->at(var.v);
 }
