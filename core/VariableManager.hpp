@@ -274,9 +274,6 @@ template <typename TVar, typename TLit> void VarManagerWithVarRewriting::write_v
 template <typename TVar> void VarManagerWithVarRewriting::write_var_to_bool(const TVar& var, const bool b, std::ostream* s, bool write_arrow, bool add_prefix_space){
     this->write_var_to_bool(toVeriPbVar(var), b, s, write_arrow, add_prefix_space);
 }
-template <typename TVar> bool VarManagerWithVarRewriting::is_aux_var(const TVar& var){
-    return this->is_aux_var(toVeriPbVar(var));
-}
 
 bool VarManagerWithVarRewriting::has_meaningful_name(const VeriPB::Var& var){
     std::vector<bool>* meaningfulnameFlag = var.only_known_in_proof ? &_proofVarsSpecialNameFlag : &_solverVarsSpecialNameFlag;

@@ -59,7 +59,6 @@ public:
     template <typename TLit> std::string literal_to_string(const TLit&);
     template <typename TVar, typename TLit> void write_var_to_lit(const TVar&, const TLit&, std::ostream*, bool write_arrow=false, bool add_prefix_space=false);
     template <typename TVar> void write_var_to_bool(const TVar&, const bool, std::ostream*, bool write_arrow=false, bool add_prefix_space=false);
-    template <typename TVar> bool is_aux_var(const TVar&);
 
 
     void store_variable_name(const VeriPB::Var&, const std::string&);
