@@ -53,6 +53,14 @@ public:
     virtual void write_var_to_lit(const VeriPB::Var&, const VeriPB::Lit&, std::ostream*, bool write_arrow=false, bool add_prefix_space=false) override;
     virtual void write_var_to_bool(const VeriPB::Var&, const bool, std::ostream*, bool write_arrow=false, bool add_prefix_space=false) override;
 
+    template <typename TVar> void write_var_name(const TVar&, std::ostream*, bool add_prefix_space=false);
+    template <typename TVar> std::string var_name(const TVar&);
+    template <typename TLit> void write_literal(const TLit&, std::ostream*, bool add_prefix_space=false);
+    template <typename TLit> std::string literal_to_string(const TLit&);
+    template <typename TVar, typename TLit> void write_var_to_lit(const TVar&, const TLit&, std::ostream*, bool write_arrow=false, bool add_prefix_space=false);
+    template <typename TVar> void write_var_to_bool(const TVar&, const bool, std::ostream*, bool write_arrow=false, bool add_prefix_space=false);
+    template <typename TVar> bool is_aux_var(const TVar&);
+
 
     void store_variable_name(const VeriPB::Var&, const std::string&);
     void store_rewrite_var_by_lit(const VeriPB::Var&, const VeriPB::Lit&);
@@ -65,7 +73,7 @@ private:
     VeriPB::Lit lit_to_rewrite_to(const VeriPB::Lit&);
 
     std::vector<bool> _solverVarsSpecialNameFlag;
-    std::vector<bool> _onlyproofVarsSpecialNameFlag;
+    std::vector<bool> _proofVarsSpecialNameFlag;
     std::vector<std::string> _solverVarsNameStorage; 
     std::vector<std::string> _proofVarsNameStorage;
 
