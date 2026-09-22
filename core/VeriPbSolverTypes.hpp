@@ -1,6 +1,7 @@
 #include "VeriPbSolverTypes.h"
 #include <charconv>
 #include <cassert>
+#include <cstdint>
 #include <iostream>
 #include <utility>
 
@@ -64,21 +65,17 @@ TRhs min_val_lhs(const VeriPB::Constraint<TLit, TCoeff, TRhs>& cxn){
 
 template <typename TRhs, typename TConstraint>
 TRhs coeff_left_reif(const TConstraint& cxn){
-    if(comparison(cxn) == Comparison::GEQ){
+    if(comparison(cxn) == Comparison::GEQ)
         return max_val_lhs(cxn) - rhs(cxn) + 1;
-    }
-    else if(comparison(cxn) == Comparison::LEQ){
+    else  // if(comparison(cxn) == Comparison::LEQ)
         return min_val_lhs(cxn) + rhs(cxn) + 1;
-    }
 }
 template <typename TRhs, typename TConstraint>
 TRhs coeff_right_reif(const TConstraint& cxn){
-    if(comparison(cxn) == Comparison::GEQ){
+    if(comparison(cxn) == Comparison::GEQ)
         return min_val_lhs(cxn) + rhs(cxn);
-    }
-    else if(comparison(cxn) == Comparison::LEQ){
+    else // if(comparison(cxn) == Comparison::LEQ)
         return max_val_lhs(cxn) - rhs(cxn);
-    }
 }
 
 /********************
@@ -661,6 +658,11 @@ VeriPB::Constraint<TLit, TCoeff, TRhs>::~Constraint(){
 template <typename TLit>
 VeriPB::Clause<TLit>::Clause() : 
     Constraint<TLit, uint8_t, uint8_t>(true, 1, Comparison::GEQ)
+{ }
+
+template <typename TLit>
+VeriPB::Clause<TLit>::Clause(std::vector<TLit>* lits) :
+    Constraint<TLit, uint8_t, uint8_t>(lits)
 { }
 
 template <typename TLit>
