@@ -148,6 +148,7 @@ class Clause : public Constraint<TLit, uint8_t, uint8_t> {
     public:
         void clear();
         Clause();
+        Clause(std::vector<TLit>* lits);
         ~Clause();
 };
 
