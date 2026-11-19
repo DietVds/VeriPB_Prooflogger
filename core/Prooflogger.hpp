@@ -1442,7 +1442,7 @@ Prooflogger::BinaryEncodingForLinearTerm<TCoeff, TConst> Prooflogger::create_bin
         CuttingPlanesDerivation cp = new_cuttingplanes_derivation(true);
         cp.start_from_constraint(res.bin_leq_input);
         cp.add_constraint(UBsumCxn);
-        for(int k = 0; k < res.T.size(); k++)
+        for(size_t k = 0; k < res.T.size(); k++) 
             cp.weaken(variable(literal(res.T, k)));
         cp.divide(coeff_carry);
         cp.multiply(coeff_carry);

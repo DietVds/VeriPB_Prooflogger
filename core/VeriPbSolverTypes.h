@@ -105,7 +105,7 @@ enum Comparison {GEQ, LEQ};
 inline std::string to_string(const Comparison& comp){
     if(comp == Comparison::GEQ) return ">=";
     else if(comp == Comparison::LEQ) return "<=";
-    else assert(false); 
+    else { assert(false); return ""; }
 }
 
 template <typename TLit, typename TCoeff, typename TRhs>
